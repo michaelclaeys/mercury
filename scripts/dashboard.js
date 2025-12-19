@@ -11,7 +11,7 @@
  * - Fixed chart with attached price labels
  */
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'https://hedgeiq-backend.onrender.com/api';
 const REFRESH_INTERVAL = 60 * 1000; // 1 minute
 
 // State
