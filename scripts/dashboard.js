@@ -3,9 +3,8 @@
  */
 
 const API_BASE_URL = 'https://hedgeiq-backend.onrender.com/api';
-const REFRESH_INTERVAL = 60 * 1000; // 1 minute
+const REFRESH_INTERVAL = 60 * 1000;
 
-// State
 let currentAsset = 'BTC';
 let refreshTimer = null;
 let countdownTimer = null;
@@ -16,7 +15,6 @@ let dashboardData = null;
 let priceHistory = [];
 let isFirstLoad = true;
 
-// DOM Elements
 const elements = {};
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -38,7 +36,6 @@ function cacheElements() {
   elements.regimeBanner = document.getElementById('regimeBanner');
   elements.regimeValue = document.getElementById('regimeValue');
   elements.regimeDescription = document.getElementById('regimeDescription');
-  // Metrics
   elements.netGexValue = document.getElementById('netGexValue');
   elements.netGexDesc = document.getElementById('netGexDesc');
   elements.netVannaValue = document.getElementById('netVannaValue');
@@ -47,7 +44,6 @@ function cacheElements() {
   elements.netCharmDesc = document.getElementById('netCharmDesc');
   elements.maxPainValue = document.getElementById('maxPainValue');
   elements.maxPainDesc = document.getElementById('maxPainDesc');
-  // Tier info elements (if they exist)
   elements.tierBadge = document.getElementById('tierBadge');
   elements.refreshRate = document.getElementById('refreshRate');
 }
@@ -130,14 +126,14 @@ async function loadDashboardData() {
   
   isLoading = true;
   
-  // Only show loading overlay on first load
-  if (isFirstLoad) {
+  const loadingTimeout = setTimeout(() => {
     showLoading(true);
-  }
+  }, 500);
 
   try {
-    // NEW: Call the cached /dashboard endpoint
     const response = await fetch(`${API_BASE_URL}/dashboard`);
+    
+    clearTimeout(loadingTimeout);
 
     if (!response.ok) {
       throw new Error(`API returned ${response.status}`);
@@ -147,10 +143,8 @@ async function loadDashboardData() {
     
     dashboardData = data;
 
-    // Fetch price history in background (don't block)
     fetchPriceHistory();
 
-    // Update tier info if elements exist
     if (elements.tierBadge) {
       elements.tierBadge.textContent = data.tier.toUpperCase();
       elements.tierBadge.className = `tier-badge ${data.tier}`;
@@ -174,8 +168,9 @@ async function loadDashboardData() {
     isFirstLoad = false;
 
   } catch (error) {
+    clearTimeout(loadingTimeout);
     console.error('Error loading dashboard:', error);
-    showError('Failed to load data. Backend may be starting up (takes ~30 seconds on Render).');
+    showError('Failed to load data. Backend may be starting up.');
   } finally {
     isLoading = false;
     showLoading(false);
@@ -214,29 +209,26 @@ function updateMetrics(data) {
   const m = data.metrics;
   const btcPrice = data.btc_price;
   
-  // Net GEX - simplified display
   const gexPositive = m.net_gex >= 0;
   elements.netGexValue.textContent = gexPositive ? 'Positive' : 'Negative';
   elements.netGexValue.className = `metric-value ${gexPositive ? 'positive' : 'negative'}`;
   elements.netGexDesc.textContent = gexPositive ? 'Supportive environment' : 'Volatile environment';
 
-  // Net Vanna - simplified display
   const vannaPositive = m.net_vanna >= 0;
   elements.netVannaValue.textContent = vannaPositive ? 'Positive' : 'Negative';
   elements.netVannaValue.className = `metric-value ${vannaPositive ? 'positive' : 'negative'}`;
   elements.netVannaDesc.textContent = vannaPositive ? 'IV rise = bullish' : 'IV rise = bearish';
 
-  // Net Charm - simplified display
   const charmPositive = m.net_charm >= 0;
   elements.netCharmValue.textContent = charmPositive ? 'Positive' : 'Negative';
   elements.netCharmValue.className = `metric-value ${charmPositive ? 'positive' : 'negative'}`;
   elements.netCharmDesc.textContent = charmPositive ? 'Time decay bullish' : 'Time decay bearish';
 
-  // Max Pain - not in current response, use fallback
-  if (elements.maxPainValue) {
-    elements.maxPainValue.textContent = 'N/A';
+  // FIX: Actually show max pain value from backend
+  if (elements.maxPainValue && m.max_pain) {
+    elements.maxPainValue.textContent = `$${m.max_pain.toLocaleString()}`;
     elements.maxPainValue.className = 'metric-value neutral';
-    elements.maxPainDesc.textContent = 'Coming soon';
+    elements.maxPainDesc.textContent = 'Price with max loss for option sellers';
   }
 }
 
@@ -248,7 +240,6 @@ function updateLevelsTable(data) {
     return;
   }
 
-  // Sort by strength (gex_score) descending - strongest first
   const sortedSignals = [...signals].sort((a, b) => b.gex_score - a.gex_score);
 
   const rows = sortedSignals.map(signal => {
@@ -382,12 +373,10 @@ function updateChart(data) {
   const btcPrice = data.btc_price;
   const signals = data.signals;
 
-  // Get prices
   let prices = priceHistory.length > 0 
     ? priceHistory.map(p => p[1])
     : Array(100).fill(btcPrice).map((p, i) => p + (Math.random() - 0.5) * p * 0.01);
 
-  // Get top 3 resistance and support levels
   const resistanceLevels = signals.filter(s => s.type === 'resistance').slice(0, 3);
   const supportLevels = signals.filter(s => s.type === 'support').slice(0, 3);
   
@@ -407,7 +396,6 @@ function updateChart(data) {
   const priceToY = (price) => padding.top + (1 - (price - minPrice) / priceRange) * chartHeight;
   const indexToX = (index) => padding.left + (index / (prices.length - 1)) * chartWidth;
 
-  // Draw grid
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
   ctx.lineWidth = 1;
   for (let i = 0; i <= 4; i++) {
@@ -418,7 +406,6 @@ function updateChart(data) {
     ctx.stroke();
   }
 
-  // Draw resistance zones
   resistanceLevels.forEach(level => {
     const y = priceToY(level.strike);
     ctx.fillStyle = 'rgba(239, 68, 68, 0.08)';
@@ -433,7 +420,6 @@ function updateChart(data) {
     drawPriceLabel(ctx, level.strike, y, 'resistance', width, padding);
   });
 
-  // Draw support zones
   supportLevels.forEach(level => {
     const y = priceToY(level.strike);
     ctx.fillStyle = 'rgba(16, 185, 129, 0.08)';
@@ -448,7 +434,6 @@ function updateChart(data) {
     drawPriceLabel(ctx, level.strike, y, 'support', width, padding);
   });
 
-  // Draw price gradient
   const gradient = ctx.createLinearGradient(0, 0, 0, height);
   gradient.addColorStop(0, 'rgba(0, 212, 255, 0.2)');
   gradient.addColorStop(1, 'rgba(0, 212, 255, 0)');
@@ -464,7 +449,6 @@ function updateChart(data) {
   ctx.fillStyle = gradient;
   ctx.fill();
 
-  // Draw price line
   ctx.beginPath();
   ctx.moveTo(indexToX(0), priceToY(prices[0]));
   for (let i = 1; i < prices.length; i++) {
@@ -474,7 +458,6 @@ function updateChart(data) {
   ctx.lineWidth = 2.5;
   ctx.stroke();
 
-  // Draw current price dot
   const lastX = indexToX(prices.length - 1);
   const lastY = priceToY(prices[prices.length - 1]);
   
@@ -598,3 +581,8 @@ window.addEventListener('beforeunload', () => {
 window.addEventListener('resize', () => {
   if (dashboardData) updateChart(dashboardData);
 });
+```
+
+**Save this entire file to:**
+```
+C:\Users\micha\OneDrive\Desktop\hedgeiqsimple\hedgeiq-frontend\scripts\dashboard.js
