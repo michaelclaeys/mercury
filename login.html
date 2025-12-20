@@ -208,9 +208,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
-        // ⚠️ REPLACE THESE WITH YOUR ACTUAL SUPABASE CREDENTIALS
+        // ⚠️ REPLACE WITH YOUR ACTUAL SUPABASE CREDENTIALS
+        // Get these from: https://supabase.com/dashboard → Your Project → Settings → API
         const SUPABASE_URL = 'https://bjjpfvlcwarloxigoytl.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_rXjU4ZFIuQp8YCTFFCbfZg_GK3I2ToT';
+        
+        // ⚠️ THIS MUST BE THE "anon public" KEY - IT STARTS WITH eyJ AND IS VERY LONG!
+        // NOT the service_role key, NOT the sb_publishable key
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqanBmdmxjd2FybG94aWdveXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwODgyNjcsImV4cCI6MjA4MTY2NDI2N30.cIVZG4D3-SK0qJp_TgcVBO848negG6bXRCSuHk5Motk';
 
         // Initialize Supabase client
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
