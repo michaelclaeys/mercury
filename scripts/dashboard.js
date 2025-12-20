@@ -7,30 +7,30 @@ let currentUser = null;
 let userTier = 'free';
 
 async function initAuth() {
-    const session = await requireAuth(); // Redirects if not logged in
+    const session = await window.requireAuth(); // ✅ CHANGED
     if (!session) return;
-    
-    currentUser = await getCurrentUser();
-    userTier = getUserTier(currentUser);
-    
+   
+    currentUser = await window.getCurrentUser(); // ✅ CHANGED
+    userTier = window.getUserTier(currentUser); // ✅ CHANGED
+   
     // Update user email display
     const userEmailEl = document.getElementById('userEmail');
     if (userEmailEl && currentUser) {
         userEmailEl.textContent = currentUser.email;
     }
-    
+   
     // Update tier badge
     const tierBadgeEl = document.getElementById('tierBadge');
     if (tierBadgeEl) {
         tierBadgeEl.textContent = userTier.toUpperCase();
     }
-    
+   
     // Update avatar with first letter of email
     const userAvatarEl = document.getElementById('userAvatar');
     if (userAvatarEl && currentUser) {
         userAvatarEl.textContent = currentUser.email.charAt(0).toUpperCase();
     }
-    
+   
     console.log('User authenticated:', currentUser.email, '| Tier:', userTier);
 }
 
@@ -141,7 +141,7 @@ function toggleAdvancedMode() {
 
 function filterLevels(filter) {
   if (!dashboardData) return;
-  
+ 
   const filteredData = {
     ...dashboardData,
     signals: dashboardData.signals.filter(level => {
@@ -151,7 +151,7 @@ function filterLevels(filter) {
       return true;
     })
   };
-  
+ 
   if (isAdvancedMode) {
     updateAdvancedTable(filteredData);
   } else {
@@ -161,17 +161,17 @@ function filterLevels(filter) {
 
 async function loadDashboardData() {
   if (isLoading) return;
-  
+ 
   isLoading = true;
-  
+ 
   const loadingTimeout = setTimeout(() => {
     showLoading(true);
   }, 500);
 
   try {
-    // UPDATED: Use fetchWithAuth instead of fetch
-    const response = await fetchWithAuth(API_BASE_URL + '/dashboard');
-    
+    // UPDATED: Use window.fetchWithAuth instead of fetch ✅ CHANGED
+    const response = await window.fetchWithAuth(API_BASE_URL + '/dashboard');
+   
     clearTimeout(loadingTimeout);
 
     if (!response.ok) {
@@ -179,7 +179,7 @@ async function loadDashboardData() {
     }
 
     const data = await response.json();
-    
+   
     dashboardData = data;
 
     fetchPriceHistory();
@@ -194,16 +194,16 @@ async function loadDashboardData() {
 
     updateRegimeBanner(data);
     updateMetrics(data);
-    
+   
     if (isAdvancedMode) {
       updateAdvancedTable(data);
     } else {
       updateLevelsTable(data);
     }
-    
+   
     updateChart(data);
     updateLastUpdated(data.last_updated);
-    
+   
     isFirstLoad = false;
 
   } catch (error) {
@@ -236,11 +236,11 @@ async function fetchPriceHistory() {
 function updateRegimeBanner(data) {
   const netGex = data.metrics.net_gex;
   const isPositiveGamma = netGex >= 0;
-  
+ 
   elements.regimeBanner.className = 'regime-banner ' + (isPositiveGamma ? 'positive' : 'negative');
   elements.regimeValue.textContent = isPositiveGamma ? 'Positive Gamma' : 'Negative Gamma';
   elements.regimeValue.className = 'regime-value ' + (isPositiveGamma ? 'positive' : 'negative');
-  elements.regimeDescription.textContent = isPositiveGamma 
+  elements.regimeDescription.textContent = isPositiveGamma
     ? 'Dealers will buy dips and sell rips — expect mean reversion and lower volatility'
     : 'Dealers will amplify moves — expect trend continuation and higher volatility';
 }
@@ -248,7 +248,7 @@ function updateRegimeBanner(data) {
 function updateMetrics(data) {
   const m = data.metrics;
   const btcPrice = data.btc_price;
-  
+ 
   const gexPositive = m.net_gex >= 0;
   elements.netGexValue.textContent = gexPositive ? 'Positive' : 'Negative';
   elements.netGexValue.className = 'metric-value ' + (gexPositive ? 'positive' : 'negative');
@@ -273,7 +273,7 @@ function updateMetrics(data) {
 
 function updateLevelsTable(data) {
   const signals = data.signals;
-  
+ 
   if (!signals || signals.length === 0) {
     elements.levelsTableBody.innerHTML = '<div class="loading-row"><span>No signals found</span></div>';
     return;
@@ -301,7 +301,7 @@ function updateLevelsTable(data) {
 
 function getConfluenceBadges(signal) {
   const badges = ['GEX'];
-  
+ 
   if (Math.abs(signal.vanna) > 100) badges.push('Vanna');
   if (Math.abs(signal.charm) > 10) badges.push('Charm');
   if (signal.open_interest > 1000) badges.push('OI');
@@ -313,7 +313,7 @@ function getConfluenceBadges(signal) {
 function getSignalInfo(signal) {
   const score = signal.gex_score;
   const isSupport = signal.type === 'support';
-  
+ 
   if (score >= 3) {
     return {
       class: isSupport ? 'strong-buy' : 'strong-sell',
@@ -341,24 +341,24 @@ function getStrengthIndicator(score) {
   const maxDots = 5;
   const filledDots = Math.min(Math.ceil(score * 1.25), maxDots);
   const isHigh = score >= 3;
-  
+ 
   let dots = '';
   for (let i = 0; i < maxDots; i++) {
     const filled = i < filledDots ? 'filled' : '';
     const high = filled && isHigh ? 'high' : '';
     dots += '<div class="strength-dot ' + filled + ' ' + high + '"></div>';
   }
-  
+ 
   const labels = ['Low', 'Low', 'Medium', 'High', 'Very High'];
   const labelIndex = Math.min(Math.floor(score), 4);
-  
+ 
   return '<div class="strength-bar">' + dots + '</div>' +
     '<span class="strength-label">' + labels[labelIndex] + '</span>';
 }
 
 function updateAdvancedTable(data) {
   const signals = data.signals;
-  
+ 
   if (!signals || signals.length === 0) {
     elements.advancedTableBody.innerHTML = '<div class="loading-row"><span>No data found</span></div>';
     return;
@@ -393,7 +393,7 @@ function updateChart(data) {
 
   const ctx = canvas.getContext('2d');
   const container = canvas.parentElement;
-  
+ 
   canvas.width = container.clientWidth;
   canvas.height = container.clientHeight;
 
@@ -406,16 +406,16 @@ function updateChart(data) {
   const btcPrice = data.btc_price;
   const signals = data.signals;
 
-  let prices = priceHistory.length > 0 
+  let prices = priceHistory.length > 0
     ? priceHistory.map(p => p[1])
     : Array(100).fill(btcPrice).map((p, i) => p + (Math.random() - 0.5) * p * 0.01);
 
   const resistanceLevels = signals.filter(s => s.type === 'resistance').slice(0, 3);
   const supportLevels = signals.filter(s => s.type === 'support').slice(0, 3);
-  
+ 
   const allLevelPrices = [...resistanceLevels, ...supportLevels].map(s => s.strike);
   const allPrices = [...prices, ...allLevelPrices, btcPrice];
-  
+ 
   const dataMin = Math.min(...allPrices);
   const dataMax = Math.max(...allPrices);
   const rangePadding = (dataMax - dataMin) * 0.1;
@@ -493,12 +493,12 @@ function updateChart(data) {
 
   const lastX = indexToX(prices.length - 1);
   const lastY = priceToY(prices[prices.length - 1]);
-  
+ 
   ctx.beginPath();
   ctx.arc(lastX, lastY, 12, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(0, 212, 255, 0.2)';
   ctx.fill();
-  
+ 
   ctx.beginPath();
   ctx.arc(lastX, lastY, 5, 0, Math.PI * 2);
   ctx.fillStyle = '#00d4ff';
@@ -511,9 +511,9 @@ function drawPriceLabel(ctx, price, y, type, canvasWidth, padding) {
   const x = canvasWidth - padding.right + 8;
   const labelWidth = 80;
   const labelHeight = 24;
-  
+ 
   const clampedY = Math.max(labelHeight / 2, Math.min(y, ctx.canvas.height - labelHeight / 2));
-  
+ 
   let bgColor, textColor;
   if (type === 'resistance') {
     bgColor = 'rgba(239, 68, 68, 0.2)';
@@ -525,7 +525,7 @@ function drawPriceLabel(ctx, price, y, type, canvasWidth, padding) {
     bgColor = 'rgba(0, 212, 255, 0.3)';
     textColor = '#00d4ff';
   }
-  
+ 
   if (type === 'current') {
     ctx.strokeStyle = 'rgba(0, 212, 255, 0.5)';
     ctx.lineWidth = 1;
@@ -534,16 +534,16 @@ function drawPriceLabel(ctx, price, y, type, canvasWidth, padding) {
     ctx.lineTo(x, clampedY);
     ctx.stroke();
   }
-  
+ 
   ctx.fillStyle = bgColor;
   ctx.beginPath();
   ctx.roundRect(x, clampedY - labelHeight / 2, labelWidth, labelHeight, 4);
   ctx.fill();
-  
+ 
   ctx.strokeStyle = textColor;
   ctx.lineWidth = 1;
   ctx.stroke();
-  
+ 
   ctx.fillStyle = textColor;
   ctx.font = '600 12px DM Sans';
   ctx.textAlign = 'center';
@@ -554,7 +554,7 @@ function drawPriceLabel(ctx, price, y, type, canvasWidth, padding) {
 function formatCompact(num) {
   const abs = Math.abs(num);
   const sign = num >= 0 ? '+' : '-';
-  
+ 
   if (abs >= 1e9) return sign + (abs / 1e9).toFixed(1) + 'B';
   if (abs >= 1e6) return sign + (abs / 1e6).toFixed(1) + 'M';
   if (abs >= 1e3) return sign + (abs / 1e3).toFixed(1) + 'K';
