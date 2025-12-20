@@ -2,25 +2,245 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Dashboard — HedgeIQ</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles/dashboard.css">
   <style>
-    /* Smooth scroll */
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     html {
       scroll-behavior: smooth;
+      overflow-x: hidden;
     }
-    
-    /* Section spacing */
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #0a0e17;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    /* ========== SIDEBAR ========== */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100vh;
+      width: 240px;
+      background: #0f1420;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 16px;
+      z-index: 1000;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 32px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo-sigma {
+      color: #00d4ff;
+      font-size: 1.5rem;
+    }
+
+    .logo-arrow {
+      color: #a855f7;
+      font-size: 0.9rem;
+      margin-left: 2px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    .nav-item.active {
+      background: rgba(0, 212, 255, 0.1);
+      color: #00d4ff;
+    }
+
+    .sidebar-footer {
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: auto;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* FIXED AVATAR - Clean circular design */
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      border-radius: 50%;
+      background: #00d4ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: #0a0e17;
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .user-name {
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 140px;
+    }
+
+    .user-plan {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.7rem;
+    }
+
+    .sign-out-btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 8px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .sign-out-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    /* ========== MAIN CONTENT ========== */
+    .main-content {
+      margin-left: 240px;
+      padding: 24px;
+      min-height: 100vh;
+      width: calc(100% - 240px);
+      max-width: calc(100vw - 240px);
+    }
+
     .dashboard-section {
       margin-bottom: 48px;
       scroll-margin-top: 80px;
     }
-    
-    /* Gamma Profile Chart */
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .header-left h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* ========== MOBILE MENU ========== */
+    .mobile-menu-btn {
+      display: none;
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 1001;
+      background: #0f1420;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 999;
+    }
+
+    .sidebar-overlay.open {
+      display: block;
+    }
+
+    /* ========== COMPONENTS ========== */
     .gamma-chart-container {
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -31,7 +251,6 @@
       position: relative;
     }
     
-    /* Zero Gamma Strike Card */
     .zero-gamma-card {
       background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(236, 72, 153, 0.1));
       border: 1px solid rgba(168, 85, 247, 0.3);
@@ -63,10 +282,9 @@
       margin-top: 12px;
     }
     
-    /* GEX Concentration Metric */
     .concentration-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(2, 1fr);
       gap: 16px;
       margin: 24px 0;
     }
@@ -105,7 +323,6 @@
       transition: width 0.3s ease;
     }
     
-    /* Heatmap */
     .heatmap-container {
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -115,7 +332,6 @@
       height: 350px;
     }
     
-    /* Alert Cards */
     .alerts-container {
       display: grid;
       gap: 16px;
@@ -161,6 +377,7 @@
     
     .alert-content {
       flex: 1;
+      min-width: 0;
     }
     
     .alert-title {
@@ -174,7 +391,6 @@
       font-size: 0.85rem;
     }
     
-    /* Watchlist */
     .watchlist-container {
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -188,6 +404,8 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
     }
     
     .watchlist-item {
@@ -212,7 +430,6 @@
       font-size: 0.9rem;
     }
     
-    /* Settings Cards */
     .settings-grid {
       display: grid;
       gap: 24px;
@@ -241,6 +458,8 @@
       align-items: center;
       padding: 16px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      flex-wrap: wrap;
+      gap: 12px;
     }
     
     .settings-row:last-child {
@@ -288,6 +507,8 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      flex-wrap: wrap;
+      word-break: break-all;
     }
     
     .copy-btn {
@@ -299,9 +520,9 @@
       cursor: pointer;
       font-size: 0.8rem;
       font-weight: 600;
+      white-space: nowrap;
     }
 
-    /* Learning Section Styles */
     .learning-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -336,47 +557,15 @@
       margin-bottom: 16px;
     }
 
-    .learning-card-icon.gex {
-      background: rgba(0, 212, 255, 0.1);
-      border: 1px solid rgba(0, 212, 255, 0.3);
-    }
+    .learning-card-icon.gex { background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); }
+    .learning-card-icon.vanna { background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3); }
+    .learning-card-icon.charm { background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.3); }
+    .learning-card-icon.maxpain { background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); }
 
-    .learning-card-icon.vanna {
-      background: rgba(168, 85, 247, 0.1);
-      border: 1px solid rgba(168, 85, 247, 0.3);
-    }
+    .learning-card h4 { color: #fff; font-size: 1.1rem; margin-bottom: 8px; }
+    .learning-card p { color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; line-height: 1.5; }
+    .learning-card .read-more { color: #00d4ff; font-size: 0.85rem; font-weight: 600; margin-top: 12px; display: inline-block; }
 
-    .learning-card-icon.charm {
-      background: rgba(236, 72, 153, 0.1);
-      border: 1px solid rgba(236, 72, 153, 0.3);
-    }
-
-    .learning-card-icon.maxpain {
-      background: rgba(251, 191, 36, 0.1);
-      border: 1px solid rgba(251, 191, 36, 0.3);
-    }
-
-    .learning-card h4 {
-      color: #fff;
-      font-size: 1.1rem;
-      margin-bottom: 8px;
-    }
-
-    .learning-card p {
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-
-    .learning-card .read-more {
-      color: #00d4ff;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-top: 12px;
-      display: inline-block;
-    }
-
-    /* Dealer Gamma Exposure Chart */
     .dealer-gex-container {
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -390,45 +579,25 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
     }
 
-    .dealer-gex-title {
-      color: #fff;
-      font-size: 1rem;
-      font-weight: 600;
-    }
+    .dealer-gex-title { color: #fff; font-size: 1rem; font-weight: 600; }
 
     .dealer-gex-legend {
       display: flex;
       gap: 16px;
       font-size: 0.8rem;
+      flex-wrap: wrap;
     }
 
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: rgba(255, 255, 255, 0.6);
-    }
+    .legend-item { display: flex; align-items: center; gap: 6px; color: rgba(255, 255, 255, 0.6); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+    .legend-dot.positive { background: #10b981; }
+    .legend-dot.negative { background: #ef4444; }
 
-    .legend-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 2px;
-    }
-
-    .legend-dot.positive {
-      background: #10b981;
-    }
-
-    .legend-dot.negative {
-      background: #ef4444;
-    }
-
-    .dealer-gex-chart {
-      height: 300px;
-      position: relative;
-    }
+    .dealer-gex-chart { height: 300px; position: relative; }
 
     .dealer-gex-insight {
       background: rgba(168, 85, 247, 0.1);
@@ -441,20 +610,204 @@
       gap: 10px;
     }
 
-    .dealer-gex-insight span {
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 0.9rem;
+    .dealer-gex-insight span { color: rgba(255, 255, 255, 0.9); font-size: 0.9rem; }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .section-icon { font-size: 1.1rem; }
+
+    /* ========== TABLET (1024px) ========== */
+    @media (max-width: 1024px) {
+      .main-content {
+        padding: 20px;
+      }
+      
+      .gamma-chart-container,
+      .heatmap-container {
+        height: 320px;
+        padding: 16px;
+      }
+      
+      .dealer-gex-chart {
+        height: 260px;
+      }
+      
+      .concentration-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* ========== MOBILE (768px) ========== */
+    @media (max-width: 768px) {
+      .mobile-menu-btn {
+        display: flex;
+      }
+      
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+        width: 100%;
+        max-width: 100vw;
+        padding: 70px 16px 24px 16px;
+      }
+      
+      .header-left h1 {
+        font-size: 1.4rem;
+      }
+      
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .header-right {
+        width: 100%;
+      }
+      
+      .concentration-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .gamma-chart-container,
+      .heatmap-container {
+        height: 280px;
+        padding: 12px;
+      }
+      
+      .dealer-gex-chart {
+        height: 220px;
+      }
+      
+      .zero-gamma-price {
+        font-size: 1.8rem;
+      }
+      
+      .zero-gamma-card {
+        padding: 16px;
+      }
+      
+      .learning-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .learning-card {
+        padding: 16px;
+      }
+      
+      .alert-item {
+        padding: 14px;
+      }
+      
+      .alert-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+      
+      .settings-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .dealer-gex-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .dealer-gex-legend {
+        font-size: 0.7rem;
+      }
+      
+      .user-name {
+        max-width: 130px;
+      }
+    }
+
+    /* ========== SMALL MOBILE (480px) ========== */
+    @media (max-width: 480px) {
+      .main-content {
+        padding: 60px 12px 20px 12px;
+      }
+      
+      .header-left h1 {
+        font-size: 1.2rem;
+      }
+      
+      .gamma-chart-container,
+      .heatmap-container,
+      .dealer-gex-chart {
+        height: 200px;
+      }
+      
+      .zero-gamma-price {
+        font-size: 1.5rem;
+      }
+      
+      .concentration-value {
+        font-size: 1.3rem;
+      }
+      
+      .settings-card {
+        padding: 16px;
+      }
+      
+      .learning-card h4 {
+        font-size: 1rem;
+      }
+      
+      .learning-card p {
+        font-size: 0.85rem;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Mobile Menu Button -->
+  <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
   <!-- Sidebar -->
-  <aside class="sidebar">
-    <a href="index.html" class="sidebar-logo" style="text-decoration: none; color: inherit; cursor: pointer;">
+  <aside class="sidebar" id="sidebar">
+    <a href="index.html" class="sidebar-logo">
       <span class="logo-sigma">Σ</span>HedgeIQ<span class="logo-arrow">↗</span>
     </a>
     <nav class="sidebar-nav">
-      <a href="#overview" class="nav-item active">
+      <a href="#overview" class="nav-item active" onclick="closeSidebarOnMobile()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7"></rect>
           <rect x="14" y="3" width="7" height="7"></rect>
@@ -463,34 +816,34 @@
         </svg>
         Dashboard
       </a>
-      <a href="#gex-analysis" class="nav-item">
+      <a href="#gex-analysis" class="nav-item" onclick="closeSidebarOnMobile()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
         </svg>
         GEX Analysis
       </a>
-      <a href="#vanna-charm" class="nav-item">
+      <a href="#vanna-charm" class="nav-item" onclick="closeSidebarOnMobile()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"></circle>
           <path d="M12 6v6l4 2"></path>
         </svg>
         Vanna & Charm
       </a>
-      <a href="#alerts" class="nav-item">
+      <a href="#alerts" class="nav-item" onclick="closeSidebarOnMobile()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
         </svg>
         Alerts
       </a>
-      <a href="#learning" class="nav-item">
+      <a href="#learning" class="nav-item" onclick="closeSidebarOnMobile()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
           <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
         </svg>
         Learning
       </a>
-      <a href="#settings" class="nav-item">
+      <a href="#settings" class="nav-item" onclick="closeSidebarOnMobile()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="3"></circle>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -506,9 +859,7 @@
           <span class="user-plan" id="userPlan">Free Plan</span>
         </div>
       </div>
-      <button onclick="window.signOut()" style="margin-top: 12px; width: 100%; padding: 8px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
-        Sign Out
-      </button>
+      <button class="sign-out-btn" onclick="window.signOut()">Sign Out</button>
     </div>
   </aside>
 
@@ -516,7 +867,6 @@
   <main class="main-content">
     <!-- ========== OVERVIEW SECTION ========== -->
     <section id="overview" class="dashboard-section">
-      <!-- Header -->
       <header class="dashboard-header">
         <div class="header-left">
           <h1>Dashboard</h1>
@@ -550,7 +900,6 @@
         </div>
       </header>
 
-      <!-- Market Regime Banner -->
       <section class="regime-banner" id="regimeBanner">
         <div class="regime-icon">⚡</div>
         <div class="regime-content">
@@ -560,7 +909,6 @@
         <div class="regime-description" id="regimeDescription">--</div>
       </section>
 
-      <!-- Metrics Cards -->
       <section class="metrics-grid">
         <div class="metric-card">
           <div class="metric-icon gex">Γ</div>
@@ -570,7 +918,6 @@
             <span class="metric-subtext" id="netGexDesc">Loading...</span>
           </div>
         </div>
-        
         <div class="metric-card">
           <div class="metric-icon vanna">ν</div>
           <div class="metric-info">
@@ -579,7 +926,6 @@
             <span class="metric-subtext" id="netVannaDesc">Loading...</span>
           </div>
         </div>
-        
         <div class="metric-card">
           <div class="metric-icon charm">Θ</div>
           <div class="metric-info">
@@ -588,7 +934,6 @@
             <span class="metric-subtext" id="netCharmDesc">Loading...</span>
           </div>
         </div>
-        
         <div class="metric-card">
           <div class="metric-icon maxpain">◎</div>
           <div class="metric-info">
@@ -599,7 +944,6 @@
         </div>
       </section>
 
-      <!-- Chart Section -->
       <section class="chart-section">
         <div class="section-header">
           <div class="section-title">
@@ -612,13 +956,11 @@
             <button class="chart-tab" data-period="1M">1M</button>
           </div>
         </div>
-        
         <div class="chart-wrapper">
           <canvas id="priceChart"></canvas>
         </div>
       </section>
 
-      <!-- Key Levels Table - Simple Mode -->
       <section class="levels-section" id="simpleModeSection">
         <div class="section-header">
           <div class="section-title">
@@ -631,7 +973,6 @@
             <button class="filter-btn" data-filter="resistance">Resistance</button>
           </div>
         </div>
-        
         <div class="levels-table">
           <div class="table-header">
             <span>Level</span>
@@ -649,7 +990,6 @@
         </div>
       </section>
 
-      <!-- Key Levels Table - Advanced Mode -->
       <section class="levels-section" id="advancedModeSection" style="display: none;">
         <div class="section-header">
           <div class="section-title">
@@ -662,7 +1002,6 @@
             <button class="filter-btn" data-filter="resistance">Resistance</button>
           </div>
         </div>
-        
         <div class="levels-table advanced">
           <div class="table-header advanced">
             <span>Strike</span>
@@ -693,16 +1032,12 @@
         </div>
       </header>
 
-      <!-- Zero Gamma Strike -->
       <div class="zero-gamma-card">
         <h3>⚡ Zero Gamma Strike (Flip Zone)</h3>
         <div class="zero-gamma-price" id="zeroGammaStrike">Loading...</div>
-        <div class="zero-gamma-desc">
-          Most important level for day traders. Volatility expands below, compresses above.
-        </div>
+        <div class="zero-gamma-desc">Most important level for day traders. Volatility expands below, compresses above.</div>
       </div>
 
-      <!-- Absolute GEX Concentration -->
       <div class="concentration-grid">
         <div class="concentration-card">
           <div class="concentration-label">GEX Concentration at Spot</div>
@@ -718,40 +1053,28 @@
         </div>
       </div>
 
-      <!-- Dealer Gamma Exposure Bar Chart -->
       <div class="dealer-gex-container">
         <div class="dealer-gex-header">
           <div class="dealer-gex-title">● Dealer Gamma Exposure by Strike</div>
           <div class="dealer-gex-legend">
-            <div class="legend-item">
-              <div class="legend-dot positive"></div>
-              <span>Long Gamma (suppresses volatility)</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-dot negative"></div>
-              <span>Short Gamma (amplifies moves)</span>
-            </div>
+            <div class="legend-item"><div class="legend-dot positive"></div><span>Long Gamma (suppresses volatility)</span></div>
+            <div class="legend-item"><div class="legend-dot negative"></div><span>Short Gamma (amplifies moves)</span></div>
           </div>
         </div>
-        <div class="dealer-gex-chart">
-          <canvas id="dealerGexChart"></canvas>
-        </div>
+        <div class="dealer-gex-chart"><canvas id="dealerGexChart"></canvas></div>
         <div class="dealer-gex-insight">
           <span>⚡</span>
           <span id="dealerGexInsight">Loading dealer positioning insight...</span>
         </div>
       </div>
 
-      <!-- Gamma Profile Chart -->
       <div class="section-header">
         <div class="section-title">
           <span class="section-icon">📊</span>
           Gamma Profile — Call Walls & Put Walls
         </div>
       </div>
-      <div class="gamma-chart-container">
-        <canvas id="gammaProfileChart"></canvas>
-      </div>
+      <div class="gamma-chart-container"><canvas id="gammaProfileChart"></canvas></div>
     </section>
 
     <!-- ========== VANNA & CHARM SECTION ========== -->
@@ -763,38 +1086,20 @@
         </div>
       </header>
 
-      <!-- Vanna Heatmap -->
       <div class="section-header">
-        <div class="section-title">
-          <span class="section-icon">🔥</span>
-          Vanna Heatmap — IV Flow
-        </div>
+        <div class="section-title"><span class="section-icon">🔥</span>Vanna Heatmap — IV Flow</div>
       </div>
-      <div class="heatmap-container">
-        <canvas id="vannaHeatmap"></canvas>
-      </div>
+      <div class="heatmap-container"><canvas id="vannaHeatmap"></canvas></div>
 
-      <!-- Charm Decay Curve -->
       <div class="section-header">
-        <div class="section-title">
-          <span class="section-icon">⏱️</span>
-          Charm Decay Curve — Time Flow
-        </div>
+        <div class="section-title"><span class="section-icon">⏱️</span>Charm Decay Curve — Time Flow</div>
       </div>
-      <div class="gamma-chart-container">
-        <canvas id="charmCurveChart"></canvas>
-      </div>
+      <div class="gamma-chart-container"><canvas id="charmCurveChart"></canvas></div>
 
-      <!-- Spot-Volatility Correlation -->
       <div class="section-header">
-        <div class="section-title">
-          <span class="section-icon">📈</span>
-          Spot-Volatility Correlation
-        </div>
+        <div class="section-title"><span class="section-icon">📈</span>Spot-Volatility Correlation</div>
       </div>
-      <div class="gamma-chart-container">
-        <canvas id="spotVolChart"></canvas>
-      </div>
+      <div class="gamma-chart-container"><canvas id="spotVolChart"></canvas></div>
     </section>
 
     <!-- ========== ALERTS SECTION ========== -->
@@ -806,12 +1111,8 @@
         </div>
       </header>
 
-      <!-- Recent Alerts -->
       <div class="section-header">
-        <div class="section-title">
-          <span class="section-icon">🔔</span>
-          Recent Alerts
-        </div>
+        <div class="section-title"><span class="section-icon">🔔</span>Recent Alerts</div>
       </div>
       <div class="alerts-container" id="alertsContainer">
         <div class="alert-item">
@@ -837,12 +1138,8 @@
         </div>
       </div>
 
-      <!-- Custom Watchlist -->
       <div class="section-header">
-        <div class="section-title">
-          <span class="section-icon">⭐</span>
-          Custom Watchlist
-        </div>
+        <div class="section-title"><span class="section-icon">⭐</span>Custom Watchlist</div>
       </div>
       <div class="watchlist-container">
         <div class="watchlist-header">
@@ -855,18 +1152,14 @@
               <span style="color: #fff; font-weight: 600; margin-right: 12px;">$90,000</span>
               <span style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Support</span>
             </div>
-            <div>
-              <span style="color: #10b981; font-weight: 600;">HIGH</span>
-            </div>
+            <div><span style="color: #10b981; font-weight: 600;">HIGH</span></div>
           </div>
           <div class="watchlist-item">
             <div>
               <span style="color: #fff; font-weight: 600; margin-right: 12px;">$100,000</span>
               <span style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Resistance</span>
             </div>
-            <div>
-              <span style="color: rgba(255,255,255,0.6); font-weight: 600;">MEDIUM</span>
-            </div>
+            <div><span style="color: rgba(255,255,255,0.6); font-weight: 600;">MEDIUM</span></div>
           </div>
         </div>
       </div>
@@ -885,59 +1178,27 @@
         <a href="learn-gex.html" class="learning-card">
           <div class="learning-card-icon gex">Γ</div>
           <h4>Gamma Exposure (GEX)</h4>
-          <p>Learn how dealer gamma positioning creates support and resistance levels, and why price tends to "pin" at high GEX strikes.</p>
+          <p>Learn how dealer gamma positioning creates support and resistance levels.</p>
           <span class="read-more">Read Guide →</span>
         </a>
-
         <a href="learn-vanna.html" class="learning-card">
           <div class="learning-card-icon vanna">ν</div>
           <h4>Vanna Exposure</h4>
-          <p>Understand how implied volatility changes affect dealer hedging flows and create directional pressure on price.</p>
+          <p>Understand how IV changes affect dealer hedging and price direction.</p>
           <span class="read-more">Read Guide →</span>
         </a>
-
         <a href="learn-charm.html" class="learning-card">
           <div class="learning-card-icon charm">Θ</div>
           <h4>Charm (Delta Decay)</h4>
-          <p>Discover how time decay affects delta hedging and creates predictable end-of-day and expiration flows.</p>
+          <p>Discover how time decay creates predictable end-of-day flows.</p>
           <span class="read-more">Read Guide →</span>
         </a>
-
         <a href="learn-maxpain.html" class="learning-card">
           <div class="learning-card-icon maxpain">◎</div>
           <h4>Max Pain Theory</h4>
-          <p>Learn why price gravitates toward max pain near expiration and how to use it in your trading strategy.</p>
+          <p>Learn why price gravitates toward max pain near expiration.</p>
           <span class="read-more">Read Guide →</span>
         </a>
-      </div>
-
-      <div class="settings-card" style="margin-top: 24px;">
-        <h3>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-          </svg>
-          Quick Tips
-        </h3>
-        <div class="settings-row">
-          <div>
-            <div class="settings-label">Positive GEX = Mean Reversion</div>
-            <div class="settings-value">Dealers buy dips, sell rips. Expect choppy, range-bound action.</div>
-          </div>
-        </div>
-        <div class="settings-row">
-          <div>
-            <div class="settings-label">Negative GEX = Trend Continuation</div>
-            <div class="settings-value">Dealers amplify moves. Expect breakouts and trending days.</div>
-          </div>
-        </div>
-        <div class="settings-row">
-          <div>
-            <div class="settings-label">High OI Strikes = Magnets</div>
-            <div class="settings-value">Price tends to gravitate toward strikes with highest open interest near expiry.</div>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -951,7 +1212,6 @@
       </header>
 
       <div class="settings-grid">
-        <!-- Subscription Manager -->
         <div class="settings-card">
           <h3>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -977,7 +1237,6 @@
           </div>
         </div>
 
-        <!-- Data Refresh Rate -->
         <div class="settings-card">
           <h3>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1002,7 +1261,6 @@
           </div>
         </div>
 
-        <!-- API Management -->
         <div class="settings-card">
           <h3>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1043,14 +1301,26 @@
     <button class="toast-close">&times;</button>
   </div>
 
-  <!-- Load Supabase library FIRST -->
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Auth must load SECOND to use Supabase -->
   <script src="./scripts/auth.js"></script>
   <script src="./scripts/dashboard.js"></script>
   
-  <!-- Nav active state on scroll + Settings functions -->
   <script>
+    // Mobile sidebar toggle
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('open');
+    }
+
+    function closeSidebarOnMobile() {
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('open');
+      }
+    }
+
+    // Nav active state on scroll
     document.addEventListener('DOMContentLoaded', () => {
       const sections = document.querySelectorAll('.dashboard-section');
       const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
@@ -1078,16 +1348,15 @@
       const realtimeToggle = document.getElementById('realtimeToggle');
       const refreshInterval = document.getElementById('refreshInterval');
       
-      realtimeToggle.addEventListener('change', (e) => {
-        if (e.target.checked) {
-          refreshInterval.textContent = 'Every 1 minute (Real-time)';
-        } else {
-          refreshInterval.textContent = 'Every 15 minutes (Delayed)';
-        }
-      });
+      if (realtimeToggle) {
+        realtimeToggle.addEventListener('change', (e) => {
+          refreshInterval.textContent = e.target.checked 
+            ? 'Every 1 minute (Real-time)' 
+            : 'Every 15 minutes (Delayed)';
+        });
+      }
     });
     
-    // Copy API key function
     function copyApiKey() {
       const apiKey = 'hiq_sk_live_1234567890abcdef1234567890abcdef';
       navigator.clipboard.writeText(apiKey).then(() => {
