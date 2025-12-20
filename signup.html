@@ -39,14 +39,22 @@
         }
 
         .logo-image {
-            max-width: 280px;
+            max-width: 220px;
             height: auto;
             margin-bottom: 12px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            
+            /* The fix for the blue background box */
+            mix-blend-mode: screen; 
+            filter: brightness(1.1) contrast(1.1);
         }
 
         .logo-container p {
             color: rgba(255, 255, 255, 0.6);
             font-size: 14px;
+            letter-spacing: 0.5px;
         }
 
         .form-group {
@@ -185,7 +193,7 @@
 <body>
     <div class="signup-container">
         <div class="logo-container">
-            <img src="assets/hedge_iq_logo.png" onerror="this.src='hedge_iq_logo.png'" alt="HedgeIQ Logo" class="logo-image">
+            <img src="assets/hedge_iq_logo.png" alt="HedgeIQ Logo" class="logo-image">
             <p>Options Greeks Analytics</p>
         </div>
 
@@ -231,7 +239,6 @@
             const SUPABASE_URL = 'https://bjjpfvlcwarloxigoytl.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqanBmdmxjd2FybG94aWdveXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwODgyNjcsImV4cCI6MjA4MTY2NDI2N30.cIVZG4D3-SK0qJp_TgcVBO848negG6bXRCSuHk5Motk';
 
-            // Safety check to prevent "Already Declared" error
             if (!window.supabaseClient) {
                 window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             }
