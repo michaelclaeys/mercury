@@ -272,21 +272,23 @@ function updateGexAnalysisSection(data) {
   
   // Calculate Zero Gamma Strike (where GEX flips from positive to negative)
   const sortedByStrike = [...signals].sort((a, b) => a.strike - b.strike);
-  let zeroGammaStrike = btcPrice; // Default to current price
+  let zeroGammaStrike = null;
   
-  // Find where GEX changes sign near current price
+  // Find the EXACT strike where GEX flips sign
   for (let i = 0; i < sortedByStrike.length - 1; i++) {
     const current = sortedByStrike[i];
     const next = sortedByStrike[i + 1];
-    if (current.gex > 0 && next.gex < 0 && current.strike <= btcPrice && next.strike >= btcPrice) {
-      // Interpolate
-      zeroGammaStrike = (current.strike + next.strike) / 2;
+    
+    // Look for sign change
+    if ((current.gex > 0 && next.gex < 0) || (current.gex < 0 && next.gex > 0)) {
+      // Pick the strike with the SMALLER absolute GEX value (closer to zero)
+      zeroGammaStrike = Math.abs(current.gex) < Math.abs(next.gex) ? current.strike : next.strike;
       break;
     }
   }
   
-  // If no clear flip found, use the closest strike to current price
-  if (zeroGammaStrike === btcPrice && sortedByStrike.length > 0) {
+  // Fallback: if no flip found, use strike closest to current price
+  if (!zeroGammaStrike) {
     const closest = sortedByStrike.reduce((prev, curr) => 
       Math.abs(curr.strike - btcPrice) < Math.abs(prev.strike - btcPrice) ? curr : prev
     );
