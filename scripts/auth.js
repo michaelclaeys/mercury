@@ -1,16 +1,46 @@
 // scripts/auth.js
 (function() {
+    const isLocalDev = window.location.hostname === 'localhost'
+        || window.location.hostname === '127.0.0.1'
+        || window.location.protocol === 'file:';
+
+    if (isLocalDev) {
+        // Local dev mode — bypass Supabase auth entirely
+        window.requireAuth = async function() {
+            return { access_token: 'dev-token', user: { email: 'dev@local' } };
+        };
+        window.getCurrentUser = async function() {
+            return { email: 'dev@local', user_metadata: { tier: 'free' } };
+        };
+        window.getUserTier = function(user) {
+            return user?.user_metadata?.tier || 'free';
+        };
+        window.signOut = async function() {
+            window.location.href = 'login.html';
+        };
+        window.fetchWithAuth = async function(url, options = {}) {
+            return fetch(url, {
+                ...options,
+                headers: {
+                    ...(options.headers || {}),
+                    'Content-Type': 'application/json'
+                }
+            });
+        };
+        console.log('[HedgeIQ] Local dev mode — auth bypassed');
+        return;
+    }
+
+    // ── Production: Supabase auth ──
     const SUPABASE_URL = 'https://bjjpfvlcwarloxigoytl.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqanBmdmxjd2FybG94aWdveXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwODgyNjcsImV4cCI6MjA4MTY2NDI2N30.cIVZG4D3-SK0qJp_TgcVBO848negG6bXRCSuHk5Motk';
 
-    // Only create ONE global client
     if (!window.supabaseClient) {
         window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
-    
+
     const supabase = window.supabaseClient;
 
-    // Expose all functions globally
     window.requireAuth = async function requireAuth() {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
@@ -40,7 +70,7 @@
     window.fetchWithAuth = async function fetchWithAuth(url, options = {}) {
         const { data: { session } } = await supabase.auth.getSession();
         const token = session?.access_token;
-        
+
         return fetch(url, {
             ...options,
             headers: {

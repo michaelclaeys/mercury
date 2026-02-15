@@ -49,7 +49,9 @@ async function initAuth() {
 }
 
 // ========== CONFIGURATION ==========
-const API_BASE_URL = 'https://hedgeiq-backend.onrender.com/api';
+const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
+    ? 'http://localhost:8000/api'
+    : 'https://hedgeiq-backend.onrender.com/api';
 const REFRESH_INTERVAL = 60 * 1000;
 
 let currentAsset = 'BTC';
