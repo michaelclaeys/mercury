@@ -3,560 +3,505 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HedgeIQ — Discover Options Flow That Moves Markets</title>
+  <title>Mercury — Options Intelligence Terminal</title>
+  <meta name="description" content="Liquid intelligence for the next generation of traders. Institutional-grade options analytics, automated trading, and market intelligence.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
-  
-  <!-- Your Styles -->
-  <link rel="stylesheet" href="./styles/variables.css">
-  <link rel="stylesheet" href="./styles/main.css">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
 </head>
-<body>
-  <!-- Navigation -->
-  <nav>
-    <div class="nav-container">
-      <a href="#" class="logo">
-        <span class="logo-sigma">Σ</span>HedgeIQ<span class="logo-arrow">↗</span>
-      </a>
-      <ul class="nav-links">
-        <li><a href="#greeks">Greeks</a></li>
-        <li><a href="#features">Features</a></li>
-        <li><a href="#pricing">Pricing</a></li>
-        <li><a href="#docs">API Docs</a></li>
-      </ul>
-      <div class="nav-cta">
-        <a href="login.html" class="btn btn-ghost">Sign In</a>
-        <a href="login.html" class="btn btn-primary">Start Free Trial</a>
+<body class="intro-active">
+
+  <!-- ─── INTRO OVERLAY ───────────────────────────────── -->
+  <div class="intro" id="intro">
+    <canvas id="galaxyCanvas"></canvas>
+    <div class="intro-center">
+      <div class="intro-logo" id="introLogo">
+        <svg viewBox="0 0 100 100" fill="none">
+          <circle class="intro-core" cx="50" cy="50" r="6"/>
+          <ellipse class="intro-orbit" cx="50" cy="50" rx="40" ry="14" transform="rotate(30 50 50)"/>
+          <ellipse class="intro-orbit" cx="50" cy="50" rx="40" ry="14" transform="rotate(-30 50 50)"/>
+          <ellipse class="intro-orbit" cx="50" cy="50" rx="40" ry="14" transform="rotate(90 50 50)"/>
+        </svg>
       </div>
-      <button class="mobile-menu-btn">☰</button>
+      <div class="intro-brand" id="introBrand">Mercury</div>
+      <div class="intro-textline" id="introTextline">
+        <span class="intro-prefix">Built for </span><span class="intro-word" id="introWord">traders</span>
+      </div>
+    </div>
+    <div class="intro-skip" id="introSkip">Click anywhere to skip</div>
+  </div>
+
+  <!-- ─── NAVBAR ──────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="#" class="navbar-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="3"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+        </svg>
+        Mercury
+      </a>
+      <ul class="navbar-links">
+        <li><a href="#suite">Suite</a></li>
+        <li><a href="#analytics">Analytics</a></li>
+        <li><a href="#architect">Architect</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+      </ul>
+      <div class="navbar-actions">
+        <a href="/dashboard.html" class="btn">Sign In</a>
+        <a href="/dashboard.html" class="btn btn-primary">Launch</a>
+      </div>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </nav>
 
-  <!-- Mobile Menu -->
   <div class="mobile-menu" id="mobileMenu">
-    <button class="mobile-menu-close">×</button>
-    <a href="#greeks">Greeks</a>
-    <a href="#features">Features</a>
+    <a href="#suite">Suite</a>
+    <a href="#analytics">Analytics</a>
+    <a href="#architect">Architect</a>
     <a href="#pricing">Pricing</a>
-    <a href="#docs">API Docs</a>
-    <a href="#" class="btn btn-primary">Start Free Trial</a>
+    <a href="/dashboard.html">Sign In</a>
+    <a href="/dashboard.html">Launch Dashboard</a>
   </div>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-grid"></div>
-    <div class="hero-content">
-      <div class="hero-badge">
-        <span>Now tracking Bitcoin & ETH options</span>
+  <!-- ─── TICKER ──────────────────────────────────────── -->
+  <div class="ticker">
+    <div class="ticker-track">
+      <span class="ticker-item"><span class="sym">BTC</span> $97,420 <span class="up">+2.4%</span></span>
+      <span class="ticker-item"><span class="sym">ETH</span> $3,841 <span class="up">+1.8%</span></span>
+      <span class="ticker-item"><span class="sym">NET GEX</span> <span class="up">+$14.2M</span></span>
+      <span class="ticker-item"><span class="sym">VANNA</span> <span class="dn">-$8.7M</span></span>
+      <span class="ticker-item"><span class="sym">CHARM</span> <span class="up">+$3.1M</span></span>
+      <span class="ticker-item"><span class="sym">GEX FLIP</span> $96,800</span>
+      <span class="ticker-item"><span class="sym">MAX PAIN</span> $97,000</span>
+      <span class="ticker-item"><span class="sym">IV RANK</span> 62%</span>
+      <span class="ticker-item"><span class="sym">P/C RATIO</span> 0.84</span>
+      <span class="ticker-item"><span class="sym">SOL</span> $198.40 <span class="up">+3.1%</span></span>
+      <span class="ticker-item"><span class="sym">TOTAL OI</span> $4.8B</span>
+      <span class="ticker-item"><span class="sym">24H VOL</span> $2.1B</span>
+      <!-- duplicate for seamless loop -->
+      <span class="ticker-item"><span class="sym">BTC</span> $97,420 <span class="up">+2.4%</span></span>
+      <span class="ticker-item"><span class="sym">ETH</span> $3,841 <span class="up">+1.8%</span></span>
+      <span class="ticker-item"><span class="sym">NET GEX</span> <span class="up">+$14.2M</span></span>
+      <span class="ticker-item"><span class="sym">VANNA</span> <span class="dn">-$8.7M</span></span>
+      <span class="ticker-item"><span class="sym">CHARM</span> <span class="up">+$3.1M</span></span>
+      <span class="ticker-item"><span class="sym">GEX FLIP</span> $96,800</span>
+      <span class="ticker-item"><span class="sym">MAX PAIN</span> $97,000</span>
+      <span class="ticker-item"><span class="sym">IV RANK</span> 62%</span>
+      <span class="ticker-item"><span class="sym">P/C RATIO</span> 0.84</span>
+      <span class="ticker-item"><span class="sym">SOL</span> $198.40 <span class="up">+3.1%</span></span>
+      <span class="ticker-item"><span class="sym">TOTAL OI</span> $4.8B</span>
+      <span class="ticker-item"><span class="sym">24H VOL</span> $2.1B</span>
+    </div>
+  </div>
+
+  <!-- ─── DATA HELIX (right side, JS-driven) ──────────── -->
+  <div class="data-helix" id="dataHelix">
+    <div class="data-helix-track" id="helixTrack"></div>
+  </div>
+
+  <!-- ─── HUB ("Where to?") ───────────────────────────── -->
+  <section class="hub" id="hub">
+    <div class="hub-grid-bg"></div>
+
+    <!-- Hub view (first visit) -->
+    <div class="container hub-content" id="hubView">
+      <div class="term-init" id="hubInit">
+        <div class="term-line" data-delay="0">> mercury.init()</div>
+        <div class="term-line" data-delay="300">> loading gex_engine <span class="term-dots">................</span> <span class="term-ok">OK</span></div>
+        <div class="term-line" data-delay="600">> loading architect_nodes <span class="term-dots">...........</span> <span class="term-ok">OK</span></div>
+        <div class="term-line" data-delay="900">> loading live_feeds <span class="term-dots">...............</span> <span class="term-ok">OK</span></div>
+        <div class="term-line" data-delay="1200">> status: <span class="term-ok">all systems operational</span></div>
+        <div class="term-line" data-delay="1500">> motto: liquid intelligence for the next generation of traders_</div>
       </div>
-      <h1 class="hero-title">
-        Discover <span class="highlight">Options Flow</span><br>
-        That Moves Markets
-      </h1>
-      <p class="hero-subtitle">
-        Real-time Greeks analytics for crypto options. Understand dealer positioning, 
-        GEX levels, and market dynamics before they move price.
-      </p>
-      <div class="hero-cta">
-        <a href="login.html" class="btn btn-primary btn-large">Start Free Trial</a>
-        <a href="dashboard.html" class="btn btn-secondary btn-large">View Live Demo</a>
+      <h1 class="hub-heading" id="hubHeading">Where to?</h1>
+      <p class="hub-sub" id="hubSub">Select a module to explore.</p>
+
+      <div class="hub-panels" id="hubPanels">
+        <a class="hub-panel" href="#analytics">
+          <div class="hub-panel-num">01</div>
+          <div class="hub-panel-visual" id="hubVisual1"></div>
+          <span class="hub-panel-status hub-panel-status--live">Live <span class="status-pulse"></span></span>
+          <div class="hub-panel-title">Analytics</div>
+          <div class="hub-panel-desc">Real-time GEX profiles, vanna/charm exposure, gamma field heatmaps, IV surface analysis. See where dealers are hedging.</div>
+          <div class="hub-panel-arrow">> Enter ———</div>
+        </a>
+        <a class="hub-panel" href="#architect">
+          <div class="hub-panel-num">02</div>
+          <div class="hub-panel-visual" id="hubVisual2"></div>
+          <span class="hub-panel-status hub-panel-status--soon">Coming Soon</span>
+          <div class="hub-panel-title">Architect</div>
+          <div class="hub-panel-desc">Visual node-based strategy builder. Wire triggers to conditions to execution. Backtest against historical GEX and flow data.</div>
+          <div class="hub-panel-arrow">> Enter ———</div>
+        </a>
+        <a class="hub-panel" href="#live">
+          <div class="hub-panel-num">03</div>
+          <div class="hub-panel-visual" id="hubVisual3"></div>
+          <span class="hub-panel-status hub-panel-status--live">Live <span class="status-pulse"></span></span>
+          <div class="hub-panel-title">Live Management</div>
+          <div class="hub-panel-desc">Monitor positions, execution, and risk in real-time. Live price feeds, ticking greeks, and GEX exposure bars updating continuously.</div>
+          <div class="hub-panel-arrow">> Enter ———</div>
+        </a>
       </div>
-      
-      <div class="hero-visual">
-        <div class="dashboard-preview">
-          <div class="dashboard-header">
-            <div class="dashboard-dot dot-red"></div>
-            <div class="dashboard-dot dot-yellow"></div>
-            <div class="dashboard-dot dot-green"></div>
-            <span style="margin-left: auto; font-size: 0.8rem; color: var(--text-muted);">HedgeIQ Dashboard — BTC/USD</span>
+    </div>
+
+    <!-- Info view (shown on return to top) -->
+    <div class="container hub-content hub-info" id="hubInfoView">
+      <div class="term-init term-init--info" id="infoInit">
+        <div class="term-line" data-delay="0">> mercury.resume()</div>
+        <div class="term-line" data-delay="300">> session: <span class="term-ok">active</span></div>
+        <div class="term-line" data-delay="600">> uptime: continuous</div>
+      </div>
+      <div class="hub-info-label">// Mercury</div>
+      <h1 class="hub-info-headline">Liquid intelligence for<br>the next generation of traders.</h1>
+      <div class="hub-info-words">
+        <span class="hub-info-word">traders</span>
+        <span class="hub-info-word">vision</span>
+        <span class="hub-info-word">precision</span>
+        <span class="hub-info-word">alpha</span>
+        <span class="hub-info-word">speed</span>
+        <span class="hub-info-word">insight</span>
+        <span class="hub-info-word">conviction</span>
+        <span class="hub-info-word">edge</span>
+      </div>
+      <div class="hub-info-ctas">
+        <a href="/dashboard.html" class="btn btn-primary">Launch Terminal</a>
+        <a href="#suite" class="btn">Explore Suite</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── METRICS BAR ─────────────────────────────────── -->
+  <div class="metrics-bar">
+    <div class="metrics-grid">
+      <div class="metric-cell">
+        <div class="metric-value" data-count="100000" data-suffix="+">0</div>
+        <div class="metric-label">Data Points</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-value" data-count="50" data-prefix="<" data-suffix="ms">0</div>
+        <div class="metric-label">Latency</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-value" data-count="247" data-suffix="">0</div>
+        <div class="metric-label">24/7 Coverage</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-value" data-count="5" data-suffix="">0</div>
+        <div class="metric-label">Greeks Tracked</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── LIVE TERMINAL ───────────────────────────────── -->
+  <section class="live-section" id="live">
+    <div class="container">
+      <div class="section-label">Live Preview</div>
+    </div>
+    <div class="container">
+      <div class="terminal-window reveal">
+        <div class="terminal-titlebar">
+          <span class="terminal-title">Mercury Terminal — BTC/USD</span>
+          <div class="terminal-status">
+            <span>LIVE</span>
+            <span class="status-dot"></span>
           </div>
-          <div class="dashboard-content">
-            <div class="metric-card">
-              <div class="metric-label">Net GEX</div>
-              <div class="metric-value positive">+$2.4B</div>
-              <div class="metric-change">↑ 12.4% from yesterday</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Vanna Exposure</div>
-              <div class="metric-value negative">-$890M</div>
-              <div class="metric-change">Bearish pressure building</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Key Strike</div>
-              <div class="metric-value neutral">$98,000</div>
-              <div class="metric-change">Highest gamma concentration</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Charm Flow</div>
-              <div class="metric-value positive">+$156M</div>
-              <div class="metric-change">Delta decay favoring bulls</div>
-            </div>
+        </div>
+        <div class="terminal-body">
+          <div class="terminal-chart">
+            <canvas id="liveChart"></canvas>
           </div>
-          
-          <!-- Key Levels Chart -->
-          <div class="dashboard-chart-section">
-            <div class="chart-header">
-              <div class="chart-title">
-                <span class="chart-icon">📊</span>
-                Key Levels & Confluences
-              </div>
-              <div class="chart-tabs">
-                <span class="chart-tab active">1D</span>
-                <span class="chart-tab">1W</span>
-                <span class="chart-tab">1M</span>
-              </div>
+          <div class="terminal-sidebar">
+            <div class="terminal-metric">
+              <div class="terminal-metric-label">BTC Price</div>
+              <div class="terminal-metric-value" id="liveBtcPrice">$97,420</div>
             </div>
-            
-            <div class="chart-container">
-              <svg class="price-chart" viewBox="0 0 800 200" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style="stop-color:rgba(0,212,255,0.3)"/>
-                    <stop offset="100%" style="stop-color:rgba(0,212,255,0)"/>
-                  </linearGradient>
-                  <linearGradient id="resistanceGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:transparent"/>
-                    <stop offset="50%" style="stop-color:rgba(239,68,68,0.3)"/>
-                    <stop offset="100%" style="stop-color:transparent"/>
-                  </linearGradient>
-                  <linearGradient id="supportGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:transparent"/>
-                    <stop offset="50%" style="stop-color:rgba(16,185,129,0.3)"/>
-                    <stop offset="100%" style="stop-color:transparent"/>
-                  </linearGradient>
-                </defs>
-                
-                <rect x="0" y="20" width="800" height="25" fill="url(#resistanceGradient)"/>
-                <line x1="0" y1="32" x2="800" y2="32" stroke="#ef4444" stroke-width="1" stroke-dasharray="5,5" opacity="0.6"/>
-                
-                <rect x="0" y="155" width="800" height="25" fill="url(#supportGradient)"/>
-                <line x1="0" y1="168" x2="800" y2="168" stroke="#10b981" stroke-width="1" stroke-dasharray="5,5" opacity="0.6"/>
-                
-                <path d="M0,120 Q100,130 150,100 T300,90 T450,110 T550,70 T700,85 T800,60 L800,200 L0,200 Z" fill="url(#chartGradient)"/>
-                
-                <path d="M0,120 Q100,130 150,100 T300,90 T450,110 T550,70 T700,85 T800,60" 
-                      fill="none" stroke="#00d4ff" stroke-width="2.5"/>
-                
-                <circle cx="800" cy="60" r="5" fill="#00d4ff"/>
-                <circle cx="800" cy="60" r="8" fill="none" stroke="#00d4ff" stroke-width="1" opacity="0.5">
-                  <animate attributeName="r" values="8;14;8" dur="2s" repeatCount="indefinite"/>
-                  <animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite"/>
-                </circle>
-              </svg>
-              
-              <div class="chart-price-labels">
-                <span class="price-label resistance">$102,500</span>
-                <span class="price-label current">$99,847</span>
-                <span class="price-label support">$94,000</span>
-              </div>
+            <div class="terminal-metric">
+              <div class="terminal-metric-label">Net GEX</div>
+              <div class="terminal-metric-value" id="liveNetGex">+$14.2M</div>
             </div>
-            
-            <div class="levels-table">
-              <div class="levels-header">
-                <span>Level</span>
-                <span>Type</span>
-                <span>Confluence</span>
-                <span>Signal</span>
-              </div>
-              <div class="level-row">
-                <span class="level-price">$102,500</span>
-                <span class="level-type resistance-tag">Resistance</span>
-                <span class="level-confluence">
-                  <span class="conf-badge">GEX</span>
-                  <span class="conf-badge">Vanna</span>
-                  <span class="conf-badge">OI</span>
-                </span>
-                <span class="level-signal sell">Strong Sell Zone</span>
-              </div>
-              <div class="level-row">
-                <span class="level-price">$100,000</span>
-                <span class="level-type pivot-tag">Pivot</span>
-                <span class="level-confluence">
-                  <span class="conf-badge">GEX</span>
-                  <span class="conf-badge">Psych</span>
-                </span>
-                <span class="level-signal neutral">Dealer Flip Zone</span>
-              </div>
-              <div class="level-row">
-                <span class="level-price">$98,000</span>
-                <span class="level-type support-tag">Support</span>
-                <span class="level-confluence">
-                  <span class="conf-badge">Gamma</span>
-                  <span class="conf-badge">Charm</span>
-                </span>
-                <span class="level-signal buy">Buy Zone Active</span>
-              </div>
-              <div class="level-row">
-                <span class="level-price">$94,000</span>
-                <span class="level-type support-tag">Major Support</span>
-                <span class="level-confluence">
-                  <span class="conf-badge">GEX</span>
-                  <span class="conf-badge">Vanna</span>
-                  <span class="conf-badge">Vol</span>
-                </span>
-                <span class="level-signal buy">Strong Buy Zone</span>
-              </div>
+            <div class="terminal-metric">
+              <div class="terminal-metric-label">Vanna Exposure</div>
+              <div class="terminal-metric-value" id="liveVanna">-$8.7M</div>
             </div>
+            <div class="terminal-metric">
+              <div class="terminal-metric-label">GEX Flip</div>
+              <div class="terminal-metric-value" id="liveFlip">$96,800</div>
+            </div>
+            <div class="terminal-bars" id="liveGexBars"></div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Institutional Edge Section -->
-  <section class="institutional-section">
-    <div class="inst-bg"></div>
-    <div class="section-container">
-      <div class="inst-content reveal">
-        <div class="inst-text">
-          <div class="inst-label">Institutional Edge</div>
-          <h2 class="inst-title">See where market makers <span class="highlight">HAVE</span> to push price</h2>
-          <p class="inst-desc">
-            Dealers must hedge. When they're short gamma, they amplify moves. When they're long, they suppress them. 
-            Stack GEX with Vanna, Theta, and confluences to front-run their forced positioning.
-          </p>
-          <div class="inst-points">
-            <div class="inst-point">
-              <span class="inst-point-icon">◆</span>
-              <span>Identify forced hedging zones before they trigger</span>
-            </div>
-            <div class="inst-point">
-              <span class="inst-point-icon">◆</span>
-              <span>Spot volatility compression & expansion setups</span>
-            </div>
-            <div class="inst-point">
-              <span class="inst-point-icon">◆</span>
-              <span>Stack confluences across Greeks for high-probability levels</span>
-            </div>
+  <!-- ─── MERCURY SUITE ───────────────────────────────── -->
+  <section class="suite-section" id="suite">
+    <div class="container">
+      <div class="section-label">Mercury Suite</div>
+      <div class="suite-grid reveal reveal-stagger">
+        <div class="suite-cell">
+          <span class="suite-status suite-status--live">Live</span>
+          <div class="suite-title">Analytics</div>
+          <div class="suite-desc">Real-time GEX profiles, vanna/charm exposure, gamma field heatmaps, and IV surface analysis across every strike and expiry.</div>
+        </div>
+        <div class="suite-cell">
+          <span class="suite-status suite-status--soon">Soon</span>
+          <div class="suite-title">Architect</div>
+          <div class="suite-desc">Visual node-based bot builder. Wire triggers, conditions, and execution blocks. Backtest on historical data. Deploy in one click.</div>
+        </div>
+        <div class="suite-cell">
+          <span class="suite-status suite-status--soon">Soon</span>
+          <div class="suite-title">Signals</div>
+          <div class="suite-desc">AI-driven trade alerts based on greek confluences, unusual flow detection, and vol surface anomalies. Delivered in real-time.</div>
+        </div>
+        <div class="suite-cell">
+          <span class="suite-status suite-status--soon">Soon</span>
+          <div class="suite-title">API</div>
+          <div class="suite-desc">RESTful and WebSocket endpoints for GEX, vanna, charm, IV, and full options chain data. Sub-50ms response times.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ANALYTICS DEEP DIVE ─────────────────────────── -->
+  <section class="deep-section" id="analytics">
+    <div class="container">
+      <div class="section-label">Mercury Analytics</div>
+      <div class="deep-grid">
+        <div class="deep-mockup reveal" id="analyticsMockup">
+          <div class="deep-mockup-bar">
+            <span>GEX Profile — BTC 28 Feb</span>
+            <span>LIVE</span>
           </div>
-          <a href="#" class="btn btn-primary btn-large">Start Free Trial</a>
-          
-          <div class="inst-stats">
-            <div class="inst-stat">
-              <span class="inst-stat-value">5min</span>
-              <span class="inst-stat-label">Update Frequency</span>
-            </div>
-            <div class="inst-stat">
-              <span class="inst-stat-value">&lt;100ms</span>
-              <span class="inst-stat-label">API Latency</span>
-            </div>
+          <div class="deep-mockup-body">
+            <svg viewBox="0 0 400 180" width="100%" style="margin-bottom:1rem">
+              <line x1="0" y1="90" x2="400" y2="90" stroke="#1a1a1a" stroke-width="1"/>
+              <line x1="0" y1="45" x2="400" y2="45" stroke="#111" stroke-width="0.5" stroke-dasharray="4 4"/>
+              <line x1="0" y1="135" x2="400" y2="135" stroke="#111" stroke-width="0.5" stroke-dasharray="4 4"/>
+              <path class="mock-path" d="M0,140 C30,138 60,130 90,110 C120,90 140,60 170,40 C200,20 220,25 250,50 C280,75 300,100 330,120 C360,140 380,145 400,148"/>
+              <path class="mock-path mock-path--dim" d="M0,100 C40,95 80,85 120,80 C160,75 200,90 240,100 C280,110 320,105 360,100 L400,98"/>
+            </svg>
+            <div class="mock-row"><span class="k">NET GEX</span><span class="v">+$14.2M</span></div>
+            <div class="mock-row"><span class="k">MAX GAMMA</span><span class="v">$97,000</span></div>
+            <div class="mock-row"><span class="k">GEX FLIP</span><span class="v">$96,800</span></div>
+            <div class="mock-row"><span class="k">DEALER BIAS</span><span class="v">LONG GAMMA</span></div>
+            <div class="mock-row"><span class="k">REGIME</span><span class="v">PINNING</span></div>
           </div>
         </div>
-        <div class="inst-visual">
-          <div class="inst-card">
-            <div class="inst-card-header">
-              <span class="inst-card-dot"></span>
-              <span>Dealer Gamma Exposure by Strike</span>
-            </div>
-            <div class="chart-legend">
-              <div class="legend-item">
-                <span class="legend-color positive"></span>
-                <span>Long Gamma (suppresses volatility)</span>
-              </div>
-              <div class="legend-item">
-                <span class="legend-color negative"></span>
-                <span>Short Gamma (amplifies moves)</span>
-              </div>
-            </div>
-            <div class="inst-chart">
-              <div class="gamma-bar negative" style="--height: 60%;">
-                <span class="gamma-label">$94K</span>
-                <span class="gamma-value">-$1.2B</span>
-              </div>
-              <div class="gamma-bar negative" style="--height: 40%;">
-                <span class="gamma-label">$96K</span>
-                <span class="gamma-value">-$800M</span>
-              </div>
-              <div class="gamma-bar positive" style="--height: 30%;">
-                <span class="gamma-label">$98K</span>
-                <span class="gamma-value">+$600M</span>
-              </div>
-              <div class="gamma-bar positive current" style="--height: 85%;">
-                <span class="gamma-label">$100K</span>
-                <span class="gamma-value">+$2.4B</span>
-                <span class="current-tag">Current</span>
-              </div>
-              <div class="gamma-bar positive" style="--height: 50%;">
-                <span class="gamma-label">$102K</span>
-                <span class="gamma-value">+$1.1B</span>
-              </div>
-              <div class="gamma-bar negative" style="--height: 70%;">
-                <span class="gamma-label">$104K</span>
-                <span class="gamma-value">-$1.5B</span>
-              </div>
-            </div>
-            <div class="inst-card-footer">
-              <div class="inst-insight">
-                <span class="insight-icon">⚡</span>
-                <span>Price below $98K = amplified selloff. Above $102K = breakout fuel.</span>
-              </div>
-            </div>
+        <div class="deep-features reveal">
+          <div class="deep-feature">
+            <div class="deep-feature-title">Real-Time GEX Profiles</div>
+            <div class="deep-feature-desc">Dollar-gamma exposure mapped across every strike. See where dealers are hedging and where price is magnetized.</div>
+          </div>
+          <div class="deep-feature">
+            <div class="deep-feature-title">Vanna &amp; Charm Analysis</div>
+            <div class="deep-feature-desc">Second-order greek flows that move markets overnight. Track how IV changes and time decay shift dealer positioning.</div>
+          </div>
+          <div class="deep-feature">
+            <div class="deep-feature-title">Gamma Field Heatmap</div>
+            <div class="deep-feature-desc">Interpolated gamma exposure across strike and expiry dimensions. Identify support/resistance zones the options market is pricing in.</div>
+          </div>
+          <div class="deep-feature">
+            <div class="deep-feature-title">Session Replay</div>
+            <div class="deep-feature-desc">Scrub backwards through the session. See how GEX profiles evolved intraday. Study how greek shifts preceded price moves.</div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Greeks Section -->
-  <section class="greeks-section" id="greeks">
-    <div class="greeks-bg"></div>
-    <div class="section-container">
-      <div class="section-header reveal">
-        <div class="section-label">The Greeks</div>
-        <h2 class="section-title">Institutional-Grade Analytics</h2>
-        <p class="section-subtitle">
-          The same options Greeks models used by top prop trading firms, 
-          now available for crypto markets.
-        </p>
-      </div>
-      
-      <div class="greeks-grid">
-        <div class="greek-card reveal">
-          <div class="greek-symbol">Γ</div>
-          <div class="greek-name">Gamma (GEX)</div>
-          <div class="greek-desc">Measure dealer gamma exposure to identify key support and resistance levels where hedging flows accelerate.</div>
-        </div>
-        <div class="greek-card reveal">
-          <div class="greek-symbol">ν</div>
-          <div class="greek-name">Vanna</div>
-          <div class="greek-desc">Analyze how changes in implied volatility affect delta, revealing hidden momentum in volatility regimes.</div>
-        </div>
-        <div class="greek-card reveal">
-          <div class="greek-symbol">Θ</div>
-          <div class="greek-name">Theta</div>
-          <div class="greek-desc">Understand time decay effects on delta to anticipate hedging flows as options approach expiration.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Features Section -->
-  <section class="features-section" id="features">
-    <div class="section-container">
-      <div class="section-header reveal">
-        <div class="section-label">Features</div>
-        <h2 class="section-title">Built for Serious Traders</h2>
-        <p class="section-subtitle">
-          Everything you need to understand options-driven market dynamics.
-        </p>
-      </div>
-      
-      <div class="features-grid">
-        <div class="feature-card reveal">
-          <div class="feature-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+  <!-- ─── ARCHITECT DEEP DIVE ─────────────────────────── -->
+  <section class="deep-section" id="architect">
+    <div class="container">
+      <div class="section-label">Mercury Architect</div>
+      <div class="deep-grid deep-grid--reverse">
+        <div class="deep-mockup reveal" id="terminalMockup">
+          <div class="deep-mockup-bar">
+            <span>Strategy Builder</span>
+            <span>BETA</span>
+          </div>
+          <div class="deep-mockup-body node-editor">
+            <div class="mock-node" style="left:10%;top:15%">
+              <div class="mock-node-head">Price Trigger</div>
+              <div>BTC &gt; $98,000</div>
+              <div class="mock-node-port" style="right:-3px;top:50%"></div>
+            </div>
+            <div class="mock-node" style="left:40%;top:40%">
+              <div class="mock-node-head">Check GEX</div>
+              <div>Net GEX &gt; +$10M</div>
+              <div class="mock-node-port" style="left:-3px;top:50%"></div>
+              <div class="mock-node-port" style="right:-3px;top:50%"></div>
+            </div>
+            <div class="mock-node" style="left:70%;top:65%">
+              <div class="mock-node-head">Execute</div>
+              <div>Market Buy 0.5 BTC</div>
+              <div class="mock-node-port" style="left:-3px;top:50%"></div>
+            </div>
+            <svg viewBox="0 0 400 250" width="100%" height="100%" style="position:absolute;inset:0;pointer-events:none">
+              <path class="mock-connection" d="M130,65 C200,65 170,130 200,130"/>
+              <path class="mock-connection" d="M320,130 C360,130 330,195 350,195"/>
             </svg>
           </div>
-          <h3 class="feature-title">Real-Time Updates</h3>
-          <p class="feature-desc">Greeks calculations update every 5 minutes with sub-100ms API latency for time-sensitive trading decisions.</p>
         </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-              <line x1="3" y1="9" x2="21" y2="9"/>
-              <line x1="9" y1="21" x2="9" y2="9"/>
-            </svg>
+        <div class="deep-features reveal">
+          <div class="deep-feature">
+            <div class="deep-feature-title">Visual Node Editor</div>
+            <div class="deep-feature-desc">Wire together triggers, conditions, and execution blocks. No code required. Full logic control through a visual graph.</div>
           </div>
-          <h3 class="feature-title">Strike-Level Data</h3>
-          <p class="feature-desc">Granular breakdown of Greeks at each strike price. Identify exactly where market maker hedging will impact price.</p>
-        </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
+          <div class="deep-feature">
+            <div class="deep-feature-title">Historical Backtesting</div>
+            <div class="deep-feature-desc">Run strategies against historical GEX, price, and flow data. See P&amp;L curves, drawdown, and risk metrics before going live.</div>
           </div>
-          <h3 class="feature-title">Enterprise API</h3>
-          <p class="feature-desc">RESTful API with 99.9% uptime SLA. Integrate Greeks data directly into your trading systems and algorithms.</p>
-        </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12,6 12,12 16,14"/>
-            </svg>
+          <div class="deep-feature">
+            <div class="deep-feature-title">One-Click Deploy</div>
+            <div class="deep-feature-desc">Push strategies to production with a single action. Monitor execution, modify parameters, and kill switches in real-time.</div>
           </div>
-          <h3 class="feature-title">Historical Data</h3>
-          <p class="feature-desc">Access historical Greeks snapshots to backtest strategies and analyze how positioning evolved before major moves.</p>
-        </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-          </div>
-          <h3 class="feature-title">Smart Alerts</h3>
-          <p class="feature-desc">Set custom thresholds for GEX levels, vanna flips, and positioning changes. Get notified before key levels break.</p>
-        </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" y1="20" x2="12" y2="10"/>
-              <line x1="18" y1="20" x2="18" y2="4"/>
-              <line x1="6" y1="20" x2="6" y2="16"/>
-            </svg>
-          </div>
-          <h3 class="feature-title">Multi-Exchange</h3>
-          <p class="feature-desc">Aggregate data from Deribit, OKX, and major crypto options venues for the complete market picture.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Curious / Educational Section -->
-  <section class="curious-section">
-    <div class="section-container">
-      <div class="curious-content reveal">
-        <div class="curious-icon">📚</div>
-        <div class="curious-label">Curious?</div>
-        <h2 class="curious-title">Learn how the Greeks actually work</h2>
-        <p class="curious-desc">
-          New to options Greeks? No problem. We offer free educational resources that break down GEX, Vanna, Theta, 
-          and confluence analysis in plain English. Understand the mechanics, then use HedgeIQ to apply them.
-        </p>
-        <div class="curious-cards">
-          <div class="edu-card">
-            <div class="edu-card-icon">🎓</div>
-            <h3 class="edu-card-title">Greeks 101</h3>
-            <p class="edu-card-desc">Start from the basics. Learn what each Greek measures and why it matters for price action.</p>
-            <a href="#" class="edu-card-link">Start Learning →</a>
-          </div>
-          <div class="edu-card">
-            <div class="edu-card-icon">📊</div>
-            <h3 class="edu-card-title">Reading GEX Charts</h3>
-            <p class="edu-card-desc">Master gamma exposure visualization. Identify support, resistance, and volatility triggers.</p>
-            <a href="#" class="edu-card-link">Read Guide →</a>
-          </div>
-          <div class="edu-card">
-            <div class="edu-card-icon">🎯</div>
-            <h3 class="edu-card-title">Confluence Trading</h3>
-            <p class="edu-card-desc">Stack multiple Greeks at key levels. Find high-probability setups with layered confirmation.</p>
-            <a href="#" class="edu-card-link">Explore Strategy →</a>
+          <div class="deep-feature">
+            <div class="deep-feature-title">Risk Management</div>
+            <div class="deep-feature-desc">Built-in position sizing, stop-loss logic, and exposure limits. Configurable per-strategy or account-wide.</div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Pricing Section -->
+  <!-- ─── CAPABILITIES ────────────────────────────────── -->
+  <section class="cap-section" id="capabilities">
+    <div class="container">
+      <div class="section-label">Why Mercury</div>
+      <div class="cap-grid reveal reveal-stagger">
+        <div class="cap-cell">
+          <div class="cap-num">01</div>
+          <div class="cap-title">Sub-Second Data</div>
+          <div class="cap-desc">Exchange feeds processed and delivered in under 50ms. Options chain, greeks, and GEX profiles update continuously throughout the session.</div>
+        </div>
+        <div class="cap-cell">
+          <div class="cap-num">02</div>
+          <div class="cap-title">Confluence Engine</div>
+          <div class="cap-desc">Proprietary scoring that combines GEX, vanna, charm, skew, and flow data into actionable confluence signals. Not just data — intelligence.</div>
+        </div>
+        <div class="cap-cell">
+          <div class="cap-num">03</div>
+          <div class="cap-title">Built by Traders</div>
+          <div class="cap-desc">Designed by options traders who needed better tools. Every feature exists because we needed it at our own desks. No feature bloat.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PRICING ─────────────────────────────────────── -->
   <section class="pricing-section" id="pricing">
-    <div class="section-container">
-      <div class="section-header reveal">
-        <div class="section-label">Pricing</div>
-        <h2 class="section-title">Simple, Transparent Pricing</h2>
-        <p class="section-subtitle">
-          Start free. Upgrade when you need more.
-        </p>
-      </div>
-      
-      <div class="pricing-grid">
-        <div class="pricing-card reveal">
-          <div class="pricing-name">Starter</div>
-          <div class="pricing-desc">For traders getting started with Greeks</div>
-          <div class="pricing-price">$49<span>/month</span></div>
-          <ul class="pricing-features">
-            <li>15-minute GEX & Vanna snapshots</li>
-            <li>Volume & Open Interest data</li>
-            <li>Daily max pain & magnet levels</li>
-            <li>BTC options coverage</li>
-            <li>Priority support</li>
-          </ul>
-          <a href="#" class="btn btn-secondary pricing-btn">Start Free Trial</a>
+    <div class="container">
+      <div class="section-label">Pricing</div>
+      <div class="pricing-table reveal">
+        <div class="pricing-col">
+          <div class="pricing-header">
+            <div class="pricing-tier">Starter</div>
+            <div class="pricing-price">$0 <span>/mo</span></div>
+          </div>
+          <div class="pricing-features">
+            <div class="pricing-feature">Delayed GEX profiles</div>
+            <div class="pricing-feature">Basic greek exposure</div>
+            <div class="pricing-feature">Daily snapshots</div>
+            <div class="pricing-feature">Community access</div>
+          </div>
+          <div class="pricing-action">
+            <button class="pricing-btn">Get Started</button>
+          </div>
         </div>
-        
-        <div class="pricing-card featured reveal">
-          <div class="pricing-name">Pro</div>
-          <div class="pricing-desc">For active traders who need every edge</div>
-          <div class="pricing-price">$99<span>/month</span></div>
-          <ul class="pricing-features">
-            <li>Everything in Starter, plus:</li>
-            <li>1-minute update frequency</li>
-            <li>Full Greeks suite (GEX, Vanna, Theta)</li>
-            <li>Hourly max pain & magnet levels</li>
-            <li>Real-time Vol/OI with auto-interpretation</li>
-            <li>BTC + ETH options coverage</li>
-            <li>Confluence & key level signals</li>
-            <li>Email alerts for key levels</li>
-            <li>API access (10k calls/mo)</li>
-          </ul>
-          <a href="#" class="btn btn-primary pricing-btn">Start Free Trial</a>
+        <div class="pricing-col pricing-col--featured">
+          <div class="pricing-header">
+            <div class="pricing-tier">Pro</div>
+            <div class="pricing-price">$99 <span>/mo</span></div>
+          </div>
+          <div class="pricing-features">
+            <div class="pricing-feature">Real-time GEX profiles</div>
+            <div class="pricing-feature">Full greek suite</div>
+            <div class="pricing-feature">Gamma field heatmap</div>
+            <div class="pricing-feature">Session replay</div>
+            <div class="pricing-feature">API access (1K req/day)</div>
+            <div class="pricing-feature">Priority support</div>
+          </div>
+          <div class="pricing-action">
+            <button class="pricing-btn">Subscribe</button>
+          </div>
         </div>
-        
-        <div class="pricing-card reveal">
-          <div class="pricing-name">Enterprise</div>
-          <div class="pricing-desc">For funds and institutions</div>
-          <div class="pricing-price">Custom</div>
-          <ul class="pricing-features">
-            <li>Everything in Pro, plus:</li>
-            <li>Real-time streaming</li>
-            <li>All supported assets</li>
-            <li>Unlimited API calls</li>
-            <li>Custom integrations</li>
-            <li>Dedicated account manager</li>
-          </ul>
-          <a href="#" class="btn btn-secondary pricing-btn">Contact Sales</a>
+        <div class="pricing-col">
+          <div class="pricing-header">
+            <div class="pricing-tier">Institutional</div>
+            <div class="pricing-price">Custom</div>
+          </div>
+          <div class="pricing-features">
+            <div class="pricing-feature">Everything in Pro</div>
+            <div class="pricing-feature">Unlimited API access</div>
+            <div class="pricing-feature">Custom data feeds</div>
+            <div class="pricing-feature">Dedicated infrastructure</div>
+            <div class="pricing-feature">White-glove onboarding</div>
+            <div class="pricing-feature">SLA guarantee</div>
+          </div>
+          <div class="pricing-action">
+            <button class="pricing-btn">Contact Sales</button>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- CTA Section -->
-  <section class="cta-section">
-    <div class="cta-bg"></div>
-    <div class="cta-content reveal">
-      <h2 class="cta-title">Ready to gain an edge?</h2>
-      <p class="cta-subtitle">
-        Join thousands of traders using HedgeIQ to understand market dynamics.
-      </p>
-      <a href="#" class="btn btn-primary btn-large">Start Your Free Trial</a>
+  <!-- ─── FINAL CTA ───────────────────────────────────── -->
+  <section class="final-cta">
+    <div class="container">
+      <h2 class="final-headline reveal">Element 80.</h2>
+      <p class="final-sub reveal">Liquid intelligence for the next generation of traders.</p>
+      <div class="final-ctas reveal">
+        <a href="/dashboard.html" class="btn btn-primary">Launch Terminal</a>
+        <a href="#pricing" class="btn">View Pricing</a>
+      </div>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer>
-    <div class="footer-container">
+  <!-- ─── FOOTER ──────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
       <div class="footer-grid">
-        <div class="footer-brand">
-          <a href="#" class="logo">
-            <span class="logo-sigma">Σ</span>HedgeIQ<span class="logo-arrow">↗</span>
-          </a>
-          <p>Real-time options Greeks analytics for crypto markets. Understand the flow before it moves price.</p>
+        <div>
+          <div class="footer-brand">Mercury</div>
+          <p class="footer-desc">Liquid intelligence for the next generation of traders.</p>
         </div>
-        <div class="footer-col">
-          <h4>Product</h4>
-          <ul>
-            <li><a href="#">Features</a></li>
-            <li><a href="#">Pricing</a></li>
-            <li><a href="#">API Docs</a></li>
-            <li><a href="#">Changelog</a></li>
+        <div>
+          <div class="footer-col-title">Product</div>
+          <ul class="footer-links">
+            <li><a href="#analytics">Analytics</a></li>
+            <li><a href="#architect">Architect</a></li>
+            <li><a href="#">Signals</a></li>
+            <li><a href="#">API</a></li>
           </ul>
         </div>
-        <div class="footer-col">
-          <h4>Company</h4>
-          <ul>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
             <li><a href="#">About</a></li>
-            <li><a href="#">Blog</a></li>
             <li><a href="#">Careers</a></li>
+            <li><a href="#">Blog</a></li>
             <li><a href="#">Contact</a></li>
           </ul>
         </div>
-        <div class="footer-col">
-          <h4>Legal</h4>
-          <ul>
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Terms of Service</a></li>
-            <li><a href="#">Cookie Policy</a></li>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <ul class="footer-links">
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Terms</a></li>
+            <li><a href="#">Disclaimer</a></li>
           </ul>
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© 2024 HedgeIQ. All rights reserved.</span>
-        <div class="footer-links">
+        <span>&copy; 2025 Mercury — Hg 80. All rights reserved.</span>
+        <div class="footer-socials">
           <a href="#">Twitter</a>
           <a href="#">Discord</a>
           <a href="#">GitHub</a>
@@ -565,7 +510,6 @@
     </div>
   </footer>
 
-  <!-- Your JavaScript -->
-  <script type="module" src="./scripts/main.js"></script>
+  <script src="scripts/landing.js"></script>
 </body>
 </html>
