@@ -1,0 +1,1174 @@
+/* ================================================================
+   MERCURY RESEARCH — Edge-Finding Platform Styles
+   Research-first: mispricings, arbitrage, signals, analysis
+   Terminal: order book, bot logs, volume, chat
+   ================================================================ */
+
+/* ─── Top Bar ─── */
+
+.research-topbar {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  gap: 12px;
+}
+
+.research-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.research-topbar-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.12em;
+}
+
+.research-live-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--green);
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.research-live-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--green);
+  letter-spacing: 0.1em;
+}
+
+.research-topbar-center {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.research-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.research-clock {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--dim);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Kill Switch ─── */
+
+.kill-switch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--red);
+  color: var(--pure);
+  border: 2px solid var(--red);
+  padding: 4px 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  animation: kill-pulse 3s ease-in-out infinite;
+  transition: all 0.15s;
+}
+
+@keyframes kill-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.4); }
+  50% { box-shadow: 0 0 12px 4px rgba(255, 23, 68, 0.15); }
+}
+
+.kill-switch:hover {
+  background: #ff0033;
+  box-shadow: 0 0 20px rgba(255, 23, 68, 0.4);
+}
+
+.kill-switch.activated {
+  background: var(--green);
+  border-color: var(--green);
+  animation: none;
+  box-shadow: 0 0 12px rgba(0, 200, 83, 0.3);
+}
+
+.kill-switch-icon {
+  font-size: 9px;
+}
+
+/* ─── Ticker Tape ─── */
+
+.ticker-tape {
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 40px, black calc(100% - 40px), transparent);
+  mask-image: linear-gradient(90deg, transparent, black 40px, black calc(100% - 40px), transparent);
+}
+
+.ticker-tape-track {
+  display: flex;
+  white-space: nowrap;
+  animation: ticker-scroll 40s linear infinite;
+  gap: 0;
+}
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 18px;
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.ticker-item .ticker-name {
+  color: var(--silver);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.ticker-item .ticker-price {
+  color: var(--white);
+  font-weight: 500;
+}
+
+.ticker-item .ticker-delta {
+  font-weight: 600;
+  font-size: 10px;
+  transition: color 0.3s;
+}
+
+.ticker-item .ticker-delta.up { color: var(--green); }
+.ticker-item .ticker-delta.down { color: var(--red); }
+
+.ticker-sep {
+  color: var(--border-mid);
+  padding: 0 4px;
+  font-size: 9px;
+}
+
+/* ─── Tab Bar ─── */
+
+.research-tab-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  padding: 0 12px;
+}
+
+.research-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.research-tab:hover {
+  color: var(--silver);
+}
+
+.research-tab.active {
+  color: var(--white);
+  border-bottom-color: var(--green);
+}
+
+.research-tab-sep {
+  flex: 1;
+}
+
+.research-tab--terminal {
+  color: var(--dim);
+  opacity: 0.7;
+}
+
+.research-tab--terminal.active {
+  opacity: 1;
+  border-bottom-color: var(--silver);
+}
+
+/* ─── Tab Panels ─── */
+
+.research-tab-panel {
+  display: none;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.research-tab-panel.active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Scrollable Content Area ─── */
+
+.research-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.research-scroll::-webkit-scrollbar { width: 4px; }
+.research-scroll::-webkit-scrollbar-track { background: transparent; }
+.research-scroll::-webkit-scrollbar-thumb { background: var(--border-mid); }
+
+/* ─── Grid Layouts ─── */
+
+.research-grid {
+  display: grid;
+  gap: 1px;
+  background: var(--border);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+
+/* ─── Crypto Market Comparison ─── */
+
+.crypto-metrics {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.crypto-mkt-header,
+.crypto-mkt-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 0.8fr;
+  padding: 8px 16px;
+  gap: 8px;
+  align-items: center;
+}
+
+.crypto-mkt-header {
+  border-bottom: 1px solid var(--border);
+}
+
+.crypto-mkt-col {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--silver);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.crypto-mkt-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  transition: background 0.15s;
+}
+
+.crypto-mkt-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.crypto-mkt-strike {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--white);
+  font-variant-numeric: tabular-nums;
+}
+
+.crypto-mkt-price {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.crypto-mkt-price.yes { color: var(--green); }
+.crypto-mkt-price.no { color: var(--red); }
+.crypto-mkt-price.na { color: var(--dim); }
+
+.crypto-mkt-spread {
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--dim);
+}
+
+.crypto-mkt-spread.notable { color: var(--green); }
+
+/* News: feed + signals side by side */
+.research-grid--news {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
+/* Terminal: 2x2 grid */
+.research-grid--terminal {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+/* ─── Overview Metrics ─── */
+
+.overview-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.overview-card {
+  background: var(--black);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.overview-card-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--silver);
+  letter-spacing: 0.1em;
+}
+
+.overview-card-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white);
+  font-variant-numeric: tabular-nums;
+}
+
+.overview-card-value--green {
+  color: var(--green);
+}
+
+.overview-card-sub {
+  font-size: 10px;
+  color: var(--silver);
+}
+
+/* ─── Module Base ─── */
+
+.research-module {
+  background: var(--black);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.research-module--table {
+  border-bottom: 1px solid var(--border);
+}
+
+.module-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+  min-height: 28px;
+}
+
+.module-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--silver);
+  letter-spacing: 0.08em;
+}
+
+.module-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green);
+  font-variant-numeric: tabular-nums;
+  transition: opacity 0.3s;
+}
+
+.module-meta {
+  font-size: 10px;
+  color: var(--silver);
+  font-variant-numeric: tabular-nums;
+}
+
+.module-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.module-select {
+  background: var(--black);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+.module-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 0.08em;
+}
+
+.module-live-badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  background: var(--green);
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+.module-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ─── Timeframe Tabs ─── */
+
+.module-timeframe-tabs {
+  display: flex;
+  gap: 1px;
+}
+
+.tf-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 8px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: all 0.15s;
+}
+
+.tf-btn.active {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--white);
+  border-color: var(--border-mid);
+}
+
+/* ─── Edge Research Table ─── */
+
+#edgeResearchCards {
+  display: flex;
+  flex-direction: column;
+}
+
+.edge-table-header,
+.edge-row {
+  display: grid;
+  grid-template-columns: 2.5fr 0.7fr 0.8fr 0.7fr 0.7fr 0.7fr 0.6fr;
+  padding: 8px 16px;
+  gap: 8px;
+  align-items: center;
+}
+
+.edge-table-header {
+  border-bottom: 1px solid var(--border);
+}
+
+.edge-col {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--silver);
+  letter-spacing: 0.08em;
+}
+
+.edge-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  transition: background 0.15s;
+}
+
+.edge-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.edge-row-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.edge-row-short {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--dim);
+  margin-left: 6px;
+  letter-spacing: 0.06em;
+}
+
+.edge-row-val {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.edge-row-vol-val {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--white);
+  font-variant-numeric: tabular-nums;
+}
+
+.edge-row-change {
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.edge-row-change.up { color: var(--green); }
+.edge-row-change.down { color: var(--red); }
+
+.edge-row-spread {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.edge-row-spread.notable {
+  color: var(--green);
+}
+
+.edge-source-kalshi {
+  color: #5b9cf6;
+  font-weight: 700;
+  font-size: 10px;
+}
+
+.edge-source-polymarket {
+  color: #a78bfa;
+  font-weight: 700;
+  font-size: 10px;
+}
+
+.edge-source-mock {
+  color: var(--dim);
+  font-size: 10px;
+}
+
+/* Market divergence in Markets tab */
+.mkt-divergence {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.mkt-divergence.notable {
+  color: var(--green);
+}
+
+/* Arb cause column */
+.arb-cause {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--silver);
+  letter-spacing: 0.02em;
+}
+
+/* ─── Arbitrage Table ─── */
+
+.arb-table-header,
+.arb-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr;
+  padding: 6px 12px;
+  gap: 8px;
+  align-items: center;
+}
+
+.arb-table-header {
+  border-bottom: 1px solid var(--border);
+}
+
+.arb-col {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--silver);
+  letter-spacing: 0.08em;
+}
+
+.arb-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  transition: background 0.15s;
+}
+
+.arb-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.arb-row .arb-market {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.arb-row .arb-price {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.arb-row .arb-spread {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.arb-spread.profitable { color: var(--green); }
+
+.arb-action {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--silver);
+  letter-spacing: 0.04em;
+}
+
+/* ─── Market Scanner Table ─── */
+
+.market-table-header,
+.mkt-row {
+  display: grid;
+  grid-template-columns: 2.5fr 0.8fr 0.8fr 0.8fr 1fr 0.8fr 0.8fr 0.8fr;
+  padding: 6px 12px;
+  gap: 8px;
+  align-items: center;
+}
+
+.market-table-header {
+  border-bottom: 1px solid var(--border);
+}
+
+.mkt-col {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--silver);
+  letter-spacing: 0.08em;
+}
+
+.mkt-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  transition: background 0.15s;
+}
+
+.mkt-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mkt-row .mkt-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.mkt-row .mkt-val {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.mkt-change.up { color: var(--green); }
+.mkt-change.down { color: var(--red); }
+
+/* ─── News Feed ─── */
+
+.news-feed,
+.signal-feed {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.news-feed::-webkit-scrollbar,
+.signal-feed::-webkit-scrollbar { width: 4px; }
+.news-feed::-webkit-scrollbar-track,
+.signal-feed::-webkit-scrollbar-track { background: transparent; }
+.news-feed::-webkit-scrollbar-thumb,
+.signal-feed::-webkit-scrollbar-thumb { background: var(--border-mid); }
+
+.news-item {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  animation: log-slide-in 0.3s ease;
+  transition: background 0.15s;
+}
+
+.news-item:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.news-item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.news-item-time {
+  font-size: 9px;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.news-item-source {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--silver);
+  letter-spacing: 0.06em;
+}
+
+.news-item-sentiment {
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 6px;
+  letter-spacing: 0.08em;
+}
+
+.news-item-sentiment.bullish {
+  color: var(--green);
+  background: rgba(0, 200, 83, 0.08);
+}
+
+.news-item-sentiment.bearish {
+  color: var(--red);
+  background: rgba(255, 23, 68, 0.08);
+}
+
+.news-item-sentiment.neutral {
+  color: var(--dim);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.news-item-headline {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--white);
+  line-height: 1.5;
+}
+
+.news-item-markets {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.news-item-tag {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--dim);
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  letter-spacing: 0.04em;
+}
+
+/* ─── Signal Alerts ─── */
+
+.signal-item {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  animation: log-slide-in 0.3s ease;
+}
+
+.signal-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.signal-icon.edge { color: var(--green); }
+.signal-icon.arb { color: var(--yellow); }
+.signal-icon.volume { color: var(--blue); }
+.signal-icon.whale { color: var(--silver); }
+
+.signal-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.signal-title {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1.4;
+}
+
+.signal-desc {
+  font-size: 10px;
+  color: var(--dim);
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+.signal-time {
+  font-size: 9px;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+/* ─── Order Book ─── */
+
+.ob-spread-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.ob-best-bid {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+  font-variant-numeric: tabular-nums;
+}
+
+.ob-spread {
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.06em;
+}
+
+.ob-best-ask {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--red);
+  font-variant-numeric: tabular-nums;
+}
+
+.ob-depth {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.ob-row {
+  display: flex;
+  align-items: center;
+  padding: 1px 10px;
+  gap: 8px;
+  height: 18px;
+}
+
+.ob-price {
+  font-size: 10px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  min-width: 36px;
+  text-align: right;
+}
+
+.ob-row.bid .ob-price { color: var(--green); }
+.ob-row.ask .ob-price { color: var(--red); }
+
+.ob-bar-container {
+  flex: 1;
+  height: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ob-bar {
+  height: 100%;
+  transition: width 0.6s ease;
+  position: absolute;
+  top: 0;
+}
+
+.ob-bar.bid {
+  background: rgba(0, 200, 83, 0.20);
+  border-right: 1px solid rgba(0, 200, 83, 0.5);
+  right: 0;
+}
+
+.ob-bar.ask {
+  background: rgba(255, 23, 68, 0.20);
+  border-left: 1px solid rgba(255, 23, 68, 0.5);
+  left: 0;
+}
+
+.ob-size {
+  font-size: 10px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  min-width: 52px;
+  text-align: left;
+}
+
+/* ─── Bot Performance Logs ─── */
+
+.research-logs {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+  overflow-y: auto;
+  height: 100%;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.rlog-entry {
+  padding: 1px 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+  animation: log-slide-in 0.2s ease;
+}
+
+@keyframes log-slide-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.rlog-time { color: var(--dim); }
+.rlog-bot { color: var(--blue); font-weight: 600; }
+.rlog-level-info { color: var(--silver); }
+.rlog-level-trade { color: var(--green); }
+.rlog-level-warn { color: var(--yellow); }
+.rlog-level-error { color: var(--red); }
+.rlog-msg { color: var(--text); }
+
+/* ─── Research Chat ─── */
+
+.module-body-chat {
+  display: flex;
+  flex-direction: column;
+}
+
+.research-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.research-chat-messages::-webkit-scrollbar { width: 4px; }
+.research-chat-messages::-webkit-scrollbar-track { background: transparent; }
+.research-chat-messages::-webkit-scrollbar-thumb { background: var(--border-mid); }
+
+.research-chat-welcome {
+  font-size: 10px;
+  color: var(--dim);
+  text-align: center;
+  padding: 20px 10px;
+  line-height: 1.7;
+}
+
+.research-chat-msg {
+  font-size: 10px;
+  line-height: 1.65;
+  padding: 8px 10px;
+  max-width: 95%;
+}
+
+.research-chat-msg.user {
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  align-self: flex-end;
+}
+
+.research-chat-msg.assistant {
+  color: var(--text);
+  border-left: 2px solid var(--green);
+  padding-left: 10px;
+  align-self: flex-start;
+}
+
+.research-chat-msg .msg-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 0.1em;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.research-chat-input-area {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  gap: 6px;
+}
+
+.research-chat-input {
+  flex: 1;
+  background: var(--black);
+  border: 1px solid var(--border);
+  color: var(--white);
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 6px 10px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.research-chat-input:focus { border-color: var(--border-mid); }
+.research-chat-input::placeholder { color: var(--dim); }
+
+.research-chat-send {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--dim);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.research-chat-send:hover {
+  color: var(--green);
+  border-color: var(--green);
+}
+/* ─── Charts (ApexCharts overrides) ─── */
+
+.research-module .apexcharts-canvas { background: transparent !important; }
+.research-module .apexcharts-gridline { stroke: var(--border) !important; }
+.research-module .apexcharts-text { fill: var(--dim) !important; font-family: var(--mono) !important; }
+
+/* ─── Kill Confirm Modal ─── */
+
+.kill-confirm-body { text-align: center; padding: 20px; }
+
+.kill-confirm-warning {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--red);
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.kill-confirm-text { font-size: 11px; color: var(--text); line-height: 1.6; }
+
+.kill-confirm-count {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--white);
+  margin: 12px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Value Flash Animation ─── */
+
+@keyframes value-flash {
+  0% { color: var(--pure); }
+  100% { color: inherit; }
+}
+
+.value-flash { animation: value-flash 0.6s ease; }
+
+/* ─── Responsive ─── */
+
+@media (max-width: 1024px) {
+  .research-grid--news,
+  .research-grid--terminal {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .edge-table-header,
+  .edge-row {
+    grid-template-columns: 2fr 0.7fr 0.8fr 0.7fr 0.7fr 0.7fr 0.6fr;
+    padding: 6px 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .research-topbar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 6px 10px;
+  }
+
+  .ticker-tape { display: none; }
+
+  .research-tab-bar {
+    overflow-x: auto;
+    padding: 0 6px;
+  }
+
+  .research-tab {
+    padding: 6px 10px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .overview-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .market-table-header,
+  .mkt-row {
+    grid-template-columns: 2fr 0.8fr 0.8fr 0.8fr 1fr;
+  }
+}

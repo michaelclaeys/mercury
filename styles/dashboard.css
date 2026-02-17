@@ -45,7 +45,7 @@ body {
   color: var(--text);
   min-height: 100vh;
   overflow-x: hidden;
-  font-size: 12px;
+  font-size: 13px;
   -webkit-font-smoothing: antialiased;
   letter-spacing: 0.01em;
   line-height: 1.5;
@@ -116,16 +116,16 @@ a { color: var(--white); text-decoration: none; }
   font-weight: 700;
   color: var(--pure);
   letter-spacing: 0.1em;
-  text-transform: uppercase;
+
 }
 
 .logo-sub {
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: 9px;
   color: var(--dim);
   letter-spacing: 3px;
   font-weight: 400;
-  text-transform: uppercase;
+
   margin-top: 3px;
 }
 
@@ -217,9 +217,9 @@ a { color: var(--white); text-decoration: none; }
 }
 
 .user-plan {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--dim);
-  text-transform: uppercase;
+
   letter-spacing: 0.05em;
 }
 
@@ -237,7 +237,7 @@ a { color: var(--white); text-decoration: none; }
   font-weight: 400;
   transition: all 0.15s;
   letter-spacing: 0.02em;
-  text-transform: uppercase;
+
 }
 
 .sign-out-btn:hover {
@@ -316,7 +316,7 @@ a { color: var(--white); text-decoration: none; }
   font-size: 12px;
   font-weight: 600;
   color: var(--white);
-  text-transform: uppercase;
+
   letter-spacing: 0.1em;
 }
 
@@ -405,10 +405,10 @@ a { color: var(--white); text-decoration: none; }
 }
 
 .panel-title {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--dim);
-  text-transform: uppercase;
+
   letter-spacing: 0.1em;
   margin-bottom: 4px;
   font-family: var(--mono);
@@ -451,7 +451,7 @@ a { color: var(--white); text-decoration: none; }
 }
 
 .panel-snapshot .panel-label {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.08em;
   color: var(--dim);
@@ -518,13 +518,13 @@ a { color: var(--white); text-decoration: none; }
 }
 
 .ladder-row.ladder-interp .ladder-strike {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 400;
   color: var(--dim);
 }
 
 .ladder-row.ladder-interp .ladder-gex {
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 500;
 }
 
@@ -551,7 +551,7 @@ a { color: var(--white); text-decoration: none; }
 }
 
 .ladder-gex {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   font-family: var(--mono);
   text-align: right;
@@ -561,7 +561,7 @@ a { color: var(--white); text-decoration: none; }
 .ladder-gex.negative { color: var(--red); }
 
 .ladder-change {
-  font-size: 8px;
+  font-size: 9px;
   line-height: 1;
   text-align: center;
 }
@@ -623,7 +623,7 @@ a { color: var(--white); text-decoration: none; }
   flex: 1;
   text-align: center;
   border-bottom: 1px solid transparent;
-  text-transform: uppercase;
+
   letter-spacing: 0.05em;
 }
 
@@ -673,9 +673,9 @@ a { color: var(--white); text-decoration: none; }
 }
 
 .info-strip-label {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--dim);
-  text-transform: uppercase;
+
   letter-spacing: 0.1em;
 }
 
@@ -714,7 +714,7 @@ a { color: var(--white); text-decoration: none; }
   cursor: pointer;
   transition: all 0.15s;
   letter-spacing: 0.05em;
-  text-transform: uppercase;
+
 }
 
 .asset-btn:first-child,
@@ -757,7 +757,7 @@ a { color: var(--white); text-decoration: none; }
   font-size: 10px;
   color: var(--dim);
   font-weight: 400;
-  text-transform: uppercase;
+
   letter-spacing: 0.05em;
 }
 
@@ -987,7 +987,7 @@ a { color: var(--white); text-decoration: none; }
   font-size: 10px;
   font-weight: 600;
   color: var(--dim);
-  text-transform: uppercase;
+
   letter-spacing: 0.1em;
 }
 
@@ -1035,7 +1035,7 @@ a { color: var(--white); text-decoration: none; }
   color: var(--dim);
   font-size: 10px;
   font-weight: 600;
-  text-transform: uppercase;
+
   letter-spacing: 0.1em;
   margin-bottom: 6px;
 }
@@ -1073,7 +1073,7 @@ a { color: var(--white); text-decoration: none; }
   color: var(--dim);
   font-size: 10px;
   margin-bottom: 4px;
-  text-transform: uppercase;
+
   letter-spacing: 0.1em;
 }
 
@@ -1129,7 +1129,7 @@ a { color: var(--white); text-decoration: none; }
   color: var(--dim);
   font-size: 10px;
   font-weight: 600;
-  text-transform: uppercase;
+
   letter-spacing: 0.1em;
 }
 
@@ -1179,10 +1179,10 @@ a { color: var(--white); text-decoration: none; }
   display: grid;
   grid-template-columns: 1.2fr 0.8fr 1fr;
   padding: 4px 12px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--dim);
-  text-transform: uppercase;
+
   letter-spacing: 0.1em;
   border-bottom: 1px solid var(--border);
 }
@@ -1275,7 +1275,7 @@ a { color: var(--white); text-decoration: none; }
   display: flex;
   align-items: center;
   gap: 6px;
-  text-transform: uppercase;
+
   letter-spacing: 0.1em;
 }
 
@@ -1308,7 +1308,7 @@ a { color: var(--white); text-decoration: none; }
   border-radius: 0;
   font-weight: 600;
   font-size: 10px;
-  text-transform: uppercase;
+
   letter-spacing: 0.08em;
   font-family: var(--mono);
 }
@@ -1365,7 +1365,7 @@ a { color: var(--white); text-decoration: none; }
 .learning-card-icon.charm { background: rgba(251, 191, 36, 0.08); color: var(--yellow); }
 .learning-card-icon.maxpain { background: rgba(0, 200, 83, 0.08); color: var(--green); }
 
-.learning-card h4 { color: var(--white); font-size: 11px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+.learning-card h4 { color: var(--white); font-size: 11px; margin-bottom: 4px; letter-spacing: 0.05em; }
 .learning-card p { color: var(--dim); font-size: 10px; line-height: 1.5; }
 .learning-card .read-more { color: var(--white); font-size: 10px; font-weight: 600; margin-top: 8px; display: inline-block; letter-spacing: 0.05em; }
 
@@ -1378,7 +1378,7 @@ a { color: var(--white); text-decoration: none; }
   font-size: 11px;
   color: var(--white);
   margin-bottom: 8px;
-  text-transform: uppercase;
+
   letter-spacing: 0.1em;
 }
 
@@ -1403,7 +1403,7 @@ a { color: var(--white); text-decoration: none; }
   font-family: var(--mono);
   transition: all 0.15s;
   letter-spacing: 0.05em;
-  text-transform: uppercase;
+
 }
 
 .learning-hero-btn:hover {
@@ -1439,7 +1439,7 @@ a { color: var(--white); text-decoration: none; }
   gap: 16px;
   color: var(--silver);
   font-family: var(--mono);
-  text-transform: uppercase;
+
   letter-spacing: 0.1em;
   font-size: 10px;
 }
@@ -1584,19 +1584,19 @@ a { color: var(--white); text-decoration: none; }
 }
 
 .metric-card-label {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--dim);
-  text-transform: uppercase;
+
   letter-spacing: 0.08em;
 }
 
 .metric-card-badge {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   padding: 2px 6px;
   border-radius: 0;
-  text-transform: uppercase;
+
   letter-spacing: 0.05em;
 }
 
@@ -1664,7 +1664,7 @@ a { color: var(--white); text-decoration: none; }
   font-size: 10px;
   font-weight: 600;
   color: var(--silver);
-  text-transform: uppercase;
+
   letter-spacing: 0.05em;
 }
 
@@ -1774,9 +1774,9 @@ a { color: var(--white); text-decoration: none; }
 }
 
 .summary-level-label {
-  font-size: 8px;
+  font-size: 9px;
   color: var(--dim);
-  text-transform: uppercase;
+
   letter-spacing: 0.1em;
 }
 
@@ -1797,7 +1797,7 @@ a { color: var(--white); text-decoration: none; }
   font-size: 10px;
   font-weight: 600;
   flex-shrink: 0;
-  text-transform: uppercase;
+
   letter-spacing: 0.05em;
   font-family: var(--mono);
   border: 1px solid transparent;
@@ -1888,7 +1888,7 @@ a { color: var(--white); text-decoration: none; }
 }
 
 .mtt-time {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--dim);
 }
 
@@ -1903,7 +1903,7 @@ a { color: var(--white); text-decoration: none; }
 
 .mtt-level-label {
   font-weight: 700;
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.05em;
   padding: 1px 0;
 }
@@ -1918,7 +1918,7 @@ a { color: var(--white); text-decoration: none; }
 
 .mtt-level-dist {
   color: var(--dim);
-  font-size: 9px;
+  font-size: 10px;
 }
 
 .mtt-level-gex {
@@ -2124,20 +2124,20 @@ a { color: var(--white); text-decoration: none; }
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 700;
   white-space: nowrap;
   padding: 2px 5px;
   border-radius: 0;
   letter-spacing: 0.05em;
-  text-transform: uppercase;
+
   font-family: var(--mono);
 }
 
 .gf-marker-spot .gf-marker-label {
   background: var(--pure);
   color: var(--black);
-  font-size: 9px;
+  font-size: 10px;
   padding: 2px 6px;
   box-shadow: none;
 }

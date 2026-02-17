@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Architect — Mercury</title>
+  <meta name="description" content="No-code prediction market bot builder. Visual node editor, AI-assisted strategy design, one-click deploy with Telegram monitoring. Production infrastructure ready today.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/architect.css">
+</head>
+<body class="intro-active">
+
+  <!-- ─── PERSISTENT BACKGROUND CANVAS (helicopters etc) ── -->
+  <canvas id="archBgCanvas" style="position:absolute;top:0;left:0;width:100%;height:100vh;pointer-events:none;z-index:0;"></canvas>
+
+  <!-- ─── BLUEPRINT INTRO ──────────────────────────────── -->
+  <div class="arch-intro" id="archIntro">
+    <canvas id="blueprintCanvas"></canvas>
+
+    <!-- Terminal init (bottom-left, like a console booting up) -->
+    <div class="arch-intro-terminal" id="archTerminal">
+      <div class="term-line" data-delay="0">> architect.init()</div>
+      <div class="term-line" data-delay="250">> loading blueprint_render <span class="term-dots">..........</span> <span class="term-ok">OK</span></div>
+      <div class="term-line" data-delay="500">> loading node_graph <span class="term-dots">...............</span> <span class="term-ok">OK</span></div>
+      <div class="term-line" data-delay="750">> loading ai_engine <span class="term-dots">..............</span> <span class="term-ok">OK</span></div>
+      <div class="term-line" data-delay="1000">> connecting market_feeds <span class="term-dots">........</span> <span class="term-ok">OK</span></div>
+      <div class="term-line" data-delay="1250">> status: <span class="term-ok">all systems operational</span></div>
+    </div>
+
+    <div class="arch-intro-center">
+      <div class="arch-intro-title" id="archTitle">ARCHITECT</div>
+      <div class="arch-intro-textline" id="archTextline">
+        <span class="arch-word" id="archWord">imagine</span>
+      </div>
+    </div>
+    <div class="intro-skip" id="archSkip">Click anywhere to skip</div>
+  </div>
+
+  <!-- ─── NAVBAR ──────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="navbar-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="3"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+        </svg>
+        Mercury
+        <span class="navbar-brand-sub">Architect</span>
+      </a>
+      <ul class="navbar-links">
+        <li><a href="index.html#suite">Suite</a></li>
+        <li><a href="index.html#analytics">Analytics</a></li>
+        <li><a href="architect.html" class="nav-active">Architect</a></li>
+        <li><a href="index.html#pricing">Pricing</a></li>
+      </ul>
+      <div class="navbar-actions">
+        <a href="login.html" class="btn">Sign In</a>
+        <a href="architect-app.html#research" class="btn btn-primary">Research</a>
+        <a href="architect-app.html" class="btn btn-primary">Launch Architect</a>
+      </div>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#suite">Suite</a>
+    <a href="index.html#analytics">Analytics</a>
+    <a href="architect.html">Architect</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="login.html">Sign In</a>
+    <a href="architect-app.html#research">Research</a>
+    <a href="architect-app.html">Launch Architect</a>
+  </div>
+
+  <!-- ─── TOP TICKER ──────────────────────────────────── -->
+  <div class="ticker">
+    <div class="ticker-track">
+      <span class="ticker-item"><span class="sym">Uptime</span> <span class="up">99.98%</span></span>
+      <span class="ticker-item"><span class="sym">Polymarket Latency</span> <span class="up">&lt;12ms</span></span>
+      <span class="ticker-item"><span class="sym">Kalshi Latency</span> <span class="up">&lt;18ms</span></span>
+      <span class="ticker-item"><span class="sym">Your Server Cost</span> <span class="up">$0</span></span>
+      <span class="ticker-item"><span class="sym">Bots Running 24/7</span> <span class="up">842</span></span>
+      <span class="ticker-item"><span class="sym">Deploy Time</span> <span class="up">&lt;30s</span></span>
+      <span class="ticker-item"><span class="sym">Bot Vol</span> <span class="up">$24.1M</span></span>
+      <span class="ticker-item"><span class="sym">VPS Required</span> <span class="up">None</span></span>
+      <span class="ticker-item"><span class="sym">Maintenance</span> <span class="up">Zero</span></span>
+      <span class="ticker-item"><span class="sym">Telegram Bots</span> <span class="up">614</span></span>
+      <span class="ticker-item"><span class="sym">Backtests/Day</span> 12,400</span>
+      <span class="ticker-item"><span class="sym">Win Rate</span> <span class="up">67.2%</span></span>
+      <!-- duplicate for seamless loop -->
+      <span class="ticker-item"><span class="sym">Uptime</span> <span class="up">99.98%</span></span>
+      <span class="ticker-item"><span class="sym">Polymarket Latency</span> <span class="up">&lt;12ms</span></span>
+      <span class="ticker-item"><span class="sym">Kalshi Latency</span> <span class="up">&lt;18ms</span></span>
+      <span class="ticker-item"><span class="sym">Your Server Cost</span> <span class="up">$0</span></span>
+      <span class="ticker-item"><span class="sym">Bots Running 24/7</span> <span class="up">842</span></span>
+      <span class="ticker-item"><span class="sym">Deploy Time</span> <span class="up">&lt;30s</span></span>
+      <span class="ticker-item"><span class="sym">Bot Vol</span> <span class="up">$24.1M</span></span>
+      <span class="ticker-item"><span class="sym">VPS Required</span> <span class="up">None</span></span>
+      <span class="ticker-item"><span class="sym">Maintenance</span> <span class="up">Zero</span></span>
+      <span class="ticker-item"><span class="sym">Telegram Bots</span> <span class="up">614</span></span>
+      <span class="ticker-item"><span class="sym">Backtests/Day</span> 12,400</span>
+      <span class="ticker-item"><span class="sym">Win Rate</span> <span class="up">67.2%</span></span>
+    </div>
+  </div>
+
+  <!-- ─── DATA HELIX (right side, canvas) ──────────────── -->
+  <div class="data-helix" id="dataHelix">
+    <canvas id="helixCanvas"></canvas>
+  </div>
+
+  <!-- ─── HERO ──────────────────────────────────────────── -->
+  <section class="arch-hero" id="archHero">
+    <div class="container">
+      <div class="term-init" id="heroInit">
+        <div class="term-line" data-delay="0">> mercury.architect.init()</div>
+        <div class="term-line" data-delay="300">> loading bot_engine <span class="term-dots">............</span> <span class="term-ok">OK</span></div>
+        <div class="term-line" data-delay="600">> loading node_graph <span class="term-dots">...........</span> <span class="term-ok">OK</span></div>
+        <div class="term-line" data-delay="900">> loading ai_assist <span class="term-dots">.............</span> <span class="term-ok">OK</span></div>
+        <div class="term-line" data-delay="1200">> connecting polymarket_api <span class="term-dots">.....</span> <span class="term-ok">OK</span></div>
+        <div class="term-line" data-delay="1500">> connecting kalshi_api <span class="term-dots">.........</span> <span class="term-ok">OK</span></div>
+        <div class="term-line" data-delay="1800">> status: <span class="term-ok">all systems operational</span></div>
+        <div class="term-line" data-delay="2100">> ready: build, deploy, profit_</div>
+      </div>
+      <div class="section-label">Mercury Architect</div>
+      <h1 class="arch-hero-headline reveal">
+        Your strategy, our infrastructure.<br>Any data source. Live in 30 seconds.
+      </h1>
+      <p class="arch-hero-sub reveal">
+        Polling data, social sentiment, news feeds, on-chain activity, weather APIs, earnings calls — if it exists,
+        Mercury can use it. Build any strategy you can imagine with AI or visual nodes, powered by production
+        infrastructure with 99.98% uptime and &lt;12ms exchange latency. You bring the idea. We handle everything else.
+      </p>
+      <div class="arch-hero-ctas reveal">
+        <a href="architect-app.html" class="btn btn-primary">Launch Architect</a>
+        <a href="#archBuilder" class="btn">See the Builder</a>
+      </div>
+
+      <!-- Hero stats strip -->
+      <div class="arch-hero-stats reveal">
+        <div class="arch-hero-stat">
+          <span class="arch-hero-stat-value">99.98%</span>
+          <span class="arch-hero-stat-label">Uptime</span>
+        </div>
+        <div class="arch-hero-stat">
+          <span class="arch-hero-stat-value">&lt;12ms</span>
+          <span class="arch-hero-stat-label">Exchange Latency</span>
+        </div>
+        <div class="arch-hero-stat">
+          <span class="arch-hero-stat-value">&lt;30s</span>
+          <span class="arch-hero-stat-label">Deploy Time</span>
+        </div>
+        <div class="arch-hero-stat">
+          <span class="arch-hero-stat-value">$0</span>
+          <span class="arch-hero-stat-label">Server Cost</span>
+        </div>
+      </div>
+
+      <!-- Persona chips -->
+      <div class="persona-strip reveal reveal-stagger">
+        <div class="persona-chip">
+          <span class="persona-chip-label">No code experience?</span>
+          <span class="persona-chip-answer">Describe any strategy in plain English — polls, sentiment, news, prices — the AI builds and deploys it.</span>
+        </div>
+        <div class="persona-chip">
+          <span class="persona-chip-label">Tired of managing VPS?</span>
+          <span class="persona-chip-answer">Your strategy, our infrastructure. Any data source, any complexity, unlimited bots — all on our production stack.</span>
+        </div>
+        <div class="persona-chip">
+          <span class="persona-chip-label">New to prediction markets?</span>
+          <span class="persona-chip-answer">AI research across every data source + automated execution + pro infrastructure. No limits from day one.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── BOT BUILDER SHOWCASE ──────────────────────────── -->
+  <section class="arch-builder-section" id="archBuilder">
+    <div class="container">
+      <div class="section-label">Bot Builder</div>
+      <div class="arch-builder-demo reveal" id="archBuilderDemo">
+        <div class="deep-mockup-bar">
+          <span>architect.workspace — hurricane_weather_edge.mercury</span>
+          <span>Editor</span>
+        </div>
+        <div class="arch-builder-canvas">
+          <div class="arch-node arch-node--source" style="left:2%;top:6%">
+            <div class="arch-node-head">Data Source</div>
+            <div class="arch-node-body">NOAA Hurricane API<br><span class="arch-node-detail">Cat 4+ storm within 48hrs of FL landfall</span></div>
+            <div class="arch-node-port out" style="right:-6px;top:50%"></div>
+          </div>
+          <div class="arch-node arch-node--source" style="left:2%;top:52%">
+            <div class="arch-node-head">Data Source</div>
+            <div class="arch-node-body">Twitter/X Sentiment<br><span class="arch-node-detail">Keyword: "hurricane" spike &gt;300% vs baseline</span></div>
+            <div class="arch-node-port out" style="right:-6px;top:50%"></div>
+          </div>
+          <div class="arch-node arch-node--filter" style="left:30%;top:28%">
+            <div class="arch-node-head">Merge + Filter</div>
+            <div class="arch-node-body">Both signals confirmed<br><span class="arch-node-detail">AND market P(YES) still &lt; 40c</span></div>
+            <div class="arch-node-port in" style="left:-6px;top:35%"></div>
+            <div class="arch-node-port in" style="left:-6px;top:65%"></div>
+            <div class="arch-node-port out" style="right:-6px;top:50%"></div>
+          </div>
+          <div class="arch-node arch-node--execute" style="left:56%;top:8%">
+            <div class="arch-node-head">Execute</div>
+            <div class="arch-node-body">Buy 2,000 YES on Polymarket<br><span class="arch-node-detail">"Hurricane FL Landfall" @ limit P+2c</span></div>
+            <div class="arch-node-port in" style="left:-6px;top:50%"></div>
+            <div class="arch-node-port out" style="right:-6px;top:50%"></div>
+          </div>
+          <div class="arch-node arch-node--execute" style="left:56%;top:54%">
+            <div class="arch-node-head">Hedge</div>
+            <div class="arch-node-body">Sell 500 NO on Kalshi<br><span class="arch-node-detail">"FL Emergency Declaration" @ market</span></div>
+            <div class="arch-node-port in" style="left:-6px;top:50%"></div>
+            <div class="arch-node-port out" style="right:-6px;top:50%"></div>
+          </div>
+          <div class="arch-node arch-node--risk" style="left:80%;top:32%">
+            <div class="arch-node-head">Risk</div>
+            <div class="arch-node-body">Max exposure: $8,000<br><span class="arch-node-detail">Auto-exit if storm downgrades to Cat 2</span></div>
+            <div class="arch-node-port in" style="left:-6px;top:35%"></div>
+            <div class="arch-node-port in" style="left:-6px;top:65%"></div>
+          </div>
+          <svg class="arch-connections" viewBox="0 0 1000 500" preserveAspectRatio="none">
+            <path class="arch-conn" d="M180,65 C260,65 240,175 310,175"/>
+            <path class="arch-conn" d="M180,310 C260,310 240,230 310,230"/>
+            <path class="arch-conn" d="M460,200 C520,200 500,85 570,85"/>
+            <path class="arch-conn" d="M460,200 C520,200 500,330 570,330"/>
+            <path class="arch-conn" d="M730,85 C770,85 770,200 810,200"/>
+            <path class="arch-conn" d="M730,330 C770,330 770,245 810,245"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="arch-blocks reveal reveal-stagger">
+        <div class="arch-block">
+          <div class="arch-block-type">Triggers</div>
+          <div class="arch-block-desc">Price crosses, volume spikes, polling shifts, news events, social sentiment, custom API webhooks — any signal</div>
+        </div>
+        <div class="arch-block">
+          <div class="arch-block-type">Conditions</div>
+          <div class="arch-block-desc">AND/OR logic, cross-platform comparison, external data checks, pattern matching — combine any number of conditions</div>
+        </div>
+        <div class="arch-block">
+          <div class="arch-block-type">Execution</div>
+          <div class="arch-block-desc">Market/limit orders, position sizing, DCA entry, multi-platform execution — any strategy, any complexity</div>
+        </div>
+        <div class="arch-block">
+          <div class="arch-block-type">Risk</div>
+          <div class="arch-block-desc">Stop-loss, take-profit, max exposure, portfolio-level limits, kill switch — fully customizable per bot</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── AI ASSISTANCE ─────────────────────────────────── -->
+  <section class="arch-ai-section" id="archAI">
+    <div class="container">
+      <div class="section-label">AI Assist</div>
+      <div class="arch-ai-grid">
+        <div class="arch-ai-demo reveal" id="archAiDemo">
+          <div class="deep-mockup-bar">
+            <span>architect.ai — natural language</span>
+            <span>AI</span>
+          </div>
+          <div class="arch-ai-chat" id="archAiChat">
+            <div class="arch-ai-msg user">
+              <span class="arch-ai-sender">> you</span>
+              <span class="arch-ai-text" id="aiUserMsg"></span>
+            </div>
+            <div class="arch-ai-msg ai" id="aiResponseWrap" style="display:none">
+              <span class="arch-ai-sender">> mercury.ai</span>
+              <span class="arch-ai-text" id="aiResponse"></span>
+            </div>
+          </div>
+        </div>
+        <div class="arch-ai-features reveal">
+          <div class="deep-feature">
+            <div class="deep-feature-title">Describe Your Strategy</div>
+            <div class="deep-feature-desc">"Buy YES when polling averages cross 60% and Twitter sentiment is bullish." You describe the logic — any data source, any condition, any execution style — and Mercury builds and deploys it on our infrastructure.</div>
+          </div>
+          <div class="deep-feature">
+            <div class="deep-feature-title">Any Data Source. Seriously.</div>
+            <div class="deep-feature-desc">Market prices, polling aggregators, news sentiment, social media trends, on-chain data, weather APIs, economic indicators — if there's a signal, Mercury can ingest it and trade on it. No integrations to build yourself.</div>
+          </div>
+          <div class="deep-feature">
+            <div class="deep-feature-title">From Idea to Live in Minutes</div>
+            <div class="deep-feature-desc">The AI doesn't just design — it deploys. Your strategy goes from plain English to running on our production infrastructure with order routing, risk management, and monitoring already wired up. You bring the idea, we handle the rest.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── INFRASTRUCTURE ─────────────────────────────────── -->
+  <section class="arch-infra-section" id="archInfra">
+    <div class="container">
+      <div class="section-label">Infrastructure — What You're Getting</div>
+      <div class="arch-infra-grid">
+        <div class="arch-infra-text reveal">
+          <h2 class="arch-infra-headline">The stack you'd spend<br>months building. Ready now.</h2>
+          <p class="arch-infra-desc">
+            Building a prediction market bot from scratch means weeks of work: provisioning a VPS ($20–100/mo),
+            wiring exchange APIs, building order management, writing monitoring scripts, setting up Telegram alerts,
+            handling crashes at 3am. Mercury eliminates all of it.
+          </p>
+          <p class="arch-infra-desc">
+            Our production infrastructure is already live and handling $24M+ in bot volume. When you deploy a strategy,
+            you're plugging into battle-tested systems with 99.98% uptime, &lt;12ms exchange latency, and automatic
+            failover — infrastructure that would cost you thousands to replicate.
+          </p>
+        </div>
+        <div class="arch-infra-terminal reveal" id="archInfraDemo">
+          <div class="deep-mockup-bar">
+            <span>mercury.status</span>
+            <span>Live</span>
+          </div>
+          <div class="arch-infra-body" id="infraTerminal">
+            <div class="term-line" data-delay="0">> mercury.infrastructure.status()</div>
+            <div class="term-line" data-delay="300">&nbsp;</div>
+            <div class="term-line" data-delay="400">  order_router &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="term-ok">LIVE</span> &nbsp; 142K orders processed</div>
+            <div class="term-line" data-delay="600">  telegram_api &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="term-ok">LIVE</span> &nbsp; 614 bots connected</div>
+            <div class="term-line" data-delay="800">  risk_engine &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="term-ok">LIVE</span> &nbsp; 0 breaches / 90d</div>
+            <div class="term-line" data-delay="1000">  polymarket_conn &nbsp;&nbsp; <span class="term-ok">LIVE</span> &nbsp; &lt;12ms latency</div>
+            <div class="term-line" data-delay="1200">  kalshi_conn &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="term-ok">LIVE</span> &nbsp; &lt;18ms latency</div>
+            <div class="term-line" data-delay="1400">  backtest_engine &nbsp;&nbsp; <span class="term-ok">LIVE</span> &nbsp; 12.4K runs today</div>
+            <div class="term-line" data-delay="1600">  ai_engine &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="term-ok">LIVE</span> &nbsp; v1.1 loaded</div>
+            <div class="term-line" data-delay="1800">&nbsp;</div>
+            <div class="term-line" data-delay="2000">> uptime: <span class="term-ok">99.98%</span> (90d rolling)</div>
+            <div class="term-line" data-delay="2200">> total_volume: <span class="term-ok">$24.1M</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Infrastructure value comparison -->
+      <div class="arch-infra-compare reveal reveal-stagger">
+        <div class="arch-manage-card arch-compare-diy">
+          <div class="arch-manage-num" style="color:var(--red)">DIY</div>
+          <div class="arch-manage-title">Build It Yourself</div>
+          <ul class="arch-compare-list arch-compare-list--pain">
+            <li><strong>Learn to code first</strong> — Python, APIs, async, error handling. Months before your first bot runs.</li>
+            <li><strong>Rent a VPS</strong> — $20–100/mo for a server you have to configure, secure, and maintain yourself.</li>
+            <li><strong>Wire every API</strong> — Polymarket, Kalshi, polling data, news feeds. Each one a separate integration. 1–2 weeks per source.</li>
+            <li><strong>Build order management</strong> — Market orders, limits, position sizing, retries, error recovery. Another week minimum.</li>
+            <li><strong>Build risk management</strong> — Stop-losses, exposure limits, kill switches. Get it wrong and you lose everything.</li>
+            <li><strong>Set up monitoring</strong> — Logging, alerting, uptime checks. Otherwise you won't know it crashed until your position is liquidated.</li>
+            <li><strong>3am wake-up calls</strong> — Server goes down, API key expires, memory leak, package update breaks everything. It's always your problem.</li>
+            <li><strong>Maintain it forever</strong> — Exchange API changes, dependency updates, security patches. The work never stops.</li>
+          </ul>
+          <div class="arch-compare-total">Weeks of dev time. $100s/mo in costs. Constant maintenance. And you still haven't found edge yet.</div>
+        </div>
+        <div class="arch-compare-vs">VS</div>
+        <div class="arch-manage-card arch-compare-mercury">
+          <div class="arch-manage-num" style="color:var(--green)">Mercury</div>
+          <div class="arch-manage-title">Deploy on Mercury</div>
+          <ul class="arch-compare-list arch-compare-list--win">
+            <li><strong>No code required</strong> — Describe your strategy in plain English. The AI builds it.</li>
+            <li><strong>No servers</strong> — Production infrastructure is already running. $0 server costs.</li>
+            <li><strong>Every data source</strong> — Polls, sentiment, news, prices, custom APIs. Already integrated.</li>
+            <li><strong>Order management built in</strong> — Market/limit orders, position sizing, multi-platform execution. Done.</li>
+            <li><strong>Risk management included</strong> — Stop-losses, exposure limits, portfolio kill switch. Runs 24/7.</li>
+            <li><strong>Monitoring &amp; alerts</strong> — Real-time dashboards and Telegram alerts. We watch so you don't have to.</li>
+            <li><strong>99.98% uptime</strong> — Our infra team handles the 3am problems. You sleep.</li>
+            <li><strong>Zero maintenance</strong> — We handle updates, patches, and API changes. Your bot just runs.</li>
+          </ul>
+          <div class="arch-compare-total" style="color:var(--green)">Describe. Deploy. Done. Live in 30 seconds.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── DEPLOY ────────────────────────────────────────── -->
+  <section class="arch-deploy-section" id="archDeploy">
+    <div class="container">
+      <div class="section-label">Deploy</div>
+      <div class="arch-deploy-grid">
+        <div class="arch-deploy-visual reveal" id="archDeployDemo">
+          <div class="arch-deploy-terminal">
+            <div class="deep-mockup-bar">
+              <span>architect.deploy</span>
+              <span>Deploying</span>
+            </div>
+            <div class="arch-deploy-body" id="deployTerminal">
+              <div class="term-line" data-delay="0">> architect.deploy("rate_cut_bot")</div>
+              <div class="term-line" data-delay="400">> validating node graph <span class="term-dots">........</span> <span class="term-ok">PASS</span></div>
+              <div class="term-line" data-delay="800">> backtesting (90d window) <span class="term-dots">.....</span> <span class="term-ok">+24.1% ROI</span></div>
+              <div class="term-line" data-delay="1200">> connecting Polymarket API <span class="term-dots">.....</span> <span class="term-ok">OK</span></div>
+              <div class="term-line" data-delay="1600">> provisioning Telegram bot <span class="term-dots">.....</span> <span class="term-ok">@mercury_rate_cut_bot</span></div>
+              <div class="term-line" data-delay="2000">> status: <span class="term-ok">LIVE</span> | monitoring active</div>
+            </div>
+          </div>
+        </div>
+        <div class="arch-deploy-features reveal">
+          <div class="deep-feature">
+            <div class="deep-feature-title">One Click. No Server Setup.</div>
+            <div class="deep-feature-desc">Validate, backtest, and push to production in a single action. No VPS to provision, no Docker to configure, no PM2 to manage. Your bot is live on our cloud in under 30 seconds.</div>
+          </div>
+          <div class="deep-feature">
+            <div class="deep-feature-title">24/7 Execution + Telegram</div>
+            <div class="deep-feature-desc">Your bot runs around the clock on 99.98% uptime infrastructure. Every bot gets automatic Telegram alerts — trade notifications, P&amp;L updates, and manual override from your phone.</div>
+          </div>
+          <div class="deep-feature">
+            <div class="deep-feature-title">Multi-Platform, Single Deploy</div>
+            <div class="deep-feature-desc">Execute across Polymarket, Kalshi, and more from one strategy. Mercury handles API routing with &lt;12ms latency through production connectors already processing $24M+ in volume.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── LIVE MANAGEMENT ───────────────────────────────── -->
+  <section class="arch-manage-section" id="archManage">
+    <div class="container">
+      <div class="section-label">Live Management</div>
+      <div class="arch-manage-grid reveal reveal-stagger">
+        <div class="arch-manage-card">
+          <div class="arch-manage-num">01</div>
+          <div class="arch-manage-title">Trade History</div>
+          <div class="arch-manage-desc">Complete log of every trade your bots execute. Filterable by bot, platform, contract, and outcome. Export to CSV.</div>
+        </div>
+        <div class="arch-manage-card">
+          <div class="arch-manage-num">02</div>
+          <div class="arch-manage-title">Risk Dashboard</div>
+          <div class="arch-manage-desc">Real-time exposure across all bots and platforms. Aggregate P&amp;L, drawdown tracking, and configurable alert thresholds.</div>
+        </div>
+        <div class="arch-manage-card">
+          <div class="arch-manage-num">03</div>
+          <div class="arch-manage-title">Bot Controls</div>
+          <div class="arch-manage-desc">Pause, resume, or kill any bot instantly. Modify parameters on the fly. Emergency kill switch for all bots at once.</div>
+        </div>
+        <div class="arch-manage-card">
+          <div class="arch-manage-num">04</div>
+          <div class="arch-manage-title">Performance Analytics</div>
+          <div class="arch-manage-desc">Win rate, Sharpe ratio, ROI curves, and Brier scores per bot. Compare bot performance against manual trading.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── METRICS BAR ───────────────────────────────────── -->
+  <div class="metrics-bar">
+    <div class="metrics-grid">
+      <div class="metric-cell">
+        <div class="metric-value" data-count="99" data-suffix="%">0</div>
+        <div class="metric-label">Uptime (90d)</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-value" data-count="12" data-prefix="<" data-suffix="ms">0</div>
+        <div class="metric-label">Exchange Latency</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-value" data-count="842">0</div>
+        <div class="metric-label">Bots Running 24/7</div>
+      </div>
+      <div class="metric-cell">
+        <div class="metric-value" data-count="0" data-prefix="$" data-suffix="">0</div>
+        <div class="metric-label">Server Cost to You</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── FINAL CTA ─────────────────────────────────────── -->
+  <section class="final-cta">
+    <div class="container">
+      <h2 class="final-headline reveal">Element 80.<br>Liquid intelligence for the next generation of traders.</h2>
+      <p class="final-sub reveal">Any data source. Any strategy. 99.98% uptime. &lt;12ms latency. Zero server costs. Deploy in 30 seconds.</p>
+      <div class="final-ctas reveal">
+        <a href="signup.html" class="btn btn-primary">Get Started</a>
+        <a href="index.html#pricing" class="btn">View Pricing</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ──────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">Mercury</div>
+          <p class="footer-desc">Liquid intelligence & infrastructure for the next generation of traders.</p>
+        </div>
+        <div>
+          <div class="footer-col-title">Product</div>
+          <ul class="footer-links">
+            <li><a href="index.html#analytics">Analytics</a></li>
+            <li><a href="architect.html">Architect</a></li>
+            <li><a href="api.html">API</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="about.html">About</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <ul class="footer-links">
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
+            <li><a href="disclaimer.html">Disclaimer</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Mercury — Hg 80. All rights reserved.</span>
+        <div class="footer-socials">
+          <a href="#">Twitter</a>
+          <a href="#">Discord</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="scripts/architect.js"></script>
+  <script src="scripts/ambient.js"></script>
+</body>
+</html>

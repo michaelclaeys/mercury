@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API — Mercury</title>
+  <meta name="description" content="RESTful and WebSocket endpoints for prediction market data. Sub-50ms response times. Real-time probabilities, volumes, and resolution data.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/pages.css">
+</head>
+<body>
+
+  <!-- ─── NAVBAR ──────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="navbar-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="3"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+        </svg>
+        Mercury
+      </a>
+      <ul class="navbar-links">
+        <li><a href="index.html#suite">Suite</a></li>
+        <li><a href="index.html#analytics">Analytics</a></li>
+        <li><a href="architect.html">Architect</a></li>
+        <li><a href="index.html#pricing">Pricing</a></li>
+      </ul>
+      <div class="navbar-actions">
+        <a href="login.html" class="btn">Sign In</a>
+        <a href="dashboard.html" class="btn btn-primary">Launch</a>
+      </div>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#suite">Suite</a>
+    <a href="index.html#analytics">Analytics</a>
+    <a href="architect.html">Architect</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="login.html">Sign In</a>
+    <a href="dashboard.html">Launch Dashboard</a>
+  </div>
+
+  <!-- ─── PAGE CONTENT ────────────────────────────────── -->
+  <section class="page-hero">
+    <div class="container">
+      <div class="section-label">Mercury API</div>
+      <h1 class="page-title">Programmatic access to<br>every prediction market.</h1>
+      <p class="page-subtitle">RESTful and WebSocket endpoints for real-time probabilities, volume data, liquidity depth, and full contract metadata. Sub-50ms response times.</p>
+      <div class="page-status-row">
+        <span class="page-status page-status--soon">Coming Soon</span>
+        <span class="page-status-note">Join the waitlist for early access.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section">
+    <div class="container">
+      <div class="page-terminal">
+        <div class="deep-mockup-bar">
+          <span>mercury.api — endpoints</span>
+          <span>REFERENCE</span>
+        </div>
+        <div class="page-terminal-body">
+          <div class="api-endpoint">
+            <span class="api-method">GET</span>
+            <span class="api-path">/v1/markets</span>
+            <span class="api-desc">List all active prediction markets with current probabilities</span>
+          </div>
+          <div class="api-endpoint">
+            <span class="api-method">GET</span>
+            <span class="api-path">/v1/markets/:id</span>
+            <span class="api-desc">Full contract detail — probability, volume, liquidity, metadata</span>
+          </div>
+          <div class="api-endpoint">
+            <span class="api-method">GET</span>
+            <span class="api-path">/v1/markets/:id/history</span>
+            <span class="api-desc">Historical probability and volume data with configurable resolution</span>
+          </div>
+          <div class="api-endpoint">
+            <span class="api-method stream">WSS</span>
+            <span class="api-path">/v1/stream/markets</span>
+            <span class="api-desc">Real-time WebSocket feed for live probability updates</span>
+          </div>
+          <div class="api-endpoint">
+            <span class="api-method">GET</span>
+            <span class="api-path">/v1/analytics/greeks</span>
+            <span class="api-desc">Market analytics — probability greeks, momentum, dealer positioning</span>
+          </div>
+          <div class="api-endpoint">
+            <span class="api-method">GET</span>
+            <span class="api-path">/v1/analytics/arbitrage</span>
+            <span class="api-desc">Cross-platform price discrepancies and arbitrage opportunities</span>
+          </div>
+          <div class="api-endpoint">
+            <span class="api-method">GET</span>
+            <span class="api-path">/v1/analytics/liquidity</span>
+            <span class="api-desc">Liquidity depth heatmap data across platforms and contracts</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section">
+    <div class="container">
+      <div class="page-grid-3">
+        <div class="page-card">
+          <div class="page-card-num">01</div>
+          <div class="page-card-title">Sub-50ms Latency</div>
+          <div class="page-card-desc">Edge-cached endpoints optimized for speed. Real-time data delivered as fast as the markets move.</div>
+        </div>
+        <div class="page-card">
+          <div class="page-card-num">02</div>
+          <div class="page-card-title">WebSocket Streaming</div>
+          <div class="page-card-desc">Live probability feeds via persistent WebSocket connections. No polling. Push-based updates the moment markets shift.</div>
+        </div>
+        <div class="page-card">
+          <div class="page-card-num">03</div>
+          <div class="page-card-title">Multi-Platform</div>
+          <div class="page-card-desc">Unified API across Polymarket, Kalshi, and more. One integration, every market. Normalized contract schemas.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section">
+    <div class="container">
+      <div class="section-label">Rate Limits</div>
+      <div class="page-table">
+        <div class="page-table-row page-table-header">
+          <span>Tier</span>
+          <span>Requests / Day</span>
+          <span>WebSocket Connections</span>
+          <span>Historical Depth</span>
+        </div>
+        <div class="page-table-row">
+          <span class="page-table-tier">Starter</span>
+          <span>100</span>
+          <span>—</span>
+          <span>7 days</span>
+        </div>
+        <div class="page-table-row">
+          <span class="page-table-tier">Pro</span>
+          <span>1,000</span>
+          <span>5</span>
+          <span>90 days</span>
+        </div>
+        <div class="page-table-row">
+          <span class="page-table-tier">Institutional</span>
+          <span>Unlimited</span>
+          <span>Unlimited</span>
+          <span>Full history</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FINAL CTA ───────────────────────────────────── -->
+  <section class="final-cta">
+    <div class="container">
+      <h2 class="final-headline">Build on Mercury.</h2>
+      <p class="final-sub">Join the API waitlist for early access and priority onboarding.</p>
+      <div class="final-ctas">
+        <a href="signup.html" class="btn btn-primary">Join Waitlist</a>
+        <a href="index.html#pricing" class="btn">View Pricing</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ──────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">Mercury</div>
+          <p class="footer-desc">Liquid intelligence &amp; infrastructure for the next generation of traders.</p>
+        </div>
+        <div>
+          <div class="footer-col-title">Product</div>
+          <ul class="footer-links">
+            <li><a href="index.html#analytics">Analytics</a></li>
+            <li><a href="architect.html">Architect</a></li>
+            <li><a href="api.html">API</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="about.html">About</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <ul class="footer-links">
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
+            <li><a href="disclaimer.html">Disclaimer</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Mercury — Hg 80. All rights reserved.</span>
+        <div class="footer-socials">
+          <a href="#">Twitter</a>
+          <a href="#">Discord</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('hamburgerBtn')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('open');
+    });
+  </script>
+  <script src="scripts/ambient.js"></script>
+</body>
+</html>

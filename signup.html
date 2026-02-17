@@ -3,194 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - HedgeIQ</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Sign Up — Mercury</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --black: #000000;
+            --surface: #080808;
+            --border: #1a1a1a;
+            --dim: #444;
+            --muted: #888;
+            --white: #e0e0e0;
+            --green: #00c853;
+            --red: #ff1744;
+            --blue: #60a5fa;
         }
-
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0a0e17 0%, #1a1f2e 100%);
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--black);
+            color: var(--white);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
         }
-
         .signup-container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 40px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 3rem 2.5rem;
             width: 100%;
-            max-width: 420px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
         }
-
         .logo-container {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 2.5rem;
         }
-
-        .logo-image {
-            max-width: 280px;
-            height: auto;
-            margin-bottom: 12px;
+        .logo-container svg {
+            margin-bottom: 0.75rem;
         }
-
+        .logo-container h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--white);
+        }
         .logo-container p {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 14px;
+            color: var(--dim);
+            font-size: 0.6rem;
+            letter-spacing: 0.1em;
+            margin-top: 0.25rem;
         }
-
+        .tier-info {
+            border: 1px solid rgba(0, 200, 83, 0.3);
+            background: rgba(0, 200, 83, 0.05);
+            padding: 0.75rem;
+            font-size: 0.65rem;
+            color: var(--green);
+            text-align: center;
+            margin-bottom: 1.25rem;
+            letter-spacing: 0.05em;
+        }
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem;
         }
-
         label {
             display: block;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 8px;
+            color: var(--muted);
+            font-size: 0.6rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
         }
-
         input {
             width: 100%;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            color: #fff;
-            font-size: 14px;
-            transition: all 0.3s ease;
+            padding: 0.75rem 1rem;
+            background: var(--black);
+            border: 1px solid var(--border);
+            color: var(--white);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            transition: border-color 0.2s;
         }
-
         input:focus {
             outline: none;
-            border-color: #3b82f6;
-            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--green);
         }
-
         input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
+            color: var(--dim);
         }
-
         .btn {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            padding: 0.85rem;
+            background: var(--white);
             border: none;
-            border-radius: 10px;
-            color: #fff;
-            font-size: 16px;
+            color: var(--black);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
             font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            margin-top: 10px;
+            transition: background 0.2s;
+            margin-top: 0.5rem;
         }
-
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+            background: var(--green);
         }
-
         .btn:disabled {
-            opacity: 0.6;
+            opacity: 0.4;
             cursor: not-allowed;
-            transform: none;
         }
-
         .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 14px;
-            margin-bottom: 20px;
+            background: rgba(255, 23, 68, 0.08);
+            border: 1px solid rgba(255, 23, 68, 0.3);
+            color: var(--red);
+            padding: 0.75rem;
+            font-size: 0.65rem;
+            margin-bottom: 1.25rem;
             display: none;
         }
-
-        .error-message.show {
-            display: block;
-        }
-
+        .error-message.show { display: block; }
         .success-message {
-            background: rgba(34, 197, 94, 0.1);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            color: #86efac;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 14px;
-            margin-bottom: 20px;
+            background: rgba(0, 200, 83, 0.08);
+            border: 1px solid rgba(0, 200, 83, 0.3);
+            color: var(--green);
+            padding: 0.75rem;
+            font-size: 0.65rem;
+            margin-bottom: 1.25rem;
             display: none;
         }
-
-        .success-message.show {
-            display: block;
-        }
-
+        .success-message.show { display: block; }
         .login-link {
             text-align: center;
-            margin-top: 20px;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 14px;
+            margin-top: 1.5rem;
+            color: var(--dim);
+            font-size: 0.65rem;
         }
-
         .login-link a {
-            color: #3b82f6;
+            color: var(--green);
             text-decoration: none;
-            font-weight: 600;
         }
-
         .login-link a:hover {
             text-decoration: underline;
         }
-
         .back-home {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 1rem;
         }
-
         .back-home a {
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--dim);
             text-decoration: none;
-            font-size: 14px;
+            font-size: 0.6rem;
+            letter-spacing: 0.05em;
             transition: color 0.2s;
         }
-
         .back-home a:hover {
-            color: #3b82f6;
-        }
-
-        .tier-info {
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.8);
-            text-align: center;
+            color: var(--white);
         }
     </style>
 </head>
 <body>
     <div class="signup-container">
         <div class="logo-container">
-            <img src="assets/hedge_iq_logo.png" onerror="this.src='hedge_iq_logo.png'" alt="HedgeIQ Logo" class="logo-image">
-            <p>Options Greeks Analytics</p>
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="3"/>
+                <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
+                <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+            </svg>
+            <h2>Mercury</h2>
+            <p>Prediction Market Infrastructure</p>
         </div>
 
         <div class="tier-info">
-            🎉 Starting with <strong>Free Tier</strong> - Upgrade anytime!
+            Starting with Free Tier — upgrade anytime
         </div>
 
         <div id="errorMessage" class="error-message"></div>
@@ -201,37 +190,31 @@
                 <label for="email">Email</label>
                 <input type="email" id="email" placeholder="you@example.com" required>
             </div>
-
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" placeholder="Min 8 characters" required minlength="8">
             </div>
-
             <div class="form-group">
                 <label for="confirmPassword">Confirm Password</label>
                 <input type="password" id="confirmPassword" placeholder="Re-enter password" required>
             </div>
-
             <button type="submit" class="btn" id="signupBtn">Create Account</button>
         </form>
 
         <div class="login-link">
             Already have an account? <a href="login.html">Sign in</a>
         </div>
-
         <div class="back-home">
-            <a href="index.html">← Back to home</a>
+            <a href="index.html">&larr; Back to home</a>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script>
         (function() {
             const SUPABASE_URL = 'https://bjjpfvlcwarloxigoytl.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqanBmdmxjd2FybG94aWdveXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwODgyNjcsImV4cCI6MjA4MTY2NDI2N30.cIVZG4D3-SK0qJp_TgcVBO848negG6bXRCSuHk5Motk';
 
-            // Safety check to prevent "Already Declared" error
             if (!window.supabaseClient) {
                 window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             }
@@ -244,7 +227,7 @@
 
             signupForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
+
                 const email = document.getElementById('email').value;
                 const password = document.getElementById('password').value;
                 const confirmPassword = document.getElementById('confirmPassword').value;
@@ -273,7 +256,7 @@
 
                     showSuccess('Success! Please check your email or try logging in.');
                     signupForm.reset();
-                    
+
                     setTimeout(() => {
                         window.location.href = 'login.html';
                     }, 4000);
@@ -290,12 +273,10 @@
                 errorMessage.textContent = message;
                 errorMessage.classList.add('show');
             }
-
             function showSuccess(message) {
                 successMessage.textContent = message;
                 successMessage.classList.add('show');
             }
-
             function hideMessages() {
                 errorMessage.classList.remove('show');
                 successMessage.classList.remove('show');

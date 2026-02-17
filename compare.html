@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Compare — Archive vs Warp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --black: #000000;
+      --dim: #444444;
+      --silver: #909090;
+      --bright: #d0d0d0;
+      --pure: #ffffff;
+      --green: #00c853;
+      --border-bright: #333;
+      --mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    }
+    body { background: #000; color: #fff; font-family: var(--mono); overflow: hidden; }
+
+    .split { display: flex; width: 100vw; height: 100vh; }
+    .pane { position: relative; flex: 1; overflow: hidden; }
+    .divider { width: 1px; background: rgba(255,255,255,0.2); z-index: 99999; }
+    .pane canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+    /* Label at top */
+    .pane-label {
+      position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+      font-size: 9px; letter-spacing: 0.35em; color: rgba(255,255,255,0.35);
+      z-index: 20; pointer-events: none; text-transform: uppercase;
+    }
+
+    /* ── Intro overlay (replicated from architect.css) ── */
+    .intro-overlay {
+      position: absolute; inset: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; pointer-events: none;
+    }
+    .intro-center {
+      position: relative; z-index: 2; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
+    }
+    .intro-title {
+      font-size: clamp(1.5rem, 5vw, 4rem); font-weight: 300;
+      letter-spacing: 0.6em; text-transform: uppercase;
+      color: var(--pure); font-family: var(--mono);
+      opacity: 0; transform: translateY(-10px);
+      transition: opacity 1s ease, transform 1s ease;
+      margin-right: -0.6em;
+    }
+    .intro-title.visible { opacity: 1; transform: translateY(0); }
+
+    .intro-textline {
+      font-size: 0.85rem; opacity: 0; transition: opacity 0.5s ease;
+    }
+    .intro-textline.visible { opacity: 1; }
+
+    .intro-word {
+      color: var(--pure); font-weight: 600;
+      display: inline-block; min-width: 80px; text-align: center;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .intro-word.out { opacity: 0; transform: translateY(-7px); }
+
+    /* Terminal */
+    .intro-terminal {
+      position: absolute; bottom: 3.5rem; left: 1.5rem; z-index: 3;
+      font-size: 0.55rem; line-height: 1.9; color: var(--dim);
+      letter-spacing: 0.04em; max-width: 300px;
+    }
+    .term-line { opacity: 0; transform: translateX(-6px); transition: opacity 0.3s ease, transform 0.3s ease; white-space: nowrap; overflow: hidden; }
+    .term-line.visible { opacity: 1; transform: none; }
+    .term-dots { color: var(--border-bright); letter-spacing: 0; }
+    .term-ok { color: var(--green); }
+
+    .intro-skip {
+      position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      font-size: 0.5rem; letter-spacing: 0.2em; color: var(--dim);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="split">
+    <!-- ═══ LEFT: Archive (skyscraper) ═══ -->
+    <div class="pane" id="paneLeft">
+      <div class="pane-label">ARCHIVE — SKYSCRAPER</div>
+      <canvas id="skylineCanvas"></canvas>
+      <div class="intro-overlay" id="overlayLeft">
+        <div class="intro-terminal" id="termLeft">
+          <div class="term-line" data-delay="0">> architect.init()</div>
+          <div class="term-line" data-delay="250">> loading blueprint_render <span class="term-dots">..........</span> <span class="term-ok">OK</span></div>
+          <div class="term-line" data-delay="500">> loading node_graph <span class="term-dots">...............</span> <span class="term-ok">OK</span></div>
+          <div class="term-line" data-delay="750">> loading ai_engine <span class="term-dots">..............</span> <span class="term-ok">OK</span></div>
+          <div class="term-line" data-delay="1000">> connecting market_feeds <span class="term-dots">........</span> <span class="term-ok">OK</span></div>
+          <div class="term-line" data-delay="1250">> status: <span class="term-ok">all systems operational</span></div>
+        </div>
+        <div class="intro-center">
+          <div class="intro-title" id="titleLeft">ARCHITECT</div>
+          <div class="intro-textline" id="textlineLeft">
+            <span class="intro-word" id="wordLeft">imagine</span>
+          </div>
+        </div>
+        <div class="intro-skip">Click anywhere to skip</div>
+      </div>
+      <!-- Hidden elements archive script looks for -->
+      <div id="archIntro" style="display:none"><span id="archTitle"></span><span id="archTextline"><span id="archWord"></span></span><div id="archTerminal"></div></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ═══ RIGHT: Current (warp) ═══ -->
+    <div class="pane" id="paneRight">
+      <div class="pane-label">CURRENT — WARP</div>
+      <canvas id="warpCanvas"></canvas>
+      <div class="intro-overlay" id="overlayRight">
+        <div class="intro-terminal" id="termRight">
+          <div class="term-line" data-delay="0">> architect.init()</div>
+          <div class="term-line" data-delay="250">> loading blueprint_render <span class="term-dots">..........</span> <span class="term-ok">OK</span></div>
+          <div class="term-line" data-delay="500">> loading node_graph <span class="term-dots">...............</span> <span class="term-ok">OK</span></div>
+          <div class="term-line" data-delay="750">> loading ai_engine <span class="term-dots">..............</span> <span class="term-ok">OK</span></div>
+          <div class="term-line" data-delay="1000">> connecting market_feeds <span class="term-dots">........</span> <span class="term-ok">OK</span></div>
+          <div class="term-line" data-delay="1250">> status: <span class="term-ok">all systems operational</span></div>
+        </div>
+        <div class="intro-center">
+          <div class="intro-title" id="titleRight">ARCHITECT</div>
+          <div class="intro-textline" id="textlineRight">
+            <span class="intro-word" id="wordRight">imagine</span>
+          </div>
+        </div>
+        <div class="intro-skip">Click anywhere to skip</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Archive renderer (left pane) ═══ -->
+  <script src="scripts/architect-skyline-archive.js"></script>
+  <script>
+    // Resize archive canvas to left pane
+    (function() {
+      const c = document.getElementById('skylineCanvas');
+      const pane = document.getElementById('paneLeft');
+      function fit() { c.width = pane.clientWidth; c.height = pane.clientHeight; }
+      fit(); window.addEventListener('resize', fit);
+    })();
+  </script>
+
+  <!-- ═══ Warp renderer (right pane) ═══ -->
+  <script>
+  (function() {
+    const canvas = document.getElementById('warpCanvas');
+    const ctx = canvas.getContext('2d');
+    const pane = document.getElementById('paneRight');
+
+    function resize() { canvas.width = pane.clientWidth; canvas.height = pane.clientHeight; }
+    resize(); window.addEventListener('resize', resize);
+
+    function easeIO(t) { return t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2; }
+    function clamp01(v) { return v<0?0:v>1?1:v; }
+
+    const NUM_BLDG = 90, FAR = 140, NEAR = 0.5, ROAD_HW = 5, CAM_H = 1.8, MAX_SPEED = 40;
+    let camZ = 0, speed = 0;
+    const bldgs = [];
+
+    function spawnBldg(zMin, zMax) {
+      const side = Math.random()>0.5?1:-1;
+      const off = ROAD_HW + 0.4 + Math.random()*7;
+      const bw = 3 + Math.random()*9;
+      const bh = 12 + Math.random()*58;
+      const dep = 2.5 + Math.random()*5;
+      const floors = Math.max(2, Math.floor(bh/2.5));
+      const winCols = Math.max(1, Math.floor(bw/1.8));
+      const wins = [];
+      for (let r=0; r<floors; r++) for (let c=0; c<winCols; c++) {
+        wins.push({ row:r, col:c, lit:Math.random()>0.35, alpha:0.05+Math.random()*0.55, flicker:0.002+Math.random()*0.005 });
+      }
+      const swCols = Math.max(1, Math.floor(dep/2));
+      const swins = [];
+      for (let r=0; r<floors; r++) for (let c=0; c<swCols; c++) {
+        swins.push({ row:r, col:c, lit:Math.random()>0.42, alpha:0.04+Math.random()*0.4, flicker:0.002+Math.random()*0.004 });
+      }
+      return { side, off, bw, bh, dep, floors, winCols, wins, swCols, swins,
+        z: zMin+Math.random()*(zMax-zMin),
+        antenna: Math.random()>0.35, antH: 2+Math.random()*6, seed: Math.random()*999 };
+    }
+    for (let i=0; i<NUM_BLDG; i++) bldgs.push(spawnBldg(2, FAR));
+
+    const introStart = performance.now();
+    let lastFrame = introStart;
+
+    function render(now) {
+      const dt = Math.min((now-lastFrame)/1000, 0.05);
+      lastFrame = now;
+      const t = (now-introStart)/1000;
+      const w = canvas.width, h = canvas.height;
+      const vpx = w*0.5, vpy = h*0.42, foc = w*0.55;
+
+      speed = t<0.3 ? 2 : 2 + (MAX_SPEED-2)*easeIO(clamp01((t-0.3)/2.2));
+      camZ += speed*dt;
+
+      function proj(wx,wy,wz) {
+        const rz=wz-camZ; if(rz<NEAR) return null;
+        const s=foc/rz; return {x:vpx+wx*s, y:vpy-(wy-CAM_H)*s, s};
+      }
+
+      ctx.fillStyle='#000'; ctx.fillRect(0,0,w,h);
+
+      // Blueprint grid
+      const gridA = Math.min(0.03, t*0.06);
+      if (gridA > 0.002) {
+        ctx.strokeStyle='rgba(255,255,255,'+gridA+')'; ctx.lineWidth=0.5;
+        const gs = Math.max(20, Math.min(35, w/40));
+        for (let gx=gs; gx<w; gx+=gs) { ctx.beginPath(); ctx.moveTo(gx,0); ctx.lineTo(gx,h); ctx.stroke(); }
+        for (let gy=gs; gy<h; gy+=gs) { ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(w,gy); ctx.stroke(); }
+      }
+
+      // Drawing border
+      if (t>0.05) { ctx.strokeStyle='rgba(255,255,255,'+(0.06*clamp01(t/0.4))+')'; ctx.lineWidth=0.5; ctx.strokeRect(12,12,w-24,h-24); }
+
+      // Sky glow
+      const skyG = ctx.createRadialGradient(vpx,vpy,0,vpx,vpy,w*0.8);
+      skyG.addColorStop(0,'rgba(255,255,255,0.02)'); skyG.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=skyG; ctx.fillRect(0,0,w,h);
+
+      // Road
+      const rNL=proj(-ROAD_HW,0,camZ+1), rNR=proj(ROAD_HW,0,camZ+1);
+      const rFL=proj(-ROAD_HW,0,camZ+FAR), rFR=proj(ROAD_HW,0,camZ+FAR);
+      if(rNL&&rNR&&rFL&&rFR) {
+        ctx.fillStyle='rgba(255,255,255,0.006)';
+        ctx.beginPath(); ctx.moveTo(rNL.x,rNL.y); ctx.lineTo(rFL.x,rFL.y); ctx.lineTo(rFR.x,rFR.y); ctx.lineTo(rNR.x,rNR.y); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1.2;
+        ctx.beginPath(); ctx.moveTo(rNL.x,rNL.y); ctx.lineTo(rFL.x,rFL.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(rNR.x,rNR.y); ctx.lineTo(rFR.x,rFR.y); ctx.stroke();
+        // Sidewalk
+        ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=0.5;
+        const sw=ROAD_HW+0.8;
+        const sNL=proj(-sw,0,camZ+1),sFL=proj(-sw,0,camZ+FAR),sNR=proj(sw,0,camZ+1),sFR=proj(sw,0,camZ+FAR);
+        if(sNL&&sFL){ctx.beginPath();ctx.moveTo(sNL.x,sNL.y);ctx.lineTo(sFL.x,sFL.y);ctx.stroke();}
+        if(sNR&&sFR){ctx.beginPath();ctx.moveTo(sNR.x,sNR.y);ctx.lineTo(sFR.x,sFR.y);ctx.stroke();}
+      }
+
+      // Center dashes
+      const dCyc=5.5, dStart=Math.ceil((camZ+1)/dCyc)*dCyc;
+      for(let dz=dStart;dz<camZ+FAR*0.8;dz+=dCyc) {
+        const p1=proj(0,0.01,dz), p2=proj(0,0.01,dz+2.5);
+        if(!p1||!p2) continue;
+        ctx.strokeStyle='rgba(255,255,255,'+Math.min(0.4,4/(dz-camZ))+')';
+        ctx.lineWidth=Math.max(0.5,p1.s*0.12);
+        ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+      }
+
+      // Crosswalks
+      const cwSp=28, cwS=Math.ceil((camZ+1)/cwSp)*cwSp;
+      for(let cz=cwS;cz<camZ+FAR*0.4;cz+=cwSp) {
+        const cwa=clamp01(3/(cz-camZ))*0.07; if(cwa<0.005) continue;
+        for(let s=0;s<7;s++) { const sz=cz+s*0.45; const cl=proj(-ROAD_HW*0.8,0.01,sz),cr=proj(ROAD_HW*0.8,0.01,sz);
+          if(cl&&cr){ctx.strokeStyle='rgba(255,255,255,'+cwa+')';ctx.lineWidth=Math.max(0.5,cl.s*0.15);ctx.beginPath();ctx.moveTo(cl.x,cl.y);ctx.lineTo(cr.x,cr.y);ctx.stroke();}
+        }
+      }
+
+      // Recycle & sort
+      for(let i=0;i<bldgs.length;i++) { if(bldgs[i].z+bldgs[i].dep<camZ-1) bldgs[i]=spawnBldg(camZ+FAR*0.6,camZ+FAR); }
+      bldgs.sort((a,b)=>(b.z+b.dep)-(a.z+a.dep));
+
+      // ─── Draw buildings ───
+      for(const b of bldgs) {
+        const rz=b.z-camZ;
+        if(rz>FAR||b.z+b.dep<camZ+NEAR) continue;
+        const wx=b.side*b.off, wxE=wx+b.side*b.bw, cx=(wx+wxE)/2;
+        const df=clamp01(8/Math.max(rz,NEAR));
+        const a=0.15+df*0.75;
+        const floorH=b.bh/(b.floors+1);
+        const isClose=rz<18, isMed=rz<42;
+
+        // Front face
+        const bl=proj(wx,0,b.z), br=proj(wxE,0,b.z);
+        const tl=proj(wx,b.bh,b.z), tr=proj(wxE,b.bh,b.z);
+        if(!bl||!br||!tl||!tr) continue;
+        if(Math.max(bl.x,br.x,tl.x,tr.x)<-50||Math.min(bl.x,br.x,tl.x,tr.x)>w+50) continue;
+
+        // Dark fill
+        ctx.fillStyle='rgba(0,0,0,'+(0.6+df*0.35)+')';
+        ctx.beginPath(); ctx.moveTo(bl.x,bl.y); ctx.lineTo(tl.x,tl.y); ctx.lineTo(tr.x,tr.y); ctx.lineTo(br.x,br.y); ctx.closePath(); ctx.fill();
+        // Outline
+        ctx.strokeStyle='rgba(255,255,255,'+a+')';
+        ctx.lineWidth=df>0.4?1.5:0.8;
+        ctx.stroke();
+
+        // Floor lines
+        if(isMed) for(let f=1;f<=b.floors;f++) {
+          const fl=proj(wx,f*floorH,b.z), fr=proj(wxE,f*floorH,b.z);
+          if(fl&&fr){ctx.strokeStyle='rgba(255,255,255,'+(a*0.3)+')';ctx.lineWidth=0.4;ctx.beginPath();ctx.moveTo(fl.x,fl.y);ctx.lineTo(fr.x,fr.y);ctx.stroke();}
+        }
+
+        // Windows
+        if(df>0.06) b.wins.forEach(win=>{
+          const fy=(win.row+0.55)*floorH;
+          const wp=proj(wx+b.side*b.bw*((win.col+0.5)/b.winCols),fy,b.z);
+          if(!wp) return;
+          const wa=win.lit?win.alpha*(0.3+df*0.7):0.02;
+          const ws=Math.max(1,wp.s*0.3);
+          ctx.fillStyle='rgba(255,255,255,'+wa+')'; ctx.fillRect(wp.x-ws/2,wp.y-ws/2,ws,ws);
+          // Light bleed for close
+          if(win.lit&&isClose&&df>0.5&&win.alpha>0.3){
+            const gr=ws*3; const gl=ctx.createRadialGradient(wp.x,wp.y,0,wp.x,wp.y,gr);
+            gl.addColorStop(0,'rgba(255,255,255,'+(wa*0.12)+')'); gl.addColorStop(1,'rgba(0,0,0,0)');
+            ctx.fillStyle=gl; ctx.beginPath(); ctx.arc(wp.x,wp.y,gr,0,Math.PI*2); ctx.fill();
+          }
+        });
+
+        // Side face
+        if(isMed) {
+          const sfN=Math.max(b.z,camZ+NEAR), sfF=b.z+b.dep;
+          const sbl=proj(wx,0,sfN), sbr=proj(wx,0,sfF), stl=proj(wx,b.bh,sfN), str=proj(wx,b.bh,sfF);
+          if(sbl&&sbr&&stl&&str) {
+            ctx.fillStyle='rgba(0,0,0,'+(0.4+df*0.3)+')';
+            ctx.beginPath(); ctx.moveTo(sbl.x,sbl.y); ctx.lineTo(stl.x,stl.y); ctx.lineTo(str.x,str.y); ctx.lineTo(sbr.x,sbr.y); ctx.closePath(); ctx.fill();
+            ctx.strokeStyle='rgba(255,255,255,'+(a*0.7)+')'; ctx.lineWidth=0.7; ctx.stroke();
+            // Side windows
+            if(df>0.1) b.swins.forEach(win=>{
+              const fy=(win.row+0.55)*floorH;
+              const wz=sfN+(sfF-sfN)*((win.col+0.5)/b.swCols);
+              const wp=proj(wx,fy,wz); if(!wp) return;
+              const wdf=clamp01(6/(wz-camZ));
+              const wa=win.lit?win.alpha*(0.25+wdf*0.5):0.015;
+              const ws=Math.max(0.8,wp.s*0.25);
+              ctx.fillStyle='rgba(255,255,255,'+wa+')'; ctx.fillRect(wp.x-ws/2,wp.y-ws/2,ws,ws);
+            });
+          }
+        }
+
+        // Top face edge
+        if(isClose) {
+          const ftl=proj(wx,b.bh,b.z),ftr=proj(wxE,b.bh,b.z),btl=proj(wx,b.bh,b.z+b.dep),btr=proj(wxE,b.bh,b.z+b.dep);
+          if(ftl&&ftr&&btl&&btr){
+            ctx.strokeStyle='rgba(255,255,255,'+(a*0.3)+')'; ctx.lineWidth=0.5;
+            ctx.beginPath(); ctx.moveTo(ftl.x,ftl.y); ctx.lineTo(btl.x,btl.y); ctx.lineTo(btr.x,btr.y); ctx.lineTo(ftr.x,ftr.y); ctx.closePath(); ctx.stroke();
+          }
+        }
+
+        // Antenna
+        if(b.antenna&&df>0.1) {
+          const mid=cx;
+          const aB=proj(mid,b.bh,b.z), aT=proj(mid,b.bh+b.antH,b.z);
+          if(aB&&aT) {
+            ctx.strokeStyle='rgba(255,255,255,'+(a*0.5)+')'; ctx.lineWidth=0.5;
+            ctx.beginPath(); ctx.moveTo(aB.x,aB.y); ctx.lineTo(aT.x,aT.y); ctx.stroke();
+            const blink=(Math.sin(now*0.003+b.seed*10)+1)*0.3*df;
+            ctx.fillStyle='rgba(255,255,255,'+blink+')';
+            ctx.beginPath(); ctx.arc(aT.x,aT.y,1.5,0,Math.PI*2); ctx.fill();
+          }
+        }
+      }
+
+      // Flicker
+      if(t>2) bldgs.forEach(b=>{
+        b.wins.forEach(w=>{if(Math.random()<w.flicker){w.lit=!w.lit;if(w.lit)w.alpha=0.05+Math.random()*0.55;}});
+        b.swins.forEach(w=>{if(Math.random()<w.flicker){w.lit=!w.lit;if(w.lit)w.alpha=0.04+Math.random()*0.4;}});
+      });
+
+      // Street lights
+      const ltSp=14, ltH=4.5, ltS=Math.ceil((camZ+1)/ltSp)*ltSp;
+      for(let lz=ltS;lz<camZ+FAR*0.5;lz+=ltSp) {
+        const lrz=lz-camZ;
+        [-1,1].forEach(side=>{
+          const lx=side*(ROAD_HW+0.4);
+          const base=proj(lx,0,lz),top=proj(lx,ltH,lz);
+          if(!base||!top) return;
+          const la=clamp01(3/lrz)*0.15; if(la<0.01) return;
+          ctx.strokeStyle='rgba(255,255,255,'+la+')'; ctx.lineWidth=0.5;
+          ctx.beginPath(); ctx.moveTo(base.x,base.y); ctx.lineTo(top.x,top.y); ctx.stroke();
+          const arm=proj(lx-side*1.5,ltH,lz);
+          if(arm){ctx.beginPath();ctx.moveTo(top.x,top.y);ctx.lineTo(arm.x,arm.y);ctx.stroke();}
+          if(la>0.03){
+            const gp=arm||top, gr=Math.max(4,(gp.s||top.s)*3);
+            const gl=ctx.createRadialGradient(gp.x,gp.y,0,gp.x,gp.y,gr);
+            gl.addColorStop(0,'rgba(255,255,255,'+(la*0.5)+')'); gl.addColorStop(1,'rgba(0,0,0,0)');
+            ctx.fillStyle=gl; ctx.beginPath(); ctx.arc(gp.x,gp.y,gr,0,Math.PI*2); ctx.fill();
+          }
+        });
+      }
+
+      // Speed streaks
+      if(speed>8) {
+        const si=clamp01((speed-8)/(MAX_SPEED-8));
+        for(let i=0;i<35;i++) {
+          const ang=(i/35)*Math.PI*2+t*0.02;
+          const r1=w*0.12+Math.sin(i*5.7+t*0.5)*w*0.1, r2=r1+20+speed;
+          ctx.strokeStyle='rgba(255,255,255,'+(0.035*si)+')'; ctx.lineWidth=0.5;
+          ctx.beginPath();
+          ctx.moveTo(vpx+Math.cos(ang)*r1,vpy+Math.sin(ang)*r1*0.55);
+          ctx.lineTo(vpx+Math.cos(ang)*r2,vpy+Math.sin(ang)*r2*0.55);
+          ctx.stroke();
+        }
+      }
+
+      // Ground glow
+      if(t>0.3){const ga=Math.min(0.06,(t-0.3)*0.012);const gg=ctx.createLinearGradient(0,h,0,h-70);gg.addColorStop(0,'rgba(255,255,255,'+ga+')');gg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=gg;ctx.fillRect(0,h-70,w,70);}
+
+      // Scan line
+      if(t>1){ctx.fillStyle='rgba(255,255,255,0.01)';ctx.fillRect(0,(t*30)%h,w,1);}
+
+      // Title block
+      if(t>0.8){
+        const tp=clamp01((t-0.8)/0.5), tbW=160, tbH=45;
+        const tbX=w-20-tbW, tbY=h-20-tbH;
+        ctx.strokeStyle='rgba(255,255,255,'+(0.1*tp)+')'; ctx.lineWidth=0.5;
+        ctx.strokeRect(tbX,tbY,tbW,tbH);
+        ctx.beginPath(); ctx.moveTo(tbX,tbY+18); ctx.lineTo(tbX+tbW,tbY+18); ctx.stroke();
+        ctx.save(); ctx.font='9px JetBrains Mono,monospace';
+        ctx.fillStyle='rgba(255,255,255,'+(0.25*tp)+')'; ctx.textAlign='left';
+        ctx.fillText('MERCURY',tbX+8,tbY+13);
+        ctx.font='6px JetBrains Mono,monospace'; ctx.fillStyle='rgba(255,255,255,'+(0.15*tp)+')';
+        ctx.fillText('ARCHITECT / WARP VIEW',tbX+8,tbY+30);
+        ctx.fillText('DWG: A-101',tbX+8,tbY+40);
+        ctx.restore();
+      }
+
+      requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+  })();
+  </script>
+
+  <!-- ═══ Intro text overlay animations (both sides) ═══ -->
+  <script>
+  (function() {
+    // Animate terminal lines
+    function animTerm(id) {
+      document.getElementById(id).querySelectorAll('.term-line').forEach(line => {
+        setTimeout(() => line.classList.add('visible'), parseInt(line.dataset.delay) || 0);
+      });
+    }
+    animTerm('termLeft');
+    animTerm('termRight');
+
+    // Show titles at 1.2s
+    setTimeout(() => {
+      document.getElementById('titleLeft').classList.add('visible');
+      document.getElementById('titleRight').classList.add('visible');
+    }, 1200);
+
+    // Show textline at 2s
+    setTimeout(() => {
+      document.getElementById('textlineLeft').classList.add('visible');
+      document.getElementById('textlineRight').classList.add('visible');
+    }, 2000);
+
+    // Word cycling
+    const words = ['imagine','design','build','test','deploy','profit'];
+    let idx = 1;
+    function cycle() {
+      if (idx >= words.length) return;
+      ['wordLeft','wordRight'].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.add('out');
+        setTimeout(() => {
+          el.textContent = words[idx];
+          el.classList.remove('out');
+        }, 120);
+      });
+      idx++;
+      setTimeout(cycle, 370);
+    }
+    setTimeout(cycle, 2650);
+  })();
+  </script>
+
+</body>
+</html>

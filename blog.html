@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — Mercury</title>
+  <meta name="description" content="Mercury blog — prediction market analysis, platform updates, trading insights, and research from the Mercury team.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/pages.css">
+</head>
+<body>
+
+  <!-- ─── NAVBAR ──────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="navbar-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="3"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+        </svg>
+        Mercury
+      </a>
+      <ul class="navbar-links">
+        <li><a href="index.html#suite">Suite</a></li>
+        <li><a href="index.html#analytics">Analytics</a></li>
+        <li><a href="architect.html">Architect</a></li>
+        <li><a href="index.html#pricing">Pricing</a></li>
+      </ul>
+      <div class="navbar-actions">
+        <a href="login.html" class="btn">Sign In</a>
+        <a href="dashboard.html" class="btn btn-primary">Launch</a>
+      </div>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#suite">Suite</a>
+    <a href="index.html#analytics">Analytics</a>
+    <a href="architect.html">Architect</a>
+    <a href="index.html#pricing">Pricing</a>
+    <a href="login.html">Sign In</a>
+    <a href="dashboard.html">Launch Dashboard</a>
+  </div>
+
+  <!-- ─── PAGE CONTENT ────────────────────────────────── -->
+  <section class="page-hero">
+    <div class="container">
+      <div class="section-label">Mercury Blog</div>
+      <h1 class="page-title">Research, updates,<br>and market analysis.</h1>
+      <p class="page-subtitle">Prediction market insights from the Mercury team. Platform updates, trading research, and technical deep dives.</p>
+    </div>
+  </section>
+
+  <section class="page-section">
+    <div class="container">
+      <div class="blog-list">
+        <a href="#" class="blog-item">
+          <div class="blog-item-meta">
+            <span class="blog-item-date">Feb 12, 2026</span>
+            <span class="blog-item-tag">Platform</span>
+          </div>
+          <div class="blog-item-title">Introducing Mercury — Prediction Market Infrastructure for Every Trader</div>
+          <div class="blog-item-excerpt">We're launching Mercury: the first platform to bring institutional-grade analytics, AI-powered bots, and production infrastructure to prediction markets. Here's what it does and why it matters.</div>
+        </a>
+        <a href="#" class="blog-item">
+          <div class="blog-item-meta">
+            <span class="blog-item-date">Feb 6, 2026</span>
+            <span class="blog-item-tag">Research</span>
+          </div>
+          <div class="blog-item-title">Probability Analytics in Binary Markets — New Frameworks for Prediction Contracts</div>
+          <div class="blog-item-excerpt">Traditional finance analytics don't directly apply to binary outcomes. We developed a modified framework that maps dealer positioning to probability movements. Here's the math.</div>
+        </a>
+        <a href="#" class="blog-item">
+          <div class="blog-item-meta">
+            <span class="blog-item-date">Jan 28, 2026</span>
+            <span class="blog-item-tag">Analysis</span>
+          </div>
+          <div class="blog-item-title">Cross-Platform Arbitrage: Polymarket vs Kalshi Price Discrepancies</div>
+          <div class="blog-item-excerpt">We tracked 90 days of cross-platform pricing data and found consistent arbitrage windows averaging 2-4c on high-volume contracts. Here's what we found and how to exploit it.</div>
+        </a>
+        <a href="#" class="blog-item">
+          <div class="blog-item-meta">
+            <span class="blog-item-date">Jan 15, 2026</span>
+            <span class="blog-item-tag">Platform</span>
+          </div>
+          <div class="blog-item-title">Why We Built Mercury — And Why Prediction Markets Need Better Tools</div>
+          <div class="blog-item-excerpt">Prediction markets are the most efficient pricing mechanism for real-world events. But the tooling is years behind. This is the problem we're solving and how we're approaching it.</div>
+        </a>
+        <a href="#" class="blog-item">
+          <div class="blog-item-meta">
+            <span class="blog-item-date">Jan 4, 2026</span>
+            <span class="blog-item-tag">Technical</span>
+          </div>
+          <div class="blog-item-title">Building a Sub-50ms Market Data Pipeline for Prediction Markets</div>
+          <div class="blog-item-excerpt">A technical deep dive into Mercury's real-time data infrastructure. How we achieve sub-50ms latency from platform feed to user terminal, and the architecture decisions behind it.</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ──────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">Mercury</div>
+          <p class="footer-desc">Liquid intelligence &amp; infrastructure for the next generation of traders.</p>
+        </div>
+        <div>
+          <div class="footer-col-title">Product</div>
+          <ul class="footer-links">
+            <li><a href="index.html#analytics">Analytics</a></li>
+            <li><a href="architect.html">Architect</a></li>
+            <li><a href="api.html">API</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="about.html">About</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <ul class="footer-links">
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
+            <li><a href="disclaimer.html">Disclaimer</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Mercury — Hg 80. All rights reserved.</span>
+        <div class="footer-socials">
+          <a href="#">Twitter</a>
+          <a href="#">Discord</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('hamburgerBtn')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('open');
+    });
+  </script>
+  <script src="scripts/ambient.js"></script>
+</body>
+</html>

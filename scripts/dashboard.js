@@ -33,7 +33,7 @@ async function initAuth() {
 // ========== CONFIGURATION ==========
 const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
     ? 'http://localhost:8000/api'
-    : 'https://hedgeiq-backend.onrender.com/api';
+    : 'https://mercury-backend.onrender.com/api';
 const GEX_REFRESH_INTERVAL = 60 * 1000; // GEX data refresh — 60s
 const PRICE_HISTORY_FETCH_INTERVAL = 5 * 60 * 1000; // CoinGecko backfill — 5 min
 

@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Architect — Mercury</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/architect-app.css">
+  <link rel="stylesheet" href="./styles/research.css">
+</head>
+<body>
+
+  <!-- Mobile Menu Button -->
+  <button class="mobile-menu-btn" id="mobileMenuBtn">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ════════ SIDEBAR ════════ -->
+  <aside class="sidebar" id="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <svg class="logo-orbit" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="3"/>
+        <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
+        <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+      </svg>
+      <div class="logo-text-group">
+        <span class="logo-name">Mercury</span>
+        <span class="logo-sub">Architect</span>
+      </div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-view="builder">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+        </svg>
+        Agent
+      </a>
+      <a href="#" class="nav-item" data-view="my-bots">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="3" width="20" height="14" rx="0"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+          <circle cx="8" cy="10" r="1" fill="currentColor"></circle>
+          <circle cx="16" cy="10" r="1" fill="currentColor"></circle>
+        </svg>
+        My Bots
+      </a>
+      <a href="#" class="nav-item" data-view="backtest">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        Backtest
+      </a>
+      <a href="#" class="nav-item" data-view="templates">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18"></rect>
+          <line x1="3" y1="9" x2="21" y2="9"></line>
+          <line x1="9" y1="21" x2="9" y2="9"></line>
+        </svg>
+        Templates
+      </a>
+      <a href="#" class="nav-item" data-view="research">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="2" x2="12" y2="22"></line>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <circle cx="12" cy="12" r="4"></circle>
+        </svg>
+        Research
+      </a>
+
+      <div class="nav-separator"></div>
+
+      <a href="index.html" class="nav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        Home
+      </a>
+    </nav>
+
+    <!-- Connected Accounts -->
+    <div class="sidebar-accounts">
+      <div class="accounts-title">Connected Accounts</div>
+      <div class="account-row" id="accountPolymarket">
+        <span class="account-dot disconnected"></span>
+        <span class="account-name">Polymarket</span>
+        <button class="account-btn" id="btnConnectPoly" onclick="openConnectModal('polymarket')">Connect</button>
+      </div>
+      <div class="account-row" id="accountKalshi">
+        <span class="account-dot disconnected"></span>
+        <span class="account-name">Kalshi</span>
+        <button class="account-btn" id="btnConnectKalshi" onclick="openConnectModal('kalshi')">Connect</button>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-details">
+          <span class="user-name" id="userName">Loading...</span>
+          <span class="user-plan" id="userPlan">Free Plan</span>
+        </div>
+      </div>
+      <button class="sign-out-btn" onclick="window.signOut()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- ════════ MAIN CONTENT ════════ -->
+  <main class="main-content">
+
+    <!-- ──────────────────────────────────────────────────────
+         VIEW 1: BOT BUILDER
+    ────────────────────────────────────────────────────── -->
+    <section id="view-builder" class="app-view active">
+
+      <!-- ── TUTORIAL (first-time users) ────────────── -->
+      <div class="wizard-overlay" id="wizardOverlay">
+        <div class="wizard">
+          <!-- Progress -->
+          <div class="wizard-progress">
+            <div class="wizard-step active" data-step="1"><span class="wiz-dot"></span>Welcome</div>
+            <div class="wizard-step" data-step="2"><span class="wiz-dot"></span>AI Agent</div>
+            <div class="wizard-step" data-step="3"><span class="wiz-dot"></span>Canvas</div>
+            <div class="wizard-step" data-step="4"><span class="wiz-dot"></span>Start</div>
+          </div>
+
+          <!-- Step 1: Welcome -->
+          <div class="wizard-page active" id="wizStep1">
+            <div class="tut-hero-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+              </svg>
+            </div>
+            <h2 class="wizard-title">Welcome to Architect</h2>
+            <p class="wizard-subtitle">Build automated trading bots in plain English. Just describe your strategy to the AI agent and it builds, wires, and deploys everything for you.</p>
+            <div class="tut-features">
+              <div class="tut-feature">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                <span>Describe any strategy in plain English</span>
+              </div>
+              <div class="tut-feature">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>AI builds and wires the nodes for you</span>
+              </div>
+              <div class="tut-feature">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span>One-click deploy to production</span>
+              </div>
+            </div>
+            <button class="wizard-next-btn tut-start-btn" onclick="wizardGoToStep(2)">Show me how it works</button>
+          </div>
+
+          <!-- Step 2: AI Agent -->
+          <div class="wizard-page" id="wizStep2">
+            <h2 class="wizard-title">Just tell the AI what you want</h2>
+            <p class="wizard-subtitle">The AI agent chat is on the right side of the canvas. Describe any strategy &mdash; it handles the rest.</p>
+            <div class="tut-ai-examples">
+              <div class="tut-ai-example">
+                <span class="tut-ai-prompt">&gt;</span>
+                <span class="tut-ai-text">"Buy YES on any election market where polling crosses 60% and sentiment is bullish"</span>
+              </div>
+              <div class="tut-ai-example">
+                <span class="tut-ai-prompt">&gt;</span>
+                <span class="tut-ai-text">"Scalp crypto prediction markets when Polymarket and Kalshi prices diverge by more than 5 cents"</span>
+              </div>
+              <div class="tut-ai-example">
+                <span class="tut-ai-prompt">&gt;</span>
+                <span class="tut-ai-text">"DCA into weather markets when hurricane probability is underpriced vs NOAA data"</span>
+              </div>
+            </div>
+            <div class="tut-tips">
+              <div class="tut-tip">The AI creates all the nodes, connects them, and configures properties automatically.</div>
+              <div class="tut-tip">You can refine &mdash; ask it to add a stop-loss, change position size, or switch platforms.</div>
+            </div>
+            <div class="wizard-nav">
+              <button class="wizard-back-btn" onclick="wizardGoToStep(1)">&larr; Back</button>
+              <button class="wizard-next-btn" onclick="wizardGoToStep(3)">Next &rarr;</button>
+            </div>
+          </div>
+
+          <!-- Step 3: Canvas (for power users) -->
+          <div class="wizard-page" id="wizStep3">
+            <h2 class="wizard-title">Fine-tune on the canvas</h2>
+            <p class="wizard-subtitle">After the AI builds your strategy, you can tweak anything visually. Or build from scratch if you prefer full control.</p>
+            <div class="tut-node-grid">
+              <div class="tut-node-item">
+                <span class="tut-node-dot" style="background: #00c853"></span>
+                <div class="tut-node-info">
+                  <span class="tut-node-name">Triggers</span>
+                  <span class="tut-node-desc">Start the chain &mdash; price, volume, time, external signals</span>
+                </div>
+              </div>
+              <div class="tut-node-item">
+                <span class="tut-node-dot" style="background: #448aff"></span>
+                <div class="tut-node-info">
+                  <span class="tut-node-name">Logic</span>
+                  <span class="tut-node-desc">Filter &mdash; probability bands, liquidity checks, correlations</span>
+                </div>
+              </div>
+              <div class="tut-node-item">
+                <span class="tut-node-dot" style="background: #ffab00"></span>
+                <div class="tut-node-info">
+                  <span class="tut-node-name">Execution</span>
+                  <span class="tut-node-desc">Trade &mdash; market orders, limits, DCA, scaled entry</span>
+                </div>
+              </div>
+              <div class="tut-node-item">
+                <span class="tut-node-dot" style="background: #ff5252"></span>
+                <div class="tut-node-info">
+                  <span class="tut-node-name">Risk</span>
+                  <span class="tut-node-desc">Protect &mdash; stop loss, max drawdown, position limits</span>
+                </div>
+              </div>
+            </div>
+            <div class="tut-tips">
+              <div class="tut-tip">Click the <strong>+</strong> button to add nodes manually. Drag between ports to connect.</div>
+              <div class="tut-tip">Click any node to edit its properties in the inspector panel.</div>
+            </div>
+            <div class="wizard-nav">
+              <button class="wizard-back-btn" onclick="wizardGoToStep(2)">&larr; Back</button>
+              <button class="wizard-next-btn" onclick="wizardGoToStep(4)">Next &rarr;</button>
+            </div>
+          </div>
+
+          <!-- Step 4: Start -->
+          <div class="wizard-page" id="wizStep4">
+            <h2 class="wizard-title">Ready to build</h2>
+            <p class="wizard-subtitle">Choose how you'd like to get started.</p>
+            <div class="tut-start-options">
+              <button class="tut-option tut-option--recommended" onclick="tutStartAgent()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                </svg>
+                <span class="tut-option-name">Ask the AI agent <span class="tut-option-rec">recommended</span></span>
+                <span class="tut-option-desc">Describe what you want in plain English and the agent builds it</span>
+              </button>
+              <button class="tut-option" onclick="tutStartTemplate()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>
+                </svg>
+                <span class="tut-option-name">Load a template</span>
+                <span class="tut-option-desc">Start with a pre-built strategy and customize it</span>
+              </button>
+              <button class="tut-option" onclick="tutStartBlank()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                <span class="tut-option-name">Blank canvas</span>
+                <span class="tut-option-desc">Start from scratch and build node by node</span>
+              </button>
+            </div>
+            <button class="wizard-back-btn" onclick="wizardGoToStep(3)">&larr; Back</button>
+          </div>
+
+          <button class="wizard-skip" onclick="hideWizard()">Skip tutorial &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Builder Body (2-panel) -->
+      <div class="builder-body">
+
+        <!-- Left: Canvas Area -->
+        <div class="canvas-area">
+          <!-- Slim toolbar -->
+          <div class="builder-toolbar">
+            <div class="toolbar-left">
+              <input class="strategy-name-input" id="strategyName"
+                     value="untitled_strategy" spellcheck="false">
+              <span class="toolbar-divider"></span>
+              <span class="toolbar-status" id="toolbarStatus">Draft</span>
+            </div>
+            <div class="toolbar-right">
+              <button class="toolbar-btn" onclick="reopenTutorial()" title="Tutorial">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"></path>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                Tutorial
+              </button>
+              <button class="toolbar-btn" id="btnImportStrategy" title="Import Strategy">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Import
+              </button>
+              <button class="toolbar-btn" id="btnExportStrategy" title="Export Strategy">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                Export
+              </button>
+              <button class="toolbar-btn" id="btnCommit">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="4"></circle>
+                  <line x1="1.05" y1="12" x2="7" y2="12"></line>
+                  <line x1="17.01" y1="12" x2="22.96" y2="12"></line>
+                </svg>
+                Commit
+              </button>
+              <button class="toolbar-btn toolbar-btn-primary" id="btnDeploy">Deploy</button>
+            </div>
+          </div>
+
+          <!-- Canvas + Script -->
+          <div class="canvas-script-column">
+            <div class="canvas-container" id="canvasContainer">
+              <div class="canvas-viewport grid-visible" id="canvasViewport">
+                <svg class="connections-layer" id="connectionsLayer"></svg>
+              </div>
+
+              <!-- Floating Node Palette -->
+              <button class="floating-palette-toggle" id="btnPaletteToggle" title="Node Palette">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+              <div class="palette-tooltip" id="paletteTooltip">Add Nodes</div>
+              <div class="floating-palette" id="floatingPalette">
+                <div class="floating-palette-header">
+                  <span>Add Node</span>
+                  <button class="floating-palette-close" id="btnPaletteClose">&times;</button>
+                </div>
+                <input class="palette-search" placeholder="Search nodes..." id="paletteSearch">
+                <div class="palette-groups" id="paletteGroups">
+                  <div class="palette-group open" data-category="trigger">
+                    <div class="palette-group-header">
+                      <span class="palette-group-indicator">&#9656;</span>
+                      <span class="palette-group-dot" style="background:#00c853"></span>
+                      <span class="palette-group-name">Triggers</span>
+                    </div>
+                    <div class="palette-group-items">
+                      <div class="palette-item" data-node-type="price-threshold" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9673;</span><span class="palette-item-name">Price Threshold</span></div>
+                      <div class="palette-item" data-node-type="volume-spike" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9650;</span><span class="palette-item-name">Volume Spike</span></div>
+                      <div class="palette-item" data-node-type="time-based" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9201;</span><span class="palette-item-name">Time-Based</span></div>
+                      <div class="palette-item" data-node-type="market-event" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9889;</span><span class="palette-item-name">Market Event</span></div>
+                      <div class="palette-item" data-node-type="probability-cross" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#10539;</span><span class="palette-item-name">Probability Cross</span></div>
+                    </div>
+                  </div>
+                  <div class="palette-group" data-category="condition">
+                    <div class="palette-group-header">
+                      <span class="palette-group-indicator">&#9656;</span>
+                      <span class="palette-group-dot" style="background:#60a5fa"></span>
+                      <span class="palette-group-name">Conditions</span>
+                    </div>
+                    <div class="palette-group-items">
+                      <div class="palette-item" data-node-type="probability-band" draggable="true"><span class="palette-item-icon" style="color:#60a5fa">&#9670;</span><span class="palette-item-name">Probability Band</span></div>
+                      <div class="palette-item" data-node-type="liquidity-check" draggable="true"><span class="palette-item-icon" style="color:#60a5fa">&#9679;</span><span class="palette-item-name">Liquidity Check</span></div>
+                      <div class="palette-item" data-node-type="portfolio-exposure" draggable="true"><span class="palette-item-icon" style="color:#60a5fa">&#9645;</span><span class="palette-item-name">Portfolio Exposure</span></div>
+                      <div class="palette-item" data-node-type="correlation" draggable="true"><span class="palette-item-icon" style="color:#60a5fa">&#8776;</span><span class="palette-item-name">Correlation</span></div>
+                    </div>
+                  </div>
+                  <div class="palette-group" data-category="execution">
+                    <div class="palette-group-header">
+                      <span class="palette-group-indicator">&#9656;</span>
+                      <span class="palette-group-dot" style="background:#e8e8e8"></span>
+                      <span class="palette-group-name">Execution</span>
+                    </div>
+                    <div class="palette-group-items">
+                      <div class="palette-item" data-node-type="market-order" draggable="true"><span class="palette-item-icon" style="color:#e8e8e8">&#9654;</span><span class="palette-item-name">Market Order</span></div>
+                      <div class="palette-item" data-node-type="limit-order" draggable="true"><span class="palette-item-icon" style="color:#e8e8e8">&#9644;</span><span class="palette-item-name">Limit Order</span></div>
+                      <div class="palette-item" data-node-type="scaled-entry" draggable="true"><span class="palette-item-icon" style="color:#e8e8e8">&#9638;</span><span class="palette-item-name">Scaled Entry</span></div>
+                      <div class="palette-item" data-node-type="dca" draggable="true"><span class="palette-item-icon" style="color:#e8e8e8">&#8635;</span><span class="palette-item-name">DCA</span></div>
+                    </div>
+                  </div>
+                  <div class="palette-group" data-category="risk">
+                    <div class="palette-group-header">
+                      <span class="palette-group-indicator">&#9656;</span>
+                      <span class="palette-group-dot" style="background:#ff1744"></span>
+                      <span class="palette-group-name">Risk</span>
+                    </div>
+                    <div class="palette-group-items">
+                      <div class="palette-item" data-node-type="stop-loss" draggable="true"><span class="palette-item-icon" style="color:#ff1744">&#9888;</span><span class="palette-item-name">Stop Loss</span></div>
+                      <div class="palette-item" data-node-type="position-limit" draggable="true"><span class="palette-item-icon" style="color:#ff1744">&#9633;</span><span class="palette-item-name">Position Limit</span></div>
+                      <div class="palette-item" data-node-type="portfolio-cap" draggable="true"><span class="palette-item-icon" style="color:#ff1744">&#9651;</span><span class="palette-item-name">Portfolio Cap</span></div>
+                      <div class="palette-item" data-node-type="max-drawdown" draggable="true"><span class="palette-item-icon" style="color:#ff1744">&#9660;</span><span class="palette-item-name">Max Drawdown</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Node Inspector (floating overlay) -->
+              <div class="node-inspector" id="nodeInspector" style="display:none">
+                <div class="inspector-header">
+                  <span class="inspector-title" id="inspectorTitle">Properties</span>
+                  <button class="inspector-close" id="inspectorClose">&times;</button>
+                </div>
+                <div class="inspector-body" id="inspectorBody"></div>
+                <div class="inspector-footer">
+                  <button class="inspector-btn" id="btnDuplicateNode">Duplicate</button>
+                  <button class="inspector-btn inspector-btn-danger" id="btnDeleteNode">Delete</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- MercuryScript Mirror -->
+            <div class="mercuryscript-panel" id="mercuryScriptPanel">
+              <div class="mercuryscript-header">
+                <div class="mercuryscript-header-left">
+                  <span class="mercuryscript-dot"></span>
+                  <span class="mercuryscript-title">MercuryScript</span>
+                  <span class="mercuryscript-version" id="scriptVersion">v0.1</span>
+                </div>
+                <button class="mercuryscript-toggle" id="btnScriptToggle" title="Toggle script panel">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+              </div>
+              <div class="mercuryscript-body" id="mercuryScriptBody">
+                <pre class="mercuryscript-code" id="mercuryScriptCode"><span class="ms-comment"># No nodes yet — add nodes or ask Mercury to build a strategy</span></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Mercury Agent Panel -->
+        <div class="agent-panel" id="agentPanel">
+          <div class="agent-panel-header">
+            <div class="agent-tabs">
+              <button class="agent-tab active" data-tab="agent" id="tabAgent">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
+                </svg>
+                Agent
+              </button>
+              <button class="agent-tab" data-tab="research" id="tabResearch">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                Research
+              </button>
+            </div>
+          </div>
+
+          <!-- Status Bar -->
+          <div class="agent-status-bar" id="agentStatusBar">
+            <div class="agent-status-badge" id="statusBots">
+              <span class="status-dot live"></span>
+              <span>0 Bots Live</span>
+            </div>
+            <div class="agent-status-badge" id="statusPoly">
+              <span class="status-dot disconnected"></span>
+              <span>Polymarket</span>
+            </div>
+            <div class="agent-status-badge" id="statusKalshi">
+              <span class="status-dot disconnected"></span>
+              <span>Kalshi</span>
+            </div>
+          </div>
+
+          <!-- Agent Tab Content -->
+          <div class="agent-tab-content active" id="agentTabContent">
+            <div class="agent-messages" id="agentMessages">
+              <!-- Welcome message -->
+              <div class="agent-welcome">
+                <div class="agent-welcome-icon">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+                  </svg>
+                </div>
+                <div class="agent-welcome-title">Mercury Agent</div>
+                <div class="agent-welcome-text">I help you find edge in prediction markets. Tell me what you're looking for and I'll build, analyze, and deploy strategies for you.</div>
+              </div>
+            </div>
+            <div class="agent-input-area">
+              <div class="agent-quick-prompts" id="agentQuickPrompts">
+                <button class="agent-quick-btn" onclick="useQuickPrompt('Find mispriced elections contracts on Polymarket')">Find election edge</button>
+                <button class="agent-quick-btn" onclick="useQuickPrompt('Scan for arbitrage opportunities across markets')">Scan for arbitrage</button>
+                <button class="agent-quick-btn" onclick="useQuickPrompt('Build a momentum strategy for crypto prediction markets')">Momentum strategy</button>
+                <button class="agent-quick-btn" onclick="useQuickPrompt('What markets have unusual volume right now?')">Unusual volume</button>
+              </div>
+              <div class="agent-input-row">
+                <input class="agent-input" id="agentInput" placeholder="Ask Mercury to find edge..." spellcheck="false">
+                <button class="agent-send" id="agentSend">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Research Tab Content -->
+          <div class="agent-tab-content" id="researchTabContent" style="display:none">
+            <div class="research-placeholder">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--dim)">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <div class="research-placeholder-title">Research</div>
+              <div class="research-placeholder-text">Deep market research, sentiment analysis, and probability modeling — coming soon.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────────────────
+         VIEW 2: MY BOTS
+    ────────────────────────────────────────────────────── -->
+    <section id="view-my-bots" class="app-view">
+      <div class="view-header">
+        <div class="view-header-left">
+          <h1 class="view-title">My Bots</h1>
+          <span class="view-count" id="botCount">0 bots</span>
+        </div>
+        <div class="view-header-right">
+          <div class="filter-tabs" id="botFilters">
+            <button class="filter-tab active" data-filter="all">All</button>
+            <button class="filter-tab" data-filter="live">Live</button>
+            <button class="filter-tab" data-filter="paused">Paused</button>
+            <button class="filter-tab" data-filter="draft">Draft</button>
+          </div>
+          <select class="sort-select" id="botSort">
+            <option value="updated">Last Updated</option>
+            <option value="pnl">P&L</option>
+            <option value="winrate">Win Rate</option>
+            <option value="name">Name</option>
+          </select>
+          <button class="toolbar-btn toolbar-btn-primary" id="btnNewBot">+ New Bot</button>
+        </div>
+      </div>
+      <div class="bots-grid" id="botsGrid">
+        <!-- Bot cards rendered by JS -->
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────────────────
+         VIEW 3: BOT DETAIL
+    ────────────────────────────────────────────────────── -->
+    <section id="view-bot-detail" class="app-view">
+      <div class="detail-header">
+        <button class="detail-back" id="detailBack">&larr; Back to My Bots</button>
+        <div class="detail-title-row">
+          <h1 class="detail-bot-name" id="detailBotName">--</h1>
+          <span class="status-badge" id="detailStatus">--</span>
+        </div>
+        <div class="detail-controls" id="detailControls">
+          <button class="toolbar-btn" id="btnPauseBot">Pause</button>
+          <button class="toolbar-btn" id="btnRestartBot">Restart</button>
+          <button class="toolbar-btn toolbar-btn-danger" id="btnKillBot">Kill</button>
+          <button class="toolbar-btn" id="btnEditStrategy">Edit Strategy</button>
+        </div>
+      </div>
+
+      <div class="detail-scroll">
+        <!-- Metrics Row -->
+        <div class="detail-metrics" id="detailMetrics"></div>
+
+        <!-- Performance Chart -->
+        <div class="detail-chart-card">
+          <div class="card-header">
+            <span class="card-title">Performance</span>
+            <div class="timeframe-tabs" id="detailTimeframe">
+              <button class="tf-btn active" data-tf="7d">7D</button>
+              <button class="tf-btn" data-tf="30d">30D</button>
+              <button class="tf-btn" data-tf="all">All</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="detailPerfChart" style="width:100%;height:260px;"></div>
+          </div>
+        </div>
+
+        <!-- Two-column grid -->
+        <div class="detail-lower-grid">
+          <!-- Open Positions -->
+          <div class="detail-card">
+            <div class="card-header">
+              <span class="card-title">Open Positions</span>
+              <span class="card-meta" id="positionCount">0</span>
+            </div>
+            <div class="card-body">
+              <div class="data-table-header positions-header">
+                <span>Contract</span>
+                <span>Side</span>
+                <span>Qty</span>
+                <span>Entry</span>
+                <span>P&L</span>
+              </div>
+              <div id="positionsBody"></div>
+            </div>
+          </div>
+
+          <!-- Trade History -->
+          <div class="detail-card">
+            <div class="card-header">
+              <span class="card-title">Trade History</span>
+              <span class="card-meta" id="tradeCount">0 trades</span>
+            </div>
+            <div class="card-body">
+              <div class="data-table-header trades-header">
+                <span>Time</span>
+                <span>Side</span>
+                <span>Contract</span>
+                <span>Price</span>
+                <span>Amount</span>
+                <span>P&L</span>
+              </div>
+              <div id="tradesBody"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bot Logs -->
+        <div class="detail-card detail-card-full">
+          <div class="card-header">
+            <span class="card-title">Bot Logs</span>
+            <span class="card-meta" id="logStatus">
+              <span style="color:var(--green)">&#9679;</span> Live
+            </span>
+          </div>
+          <div class="card-body">
+            <div class="bot-logs" id="botLogs"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────────────────
+         VIEW 4: BACKTEST
+    ────────────────────────────────────────────────────── -->
+    <section id="view-backtest" class="app-view">
+      <div class="view-header">
+        <div class="view-header-left">
+          <h1 class="view-title">Backtest</h1>
+        </div>
+      </div>
+
+      <div class="backtest-config">
+        <div class="backtest-row">
+          <div class="backtest-field">
+            <label class="field-label">Strategy</label>
+            <select class="field-select" id="btStrategy">
+              <option value="current">Current Builder Strategy</option>
+            </select>
+          </div>
+          <div class="backtest-field">
+            <label class="field-label">Market</label>
+            <select class="field-select" id="btMarket">
+              <option>All Markets</option>
+              <option>Polymarket</option>
+              <option>Kalshi</option>
+            </select>
+          </div>
+          <div class="backtest-field">
+            <label class="field-label">Period</label>
+            <select class="field-select" id="btPeriod">
+              <option value="30">30 Days</option>
+              <option value="60">60 Days</option>
+              <option value="90" selected>90 Days</option>
+            </select>
+          </div>
+          <div class="backtest-field">
+            <label class="field-label">Initial Capital</label>
+            <input class="field-input" type="number" id="btCapital" value="10000" min="100">
+          </div>
+          <div class="backtest-field backtest-field-action">
+            <button class="toolbar-btn toolbar-btn-primary" id="btnRunBacktest">Run Backtest</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="backtest-scroll" id="backtestScroll">
+        <!-- Results rendered by JS after "Run" -->
+        <div class="backtest-running" id="backtestRunning" style="display:none">
+          <div class="backtest-spinner"></div>
+          <span>Running backtest simulation...</span>
+        </div>
+        <div id="backtestResults" style="display:none"></div>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────────────────
+         VIEW 5: TEMPLATES
+    ────────────────────────────────────────────────────── -->
+    <section id="view-templates" class="app-view">
+      <div class="view-header">
+        <div class="view-header-left">
+          <h1 class="view-title">Strategy Templates</h1>
+        </div>
+        <div class="view-header-right">
+          <div class="filter-tabs" id="templateFilters">
+            <button class="filter-tab active" data-filter="all">All</button>
+            <button class="filter-tab" data-filter="momentum">Momentum</button>
+            <button class="filter-tab" data-filter="mean-reversion">Mean Rev</button>
+            <button class="filter-tab" data-filter="arbitrage">Arbitrage</button>
+            <button class="filter-tab" data-filter="event-driven">Event</button>
+          </div>
+        </div>
+      </div>
+      <div class="templates-grid" id="templatesGrid">
+        <!-- Template cards rendered by JS -->
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────────────────
+         VIEW 6: MERCURY RESEARCH + TERMINAL
+    ────────────────────────────────────────────────────── -->
+    <section id="view-research" class="app-view">
+
+      <!-- Top Status Bar -->
+      <div class="research-topbar" id="researchTopbar">
+        <div class="research-topbar-left">
+          <span class="research-topbar-title">Mercury Research</span>
+          <span class="research-live-dot"></span>
+          <span class="research-live-label">Live</span>
+        </div>
+        <div class="research-topbar-center">
+          <div class="ticker-tape" id="tickerTape">
+            <div class="ticker-tape-track" id="tickerTrack"></div>
+          </div>
+        </div>
+        <div class="research-topbar-right">
+          <span class="research-clock" id="researchClock">00:00:00 UTC</span>
+          <button class="kill-switch" id="killSwitchBtn">
+            <span class="kill-switch-icon">&#9632;</span>
+            Kill All
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="research-tab-bar" id="researchTabBar">
+        <button class="research-tab active" data-rtab="edge">Overview</button>
+        <button class="research-tab" data-rtab="crypto">Crypto</button>
+        <button class="research-tab" data-rtab="markets">Markets</button>
+        <button class="research-tab" data-rtab="news">News &amp; Signals</button>
+        <div class="research-tab-sep"></div>
+        <button class="research-tab research-tab--terminal" data-rtab="terminal">Terminal</button>
+      </div>
+
+      <!-- ═══ TAB: EDGE SCANNER ═══ -->
+      <div class="research-tab-panel active" id="rtab-edge">
+        <div class="overview-metrics">
+          <div class="overview-card">
+            <div class="overview-card-label">Active Markets</div>
+            <div class="overview-card-value" id="metricActiveMarkets">8</div>
+            <div class="overview-card-sub">Tracked across platforms</div>
+          </div>
+          <div class="overview-card">
+            <div class="overview-card-label">24h Volume</div>
+            <div class="overview-card-value" id="metricTotalVol">$28.6M</div>
+            <div class="overview-card-sub">Combined market volume</div>
+          </div>
+          <div class="overview-card">
+            <div class="overview-card-label">Top Spread</div>
+            <div class="overview-card-value overview-card-value--green" id="metricTopSpread">&mdash;</div>
+            <div class="overview-card-sub">Best cross-platform gap</div>
+          </div>
+          <div class="overview-card">
+            <div class="overview-card-label">Signals</div>
+            <div class="overview-card-value" id="metricSignals">0</div>
+            <div class="overview-card-sub">Active alerts today</div>
+          </div>
+        </div>
+        <div class="research-scroll">
+          <div class="research-module">
+            <div class="module-header">
+              <span class="module-title">Top Markets by Volume</span>
+              <div class="module-controls">
+                <div class="module-timeframe-tabs" id="edgeTimeframeTabs">
+                  <button class="tf-btn active" data-tf="all">ALL</button>
+                  <button class="tf-btn" data-tf="15M">15M</button>
+                  <button class="tf-btn" data-tf="1H">1H</button>
+                  <button class="tf-btn" data-tf="1W">1W</button>
+                  <button class="tf-btn" data-tf="1M">1M</button>
+                  <button class="tf-btn" data-tf="1Y">1Y</button>
+                </div>
+              </div>
+            </div>
+            <div class="module-body">
+              <div id="edgeResearchCards"></div>
+            </div>
+          </div>
+
+          <div class="research-module research-module--table">
+            <div class="module-header">
+              <span class="module-title">Cross-Platform Data Comparison</span>
+              <span class="module-meta" id="arbTimestamp">Scanning...</span>
+            </div>
+            <div class="module-body">
+              <div class="arb-table-header">
+                <span class="arb-col arb-col--market">Market</span>
+                <span class="arb-col arb-col--poly">Polymarket</span>
+                <span class="arb-col arb-col--kalshi">Kalshi</span>
+                <span class="arb-col arb-col--spread">Discrepancy</span>
+                <span class="arb-col arb-col--action">Possible Cause</span>
+              </div>
+              <div id="arbTableBody"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB: CRYPTO ═══ -->
+      <div class="research-tab-panel" id="rtab-crypto">
+        <div class="overview-metrics crypto-metrics">
+          <div class="overview-card">
+            <div class="overview-card-label">BTC PRICE</div>
+            <div class="overview-card-value overview-card-value--green" id="cryptoBTCPrice">&mdash;</div>
+            <div class="overview-card-sub">Binance spot</div>
+          </div>
+          <div class="overview-card">
+            <div class="overview-card-label">DVOL</div>
+            <div class="overview-card-value" id="cryptoDVOL">&mdash;</div>
+            <div class="overview-card-sub">Implied volatility</div>
+          </div>
+        </div>
+
+        <div class="research-scroll">
+          <div class="research-module">
+            <div class="module-header">
+              <span class="module-title">15-Min Markets</span>
+              <span class="module-meta" id="crypto15mCount">&mdash;</span>
+            </div>
+            <div class="module-body">
+              <div class="crypto-mkt-header">
+                <span class="crypto-mkt-col crypto-mkt-col--strike">Price to Beat</span>
+                <span class="crypto-mkt-col">Kalshi</span>
+                <span class="crypto-mkt-col">Polymarket</span>
+                <span class="crypto-mkt-col">Spread</span>
+              </div>
+              <div id="crypto15mBody"></div>
+            </div>
+          </div>
+
+          <div class="research-module">
+            <div class="module-header">
+              <span class="module-title">1-Hour Markets</span>
+              <span class="module-meta" id="crypto1hCount">&mdash;</span>
+            </div>
+            <div class="module-body">
+              <div class="crypto-mkt-header">
+                <span class="crypto-mkt-col crypto-mkt-col--strike">Price to Beat</span>
+                <span class="crypto-mkt-col">Kalshi</span>
+                <span class="crypto-mkt-col">Polymarket</span>
+                <span class="crypto-mkt-col">Spread</span>
+              </div>
+              <div id="crypto1hBody"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB: MARKETS ═══ -->
+      <div class="research-tab-panel" id="rtab-markets">
+        <div class="research-scroll">
+          <div class="research-module research-module--table">
+            <div class="module-header">
+              <span class="module-title">Market Scanner</span>
+              <div class="module-controls">
+                <select class="module-select" id="marketScannerSort">
+                  <option value="edge">Sort: Divergence</option>
+                  <option value="volume">Sort: Volume</option>
+                  <option value="change">Sort: 24h Change</option>
+                  <option value="name">Sort: Name</option>
+                </select>
+                <span class="module-live-badge">Live</span>
+              </div>
+            </div>
+            <div class="module-body">
+              <div class="market-table-header">
+                <span class="mkt-col mkt-col--name">Market</span>
+                <span class="mkt-col mkt-col--price">Price</span>
+                <span class="mkt-col mkt-col--fair">Fair Value</span>
+                <span class="mkt-col mkt-col--change">24h</span>
+                <span class="mkt-col mkt-col--vol">Volume</span>
+                <span class="mkt-col mkt-col--poly">Polymarket</span>
+                <span class="mkt-col mkt-col--kalshi">Kalshi</span>
+                <span class="mkt-col mkt-col--signal">Divergence</span>
+              </div>
+              <div id="marketTableBody"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB: NEWS & SIGNALS ═══ -->
+      <div class="research-tab-panel" id="rtab-news">
+        <div class="research-grid research-grid--news">
+          <div class="research-module" id="mod-newsfeed">
+            <div class="module-header">
+              <span class="module-title">News Feed</span>
+              <span class="module-live-badge">Live</span>
+            </div>
+            <div class="module-body">
+              <div class="news-feed" id="newsFeed"></div>
+            </div>
+          </div>
+          <div class="research-module" id="mod-signals">
+            <div class="module-header">
+              <span class="module-title">Signal Alerts</span>
+              <span class="module-meta" id="signalCount">0 new</span>
+            </div>
+            <div class="module-body">
+              <div class="signal-feed" id="signalFeed"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TAB: TERMINAL (Execution Dashboard) ═══ -->
+      <div class="research-tab-panel" id="rtab-terminal">
+        <div class="research-grid research-grid--terminal">
+          <div class="research-module" id="mod-orderbook">
+            <div class="module-header">
+              <span class="module-title">Order Book</span>
+              <div class="module-controls">
+                <select class="module-select" id="orderbookMarket">
+                  <option>Fed Rate Cut Mar 2026</option>
+                  <option>BTC > $100K</option>
+                  <option>Trump 2028 Nominee</option>
+                  <option>AI Regulation 2026</option>
+                </select>
+                <span class="module-live-badge">Live</span>
+              </div>
+            </div>
+            <div class="module-body" id="orderbookBody"></div>
+          </div>
+          <div class="research-module" id="mod-volume">
+            <div class="module-header">
+              <span class="module-title">Volume Footprint</span>
+              <div class="module-controls">
+                <div class="module-timeframe-tabs" id="volumeTimeframe">
+                  <button class="tf-btn active" data-tf="1h">1H</button>
+                  <button class="tf-btn" data-tf="4h">4H</button>
+                  <button class="tf-btn" data-tf="1d">1D</button>
+                </div>
+              </div>
+            </div>
+            <div class="module-body">
+              <div id="volumeChart" style="width:100%;height:100%;"></div>
+            </div>
+          </div>
+          <div class="research-module" id="mod-botlogs">
+            <div class="module-header">
+              <span class="module-title">Bot Performance Log</span>
+              <span class="module-live-badge">LIVE FEED</span>
+            </div>
+            <div class="module-body">
+              <div class="research-logs" id="researchLogs"></div>
+            </div>
+          </div>
+          <div class="research-module" id="mod-chat">
+            <div class="module-header">
+              <span class="module-title">Research Chat</span>
+            </div>
+            <div class="module-body module-body-chat">
+              <div class="research-chat-messages" id="researchChatMessages">
+                <div class="research-chat-welcome">
+                  Ask Mercury anything about markets, probabilities, correlations, or strategy ideas.
+                </div>
+              </div>
+              <div class="research-chat-input-area">
+                <input class="research-chat-input" id="researchChatInput"
+                       placeholder="Query markets, probabilities, correlations..."
+                       spellcheck="false">
+                <button class="research-chat-send" id="researchChatSend">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Kill Switch Confirmation Modal -->
+  <div class="modal-overlay" id="killConfirmModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Emergency Stop</span>
+        <button class="modal-close" onclick="document.getElementById('killConfirmModal').classList.remove('active')">&times;</button>
+      </div>
+      <div class="modal-body kill-confirm-body">
+        <div class="kill-confirm-warning">EMERGENCY STOP</div>
+        <div class="kill-confirm-text">This will immediately halt all active bots.</div>
+        <div class="kill-confirm-count" id="killBotCount">3 bots</div>
+        <div class="kill-confirm-text">This action cannot be undone. Bots must be manually restarted.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="toolbar-btn" id="killCancelBtn">Cancel</button>
+        <button class="toolbar-btn" id="killConfirmBtn" style="background:var(--red);color:var(--pure);border-color:var(--red);">KILL ALL BOTS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deploy Modal -->
+  <div class="modal-overlay" id="deployModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Deploy Strategy</span>
+        <button class="modal-close" id="deployModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="inspector-field">
+          <label class="field-label">Bot Name</label>
+          <input class="field-input" id="deployBotName" value="">
+        </div>
+        <div class="inspector-field">
+          <label class="field-label">Platform</label>
+          <select class="field-select" id="deployPlatform">
+            <option>Polymarket</option>
+            <option>Kalshi</option>
+            <option>Both</option>
+          </select>
+        </div>
+        <div class="inspector-field">
+          <label class="field-label">Capital Allocation ($)</label>
+          <input class="field-input" type="number" id="deployCapital" value="1000" min="10">
+        </div>
+        <div class="inspector-field">
+          <label class="field-label">Mode</label>
+          <select class="field-select" id="deployMode">
+            <option>Paper Trading</option>
+            <option>Live</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="toolbar-btn" id="deployCancel">Cancel</button>
+        <button class="toolbar-btn toolbar-btn-primary" id="deployConfirm">Deploy Bot</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Commit Modal -->
+  <div class="modal-overlay" id="commitModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Commit Strategy</span>
+        <button class="modal-close" id="commitModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="commit-diff" id="commitDiff">
+          <div class="commit-diff-line added">+ 4 nodes</div>
+          <div class="commit-diff-line added">+ 3 connections</div>
+        </div>
+        <div class="inspector-field">
+          <label class="field-label">Commit Message</label>
+          <input class="field-input" id="commitMessage" placeholder="e.g. v1.2 - Adjusted for low liquidity" spellcheck="false">
+        </div>
+        <div class="commit-history" id="commitHistory">
+          <div class="commit-entry">
+            <span class="commit-hash">a1b2c3</span>
+            <span class="commit-msg">Initial strategy</span>
+            <span class="commit-time">just now</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="toolbar-btn" id="commitCancel">Cancel</button>
+        <button class="toolbar-btn toolbar-btn-primary" id="commitConfirm">Commit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Connect Account Modal -->
+  <div class="modal-overlay" id="connectAccountModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="connectModalTitle">Connect Account</span>
+        <button class="modal-close" id="connectModalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="connect-platform-badge" id="connectPlatformBadge">POLYMARKET</div>
+        <div class="inspector-field">
+          <label class="field-label">API Key</label>
+          <input class="field-input" id="connectApiKey" type="password" placeholder="Enter your API key" spellcheck="false">
+        </div>
+        <div class="inspector-field">
+          <label class="field-label">API Secret</label>
+          <input class="field-input" id="connectApiSecret" type="password" placeholder="Enter your API secret" spellcheck="false">
+        </div>
+        <div class="connect-info">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="0"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span>Keys are encrypted and stored locally. Mercury never sends your keys to our servers.</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="toolbar-btn" id="connectCancel">Cancel</button>
+        <button class="toolbar-btn toolbar-btn-primary" id="connectConfirm">Connect</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compiler Deploy Animation -->
+  <div class="compiler-overlay" id="compilerOverlay">
+    <div class="compiler-terminal">
+      <div class="compiler-header">
+        <span class="compiler-title">&gt;_ Deploying</span>
+        <div class="compiler-dots">
+          <span class="compiler-dot red"></span>
+          <span class="compiler-dot yellow"></span>
+          <span class="compiler-dot green"></span>
+        </div>
+      </div>
+      <div class="compiler-output" id="compilerOutput"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <span class="toast-message" id="toastMessage"></span>
+    <button class="toast-close" id="toastClose">&times;</button>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.1/dist/apexcharts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./scripts/auth.js"></script>
+  <script src="./scripts/architect-app.js"></script>
+  <script src="./scripts/data-bridge.js"></script>
+  <script src="./scripts/research.js"></script>
+  <script src="./scripts/ambient.js"></script>
+</body>
+</html>

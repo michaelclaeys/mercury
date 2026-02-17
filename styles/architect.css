@@ -1,0 +1,758 @@
+/* ================================================================
+   MERCURY ARCHITECT — Page-Specific Styles
+   Extends main.css design system (variables, navbar, buttons, etc.)
+   ================================================================ */
+
+/* ─── Blueprint Intro ─────────────────────────────────── */
+
+.arch-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--black);
+  cursor: pointer;
+  flex-direction: column;
+}
+
+.arch-intro canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.arch-intro.exit {
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.arch-intro.gone {
+  display: none;
+}
+
+/* Terminal init in intro (bottom-left corner) */
+.arch-intro-terminal {
+  position: absolute;
+  bottom: 5rem;
+  left: 2rem;
+  z-index: 3;
+  font-size: 0.65rem;
+  line-height: 1.9;
+  color: var(--dim);
+  letter-spacing: 0.04em;
+  max-width: 400px;
+}
+
+.arch-intro-center {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.arch-intro-title {
+  font-size: clamp(3rem, 10vw, 8rem);
+  font-weight: 300;
+  letter-spacing: 0.6em;
+  color: var(--pure);
+  font-family: var(--mono);
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 1s ease, transform 1s ease;
+  margin-right: -0.6em; /* compensate for letter-spacing on last char */
+}
+
+.arch-intro-title.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.arch-intro-textline {
+  font-size: 1.2rem;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.arch-intro-textline.visible {
+  opacity: 1;
+}
+
+.arch-word {
+  color: var(--pure);
+  font-weight: 600;
+  display: inline-block;
+  min-width: 120px;
+  text-align: center;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.arch-word.out {
+  opacity: 0;
+  transform: translateY(-7px);
+}
+
+.arch-word.entering {
+  opacity: 0;
+  transform: translateY(7px);
+}
+
+/* ─── Active nav link ─────────────────────────────────── */
+
+.nav-active {
+  color: var(--pure) !important;
+}
+
+/* ─── Bottom ticker ──────────────────────────────────── */
+
+.ticker--bottom {
+  top: auto !important;
+  bottom: 0;
+  border-bottom: none;
+}
+
+.ticker-track--reverse {
+  animation-direction: reverse;
+}
+
+/* ─── Hero ────────────────────────────────────────────── */
+
+.arch-hero {
+  padding: 6rem 0 3rem;
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+}
+
+.arch-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 60%, rgba(0,200,83,0.03) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 50% at 80% 40%, rgba(255,255,255,0.02) 0%, transparent 60%);
+}
+
+.arch-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle 1px, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 10%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 10%, transparent 70%);
+}
+
+.arch-hero-headline {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  color: var(--pure);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.arch-hero-sub {
+  font-size: 0.75rem;
+  color: var(--silver);
+  max-width: 600px;
+  margin: var(--gap-md) 0 var(--gap-xl);
+  line-height: 1.7;
+}
+
+.arch-hero-ctas {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Hero stats strip */
+.arch-hero-stats {
+  display: flex;
+  gap: 2.5rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.arch-hero-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.arch-hero-stat-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--pure);
+  letter-spacing: 0.02em;
+}
+
+.arch-hero-stat-label {
+  font-size: 0.65rem;
+  color: var(--dim);
+  letter-spacing: 0.12em;
+}
+
+/* Persona chips inside hero */
+.arch-hero .persona-strip {
+  margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+  .arch-hero-stats {
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  .arch-hero-stat {
+    min-width: 40%;
+  }
+}
+
+/* ─── Bot Builder ─────────────────────────────────────── */
+
+.arch-builder-section {
+  padding: 0 0 var(--gap-section);
+  position: relative;
+}
+
+.arch-builder-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 40% at 70% 30%, rgba(255,255,255,0.018) 0%, transparent 70%);
+}
+
+.arch-builder-demo {
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.arch-builder-canvas {
+  position: relative;
+  min-height: 520px;
+  padding: 2rem;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.035) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+.arch-node {
+  position: absolute;
+  border: 1px solid var(--border-bright);
+  background: var(--black);
+  padding: 0.85rem 1.15rem;
+  font-size: 0.78rem;
+  color: var(--bright);
+  min-width: 190px;
+  z-index: 2;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.arch-builder-demo.visible .arch-node { opacity: 1; transform: none; }
+.arch-builder-demo.visible .arch-node:nth-child(2) { transition-delay: 0.15s; }
+.arch-builder-demo.visible .arch-node:nth-child(3) { transition-delay: 0.3s; }
+.arch-builder-demo.visible .arch-node:nth-child(4) { transition-delay: 0.45s; }
+.arch-builder-demo.visible .arch-node:nth-child(5) { transition-delay: 0.6s; }
+.arch-builder-demo.visible .arch-node:nth-child(6) { transition-delay: 0.75s; }
+
+.arch-node-head {
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-mid);
+}
+
+.arch-node-body {
+  line-height: 1.7;
+  color: var(--bright);
+  font-size: 0.74rem;
+}
+
+.arch-node-detail {
+  color: var(--silver);
+}
+
+/* ── Node type colors ── */
+.arch-node--source { border-color: rgba(0,200,83,0.4); }
+.arch-node--source .arch-node-head { color: var(--green); }
+
+.arch-node--filter { border-color: rgba(255,193,7,0.4); }
+.arch-node--filter .arch-node-head { color: #ffc107; }
+
+.arch-node--execute { border-color: rgba(96,165,250,0.4); }
+.arch-node--execute .arch-node-head { color: var(--blue); }
+
+.arch-node--risk { border-color: rgba(255,23,68,0.4); }
+.arch-node--risk .arch-node-head { color: var(--red); }
+
+.arch-node-port {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--border-bright);
+  border: 1px solid var(--dim);
+}
+
+.arch-node--source .arch-node-port { background: var(--green); border-color: var(--green); }
+.arch-node--filter .arch-node-port { background: #ffc107; border-color: #ffc107; }
+.arch-node--execute .arch-node-port { background: var(--blue); border-color: var(--blue); }
+.arch-node--risk .arch-node-port { background: var(--red); border-color: var(--red); }
+
+.arch-connections {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.arch-conn {
+  stroke: var(--dim);
+  stroke-width: 1.5;
+  fill: none;
+  stroke-dasharray: 500;
+  stroke-dashoffset: 500;
+  transition: stroke-dashoffset 1.8s ease;
+}
+
+.arch-conn.drawn {
+  stroke-dashoffset: 0;
+}
+
+/* Building blocks */
+
+.arch-blocks {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--border);
+  margin-top: var(--gap-xl);
+}
+
+.arch-block {
+  padding: var(--gap-lg);
+  border-right: 1px solid var(--border);
+}
+
+.arch-block:last-child {
+  border-right: none;
+}
+
+.arch-block-type {
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  color: var(--dim);
+  margin-bottom: var(--gap-sm);
+}
+
+.arch-block-desc {
+  font-size: 0.7rem;
+  color: var(--silver);
+  line-height: 1.7;
+}
+
+/* ─── AI Chat ─────────────────────────────────────────── */
+
+.arch-ai-section {
+  padding: var(--gap-section) 0;
+  position: relative;
+}
+
+.arch-ai-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 50% 60% at 30% 50%, rgba(255,255,255,0.015) 0%, transparent 70%);
+}
+
+.arch-ai-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-xl);
+  align-items: start;
+}
+
+.arch-ai-demo {
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.arch-ai-chat {
+  padding: var(--gap-lg);
+  min-height: 280px;
+}
+
+.arch-ai-msg {
+  margin-bottom: var(--gap-lg);
+}
+
+.arch-ai-sender {
+  font-size: 0.65rem;
+  color: var(--dim);
+  letter-spacing: 0.1em;
+  display: block;
+  margin-bottom: var(--gap-xs);
+}
+
+.arch-ai-text {
+  font-size: 0.7rem;
+  color: var(--bright);
+  line-height: 1.7;
+  display: block;
+}
+
+.arch-ai-msg.user .arch-ai-text {
+  color: var(--pure);
+}
+
+.arch-ai-cursor {
+  display: inline-block;
+  width: 6px;
+  height: 12px;
+  background: var(--pure);
+  margin-left: 2px;
+  animation: blink 0.8s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ─── Infrastructure ─────────────────────────────────── */
+
+.arch-infra-section {
+  padding: var(--gap-section) 0;
+  position: relative;
+}
+
+.arch-infra-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 50% at 60% 40%, rgba(255,255,255,0.018) 0%, transparent 70%);
+}
+
+.arch-infra-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-xl);
+  align-items: start;
+}
+
+.arch-infra-headline {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 700;
+  color: var(--pure);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: var(--gap-lg);
+}
+
+.arch-infra-desc {
+  font-size: 0.75rem;
+  color: var(--silver);
+  line-height: 1.8;
+  margin-bottom: var(--gap-md);
+}
+
+.arch-infra-terminal {
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.arch-infra-body {
+  padding: var(--gap-lg);
+  font-size: 0.65rem;
+  line-height: 1.9;
+  color: var(--dim);
+  letter-spacing: 0.04em;
+  min-height: 280px;
+}
+
+.arch-infra-compare {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0;
+  margin-top: var(--gap-xl);
+  align-items: stretch;
+}
+
+.arch-infra-compare .arch-manage-card {
+  border: 1px solid var(--border);
+  padding: var(--gap-lg);
+}
+
+.arch-compare-diy {
+  border-color: rgba(255, 23, 68, 0.25) !important;
+  background: rgba(255, 23, 68, 0.02);
+}
+
+.arch-compare-mercury {
+  border-color: var(--green) !important;
+  background: rgba(0, 200, 83, 0.03);
+}
+
+.arch-compare-vs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--dim);
+  padding: 0 1.25rem;
+  position: relative;
+}
+
+.arch-compare-vs::before,
+.arch-compare-vs::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 1px;
+  background: var(--border);
+}
+.arch-compare-vs::before { top: 0; bottom: calc(50% + 1rem); }
+.arch-compare-vs::after  { top: calc(50% + 1rem); bottom: 0; }
+
+.arch-compare-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 1.25rem;
+}
+
+.arch-compare-list li {
+  font-size: 0.7rem;
+  line-height: 1.6;
+  color: var(--silver);
+  padding: 0.4rem 0;
+  padding-left: 1.25rem;
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.arch-compare-list li:last-child { border-bottom: none; }
+
+.arch-compare-list li::before {
+  position: absolute;
+  left: 0;
+  top: 0.4rem;
+}
+
+.arch-compare-list--pain li::before {
+  content: '\00d7';
+  color: var(--red);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.arch-compare-list--win li::before {
+  content: '\2713';
+  color: var(--green);
+  font-weight: 700;
+  font-size: 0.7rem;
+}
+
+.arch-compare-list li strong {
+  color: var(--pure);
+}
+
+.arch-compare-total {
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+
+@media (max-width: 768px) {
+  .arch-infra-compare {
+    grid-template-columns: 1fr;
+  }
+  .arch-compare-vs {
+    padding: 1rem 0;
+    flex-direction: row;
+  }
+  .arch-compare-vs::before,
+  .arch-compare-vs::after {
+    top: 50%;
+    bottom: auto;
+    height: 1px;
+    width: auto;
+    left: auto;
+  }
+  .arch-compare-vs::before { left: 0; right: calc(50% + 1.5rem); }
+  .arch-compare-vs::after  { left: calc(50% + 1.5rem); right: 0; }
+}
+
+/* ─── Deploy ──────────────────────────────────────────── */
+
+.arch-deploy-section {
+  padding: var(--gap-section) 0;
+  position: relative;
+}
+
+.arch-deploy-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 50% 60% at 40% 60%, rgba(255,255,255,0.015) 0%, transparent 70%);
+}
+
+.arch-deploy-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-xl);
+  align-items: start;
+}
+
+.arch-deploy-terminal {
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.arch-deploy-body {
+  padding: var(--gap-lg);
+  font-size: 0.65rem;
+  line-height: 1.9;
+  color: var(--dim);
+  letter-spacing: 0.04em;
+  min-height: 240px;
+}
+
+/* ─── Management Grid ─────────────────────────────────── */
+
+.arch-manage-section {
+  padding: var(--gap-section) 0;
+  position: relative;
+}
+
+.arch-manage-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 50% at 75% 50%, rgba(255,255,255,0.02) 0%, transparent 70%);
+}
+
+.arch-manage-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--border);
+}
+
+.arch-manage-card {
+  padding: var(--gap-lg);
+  border-right: 1px solid var(--border);
+  transition: background 0.12s;
+}
+
+.arch-manage-card:last-child {
+  border-right: none;
+}
+
+.arch-manage-card:hover {
+  background: var(--surface);
+}
+
+.arch-manage-num {
+  font-size: 0.65rem;
+  color: var(--dim);
+  letter-spacing: 0.15em;
+  margin-bottom: 0.5rem;
+}
+
+.arch-manage-title {
+  font-size: 0.95rem;
+  color: var(--pure);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.arch-manage-desc {
+  font-size: 0.7rem;
+  color: var(--silver);
+  line-height: 1.7;
+}
+
+/* ─── Responsive ──────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .arch-builder-canvas {
+    min-height: 400px;
+  }
+  .arch-blocks,
+  .arch-manage-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .arch-ai-grid,
+  .arch-deploy-grid,
+  .arch-infra-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .arch-hero {
+    padding-top: 6rem;
+    min-height: auto;
+  }
+  .arch-intro-title {
+    font-size: clamp(2rem, 8vw, 4rem);
+    letter-spacing: 0.3em;
+    margin-right: -0.3em;
+  }
+  .arch-intro-terminal {
+    font-size: 0.6rem;
+    bottom: 4rem;
+    left: 1rem;
+    max-width: 280px;
+  }
+  .arch-blocks,
+  .arch-manage-grid {
+    grid-template-columns: 1fr;
+  }
+  .arch-manage-card,
+  .arch-block {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .arch-manage-card:last-child,
+  .arch-block:last-child {
+    border-bottom: none;
+  }
+  .arch-node {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    margin-bottom: var(--gap-sm);
+    min-width: auto;
+  }
+  .arch-connections {
+    display: none;
+  }
+  .arch-builder-canvas {
+    min-height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

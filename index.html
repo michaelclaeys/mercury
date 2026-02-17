@@ -3,12 +3,537 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mercury — Options Intelligence Terminal</title>
-  <meta name="description" content="Liquid intelligence for the next generation of traders. Institutional-grade options analytics, automated trading, and market intelligence.">
+  <title>Mercury</title>
+  <meta name="description" content="Mercury — infrastructure for prediction market traders. Architect your bots, research your edge.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/main.css">
+  <style>
+    /* ─── Hub-only homepage ─────────────────────────────── */
+    .hub {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hub-grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+
+    .hub-content {
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hub-logo {
+      margin: 0 auto 2rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.8s, transform 0.8s;
+    }
+    .hub-logo.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .hub-logo svg {
+      width: 64px;
+      height: 64px;
+      stroke: var(--pure);
+      stroke-width: 1;
+      fill: none;
+    }
+    .hub-logo .hub-logo-core {
+      fill: var(--pure);
+    }
+
+    .hub-logo-text {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--pure);
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.6s 0.1s, transform 0.6s 0.1s;
+    }
+    .hub-logo-text.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .hub-logo-sub {
+      font-size: 0.75rem;
+      color: var(--silver);
+      letter-spacing: 0.18em;
+      font-weight: 500;
+      margin-left: 0.25rem;
+      vertical-align: baseline;
+    }
+
+    .hub-motto {
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--silver);
+      margin-bottom: 3rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.6s 0.15s, transform 0.6s 0.15s;
+    }
+    .hub-motto.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hub-heading {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--pure);
+      margin-bottom: 0.5rem;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.6s 0.2s, transform 0.6s 0.2s;
+    }
+    .hub-heading.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hub-sub {
+      font-size: 0.8rem;
+      color: var(--dim);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 4rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.6s 0.4s, transform 0.6s 0.4s;
+    }
+    .hub-sub.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hub-panels {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      max-width: 1080px;
+      margin: 0 auto;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s 0.6s, transform 0.6s 0.6s;
+    }
+    .hub-panels.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hub-panel {
+      display: flex;
+      flex-direction: column;
+      padding: 2.5rem 2rem;
+      cursor: pointer;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      text-align: left;
+      text-decoration: none;
+      color: var(--pure);
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+      position: relative;
+    }
+    .hub-panel:hover {
+      background: rgba(255,255,255,0.04);
+      border-color: rgba(255,255,255,0.25);
+      box-shadow:
+        0 0 20px rgba(255,255,255,0.06),
+        0 0 60px rgba(255,255,255,0.03),
+        inset 0 0 30px rgba(255,255,255,0.02);
+      transform: translateY(-2px);
+    }
+    .hub-panel:active {
+      transform: translateY(0);
+      box-shadow:
+        0 0 12px rgba(255,255,255,0.08),
+        inset 0 0 20px rgba(255,255,255,0.03);
+    }
+
+    .hub-panel-num {
+      font-size: 0.65rem;
+      color: var(--dim);
+      letter-spacing: 0.1em;
+      margin-bottom: 1.2rem;
+      transition: color 0.3s;
+    }
+    .hub-panel:hover .hub-panel-num {
+      color: var(--silver);
+    }
+
+    .hub-panel-status {
+      position: absolute;
+      top: 2.5rem;
+      right: 2rem;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .hub-panel-status--live {
+      color: var(--green);
+      transition: text-shadow 0.3s;
+    }
+    .hub-panel:hover .hub-panel-status--live {
+      text-shadow: 0 0 8px rgba(0,200,83,0.5);
+    }
+    .hub-panel-status--soon {
+      color: var(--dim);
+    }
+    .status-pulse {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      background: var(--green);
+      margin-left: 4px;
+      vertical-align: middle;
+      animation: pulse 2s infinite;
+      transition: box-shadow 0.3s;
+    }
+    .hub-panel:hover .status-pulse {
+      box-shadow: 0 0 6px rgba(0,200,83,0.6);
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .hub-panel-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      margin-bottom: 0.8rem;
+      transition: text-shadow 0.3s;
+    }
+    .hub-panel:hover .hub-panel-title {
+      text-shadow: 0 0 12px rgba(255,255,255,0.15);
+    }
+
+    .hub-panel-desc {
+      font-size: 0.72rem;
+      color: var(--silver);
+      line-height: 1.7;
+      flex: 1;
+      margin-bottom: 1.5rem;
+      transition: color 0.3s;
+    }
+    .hub-panel:hover .hub-panel-desc {
+      color: var(--bright);
+    }
+
+    .hub-panel-arrow {
+      font-size: 0.7rem;
+      color: var(--dim);
+      letter-spacing: 0.08em;
+      transition: color 0.3s, letter-spacing 0.3s;
+    }
+    .hub-panel:hover .hub-panel-arrow {
+      color: var(--pure);
+      letter-spacing: 0.14em;
+    }
+
+    /* ─── Large orbit watermark behind hub ─────────────── */
+    .hub-watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px;
+      height: 700px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.5s 0.3s;
+    }
+    .hub-watermark.visible {
+      opacity: 1;
+    }
+    .hub-watermark svg {
+      width: 100%;
+      height: 100%;
+      stroke: rgba(255,255,255,0.04);
+      stroke-width: 0.3;
+      fill: none;
+    }
+    .hub-watermark .wm-core {
+      fill: rgba(255,255,255,0.025);
+    }
+
+    /* ─── Mercury text watermarks ───────────────────────── */
+    .hub-brand-text {
+      position: absolute;
+      font-size: 9rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.025);
+      pointer-events: none;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .hub-brand-text--top {
+      top: 6%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .hub-brand-text--bottom {
+      bottom: 6%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    /* ─── Terminal init (top-left corner) ────────────────── */
+    .hub-terminal {
+      position: absolute;
+      top: 3%;
+      left: 3%;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1s 0.6s;
+      z-index: 1;
+    }
+    .hub-terminal.visible { opacity: 1; }
+    .hub-term-line {
+      font-size: 0.6rem;
+      color: rgba(255,255,255,0.35);
+      line-height: 1.8;
+      opacity: 0;
+      transform: translateX(-8px);
+      transition: opacity 0.4s, transform 0.4s;
+    }
+    .hub-term-line.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .hub-term-line .t-ok {
+      color: rgba(0,200,83,0.55);
+    }
+    .hub-term-line .t-dots {
+      color: rgba(255,255,255,0.18);
+    }
+
+    /* ─── Coordinate markers (top-right) ────────────────── */
+    .hub-coords {
+      position: absolute;
+      top: 3%;
+      right: 3%;
+      text-align: right;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1s 0.8s;
+      z-index: 1;
+    }
+    .hub-coords.visible { opacity: 1; }
+    .hub-coord-line {
+      font-size: 0.55rem;
+      color: rgba(255,255,255,0.10);
+      line-height: 2;
+      letter-spacing: 0.1em;
+    }
+
+    /* ─── Schematic annotations (corners) ───────────────── */
+    .hub-schematic {
+      position: absolute;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1s 1s;
+      z-index: 1;
+    }
+    .hub-schematic.visible { opacity: 1; }
+    .hub-schematic svg {
+      stroke: rgba(255,255,255,0.06);
+      stroke-width: 1;
+      fill: none;
+    }
+    .hub-schematic--tl { top: 14%; left: 3%; }
+    .hub-schematic--tr { top: 14%; right: 3%; }
+    .hub-schematic--bl { bottom: 14%; left: 3%; }
+    .hub-schematic--br { bottom: 14%; right: 3%; }
+
+    /* ─── Element label (Hg 80) ─────────────────────────── */
+    .hub-element {
+      position: absolute;
+      top: 50%;
+      right: 4%;
+      transform: translateY(-50%);
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1s 0.8s;
+      z-index: 1;
+    }
+    .hub-element.visible {
+      opacity: 1;
+    }
+    .hub-element-symbol {
+      font-size: 5rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.06);
+      letter-spacing: 0.05em;
+      line-height: 1;
+    }
+    .hub-element-num {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,0.045);
+      letter-spacing: 0.15em;
+    }
+    .hub-element-name {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.035);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+    }
+
+    /* ─── Side words (left) ─────────────────────────────── */
+    .hub-side-words {
+      position: absolute;
+      left: 3%;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1s 0.8s;
+      z-index: 1;
+    }
+    .hub-side-words.visible {
+      opacity: 1;
+    }
+    .hub-side-word {
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.06);
+      writing-mode: vertical-lr;
+      text-orientation: mixed;
+    }
+
+    /* ─── Right side words ──────────────────────────────── */
+    .hub-side-words--right {
+      left: auto;
+      right: 3%;
+      top: 30%;
+      transform: none;
+    }
+
+    /* ─── Data readout (bottom-left) ────────────────────── */
+    .hub-readout {
+      position: absolute;
+      bottom: 12%;
+      left: 3%;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1s 0.9s;
+      z-index: 1;
+    }
+    .hub-readout.visible { opacity: 1; }
+    .hub-readout-line {
+      font-size: 0.55rem;
+      color: rgba(255,255,255,0.08);
+      line-height: 2;
+      letter-spacing: 0.08em;
+    }
+    .hub-readout-line .r-val {
+      color: rgba(0,200,83,0.15);
+    }
+
+    /* ─── Status badges (bottom-right) ──────────────────── */
+    .hub-status-badges {
+      position: absolute;
+      bottom: 12%;
+      right: 3%;
+      text-align: right;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1s 0.9s;
+      z-index: 1;
+    }
+    .hub-status-badges.visible { opacity: 1; }
+    .hub-badge {
+      font-size: 0.55rem;
+      color: rgba(255,255,255,0.08);
+      line-height: 2;
+      letter-spacing: 0.08em;
+    }
+    .hub-badge .b-dot {
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      background: rgba(0,200,83,0.2);
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    @media (max-width: 1024px) {
+      .hub-watermark { width: 450px; height: 450px; }
+      .hub-brand-text { font-size: 5rem; }
+      .hub-element { display: none; }
+      .hub-side-words { display: none; }
+      .hub-side-words--right { display: none; }
+      .hub-schematic { display: none; }
+      .hub-readout { display: none; }
+      .hub-status-badges { display: none; }
+    }
+    @media (max-width: 768px) {
+      .hub-panels {
+        grid-template-columns: 1fr;
+      }
+      .hub-panel {
+        padding: 2rem 1.5rem;
+      }
+      .hub-watermark { width: 300px; height: 300px; }
+      .hub-brand-text { font-size: 3rem; }
+      .hub-terminal { display: none; }
+      .hub-coords { display: none; }
+    }
+
+    /* ─── Footer (minimal) ──────────────────────────────── */
+    .hub-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.6rem;
+      color: var(--dim);
+      letter-spacing: 0.06em;
+      z-index: 1;
+    }
+    .hub-footer a {
+      color: var(--dim);
+      text-decoration: none;
+      margin-left: 1.5rem;
+      transition: color 0.2s;
+    }
+    .hub-footer a:hover {
+      color: var(--silver);
+    }
+  </style>
 </head>
 <body class="intro-active">
 
@@ -24,492 +549,172 @@
           <ellipse class="intro-orbit" cx="50" cy="50" rx="40" ry="14" transform="rotate(90 50 50)"/>
         </svg>
       </div>
-      <div class="intro-brand" id="introBrand">Mercury</div>
+      <div class="intro-brand" id="introBrand">Mercury <span class="intro-brand-sub">Suite</span></div>
+      <div class="intro-tagline" id="introTagline">Built for tomorrow.</div>
       <div class="intro-textline" id="introTextline">
-        <span class="intro-prefix">Built for </span><span class="intro-word" id="introWord">traders</span>
+        <span class="intro-prefix">Built for </span><span class="intro-word" id="introWord">forecasters</span>
       </div>
     </div>
     <div class="intro-skip" id="introSkip">Click anywhere to skip</div>
   </div>
 
-  <!-- ─── NAVBAR ──────────────────────────────────────── -->
-  <nav class="navbar">
-    <div class="navbar-inner">
-      <a href="#" class="navbar-brand">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="12" r="3"/>
-          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
-          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
-        </svg>
-        Mercury
-      </a>
-      <ul class="navbar-links">
-        <li><a href="#suite">Suite</a></li>
-        <li><a href="#analytics">Analytics</a></li>
-        <li><a href="#architect">Architect</a></li>
-        <li><a href="#pricing">Pricing</a></li>
-      </ul>
-      <div class="navbar-actions">
-        <a href="/dashboard.html" class="btn">Sign In</a>
-        <a href="/dashboard.html" class="btn btn-primary">Launch</a>
-      </div>
-      <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </nav>
-
-  <div class="mobile-menu" id="mobileMenu">
-    <a href="#suite">Suite</a>
-    <a href="#analytics">Analytics</a>
-    <a href="#architect">Architect</a>
-    <a href="#pricing">Pricing</a>
-    <a href="/dashboard.html">Sign In</a>
-    <a href="/dashboard.html">Launch Dashboard</a>
-  </div>
-
-  <!-- ─── TICKER ──────────────────────────────────────── -->
-  <div class="ticker">
-    <div class="ticker-track">
-      <span class="ticker-item"><span class="sym">BTC</span> $97,420 <span class="up">+2.4%</span></span>
-      <span class="ticker-item"><span class="sym">ETH</span> $3,841 <span class="up">+1.8%</span></span>
-      <span class="ticker-item"><span class="sym">NET GEX</span> <span class="up">+$14.2M</span></span>
-      <span class="ticker-item"><span class="sym">VANNA</span> <span class="dn">-$8.7M</span></span>
-      <span class="ticker-item"><span class="sym">CHARM</span> <span class="up">+$3.1M</span></span>
-      <span class="ticker-item"><span class="sym">GEX FLIP</span> $96,800</span>
-      <span class="ticker-item"><span class="sym">MAX PAIN</span> $97,000</span>
-      <span class="ticker-item"><span class="sym">IV RANK</span> 62%</span>
-      <span class="ticker-item"><span class="sym">P/C RATIO</span> 0.84</span>
-      <span class="ticker-item"><span class="sym">SOL</span> $198.40 <span class="up">+3.1%</span></span>
-      <span class="ticker-item"><span class="sym">TOTAL OI</span> $4.8B</span>
-      <span class="ticker-item"><span class="sym">24H VOL</span> $2.1B</span>
-      <!-- duplicate for seamless loop -->
-      <span class="ticker-item"><span class="sym">BTC</span> $97,420 <span class="up">+2.4%</span></span>
-      <span class="ticker-item"><span class="sym">ETH</span> $3,841 <span class="up">+1.8%</span></span>
-      <span class="ticker-item"><span class="sym">NET GEX</span> <span class="up">+$14.2M</span></span>
-      <span class="ticker-item"><span class="sym">VANNA</span> <span class="dn">-$8.7M</span></span>
-      <span class="ticker-item"><span class="sym">CHARM</span> <span class="up">+$3.1M</span></span>
-      <span class="ticker-item"><span class="sym">GEX FLIP</span> $96,800</span>
-      <span class="ticker-item"><span class="sym">MAX PAIN</span> $97,000</span>
-      <span class="ticker-item"><span class="sym">IV RANK</span> 62%</span>
-      <span class="ticker-item"><span class="sym">P/C RATIO</span> 0.84</span>
-      <span class="ticker-item"><span class="sym">SOL</span> $198.40 <span class="up">+3.1%</span></span>
-      <span class="ticker-item"><span class="sym">TOTAL OI</span> $4.8B</span>
-      <span class="ticker-item"><span class="sym">24H VOL</span> $2.1B</span>
-    </div>
-  </div>
-
-  <!-- ─── DATA HELIX (right side, JS-driven) ──────────── -->
-  <div class="data-helix" id="dataHelix">
-    <div class="data-helix-track" id="helixTrack"></div>
-  </div>
-
-  <!-- ─── HUB ("Where to?") ───────────────────────────── -->
+  <!-- ─── SUITE ("Where to?") ───────────────────────────── -->
   <section class="hub" id="hub">
+    <canvas id="hubBgCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
     <div class="hub-grid-bg"></div>
 
-    <!-- Hub view (first visit) -->
-    <div class="container hub-content" id="hubView">
-      <div class="term-init" id="hubInit">
-        <div class="term-line" data-delay="0">> mercury.init()</div>
-        <div class="term-line" data-delay="300">> loading gex_engine <span class="term-dots">................</span> <span class="term-ok">OK</span></div>
-        <div class="term-line" data-delay="600">> loading architect_nodes <span class="term-dots">...........</span> <span class="term-ok">OK</span></div>
-        <div class="term-line" data-delay="900">> loading live_feeds <span class="term-dots">...............</span> <span class="term-ok">OK</span></div>
-        <div class="term-line" data-delay="1200">> status: <span class="term-ok">all systems operational</span></div>
-        <div class="term-line" data-delay="1500">> motto: liquid intelligence for the next generation of traders_</div>
-      </div>
-      <h1 class="hub-heading" id="hubHeading">Where to?</h1>
-      <p class="hub-sub" id="hubSub">Select a module to explore.</p>
-
-      <div class="hub-panels" id="hubPanels">
-        <a class="hub-panel" href="#analytics">
-          <div class="hub-panel-num">01</div>
-          <div class="hub-panel-visual" id="hubVisual1"></div>
-          <span class="hub-panel-status hub-panel-status--live">Live <span class="status-pulse"></span></span>
-          <div class="hub-panel-title">Analytics</div>
-          <div class="hub-panel-desc">Real-time GEX profiles, vanna/charm exposure, gamma field heatmaps, IV surface analysis. See where dealers are hedging.</div>
-          <div class="hub-panel-arrow">> Enter ———</div>
-        </a>
-        <a class="hub-panel" href="#architect">
-          <div class="hub-panel-num">02</div>
-          <div class="hub-panel-visual" id="hubVisual2"></div>
-          <span class="hub-panel-status hub-panel-status--soon">Coming Soon</span>
-          <div class="hub-panel-title">Architect</div>
-          <div class="hub-panel-desc">Visual node-based strategy builder. Wire triggers to conditions to execution. Backtest against historical GEX and flow data.</div>
-          <div class="hub-panel-arrow">> Enter ———</div>
-        </a>
-        <a class="hub-panel" href="#live">
-          <div class="hub-panel-num">03</div>
-          <div class="hub-panel-visual" id="hubVisual3"></div>
-          <span class="hub-panel-status hub-panel-status--live">Live <span class="status-pulse"></span></span>
-          <div class="hub-panel-title">Live Management</div>
-          <div class="hub-panel-desc">Monitor positions, execution, and risk in real-time. Live price feeds, ticking greeks, and GEX exposure bars updating continuously.</div>
-          <div class="hub-panel-arrow">> Enter ———</div>
-        </a>
-      </div>
+    <!-- Large orbit watermark -->
+    <div class="hub-watermark" id="hubWatermark">
+      <svg viewBox="0 0 100 100">
+        <circle class="wm-core" cx="50" cy="50" r="6"/>
+        <ellipse cx="50" cy="50" rx="40" ry="14" transform="rotate(30 50 50)"/>
+        <ellipse cx="50" cy="50" rx="40" ry="14" transform="rotate(-30 50 50)"/>
+        <ellipse cx="50" cy="50" rx="40" ry="14" transform="rotate(90 50 50)"/>
+      </svg>
     </div>
 
-    <!-- Info view (shown on return to top) -->
-    <div class="container hub-content hub-info" id="hubInfoView">
-      <div class="term-init term-init--info" id="infoInit">
-        <div class="term-line" data-delay="0">> mercury.resume()</div>
-        <div class="term-line" data-delay="300">> session: <span class="term-ok">active</span></div>
-        <div class="term-line" data-delay="600">> uptime: continuous</div>
+    <!-- Mercury text watermarks -->
+    <div class="hub-brand-text hub-brand-text--top">Mercury</div>
+    <div class="hub-brand-text hub-brand-text--bottom">Mercury</div>
+
+    <!-- Terminal init (top-left) -->
+    <div class="hub-terminal" id="hubTerminal">
+      <div class="hub-term-line" data-delay="0">> mercury.init()</div>
+      <div class="hub-term-line" data-delay="200">> loading architect_engine <span class="t-dots">..........</span> <span class="t-ok">OK</span></div>
+      <div class="hub-term-line" data-delay="400">> loading research_feeds <span class="t-dots">............</span> <span class="t-ok">OK</span></div>
+      <div class="hub-term-line" data-delay="600">> loading market_scanner <span class="t-dots">..........</span> <span class="t-ok">OK</span></div>
+      <div class="hub-term-line" data-delay="800">> loading bot_deployer <span class="t-dots">............</span> <span class="t-ok">OK</span></div>
+      <div class="hub-term-line" data-delay="1000">> connecting exchanges <span class="t-dots">...........</span> <span class="t-ok">OK</span></div>
+      <div class="hub-term-line" data-delay="1200">> status: <span class="t-ok">all systems operational</span></div>
+    </div>
+
+    <!-- Coordinate / system info (top-right) -->
+    <div class="hub-coords" id="hubCoords">
+      <div class="hub-coord-line">SYS: MERCURY v2.4.1</div>
+      <div class="hub-coord-line">UPTIME: 99.98%</div>
+      <div class="hub-coord-line">LATENCY: &lt;12ms</div>
+      <div class="hub-coord-line">NODES: 3 ACTIVE</div>
+      <div class="hub-coord-line">FEEDS: 847 LIVE</div>
+      <div class="hub-coord-line">REGION: US-EAST-1</div>
+    </div>
+
+    <!-- Schematic corner brackets -->
+    <div class="hub-schematic hub-schematic--tl" id="hubSchematicTL">
+      <svg width="40" height="40" viewBox="0 0 40 40">
+        <path d="M0,40 L0,0 L40,0"/>
+        <circle cx="0" cy="0" r="2" fill="rgba(255,255,255,0.08)"/>
+      </svg>
+    </div>
+    <div class="hub-schematic hub-schematic--tr" id="hubSchematicTR">
+      <svg width="40" height="40" viewBox="0 0 40 40">
+        <path d="M0,0 L40,0 L40,40"/>
+        <circle cx="40" cy="0" r="2" fill="rgba(255,255,255,0.08)"/>
+      </svg>
+    </div>
+    <div class="hub-schematic hub-schematic--bl" id="hubSchematicBL">
+      <svg width="40" height="40" viewBox="0 0 40 40">
+        <path d="M0,0 L0,40 L40,40"/>
+        <circle cx="0" cy="40" r="2" fill="rgba(255,255,255,0.08)"/>
+      </svg>
+    </div>
+    <div class="hub-schematic hub-schematic--br" id="hubSchematicBR">
+      <svg width="40" height="40" viewBox="0 0 40 40">
+        <path d="M40,0 L40,40 L0,40"/>
+        <circle cx="40" cy="40" r="2" fill="rgba(255,255,255,0.08)"/>
+      </svg>
+    </div>
+
+    <!-- Element symbol (Hg 80) -->
+    <div class="hub-element" id="hubElement">
+      <div class="hub-element-symbol">Hg</div>
+      <div class="hub-element-num">80</div>
+      <div class="hub-element-name">Mercury</div>
+    </div>
+
+    <!-- Side words (left) -->
+    <div class="hub-side-words" id="hubSideWords">
+      <span class="hub-side-word">Architect</span>
+      <span class="hub-side-word">Research</span>
+      <span class="hub-side-word">Deploy</span>
+      <span class="hub-side-word">Execute</span>
+      <span class="hub-side-word">Monitor</span>
+    </div>
+
+    <!-- Side words (right) -->
+    <div class="hub-side-words hub-side-words--right" id="hubSideWordsR">
+      <span class="hub-side-word">Signal</span>
+      <span class="hub-side-word">Alpha</span>
+      <span class="hub-side-word">Edge</span>
+      <span class="hub-side-word">Precision</span>
+    </div>
+
+    <!-- Data readout (bottom-left) -->
+    <div class="hub-readout" id="hubReadout">
+      <div class="hub-readout-line">BOTS DEPLOYED: <span class="r-val">842</span></div>
+      <div class="hub-readout-line">BOT VOL / 24H: <span class="r-val">$24.1M</span></div>
+      <div class="hub-readout-line">AVG WIN RATE: <span class="r-val">67.2%</span></div>
+      <div class="hub-readout-line">DEPLOY TIME: <span class="r-val">&lt;30s</span></div>
+      <div class="hub-readout-line">BACKTESTS / DAY: <span class="r-val">12,400</span></div>
+    </div>
+
+    <!-- Status badges (bottom-right) -->
+    <div class="hub-status-badges" id="hubStatusBadges">
+      <div class="hub-badge"><span class="b-dot"></span>POLYMARKET CONNECTED</div>
+      <div class="hub-badge"><span class="b-dot"></span>KALSHI CONNECTED</div>
+      <div class="hub-badge"><span class="b-dot"></span>INFRASTRUCTURE LIVE</div>
+      <div class="hub-badge"><span class="b-dot"></span>TELEGRAM ACTIVE</div>
+      <div class="hub-badge"><span class="b-dot"></span>RISK ENGINE RUNNING</div>
+    </div>
+
+    <div class="container hub-content">
+      <div class="hub-logo" id="hubLogo">
+        <svg viewBox="0 0 100 100">
+          <circle class="hub-logo-core" cx="50" cy="50" r="6"/>
+          <ellipse cx="50" cy="50" rx="40" ry="14" transform="rotate(30 50 50)"/>
+          <ellipse cx="50" cy="50" rx="40" ry="14" transform="rotate(-30 50 50)"/>
+          <ellipse cx="50" cy="50" rx="40" ry="14" transform="rotate(90 50 50)"/>
+        </svg>
       </div>
-      <div class="hub-info-label">// Mercury</div>
-      <h1 class="hub-info-headline">Liquid intelligence for<br>the next generation of traders.</h1>
-      <div class="hub-info-words">
-        <span class="hub-info-word">traders</span>
-        <span class="hub-info-word">vision</span>
-        <span class="hub-info-word">precision</span>
-        <span class="hub-info-word">alpha</span>
-        <span class="hub-info-word">speed</span>
-        <span class="hub-info-word">insight</span>
-        <span class="hub-info-word">conviction</span>
-        <span class="hub-info-word">edge</span>
-      </div>
-      <div class="hub-info-ctas">
-        <a href="/dashboard.html" class="btn btn-primary">Launch Terminal</a>
-        <a href="#suite" class="btn">Explore Suite</a>
+      <div class="hub-logo-text" id="hubLogoText">Mercury <span class="hub-logo-sub">SUITE</span></div>
+      <div class="hub-motto" id="hubMotto">Liquid intelligence.</div>
+      <h1 class="hub-heading" id="hubHeading">Where to?</h1>
+      <p class="hub-sub" id="hubSub">Select a module to begin.</p>
+
+      <div class="hub-panels" id="hubPanels">
+        <a class="hub-panel" href="architect.html">
+          <div class="hub-panel-num">01</div>
+          <span class="hub-panel-status hub-panel-status--live">Live <span class="status-pulse"></span></span>
+          <div class="hub-panel-title">Architect</div>
+          <div class="hub-panel-desc">Your strategy, our infrastructure. Any data source — polls, sentiment, news, prices, custom APIs. AI-first bot builder deploys to production servers. No VPS, no API wiring. Live in under 30 seconds.</div>
+          <div class="hub-panel-arrow">> Enter ———</div>
+        </a>
+        <a class="hub-panel" href="architect-app.html#research">
+          <div class="hub-panel-num">02</div>
+          <span class="hub-panel-status hub-panel-status--live">Live <span class="status-pulse"></span></span>
+          <div class="hub-panel-title">Research</div>
+          <div class="hub-panel-desc">Every data source in one terminal. Market probabilities, polling data, social sentiment, news feeds, cross-platform arbitrage, BTC data connections — all low-latency, all real-time.</div>
+          <div class="hub-panel-arrow">> Enter ———</div>
+        </a>
+        <a class="hub-panel" href="#">
+          <div class="hub-panel-num">03</div>
+          <span class="hub-panel-status hub-panel-status--live">Live <span class="status-pulse"></span></span>
+          <div class="hub-panel-title">Live Management</div>
+          <div class="hub-panel-desc">Monitor bots, positions, and risk in real-time. 99.98% uptime infrastructure keeps your bots running 24/7 — no server restarts, no crashed scripts, no 3am wake-up calls.</div>
+          <div class="hub-panel-arrow">> Enter ———</div>
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- ─── METRICS BAR ─────────────────────────────────── -->
-  <div class="metrics-bar">
-    <div class="metrics-grid">
-      <div class="metric-cell">
-        <div class="metric-value" data-count="100000" data-suffix="+">0</div>
-        <div class="metric-label">Data Points</div>
-      </div>
-      <div class="metric-cell">
-        <div class="metric-value" data-count="50" data-prefix="<" data-suffix="ms">0</div>
-        <div class="metric-label">Latency</div>
-      </div>
-      <div class="metric-cell">
-        <div class="metric-value" data-count="247" data-suffix="">0</div>
-        <div class="metric-label">24/7 Coverage</div>
-      </div>
-      <div class="metric-cell">
-        <div class="metric-value" data-count="5" data-suffix="">0</div>
-        <div class="metric-label">Greeks Tracked</div>
-      </div>
+  <div class="hub-footer">
+    <span>&copy; 2026 Mercury</span>
+    <div>
+      <a href="login.html">Sign In</a>
+      <a href="signup.html">Sign Up</a>
     </div>
   </div>
 
-  <!-- ─── LIVE TERMINAL ───────────────────────────────── -->
-  <section class="live-section" id="live">
-    <div class="container">
-      <div class="section-label">Live Preview</div>
-    </div>
-    <div class="container">
-      <div class="terminal-window reveal">
-        <div class="terminal-titlebar">
-          <span class="terminal-title">Mercury Terminal — BTC/USD</span>
-          <div class="terminal-status">
-            <span>LIVE</span>
-            <span class="status-dot"></span>
-          </div>
-        </div>
-        <div class="terminal-body">
-          <div class="terminal-chart">
-            <canvas id="liveChart"></canvas>
-          </div>
-          <div class="terminal-sidebar">
-            <div class="terminal-metric">
-              <div class="terminal-metric-label">BTC Price</div>
-              <div class="terminal-metric-value" id="liveBtcPrice">$97,420</div>
-            </div>
-            <div class="terminal-metric">
-              <div class="terminal-metric-label">Net GEX</div>
-              <div class="terminal-metric-value" id="liveNetGex">+$14.2M</div>
-            </div>
-            <div class="terminal-metric">
-              <div class="terminal-metric-label">Vanna Exposure</div>
-              <div class="terminal-metric-value" id="liveVanna">-$8.7M</div>
-            </div>
-            <div class="terminal-metric">
-              <div class="terminal-metric-label">GEX Flip</div>
-              <div class="terminal-metric-value" id="liveFlip">$96,800</div>
-            </div>
-            <div class="terminal-bars" id="liveGexBars"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── MERCURY SUITE ───────────────────────────────── -->
-  <section class="suite-section" id="suite">
-    <div class="container">
-      <div class="section-label">Mercury Suite</div>
-      <div class="suite-grid reveal reveal-stagger">
-        <div class="suite-cell">
-          <span class="suite-status suite-status--live">Live</span>
-          <div class="suite-title">Analytics</div>
-          <div class="suite-desc">Real-time GEX profiles, vanna/charm exposure, gamma field heatmaps, and IV surface analysis across every strike and expiry.</div>
-        </div>
-        <div class="suite-cell">
-          <span class="suite-status suite-status--soon">Soon</span>
-          <div class="suite-title">Architect</div>
-          <div class="suite-desc">Visual node-based bot builder. Wire triggers, conditions, and execution blocks. Backtest on historical data. Deploy in one click.</div>
-        </div>
-        <div class="suite-cell">
-          <span class="suite-status suite-status--soon">Soon</span>
-          <div class="suite-title">Signals</div>
-          <div class="suite-desc">AI-driven trade alerts based on greek confluences, unusual flow detection, and vol surface anomalies. Delivered in real-time.</div>
-        </div>
-        <div class="suite-cell">
-          <span class="suite-status suite-status--soon">Soon</span>
-          <div class="suite-title">API</div>
-          <div class="suite-desc">RESTful and WebSocket endpoints for GEX, vanna, charm, IV, and full options chain data. Sub-50ms response times.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── ANALYTICS DEEP DIVE ─────────────────────────── -->
-  <section class="deep-section" id="analytics">
-    <div class="container">
-      <div class="section-label">Mercury Analytics</div>
-      <div class="deep-grid">
-        <div class="deep-mockup reveal" id="analyticsMockup">
-          <div class="deep-mockup-bar">
-            <span>GEX Profile — BTC 28 Feb</span>
-            <span>LIVE</span>
-          </div>
-          <div class="deep-mockup-body">
-            <svg viewBox="0 0 400 180" width="100%" style="margin-bottom:1rem">
-              <line x1="0" y1="90" x2="400" y2="90" stroke="#1a1a1a" stroke-width="1"/>
-              <line x1="0" y1="45" x2="400" y2="45" stroke="#111" stroke-width="0.5" stroke-dasharray="4 4"/>
-              <line x1="0" y1="135" x2="400" y2="135" stroke="#111" stroke-width="0.5" stroke-dasharray="4 4"/>
-              <path class="mock-path" d="M0,140 C30,138 60,130 90,110 C120,90 140,60 170,40 C200,20 220,25 250,50 C280,75 300,100 330,120 C360,140 380,145 400,148"/>
-              <path class="mock-path mock-path--dim" d="M0,100 C40,95 80,85 120,80 C160,75 200,90 240,100 C280,110 320,105 360,100 L400,98"/>
-            </svg>
-            <div class="mock-row"><span class="k">NET GEX</span><span class="v">+$14.2M</span></div>
-            <div class="mock-row"><span class="k">MAX GAMMA</span><span class="v">$97,000</span></div>
-            <div class="mock-row"><span class="k">GEX FLIP</span><span class="v">$96,800</span></div>
-            <div class="mock-row"><span class="k">DEALER BIAS</span><span class="v">LONG GAMMA</span></div>
-            <div class="mock-row"><span class="k">REGIME</span><span class="v">PINNING</span></div>
-          </div>
-        </div>
-        <div class="deep-features reveal">
-          <div class="deep-feature">
-            <div class="deep-feature-title">Real-Time GEX Profiles</div>
-            <div class="deep-feature-desc">Dollar-gamma exposure mapped across every strike. See where dealers are hedging and where price is magnetized.</div>
-          </div>
-          <div class="deep-feature">
-            <div class="deep-feature-title">Vanna &amp; Charm Analysis</div>
-            <div class="deep-feature-desc">Second-order greek flows that move markets overnight. Track how IV changes and time decay shift dealer positioning.</div>
-          </div>
-          <div class="deep-feature">
-            <div class="deep-feature-title">Gamma Field Heatmap</div>
-            <div class="deep-feature-desc">Interpolated gamma exposure across strike and expiry dimensions. Identify support/resistance zones the options market is pricing in.</div>
-          </div>
-          <div class="deep-feature">
-            <div class="deep-feature-title">Session Replay</div>
-            <div class="deep-feature-desc">Scrub backwards through the session. See how GEX profiles evolved intraday. Study how greek shifts preceded price moves.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── ARCHITECT DEEP DIVE ─────────────────────────── -->
-  <section class="deep-section" id="architect">
-    <div class="container">
-      <div class="section-label">Mercury Architect</div>
-      <div class="deep-grid deep-grid--reverse">
-        <div class="deep-mockup reveal" id="terminalMockup">
-          <div class="deep-mockup-bar">
-            <span>Strategy Builder</span>
-            <span>BETA</span>
-          </div>
-          <div class="deep-mockup-body node-editor">
-            <div class="mock-node" style="left:10%;top:15%">
-              <div class="mock-node-head">Price Trigger</div>
-              <div>BTC &gt; $98,000</div>
-              <div class="mock-node-port" style="right:-3px;top:50%"></div>
-            </div>
-            <div class="mock-node" style="left:40%;top:40%">
-              <div class="mock-node-head">Check GEX</div>
-              <div>Net GEX &gt; +$10M</div>
-              <div class="mock-node-port" style="left:-3px;top:50%"></div>
-              <div class="mock-node-port" style="right:-3px;top:50%"></div>
-            </div>
-            <div class="mock-node" style="left:70%;top:65%">
-              <div class="mock-node-head">Execute</div>
-              <div>Market Buy 0.5 BTC</div>
-              <div class="mock-node-port" style="left:-3px;top:50%"></div>
-            </div>
-            <svg viewBox="0 0 400 250" width="100%" height="100%" style="position:absolute;inset:0;pointer-events:none">
-              <path class="mock-connection" d="M130,65 C200,65 170,130 200,130"/>
-              <path class="mock-connection" d="M320,130 C360,130 330,195 350,195"/>
-            </svg>
-          </div>
-        </div>
-        <div class="deep-features reveal">
-          <div class="deep-feature">
-            <div class="deep-feature-title">Visual Node Editor</div>
-            <div class="deep-feature-desc">Wire together triggers, conditions, and execution blocks. No code required. Full logic control through a visual graph.</div>
-          </div>
-          <div class="deep-feature">
-            <div class="deep-feature-title">Historical Backtesting</div>
-            <div class="deep-feature-desc">Run strategies against historical GEX, price, and flow data. See P&amp;L curves, drawdown, and risk metrics before going live.</div>
-          </div>
-          <div class="deep-feature">
-            <div class="deep-feature-title">One-Click Deploy</div>
-            <div class="deep-feature-desc">Push strategies to production with a single action. Monitor execution, modify parameters, and kill switches in real-time.</div>
-          </div>
-          <div class="deep-feature">
-            <div class="deep-feature-title">Risk Management</div>
-            <div class="deep-feature-desc">Built-in position sizing, stop-loss logic, and exposure limits. Configurable per-strategy or account-wide.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── CAPABILITIES ────────────────────────────────── -->
-  <section class="cap-section" id="capabilities">
-    <div class="container">
-      <div class="section-label">Why Mercury</div>
-      <div class="cap-grid reveal reveal-stagger">
-        <div class="cap-cell">
-          <div class="cap-num">01</div>
-          <div class="cap-title">Sub-Second Data</div>
-          <div class="cap-desc">Exchange feeds processed and delivered in under 50ms. Options chain, greeks, and GEX profiles update continuously throughout the session.</div>
-        </div>
-        <div class="cap-cell">
-          <div class="cap-num">02</div>
-          <div class="cap-title">Confluence Engine</div>
-          <div class="cap-desc">Proprietary scoring that combines GEX, vanna, charm, skew, and flow data into actionable confluence signals. Not just data — intelligence.</div>
-        </div>
-        <div class="cap-cell">
-          <div class="cap-num">03</div>
-          <div class="cap-title">Built by Traders</div>
-          <div class="cap-desc">Designed by options traders who needed better tools. Every feature exists because we needed it at our own desks. No feature bloat.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── PRICING ─────────────────────────────────────── -->
-  <section class="pricing-section" id="pricing">
-    <div class="container">
-      <div class="section-label">Pricing</div>
-      <div class="pricing-table reveal">
-        <div class="pricing-col">
-          <div class="pricing-header">
-            <div class="pricing-tier">Starter</div>
-            <div class="pricing-price">$0 <span>/mo</span></div>
-          </div>
-          <div class="pricing-features">
-            <div class="pricing-feature">Delayed GEX profiles</div>
-            <div class="pricing-feature">Basic greek exposure</div>
-            <div class="pricing-feature">Daily snapshots</div>
-            <div class="pricing-feature">Community access</div>
-          </div>
-          <div class="pricing-action">
-            <button class="pricing-btn">Get Started</button>
-          </div>
-        </div>
-        <div class="pricing-col pricing-col--featured">
-          <div class="pricing-header">
-            <div class="pricing-tier">Pro</div>
-            <div class="pricing-price">$99 <span>/mo</span></div>
-          </div>
-          <div class="pricing-features">
-            <div class="pricing-feature">Real-time GEX profiles</div>
-            <div class="pricing-feature">Full greek suite</div>
-            <div class="pricing-feature">Gamma field heatmap</div>
-            <div class="pricing-feature">Session replay</div>
-            <div class="pricing-feature">API access (1K req/day)</div>
-            <div class="pricing-feature">Priority support</div>
-          </div>
-          <div class="pricing-action">
-            <button class="pricing-btn">Subscribe</button>
-          </div>
-        </div>
-        <div class="pricing-col">
-          <div class="pricing-header">
-            <div class="pricing-tier">Institutional</div>
-            <div class="pricing-price">Custom</div>
-          </div>
-          <div class="pricing-features">
-            <div class="pricing-feature">Everything in Pro</div>
-            <div class="pricing-feature">Unlimited API access</div>
-            <div class="pricing-feature">Custom data feeds</div>
-            <div class="pricing-feature">Dedicated infrastructure</div>
-            <div class="pricing-feature">White-glove onboarding</div>
-            <div class="pricing-feature">SLA guarantee</div>
-          </div>
-          <div class="pricing-action">
-            <button class="pricing-btn">Contact Sales</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── FINAL CTA ───────────────────────────────────── -->
-  <section class="final-cta">
-    <div class="container">
-      <h2 class="final-headline reveal">Element 80.</h2>
-      <p class="final-sub reveal">Liquid intelligence for the next generation of traders.</p>
-      <div class="final-ctas reveal">
-        <a href="/dashboard.html" class="btn btn-primary">Launch Terminal</a>
-        <a href="#pricing" class="btn">View Pricing</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── FOOTER ──────────────────────────────────────── -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div>
-          <div class="footer-brand">Mercury</div>
-          <p class="footer-desc">Liquid intelligence for the next generation of traders.</p>
-        </div>
-        <div>
-          <div class="footer-col-title">Product</div>
-          <ul class="footer-links">
-            <li><a href="#analytics">Analytics</a></li>
-            <li><a href="#architect">Architect</a></li>
-            <li><a href="#">Signals</a></li>
-            <li><a href="#">API</a></li>
-          </ul>
-        </div>
-        <div>
-          <div class="footer-col-title">Company</div>
-          <ul class="footer-links">
-            <li><a href="#">About</a></li>
-            <li><a href="#">Careers</a></li>
-            <li><a href="#">Blog</a></li>
-            <li><a href="#">Contact</a></li>
-          </ul>
-        </div>
-        <div>
-          <div class="footer-col-title">Legal</div>
-          <ul class="footer-links">
-            <li><a href="#">Privacy</a></li>
-            <li><a href="#">Terms</a></li>
-            <li><a href="#">Disclaimer</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <span>&copy; 2025 Mercury — Hg 80. All rights reserved.</span>
-        <div class="footer-socials">
-          <a href="#">Twitter</a>
-          <a href="#">Discord</a>
-          <a href="#">GitHub</a>
-        </div>
-      </div>
-    </div>
-  </footer>
-
   <script src="scripts/landing.js"></script>
+  <script src="scripts/ambient.js"></script>
 </body>
 </html>

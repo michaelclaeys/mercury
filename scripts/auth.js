@@ -27,7 +27,7 @@
                 }
             });
         };
-        console.log('[HedgeIQ] Local dev mode — auth bypassed');
+        console.log('[Mercury] Local dev mode — auth bypassed');
         return;
     }
 
