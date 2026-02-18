@@ -215,6 +215,104 @@
   }
 }
 
+/* ─── Our Infrastructure Overview ───────────────────────── */
+
+.arch-infra-overview {
+  padding: var(--gap-section) 0;
+  position: relative;
+}
+
+.arch-infra-overview-headline {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 700;
+  color: var(--pure);
+  letter-spacing: 0.02em;
+  margin-bottom: 0.75rem;
+}
+
+.arch-infra-overview-sub {
+  font-size: 0.8rem;
+  color: var(--silver);
+  line-height: 1.7;
+  max-width: 700px;
+  margin-bottom: 3rem;
+}
+
+.infra-pillars {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  margin-bottom: 3rem;
+}
+
+.infra-pillar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 2rem 1.5rem;
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.infra-pillar:hover {
+  border-color: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.02);
+}
+
+.infra-pillar-icon {
+  color: var(--dim);
+  margin-bottom: 1rem;
+}
+
+.infra-pillar:hover .infra-pillar-icon {
+  color: var(--silver);
+}
+
+.infra-pillar-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: 0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.infra-pillar-desc {
+  font-size: 0.72rem;
+  color: var(--silver);
+  line-height: 1.7;
+}
+
+.infra-free-banner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  background: rgba(0,200,83,0.04);
+  border: 1px solid rgba(0,200,83,0.15);
+}
+
+.infra-free-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--green);
+  flex-shrink: 0;
+}
+
+.infra-free-text {
+  font-size: 0.72rem;
+  color: var(--silver);
+  line-height: 1.6;
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .infra-pillars { grid-template-columns: 1fr 1fr; }
+  .infra-free-banner { flex-direction: column; text-align: center; }
+}
+@media (max-width: 480px) {
+  .infra-pillars { grid-template-columns: 1fr; }
+}
+
 /* ─── Bot Builder ─────────────────────────────────────── */
 
 .arch-builder-section {
@@ -754,5 +852,383 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+  }
+}
+
+/* ========== PRICING SECTION ========== */
+
+.pricing-section {
+  padding: 120px 0;
+  border-top: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Dot grid background */
+.pricing-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle 1px, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 10%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 10%, transparent 70%);
+}
+
+/* Radial glow behind cards */
+.pricing-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 50% 40% at 50% 55%, rgba(0,200,83,0.025) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 30% 40%, rgba(255,255,255,0.015) 0%, transparent 60%);
+}
+
+.pricing-headline {
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 600;
+  color: var(--pure);
+  letter-spacing: -0.02em;
+  margin-top: 16px;
+}
+
+.pricing-sub {
+  font-size: 14px;
+  color: var(--silver);
+  margin-top: 12px;
+  margin-bottom: 48px;
+  letter-spacing: 0.02em;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  max-width: 960px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.pricing-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 36px 28px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.pricing-card:hover {
+  border-color: var(--border-bright);
+}
+
+.pricing-card--featured {
+  border-color: var(--green);
+  background: rgba(0, 200, 83, 0.02);
+}
+
+.pricing-card--featured:hover {
+  border-color: var(--green);
+}
+
+.pricing-card-badge {
+  position: absolute;
+  top: -1px;
+  right: 24px;
+  background: var(--green);
+  color: var(--black);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  font-family: var(--mono);
+}
+
+.pricing-card-header {
+  margin-bottom: 24px;
+}
+
+.pricing-card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.pricing-card--featured .pricing-card-name {
+  color: var(--green);
+}
+
+.pricing-card-price {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--pure);
+  letter-spacing: -0.02em;
+}
+
+.pricing-card-period {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--dim);
+  letter-spacing: 0.02em;
+}
+
+.pricing-card-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 28px 0;
+  flex: 1;
+}
+
+.pricing-card-features li {
+  font-size: 12px;
+  padding: 5px 0 5px 18px;
+  position: relative;
+  color: var(--text);
+}
+
+.pricing-card-features li::before {
+  position: absolute;
+  left: 0;
+  font-size: 11px;
+}
+
+.pricing-has::before {
+  content: '+';
+  color: var(--green);
+}
+
+.pricing-no::before {
+  content: '—';
+  color: var(--dim);
+}
+
+.pricing-no {
+  color: var(--dim);
+}
+
+.pricing-btn {
+  width: 100%;
+  text-align: center;
+  margin-top: auto;
+}
+
+/* Pricing section note */
+.pricing-note {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 0.03em;
+  position: relative;
+  z-index: 1;
+}
+
+.pricing-note-label {
+  display: inline-block;
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--silver);
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Headline + sub relative z-index for dot grid */
+.pricing-headline,
+.pricing-sub {
+  position: relative;
+  z-index: 1;
+}
+
+.pricing-section .section-label {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+  }
+  .pricing-section {
+    padding: 80px 0;
+  }
+}
+
+/* ─── Telegram Bot Management ────────────────────────── */
+
+.arch-funding-section {
+  padding: var(--gap-section) 0;
+  position: relative;
+}
+
+.arch-funding-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 50% 60% at 30% 50%, rgba(255,215,0,0.015) 0%, transparent 70%);
+}
+
+.arch-funding-preview {
+  padding: var(--gap-lg);
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.arch-funding-tiers {
+  display: flex;
+  gap: 12px;
+}
+
+.arch-funding-tier {
+  flex: 1;
+  padding: 16px 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.arch-funding-tier--featured {
+  border-color: rgba(255,215,0,0.3);
+  background: rgba(255,215,0,0.03);
+}
+
+.arch-funding-tier-amount {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(255,215,0,0.85);
+  letter-spacing: 0.02em;
+  margin-bottom: 4px;
+}
+
+.arch-funding-tier-name {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.arch-funding-tier-split {
+  font-size: 0.55rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.arch-funding-stats {
+  display: flex;
+  gap: 16px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.arch-funding-stat {
+  flex: 1;
+  text-align: center;
+}
+
+.arch-funding-stat-value {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.arch-funding-stat-label {
+  display: block;
+  font-size: 0.5rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ─── Backtester ─────────────────────────────────────── */
+
+.arch-backtest-section {
+  padding: var(--gap-section) 0;
+  position: relative;
+}
+
+.arch-backtest-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 50% 60% at 60% 40%, rgba(255,255,255,0.015) 0%, transparent 70%);
+}
+
+.arch-backtest-results {
+  padding: var(--gap-lg);
+  min-height: 280px;
+}
+
+.backtest-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: var(--gap-lg);
+}
+
+.backtest-stat {
+  padding: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+}
+
+.backtest-stat-label {
+  font-size: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.backtest-stat-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--silver);
+}
+
+.backtest-stat--green { color: var(--green); }
+.backtest-stat--red   { color: var(--red); }
+
+.backtest-equity-curve {
+  border: 1px solid var(--border);
+  padding: 16px;
+  background: rgba(255,255,255,0.01);
+}
+
+.backtest-chart {
+  width: 100%;
+  height: 80px;
+  display: block;
+}
+
+.backtest-chart-label {
+  font-size: 0.5rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+  .backtest-summary {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

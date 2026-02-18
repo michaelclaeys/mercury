@@ -12,7 +12,7 @@
   <style>
     /* ─── Hub-only homepage ─────────────────────────────── */
     .hub {
-      min-height: 100vh;
+      height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -36,7 +36,7 @@
     }
 
     .hub-logo {
-      margin: 0 auto 2rem;
+      margin: 0 auto 1rem;
       opacity: 0;
       transform: translateY(12px);
       transition: opacity 0.8s, transform 0.8s;
@@ -62,7 +62,7 @@
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--pure);
-      margin-bottom: 2.5rem;
+      margin-bottom: 1.5rem;
       opacity: 0;
       transform: translateY(10px);
       transition: opacity 0.6s 0.1s, transform 0.6s 0.1s;
@@ -86,7 +86,7 @@
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--silver);
-      margin-bottom: 3rem;
+      margin-bottom: 2rem;
       opacity: 0;
       transform: translateY(10px);
       transition: opacity 0.6s 0.15s, transform 0.6s 0.15s;
@@ -96,27 +96,12 @@
       transform: translateY(0);
     }
 
-    .hub-heading {
-      font-size: clamp(2rem, 5vw, 3.5rem);
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      color: var(--pure);
-      margin-bottom: 0.5rem;
-      opacity: 0;
-      transform: translateY(16px);
-      transition: opacity 0.6s 0.2s, transform 0.6s 0.2s;
-    }
-    .hub-heading.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
     .hub-sub {
       font-size: 0.8rem;
       color: var(--dim);
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      margin-bottom: 4rem;
+      margin-bottom: 2rem;
       opacity: 0;
       transform: translateY(12px);
       transition: opacity 0.6s 0.4s, transform 0.6s 0.4s;
@@ -128,9 +113,9 @@
 
     .hub-panels {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 2px;
-      max-width: 1080px;
+      max-width: 1280px;
       margin: 0 auto;
       opacity: 0;
       transform: translateY(20px);
@@ -144,7 +129,7 @@
     .hub-panel {
       display: flex;
       flex-direction: column;
-      padding: 2.5rem 2rem;
+      padding: 2rem 1.75rem;
       cursor: pointer;
       background: var(--surface);
       border: 1px solid var(--border);
@@ -170,6 +155,23 @@
         inset 0 0 20px rgba(255,255,255,0.03);
     }
 
+    .hub-panel--featured {
+      border-color: rgba(0,200,83,0.25);
+      background: rgba(0,200,83,0.03);
+      box-shadow: 0 0 30px rgba(0,200,83,0.05), inset 0 0 20px rgba(0,200,83,0.02);
+    }
+    .hub-panel--featured:hover {
+      border-color: rgba(0,200,83,0.5);
+      background: rgba(0,200,83,0.06);
+      box-shadow: 0 0 40px rgba(0,200,83,0.1), inset 0 0 30px rgba(0,200,83,0.03);
+    }
+    .hub-panel--featured .hub-panel-arrow {
+      color: rgba(0,200,83,0.5);
+    }
+    .hub-panel--featured:hover .hub-panel-arrow {
+      color: var(--green);
+    }
+
     .hub-panel-num {
       font-size: 0.65rem;
       color: var(--dim);
@@ -183,8 +185,8 @@
 
     .hub-panel-status {
       position: absolute;
-      top: 2.5rem;
-      right: 2rem;
+      top: 2rem;
+      right: 1.75rem;
       font-size: 0.6rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -198,6 +200,9 @@
     }
     .hub-panel-status--soon {
       color: var(--dim);
+    }
+    .hub-panel-status--locked {
+      color: rgba(255,255,255,0.25);
     }
     .status-pulse {
       display: inline-block;
@@ -231,9 +236,9 @@
     .hub-panel-desc {
       font-size: 0.72rem;
       color: var(--silver);
-      line-height: 1.7;
+      line-height: 1.6;
       flex: 1;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
       transition: color 0.3s;
     }
     .hub-panel:hover .hub-panel-desc {
@@ -249,6 +254,62 @@
     .hub-panel:hover .hub-panel-arrow {
       color: var(--pure);
       letter-spacing: 0.14em;
+    }
+
+    /* ─── Funding panel ──────────────────────────────────── */
+    .hub-panel--funding {
+      grid-column: 1 / -1;
+      border-color: rgba(255,215,0,0.15);
+      background: rgba(255,215,0,0.02);
+    }
+    .hub-panel--funding:hover {
+      border-color: rgba(255,215,0,0.35);
+      background: rgba(255,215,0,0.04);
+      box-shadow:
+        0 0 30px rgba(255,215,0,0.06),
+        inset 0 0 20px rgba(255,215,0,0.02);
+    }
+    .hub-panel--funding .hub-panel-arrow {
+      color: rgba(255,215,0,0.5);
+    }
+    .hub-panel--funding:hover .hub-panel-arrow {
+      color: rgba(255,215,0,0.9);
+    }
+    .hub-funding-content {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+    .hub-funding-left { flex: 1; }
+    .hub-funding-amount {
+      text-align: center;
+      flex-shrink: 0;
+      padding: 0 1.5rem;
+      border-left: 1px solid rgba(255,215,0,0.1);
+    }
+    .hub-funding-up-to {
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--dim);
+      margin-bottom: 2px;
+    }
+    .hub-funding-number {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: rgba(255,215,0,0.85);
+      letter-spacing: 0.02em;
+    }
+    .hub-funding-label {
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--dim);
+      margin-top: 2px;
+    }
+    .hub-panel-status--pro {
+      color: rgba(255,215,0,0.7);
+      text-shadow: 0 0 6px rgba(255,215,0,0.2);
     }
 
     /* ─── Large orbit watermark behind hub ─────────────── */
@@ -503,6 +564,15 @@
       .hub-panel {
         padding: 2rem 1.5rem;
       }
+      .hub-funding-content {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .hub-funding-amount {
+        border-left: none;
+        border-top: 1px solid rgba(255,215,0,0.1);
+        padding: 1rem 0 0;
+      }
       .hub-watermark { width: 300px; height: 300px; }
       .hub-brand-text { font-size: 3rem; }
       .hub-terminal { display: none; }
@@ -584,8 +654,10 @@
       <div class="hub-term-line" data-delay="400">> loading research_feeds <span class="t-dots">............</span> <span class="t-ok">OK</span></div>
       <div class="hub-term-line" data-delay="600">> loading market_scanner <span class="t-dots">..........</span> <span class="t-ok">OK</span></div>
       <div class="hub-term-line" data-delay="800">> loading bot_deployer <span class="t-dots">............</span> <span class="t-ok">OK</span></div>
-      <div class="hub-term-line" data-delay="1000">> connecting exchanges <span class="t-dots">...........</span> <span class="t-ok">OK</span></div>
-      <div class="hub-term-line" data-delay="1200">> status: <span class="t-ok">all systems operational</span></div>
+      <div class="hub-term-line" data-delay="1000">> loading news_indexer <span class="t-dots">............</span> <span class="t-ok">OK</span></div>
+      <div class="hub-term-line" data-delay="1200">> loading sentiment_engine <span class="t-dots">.......</span> <span class="t-ok">OK</span></div>
+      <div class="hub-term-line" data-delay="1400">> connecting exchanges <span class="t-dots">...........</span> <span class="t-ok">OK</span></div>
+      <div class="hub-term-line" data-delay="1600">> status: <span class="t-ok">all systems operational</span></div>
     </div>
 
     <!-- Coordinate / system info (top-right) -->
@@ -594,7 +666,7 @@
       <div class="hub-coord-line">UPTIME: 99.98%</div>
       <div class="hub-coord-line">LATENCY: &lt;12ms</div>
       <div class="hub-coord-line">NODES: 3 ACTIVE</div>
-      <div class="hub-coord-line">FEEDS: 847 LIVE</div>
+      <div class="hub-coord-line">FEEDS: 2,341 LIVE</div>
       <div class="hub-coord-line">REGION: US-EAST-1</div>
     </div>
 
@@ -655,6 +727,8 @@
       <div class="hub-readout-line">AVG WIN RATE: <span class="r-val">67.2%</span></div>
       <div class="hub-readout-line">DEPLOY TIME: <span class="r-val">&lt;30s</span></div>
       <div class="hub-readout-line">BACKTESTS / DAY: <span class="r-val">12,400</span></div>
+      <div class="hub-readout-line">NEWS ALERTS / 24H: <span class="r-val">1,847</span></div>
+      <div class="hub-readout-line">SOCIAL SIGNALS / 24H: <span class="r-val">34,200</span></div>
     </div>
 
     <!-- Status badges (bottom-right) -->
@@ -664,6 +738,8 @@
       <div class="hub-badge"><span class="b-dot"></span>INFRASTRUCTURE LIVE</div>
       <div class="hub-badge"><span class="b-dot"></span>TELEGRAM ACTIVE</div>
       <div class="hub-badge"><span class="b-dot"></span>RISK ENGINE RUNNING</div>
+      <div class="hub-badge"><span class="b-dot"></span>NEWS FEEDS LIVE</div>
+      <div class="hub-badge"><span class="b-dot"></span>SENTIMENT ENGINE ACTIVE</div>
     </div>
 
     <div class="container hub-content">
@@ -676,31 +752,53 @@
         </svg>
       </div>
       <div class="hub-logo-text" id="hubLogoText">Mercury <span class="hub-logo-sub">SUITE</span></div>
-      <div class="hub-motto" id="hubMotto">Liquid intelligence.</div>
-      <h1 class="hub-heading" id="hubHeading">Where to?</h1>
-      <p class="hub-sub" id="hubSub">Select a module to begin.</p>
+      <div class="hub-motto" id="hubMotto">Prediction market infrastructure.</div>
+      <p class="hub-sub" id="hubSub">Start with Architect — your first bot is free.</p>
 
       <div class="hub-panels" id="hubPanels">
-        <a class="hub-panel" href="architect.html">
+        <a class="hub-panel hub-panel--featured" href="architect.html">
           <div class="hub-panel-num">01</div>
           <span class="hub-panel-status hub-panel-status--live">Live <span class="status-pulse"></span></span>
           <div class="hub-panel-title">Architect</div>
-          <div class="hub-panel-desc">Your strategy, our infrastructure. Any data source — polls, sentiment, news, prices, custom APIs. AI-first bot builder deploys to production servers. No VPS, no API wiring. Live in under 30 seconds.</div>
-          <div class="hub-panel-arrow">> Enter ———</div>
+          <div class="hub-panel-desc">Your strategy, our infrastructure. Real-time Twitter sentiment, breaking news triggers, social buzz detection, earthquake and weather alerts, and 50+ pre-built nodes. Build event-driven bots that react to the world in real-time. Paper trade free, go live when ready.</div>
+          <div class="hub-panel-arrow">> Start Building ———</div>
         </a>
-        <a class="hub-panel" href="architect-app.html#research">
+        <a class="hub-panel" href="architect-app.html#research" id="researchPanel">
           <div class="hub-panel-num">02</div>
-          <span class="hub-panel-status hub-panel-status--live">Live <span class="status-pulse"></span></span>
+          <span class="hub-panel-status hub-panel-status--locked">Account Required <span class="status-pulse"></span></span>
           <div class="hub-panel-title">Research</div>
-          <div class="hub-panel-desc">Every data source in one terminal. Market probabilities, polling data, social sentiment, news feeds, cross-platform arbitrage, BTC data connections — all low-latency, all real-time.</div>
+          <div class="hub-panel-desc">Live market feeds, order books, cross-platform arbitrage scanner, and bot telemetry. Real-time data from Kalshi, Polymarket, and crypto exchanges streamed to your terminal.</div>
           <div class="hub-panel-arrow">> Enter ———</div>
         </a>
-        <a class="hub-panel" href="#">
+        <a class="hub-panel" href="#" id="backtestPanel" onclick="event.preventDefault(); showLiveGate();">
           <div class="hub-panel-num">03</div>
-          <span class="hub-panel-status hub-panel-status--live">Live <span class="status-pulse"></span></span>
+          <span class="hub-panel-status hub-panel-status--locked">Account Required <span class="status-pulse"></span></span>
+          <div class="hub-panel-title">Backtest</div>
+          <div class="hub-panel-desc">Replay any strategy against historical market data. Kalshi, Polymarket, and custom feeds — test edge hypotheses before risking real capital. Full PnL, drawdown, and Brier score reporting.</div>
+          <div class="hub-panel-arrow">> Enter ———</div>
+        </a>
+        <a class="hub-panel" href="#" id="liveManagementPanel" onclick="event.preventDefault(); showLiveGate();">
+          <div class="hub-panel-num">04</div>
+          <span class="hub-panel-status hub-panel-status--locked">Account Required <span class="status-pulse"></span></span>
           <div class="hub-panel-title">Live Management</div>
           <div class="hub-panel-desc">Monitor bots, positions, and risk in real-time. 99.98% uptime infrastructure keeps your bots running 24/7 — no server restarts, no crashed scripts, no 3am wake-up calls.</div>
           <div class="hub-panel-arrow">> Enter ———</div>
+        </a>
+        <a class="hub-panel hub-panel--funding" href="#" id="fundingPanel" onclick="event.preventDefault(); handleFundingClick();">
+          <div class="hub-panel-num">05</div>
+          <span class="hub-panel-status hub-panel-status--pro">Pro Only</span>
+          <div class="hub-funding-content">
+            <div class="hub-funding-left">
+              <div class="hub-panel-title">Mercury Funding</div>
+              <div class="hub-panel-desc">We fund you. Prove your edge with a profitable strategy and Mercury deposits up to $5,000 into your trading account — our money, your strategy. You keep the profits.</div>
+            </div>
+            <div class="hub-funding-amount">
+              <div class="hub-funding-up-to">Up to</div>
+              <div class="hub-funding-number">$5,000</div>
+              <div class="hub-funding-label">we fund you</div>
+            </div>
+          </div>
+          <div class="hub-panel-arrow">> Apply for Funding ———</div>
         </a>
       </div>
     </div>
@@ -714,6 +812,103 @@
     </div>
   </div>
 
+  <!-- Live Management gate toast -->
+  <div id="liveGateToast" style="
+    display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+    background:#111; border:1px solid rgba(255,255,255,0.12); border-radius:8px;
+    padding:28px 36px; z-index:9999; text-align:center; max-width:380px;
+    box-shadow:0 24px 64px rgba(0,0,0,0.6);
+  ">
+    <div style="font-size:0.85rem; font-weight:600; color:#fff; margin-bottom:8px;">Account Required</div>
+    <div style="font-size:0.7rem; color:rgba(255,255,255,0.5); line-height:1.5; margin-bottom:18px;">
+      Create a free account to access this module. Start paper trading immediately — no credit card required.
+    </div>
+    <div style="display:flex; gap:8px; justify-content:center;">
+      <a href="signup.html" style="
+        padding:8px 20px; font-size:0.7rem; font-weight:600; border-radius:4px;
+        background:#fff; color:#000; text-decoration:none;
+      ">Sign Up Free</a>
+      <a href="login.html" style="
+        padding:8px 20px; font-size:0.7rem; font-weight:600; border-radius:4px;
+        background:transparent; color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.12);
+        text-decoration:none;
+      ">Sign In</a>
+      <button onclick="closeLiveGate()" style="
+        padding:8px 20px; font-size:0.7rem; font-weight:600; border-radius:4px;
+        background:transparent; color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.12);
+        cursor:pointer;
+      ">Close</button>
+    </div>
+  </div>
+  <div id="liveGateOverlay" onclick="closeLiveGate()" style="
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9998;
+  "></div>
+
+  <!-- Funding gate toast -->
+  <div id="fundingGateToast" style="
+    display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+    background:#111; border:1px solid rgba(255,215,0,0.15); border-radius:8px;
+    padding:28px 36px; z-index:9999; text-align:center; max-width:420px;
+    box-shadow:0 24px 64px rgba(0,0,0,0.6);
+  ">
+    <div style="font-size:0.85rem; font-weight:600; color:rgba(255,215,0,0.9); margin-bottom:4px;">Mercury Funding</div>
+    <div style="font-size:1.6rem; font-weight:700; color:rgba(255,215,0,0.85); margin-bottom:8px;">Up to $5,000</div>
+    <div style="font-size:0.7rem; color:rgba(255,255,255,0.5); line-height:1.5; margin-bottom:18px;">
+      We deposit up to $5,000 into your trading account — our money, your strategy. Prove your edge with a profitable strategy and Mercury funds you. You keep the profits.
+    </div>
+    <div style="display:flex; gap:8px; justify-content:center;">
+      <a href="architect.html#pricing" style="
+        padding:8px 20px; font-size:0.7rem; font-weight:600; border-radius:4px;
+        background:rgba(255,215,0,0.85); color:#000; text-decoration:none;
+      ">Upgrade to Pro</a>
+      <button onclick="closeFundingGate()" style="
+        padding:8px 20px; font-size:0.7rem; font-weight:600; border-radius:4px;
+        background:transparent; color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.12);
+        cursor:pointer;
+      ">Close</button>
+    </div>
+  </div>
+  <div id="fundingGateOverlay" onclick="closeFundingGate()" style="
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9998;
+  "></div>
+
+  <script>
+    function showLiveGate() {
+      document.getElementById('liveGateToast').style.display = 'block';
+      document.getElementById('liveGateOverlay').style.display = 'block';
+    }
+    function closeLiveGate() {
+      document.getElementById('liveGateToast').style.display = 'none';
+      document.getElementById('liveGateOverlay').style.display = 'none';
+    }
+    function showFundingGate() {
+      document.getElementById('fundingGateToast').style.display = 'block';
+      document.getElementById('fundingGateOverlay').style.display = 'block';
+    }
+    function closeFundingGate() {
+      document.getElementById('fundingGateToast').style.display = 'none';
+      document.getElementById('fundingGateOverlay').style.display = 'none';
+    }
+
+    // Funding click — logged-in users go to funding page, visitors see gate
+    async function handleFundingClick() {
+      try {
+        if (typeof window.getCurrentUser === 'function') {
+          const user = await window.getCurrentUser();
+          if (user && user.email) {
+            window.location.href = 'funding.html';
+            return;
+          }
+        }
+      } catch (e) { /* not logged in */ }
+      showFundingGate();
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="scripts/auth.js"></script>
+  <script src="scripts/tour-engine.js?v=25"></script>
+  <script src="scripts/hub-tour.js?v=25"></script>
   <script src="scripts/landing.js"></script>
   <script src="scripts/ambient.js"></script>
 </body>

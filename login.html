@@ -212,7 +212,12 @@
             async function checkExistingSession() {
                 const { data: { session } } = await supabase.auth.getSession();
                 if (session) {
-                    window.location.href = 'dashboard.html';
+                    if (localStorage.getItem('mercury_new_signup')) {
+                        localStorage.removeItem('mercury_new_signup');
+                        window.location.href = 'index.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
                 }
             }
 
@@ -233,8 +238,10 @@
                     if (error) throw error;
 
                     showSuccess('Login successful! Redirecting...');
+                    const isNewSignup = localStorage.getItem('mercury_new_signup');
+                    if (isNewSignup) localStorage.removeItem('mercury_new_signup');
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html';
+                        window.location.href = 'index.html';
                     }, 1000);
                 } catch (error) {
                     console.error('Login error:', error);
@@ -258,5 +265,6 @@
             }
         })();
     </script>
+    <script src="./scripts/page-transition.js"></script>
 </body>
 </html>

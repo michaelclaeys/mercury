@@ -27,6 +27,9 @@
                 }
             });
         };
+        window.refreshTier = async function() {
+            // no-op in dev mode
+        };
         console.log('[Mercury] Local dev mode — auth bypassed');
         return;
     }
@@ -79,6 +82,12 @@
                 'Content-Type': 'application/json'
             }
         });
+    };
+
+    window.refreshTier = async function refreshTier() {
+        // Force refresh the session to pick up updated user_metadata (e.g. after Stripe webhook)
+        const { error } = await supabase.auth.refreshSession();
+        if (error) console.warn('[Mercury] Failed to refresh session:', error);
     };
 
     supabase.auth.onAuthStateChange((event, session) => {

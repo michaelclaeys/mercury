@@ -25,14 +25,15 @@
         Mercury
       </a>
       <ul class="navbar-links">
-        <li><a href="index.html#suite">Suite</a></li>
-        <li><a href="index.html#analytics">Analytics</a></li>
+        <li><a href="index.html">Suite</a></li>
         <li><a href="architect.html">Architect</a></li>
-        <li><a href="index.html#pricing">Pricing</a></li>
+        <li><a href="architect-app.html#research">Research</a></li>
+        <li><a href="#">Backtest</a></li>
+        <li><a href="architect.html#pricing">Pricing</a></li>
       </ul>
       <div class="navbar-actions">
-        <a href="login.html" class="btn">Sign In</a>
-        <a href="dashboard.html" class="btn btn-primary">Launch</a>
+        <a href="#" class="btn" id="navProfile">Profile</a>
+        <a href="#" class="btn" onclick="window.signOut && window.signOut()">Logout</a>
       </div>
       <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
         <span></span><span></span><span></span>
@@ -41,12 +42,12 @@
   </nav>
 
   <div class="mobile-menu" id="mobileMenu">
-    <a href="index.html#suite">Suite</a>
-    <a href="index.html#analytics">Analytics</a>
+    <a href="index.html">Suite</a>
     <a href="architect.html">Architect</a>
-    <a href="index.html#pricing">Pricing</a>
-    <a href="login.html">Sign In</a>
-    <a href="dashboard.html">Launch Dashboard</a>
+    <a href="architect-app.html#research">Research</a>
+    <a href="#">Backtest</a>
+    <a href="architect.html#pricing">Pricing</a>
+    <a href="#" onclick="window.signOut && window.signOut()">Logout</a>
   </div>
 
   <!-- ─── PAGE CONTENT ────────────────────────────────── -->
@@ -128,7 +129,9 @@
           <ul class="footer-links">
             <li><a href="index.html#analytics">Analytics</a></li>
             <li><a href="architect.html">Architect</a></li>
+            <li><a href="architect.html#pricing">Pricing</a></li>
             <li><a href="api.html">API</a></li>
+            <li><a href="signup.html">Sign Up Free</a></li>
           </ul>
         </div>
         <div>
@@ -172,6 +175,10 @@
       btn.style.pointerEvents = 'none';
     });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./scripts/auth.js"></script>
+  <script src="./scripts/nav-auth.js"></script>
+  <script src="./scripts/page-transition.js"></script>
   <script src="scripts/ambient.js"></script>
 </body>
 </html>

@@ -52,15 +52,15 @@
         <span class="navbar-brand-sub">Architect</span>
       </a>
       <ul class="navbar-links">
-        <li><a href="index.html#suite">Suite</a></li>
-        <li><a href="index.html#analytics">Analytics</a></li>
+        <li><a href="index.html">Suite</a></li>
         <li><a href="architect.html" class="nav-active">Architect</a></li>
-        <li><a href="index.html#pricing">Pricing</a></li>
+        <li><a href="architect-app.html#research">Research</a></li>
+        <li><a href="#">Backtest</a></li>
+        <li><a href="architect.html#pricing">Pricing</a></li>
       </ul>
       <div class="navbar-actions">
-        <a href="login.html" class="btn">Sign In</a>
-        <a href="architect-app.html#research" class="btn btn-primary">Research</a>
-        <a href="architect-app.html" class="btn btn-primary">Launch Architect</a>
+        <a href="#" class="btn" id="navProfile">Profile</a>
+        <a href="#" class="btn" onclick="window.signOut && window.signOut()">Logout</a>
       </div>
       <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
         <span></span><span></span><span></span>
@@ -69,13 +69,12 @@
   </nav>
 
   <div class="mobile-menu" id="mobileMenu">
-    <a href="index.html#suite">Suite</a>
-    <a href="index.html#analytics">Analytics</a>
+    <a href="index.html">Suite</a>
     <a href="architect.html">Architect</a>
-    <a href="index.html#pricing">Pricing</a>
-    <a href="login.html">Sign In</a>
     <a href="architect-app.html#research">Research</a>
-    <a href="architect-app.html">Launch Architect</a>
+    <a href="#">Backtest</a>
+    <a href="architect.html#pricing">Pricing</a>
+    <a href="#" onclick="window.signOut && window.signOut()">Logout</a>
   </div>
 
   <!-- ─── TOP TICKER ──────────────────────────────────── -->
@@ -137,7 +136,8 @@
         infrastructure with 99.98% uptime and &lt;12ms exchange latency. You bring the idea. We handle everything else.
       </p>
       <div class="arch-hero-ctas reveal">
-        <a href="architect-app.html" class="btn btn-primary">Launch Architect</a>
+        <a href="#" class="btn btn-primary" id="heroLaunchBtn">Launch Architect</a>
+        <a href="signup.html" class="btn btn-primary" id="heroSignupBtn" style="display:none;">Sign Up Free</a>
         <a href="#archBuilder" class="btn">See the Builder</a>
       </div>
 
@@ -174,6 +174,91 @@
         <div class="persona-chip">
           <span class="persona-chip-label">New to prediction markets?</span>
           <span class="persona-chip-answer">AI research across every data source + automated execution + pro infrastructure. No limits from day one.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── OUR INFRASTRUCTURE ────────────────────────────── -->
+  <section class="arch-infra-overview" id="archInfraOverview">
+    <div class="container">
+      <div class="section-label">Our Infrastructure</div>
+      <h2 class="arch-infra-overview-headline reveal">You design the strategy. We built the rest.</h2>
+      <p class="arch-infra-overview-sub reveal">Mercury is a complete prediction market automation platform — production-grade infrastructure across every layer of the stack, so you can focus entirely on finding edge.</p>
+
+      <div class="infra-pillars reveal reveal-stagger">
+        <div class="infra-pillar">
+          <div class="infra-pillar-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <div class="infra-pillar-title">Data Ingestion</div>
+          <div class="infra-pillar-desc">Polls, news, sentiment, prices, weather, on-chain data, custom APIs — every signal source already integrated and streaming in real-time.</div>
+        </div>
+        <div class="infra-pillar">
+          <div class="infra-pillar-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 8h2m2 0h2m2 0h2"/><path d="M7 11h10"/></svg>
+          </div>
+          <div class="infra-pillar-title">Strategy Engine</div>
+          <div class="infra-pillar-desc">Visual node builder and AI agent — design any strategy from simple to complex. All pre-built building blocks for triggers, conditions, execution, and risk.</div>
+        </div>
+        <div class="infra-pillar">
+          <div class="infra-pillar-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <div class="infra-pillar-title">Execution Layer</div>
+          <div class="infra-pillar-desc">Order routing to Polymarket and Kalshi with &lt;12ms latency. Position sizing, DCA, limit orders, multi-platform execution — all production-grade.</div>
+        </div>
+        <div class="infra-pillar">
+          <div class="infra-pillar-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="infra-pillar-title">Risk + Monitoring</div>
+          <div class="infra-pillar-desc">Stop-loss, take-profit, exposure limits, kill switches. Telegram alerts for every trade. 99.98% uptime — we handle the 3am problems.</div>
+        </div>
+      </div>
+
+      <div class="infra-free-banner reveal">
+        <div class="infra-free-badge">Free Tier</div>
+        <div class="infra-free-text">Start paper trading today — no credit card required. Build, test, and deploy your first bot on real market data with zero risk. Upgrade to Pro when you're ready to go live.</div>
+        <a href="signup.html" class="btn btn-primary" style="flex-shrink:0;">Start Free</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── AI ASSISTANCE ─────────────────────────────────── -->
+  <section class="arch-ai-section" id="archAI">
+    <div class="container">
+      <div class="section-label">AI Assist</div>
+      <div class="arch-ai-grid">
+        <div class="arch-ai-demo reveal" id="archAiDemo">
+          <div class="deep-mockup-bar">
+            <span>architect.ai — natural language</span>
+            <span>AI</span>
+          </div>
+          <div class="arch-ai-chat" id="archAiChat">
+            <div class="arch-ai-msg user">
+              <span class="arch-ai-sender">> you</span>
+              <span class="arch-ai-text" id="aiUserMsg"></span>
+            </div>
+            <div class="arch-ai-msg ai" id="aiResponseWrap" style="display:none">
+              <span class="arch-ai-sender">> mercury.ai</span>
+              <span class="arch-ai-text" id="aiResponse"></span>
+            </div>
+          </div>
+        </div>
+        <div class="arch-ai-features reveal">
+          <div class="deep-feature">
+            <div class="deep-feature-title">Describe Your Strategy</div>
+            <div class="deep-feature-desc">"Buy YES when polling averages cross 60% and Twitter sentiment is bullish." You describe the logic — any data source, any condition, any execution style — and Mercury builds and deploys it on our infrastructure.</div>
+          </div>
+          <div class="deep-feature">
+            <div class="deep-feature-title">Any Data Source. Seriously.</div>
+            <div class="deep-feature-desc">Market prices, polling aggregators, news sentiment, social media trends, on-chain data, weather APIs, economic indicators — if there's a signal, Mercury can ingest it and trade on it. No integrations to build yourself.</div>
+          </div>
+          <div class="deep-feature">
+            <div class="deep-feature-title">From Idea to Live in Minutes</div>
+            <div class="deep-feature-desc">The AI doesn't just design — it deploys. Your strategy goes from plain English to running on our production infrastructure with order routing, risk management, and monitoring already wired up. You bring the idea, we handle the rest.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -258,41 +343,134 @@
     </div>
   </section>
 
-  <!-- ─── AI ASSISTANCE ─────────────────────────────────── -->
-  <section class="arch-ai-section" id="archAI">
+  <!-- ─── BACKTESTER ──────────────────────────────────────── -->
+  <section class="arch-backtest-section" id="archBacktest">
     <div class="container">
-      <div class="section-label">AI Assist</div>
+      <div class="section-label">Backtester</div>
       <div class="arch-ai-grid">
-        <div class="arch-ai-demo reveal" id="archAiDemo">
+        <div class="arch-ai-demo reveal">
           <div class="deep-mockup-bar">
-            <span>architect.ai — natural language</span>
-            <span>AI</span>
+            <span>architect.backtest — hurricane_weather_edge</span>
+            <span>Results</span>
           </div>
-          <div class="arch-ai-chat" id="archAiChat">
-            <div class="arch-ai-msg user">
-              <span class="arch-ai-sender">> you</span>
-              <span class="arch-ai-text" id="aiUserMsg"></span>
+          <div class="arch-backtest-results">
+            <div class="backtest-summary">
+              <div class="backtest-stat">
+                <div class="backtest-stat-label">Net P&amp;L</div>
+                <div class="backtest-stat-value backtest-stat--green">+$4,218</div>
+              </div>
+              <div class="backtest-stat">
+                <div class="backtest-stat-label">Win Rate</div>
+                <div class="backtest-stat-value">68.4%</div>
+              </div>
+              <div class="backtest-stat">
+                <div class="backtest-stat-label">Max Drawdown</div>
+                <div class="backtest-stat-value backtest-stat--red">-$1,240</div>
+              </div>
+              <div class="backtest-stat">
+                <div class="backtest-stat-label">Sharpe Ratio</div>
+                <div class="backtest-stat-value">1.87</div>
+              </div>
+              <div class="backtest-stat">
+                <div class="backtest-stat-label">Total Trades</div>
+                <div class="backtest-stat-value">142</div>
+              </div>
+              <div class="backtest-stat">
+                <div class="backtest-stat-label">Brier Score</div>
+                <div class="backtest-stat-value backtest-stat--green">0.189</div>
+              </div>
             </div>
-            <div class="arch-ai-msg ai" id="aiResponseWrap" style="display:none">
-              <span class="arch-ai-sender">> mercury.ai</span>
-              <span class="arch-ai-text" id="aiResponse"></span>
+            <div class="backtest-equity-curve">
+              <svg viewBox="0 0 400 80" preserveAspectRatio="none" class="backtest-chart">
+                <polyline points="0,70 20,68 40,55 60,58 80,45 100,42 120,48 140,38 160,35 180,40 200,30 220,25 240,32 260,22 280,18 300,20 320,15 340,12 360,14 380,10 400,8" fill="none" stroke="rgba(0,200,83,0.6)" stroke-width="1.5"/>
+                <polyline points="0,70 20,68 40,55 60,58 80,45 100,42 120,48 140,38 160,35 180,40 200,30 220,25 240,32 260,22 280,18 300,20 320,15 340,12 360,14 380,10 400,8" fill="url(#equityGrad)" stroke="none"/>
+                <defs><linearGradient id="equityGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(0,200,83,0.15)"/><stop offset="100%" stop-color="rgba(0,200,83,0)"/></linearGradient></defs>
+              </svg>
+              <div class="backtest-chart-label">Equity curve — 90 day backtest window</div>
             </div>
           </div>
         </div>
         <div class="arch-ai-features reveal">
           <div class="deep-feature">
-            <div class="deep-feature-title">Describe Your Strategy</div>
-            <div class="deep-feature-desc">"Buy YES when polling averages cross 60% and Twitter sentiment is bullish." You describe the logic — any data source, any condition, any execution style — and Mercury builds and deploys it on our infrastructure.</div>
+            <div class="deep-feature-title">Test Before You Risk Real Money</div>
+            <div class="deep-feature-desc">Replay any strategy against historical Polymarket and Kalshi data. See exactly how your bot would have performed — P&amp;L, drawdown, win rate, Sharpe ratio, and Brier score — before committing a single dollar.</div>
           </div>
           <div class="deep-feature">
-            <div class="deep-feature-title">Any Data Source. Seriously.</div>
-            <div class="deep-feature-desc">Market prices, polling aggregators, news sentiment, social media trends, on-chain data, weather APIs, economic indicators — if there's a signal, Mercury can ingest it and trade on it. No integrations to build yourself.</div>
+            <div class="deep-feature-title">Real Market Data, Not Simulations</div>
+            <div class="deep-feature-desc">Our backtest engine uses actual historical order book data, not synthetic price feeds. You see real fills at real spreads with real slippage. The results you see are the results you'd have gotten.</div>
           </div>
           <div class="deep-feature">
-            <div class="deep-feature-title">From Idea to Live in Minutes</div>
-            <div class="deep-feature-desc">The AI doesn't just design — it deploys. Your strategy goes from plain English to running on our production infrastructure with order routing, risk management, and monitoring already wired up. You bring the idea, we handle the rest.</div>
+            <div class="deep-feature-title">Iterate Fast, Deploy When Ready</div>
+            <div class="deep-feature-desc">Tweak parameters, swap data sources, adjust risk limits — backtest again in seconds. Compare strategy variants side by side. When the numbers look right, deploy to live with one click.</div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── MERCURY FUNDING ───────────────────────────────── -->
+  <section class="arch-funding-section" id="archFunding">
+    <div class="container">
+      <div class="section-label">Mercury Funding</div>
+      <h2 class="reveal" style="text-align:center; font-size:1.5rem; font-weight:600; color:rgba(255,255,255,0.92); margin:0.5rem 0 0.25rem;">We fund your strategy — you keep the profits</h2>
+      <p class="reveal" style="text-align:center; font-size:0.8rem; color:rgba(255,255,255,0.45); margin-bottom:2rem;">Prove your edge on Mercury and we deposit real capital into your account. You never pay a dime.</p>
+      <div class="arch-ai-grid">
+        <div class="arch-ai-demo reveal">
+          <div class="deep-mockup-bar">
+            <span>mercury.funding — capital allocation</span>
+            <span style="color:rgba(255,215,0,0.8)">Funding</span>
+          </div>
+          <div class="arch-funding-preview">
+            <div class="arch-funding-tiers">
+              <div class="arch-funding-tier">
+                <div class="arch-funding-tier-amount">$1,000</div>
+                <div class="arch-funding-tier-name">Starter</div>
+                <div class="arch-funding-tier-split">We deposit $1k — you keep 80%</div>
+              </div>
+              <div class="arch-funding-tier">
+                <div class="arch-funding-tier-amount">$2,500</div>
+                <div class="arch-funding-tier-name">Growth</div>
+                <div class="arch-funding-tier-split">We deposit $2.5k — you keep 80%</div>
+              </div>
+              <div class="arch-funding-tier arch-funding-tier--featured">
+                <div class="arch-funding-tier-amount">$5,000</div>
+                <div class="arch-funding-tier-name">Elite</div>
+                <div class="arch-funding-tier-split">We deposit $5k — you keep 85%</div>
+              </div>
+            </div>
+            <div class="arch-funding-stats">
+              <div class="arch-funding-stat">
+                <span class="arch-funding-stat-value">30 days</span>
+                <span class="arch-funding-stat-label">Min live trading</span>
+              </div>
+              <div class="arch-funding-stat">
+                <span class="arch-funding-stat-value">10%</span>
+                <span class="arch-funding-stat-label">Max drawdown</span>
+              </div>
+              <div class="arch-funding-stat">
+                <span class="arch-funding-stat-value">5 days</span>
+                <span class="arch-funding-stat-label">Review time</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="arch-ai-features reveal">
+          <div class="deep-feature">
+            <div class="deep-feature-title">We Fund Your Best Strategies</div>
+            <div class="deep-feature-desc">This is not a fee — Mercury deposits real money into your trading account. Build a profitable strategy and we fund it with up to $5,000 of our capital. You keep 80–85% of the profits. Zero cost to you.</div>
+          </div>
+          <div class="deep-feature">
+            <div class="deep-feature-title">Prove It Live, Get Funded</div>
+            <div class="deep-feature-desc">Run your strategy live for 30+ days with positive P&amp;L and controlled drawdown. Submit your track record — our team reviews and responds within 5 business days. All performance verified from your Mercury account.</div>
+          </div>
+          <div class="deep-feature">
+            <div class="deep-feature-title">Scale With Performance</div>
+            <div class="deep-feature-desc">Funded traders who maintain profitability for 60+ consecutive days are eligible for capital increases to the next tier. Elite traders can apply for funding on multiple strategies — up to $10,000 total allocation.</div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:2rem;" class="reveal">
+        <a href="funding.html" class="btn btn-primary" style="background:rgba(255,215,0,0.85); color:#000; border-color:rgba(255,215,0,0.85);">Learn More &amp; Apply</a>
       </div>
     </div>
   </section>
@@ -464,14 +642,85 @@
     </div>
   </div>
 
+  <!-- ─── PRICING ─────────────────────────────────────── -->
+  <section class="pricing-section" id="pricing">
+    <div class="container">
+      <div class="section-label">Pricing</div>
+      <h2 class="pricing-headline reveal">Choose Your Plan</h2>
+      <p class="pricing-sub reveal">Start for free. Upgrade when you're ready to go live.</p>
+
+      <div class="pricing-grid reveal">
+        <!-- Free -->
+        <div class="pricing-card">
+          <div class="pricing-card-header">
+            <div class="pricing-card-name">Free</div>
+            <div class="pricing-card-price">$0<span class="pricing-card-period">/forever</span></div>
+          </div>
+          <ul class="pricing-card-features">
+            <li class="pricing-has">1 paper-trading bot</li>
+            <li class="pricing-has">Polymarket + Kalshi</li>
+            <li class="pricing-has">Full research access</li>
+            <li class="pricing-has">AI agent access</li>
+            <li class="pricing-has">All node types</li>
+            <li class="pricing-no">Live trading</li>
+            <li class="pricing-no">Backtesting</li>
+          </ul>
+          <a href="signup.html" class="btn pricing-btn">Get Started</a>
+        </div>
+
+        <!-- Pro -->
+        <div class="pricing-card pricing-card--featured">
+          <div class="pricing-card-badge">Most Popular</div>
+          <div class="pricing-card-header">
+            <div class="pricing-card-name">Pro</div>
+            <div class="pricing-card-price">$99<span class="pricing-card-period">/month</span></div>
+          </div>
+          <ul class="pricing-card-features">
+            <li class="pricing-has">Unlimited bots</li>
+            <li class="pricing-has">Live + paper trading</li>
+            <li class="pricing-has">Polymarket + Kalshi</li>
+            <li class="pricing-has">Full research access</li>
+            <li class="pricing-has">AI agent access</li>
+            <li class="pricing-has">Unlimited backtesting</li>
+            <li class="pricing-has">Priority support</li>
+          </ul>
+          <a href="#" class="btn btn-primary pricing-btn" id="pricingProBtn">Upgrade to Pro</a>
+        </div>
+
+        <!-- Enterprise -->
+        <div class="pricing-card">
+          <div class="pricing-card-header">
+            <div class="pricing-card-name">Enterprise</div>
+            <div class="pricing-card-price">Custom</div>
+          </div>
+          <ul class="pricing-card-features">
+            <li class="pricing-has">Everything in Pro</li>
+            <li class="pricing-has">Dedicated infrastructure</li>
+            <li class="pricing-has">API access</li>
+            <li class="pricing-has">White-label options</li>
+            <li class="pricing-has">Custom integrations</li>
+            <li class="pricing-has">SLA guarantee</li>
+            <li class="pricing-has">Dedicated support</li>
+          </ul>
+          <a href="contact.html" class="btn pricing-btn">Contact Us</a>
+        </div>
+      </div>
+
+      <!-- Pricing footer note -->
+      <div class="pricing-note reveal">
+        <span class="pricing-note-label">Hg 80</span> All plans include: zero server costs &middot; 99.98% uptime &middot; &lt;12ms exchange latency &middot; Telegram alerts &middot; 24/7 monitoring
+      </div>
+    </div>
+  </section>
+
   <!-- ─── FINAL CTA ─────────────────────────────────────── -->
   <section class="final-cta">
     <div class="container">
       <h2 class="final-headline reveal">Element 80.<br>Liquid intelligence for the next generation of traders.</h2>
       <p class="final-sub reveal">Any data source. Any strategy. 99.98% uptime. &lt;12ms latency. Zero server costs. Deploy in 30 seconds.</p>
       <div class="final-ctas reveal">
-        <a href="signup.html" class="btn btn-primary">Get Started</a>
-        <a href="index.html#pricing" class="btn">View Pricing</a>
+        <a href="signup.html" class="btn btn-primary">Get Started Free</a>
+        <a href="#pricing" class="btn">View Pricing</a>
       </div>
     </div>
   </section>
@@ -489,7 +738,9 @@
           <ul class="footer-links">
             <li><a href="index.html#analytics">Analytics</a></li>
             <li><a href="architect.html">Architect</a></li>
+            <li><a href="architect.html#pricing">Pricing</a></li>
             <li><a href="api.html">API</a></li>
+            <li><a href="signup.html">Sign Up Free</a></li>
           </ul>
         </div>
         <div>
@@ -521,7 +772,49 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="scripts/auth.js"></script>
+  <script src="scripts/nav-auth.js"></script>
+  <script src="scripts/tiers.js"></script>
   <script src="scripts/architect.js"></script>
   <script src="scripts/ambient.js"></script>
+  <script>
+    // Wire pricing Pro button to Stripe Payment Link
+    document.addEventListener('DOMContentLoaded', function() {
+      var proBtn = document.getElementById('pricingProBtn');
+      if (proBtn && window.MercuryTiers) {
+        proBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          window.open(window.MercuryTiers.STRIPE_PAYMENT_LINK, '_blank');
+        });
+      }
+    });
+
+    // Auth-gate the Launch Architect hero button
+    (async function() {
+      var launchBtn = document.getElementById('heroLaunchBtn');
+      var signupBtn = document.getElementById('heroSignupBtn');
+      if (!launchBtn) return;
+
+      var user = null;
+      try {
+        if (typeof window.getCurrentUser === 'function') {
+          user = await window.getCurrentUser();
+        }
+      } catch (e) {}
+
+      if (user && user.email) {
+        // Logged in — go straight to architect
+        launchBtn.href = 'architect-app.html';
+      } else {
+        // Not logged in — show sign up button, redirect launch to login
+        if (signupBtn) signupBtn.style.display = '';
+        launchBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          window.location.href = 'login.html';
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

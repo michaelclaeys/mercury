@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mercury Funding — Trade Our Capital</title>
+  <meta name="description" content="Mercury Funding — up to $5,000 in funded trading capital for Pro users with profitable algorithms. Prove your edge, trade our capital.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/pages.css">
+  <style>
+    .funding-hero {
+      padding: 120px 0 60px;
+      text-align: center;
+      position: relative;
+    }
+    .funding-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse 60% 80% at 50% 30%, rgba(255,215,0,0.03) 0%, transparent 70%);
+    }
+    .funding-badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,215,0,0.8);
+      border: 1px solid rgba(255,215,0,0.2);
+      padding: 6px 16px;
+      margin-bottom: 1.5rem;
+    }
+    .funding-headline {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: var(--pure);
+      margin-bottom: 1rem;
+      letter-spacing: 0.02em;
+    }
+    .funding-headline span {
+      color: rgba(255,215,0,0.85);
+    }
+    .funding-sub {
+      font-size: 0.85rem;
+      color: var(--silver);
+      line-height: 1.7;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+    .funding-amount-hero {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 0.5rem;
+    }
+    .funding-amount-hero .up-to {
+      font-size: 0.7rem;
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .funding-amount-hero .number {
+      font-size: 3rem;
+      font-weight: 700;
+      color: rgba(255,215,0,0.85);
+    }
+    .funding-amount-caption {
+      font-size: 0.65rem;
+      color: var(--dim);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── How it works ── */
+    .funding-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      margin: 3rem 0;
+    }
+    .funding-step {
+      border: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      background: var(--surface);
+    }
+    .funding-step-num {
+      font-size: 0.6rem;
+      color: rgba(255,215,0,0.6);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .funding-step-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--pure);
+      margin-bottom: 0.5rem;
+    }
+    .funding-step-desc {
+      font-size: 0.7rem;
+      color: var(--silver);
+      line-height: 1.6;
+    }
+
+    /* ── Rules ── */
+    .funding-rules {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .funding-rules-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--pure);
+      margin-bottom: 0.5rem;
+    }
+    .funding-rules-sub {
+      font-size: 0.75rem;
+      color: var(--dim);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    .rule-category {
+      margin-bottom: 2rem;
+    }
+    .rule-category-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,215,0,0.7);
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,215,0,0.1);
+      margin-bottom: 1rem;
+    }
+    .rule-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .rule-item:last-child {
+      border-bottom: none;
+    }
+    .rule-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      margin-top: 2px;
+    }
+    .rule-icon--check { color: var(--green); }
+    .rule-icon--x { color: var(--red); }
+    .rule-icon--info { color: rgba(255,215,0,0.7); }
+    .rule-text {
+      font-size: 0.72rem;
+      color: var(--silver);
+      line-height: 1.6;
+    }
+    .rule-text strong {
+      color: var(--pure);
+      font-weight: 600;
+    }
+
+    /* ── Tiers ── */
+    .funding-tiers {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin: 2rem 0 3rem;
+    }
+    .funding-tier {
+      border: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      background: var(--surface);
+      text-align: center;
+    }
+    .funding-tier--featured {
+      border-color: rgba(255,215,0,0.2);
+      background: rgba(255,215,0,0.02);
+    }
+    .funding-tier-name {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 0.5rem;
+    }
+    .funding-tier--featured .funding-tier-name {
+      color: rgba(255,215,0,0.7);
+    }
+    .funding-tier-amount {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--pure);
+      margin-bottom: 0.5rem;
+    }
+    .funding-tier--featured .funding-tier-amount {
+      color: rgba(255,215,0,0.85);
+    }
+    .funding-tier-req {
+      font-size: 0.65rem;
+      color: var(--dim);
+      line-height: 1.5;
+    }
+
+    /* ── Application ── */
+    .funding-apply {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .funding-apply-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--pure);
+      margin-bottom: 0.5rem;
+    }
+    .funding-apply-sub {
+      font-size: 0.75rem;
+      color: var(--dim);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    .funding-form .form-group {
+      margin-bottom: 1.2rem;
+    }
+    .funding-form .form-label {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--dim);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .funding-form .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--pure);
+      transition: border-color 0.2s;
+    }
+    .funding-form .form-input:focus {
+      outline: none;
+      border-color: rgba(255,215,0,0.4);
+    }
+    .funding-form .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    .funding-form select.form-input {
+      cursor: pointer;
+    }
+    .funding-form select.form-input option {
+      background: #111;
+      color: var(--pure);
+    }
+    .funding-submit {
+      padding: 12px 32px;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      background: rgba(255,215,0,0.85);
+      color: #000;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .funding-submit:hover {
+      background: rgba(255,215,0,1);
+    }
+    .funding-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .funding-note {
+      font-size: 0.6rem;
+      color: var(--dim);
+      line-height: 1.5;
+      margin-top: 1rem;
+    }
+
+    .funding-loyalty {
+      text-align: center;
+      padding: 3rem 2rem;
+      border: 1px solid rgba(255,215,0,0.1);
+      background: rgba(255,215,0,0.01);
+      margin: 3rem 0;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .funding-loyalty-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--pure);
+      margin-bottom: 0.75rem;
+    }
+    .funding-loyalty-text {
+      font-size: 0.72rem;
+      color: var(--silver);
+      line-height: 1.7;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* ── Wireframe hero illustration ── */
+    .funding-hero-art {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .funding-hero-art svg {
+      position: absolute;
+      stroke: rgba(255,215,0,0.3);
+      stroke-width: 1.2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .funding-hero .container {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Main safe — center-left */
+    .deco-safe {
+      width: 280px;
+      height: 320px;
+      left: 6%;
+      top: calc(50% - 160px);
+      opacity: 0;
+      animation: decoAppear 2s 0.3s ease-out forwards, decoFloat 7s 2.3s ease-in-out infinite;
+    }
+    /* Bills spilling right */
+    .deco-bills {
+      width: 220px;
+      height: 200px;
+      left: 18%;
+      top: calc(55% - 80px);
+      opacity: 0;
+      animation: decoAppear 2s 0.6s ease-out forwards;
+    }
+    /* Gold bars — center-right */
+    .deco-bars {
+      width: 240px;
+      height: 180px;
+      right: 5%;
+      top: calc(50% - 90px);
+      opacity: 0;
+      animation: decoAppear 2s 0.5s ease-out forwards, decoFloat 8s 2.5s ease-in-out infinite;
+    }
+    /* Coins scattered right */
+    .deco-coins {
+      width: 200px;
+      height: 200px;
+      right: 14%;
+      top: calc(42% - 80px);
+      opacity: 0;
+      animation: decoAppear 2s 0.8s ease-out forwards, decoFloat 6s 2.8s ease-in-out infinite;
+    }
+    /* Briefcase — far left low */
+    .deco-briefcase {
+      width: 160px;
+      height: 130px;
+      left: 2%;
+      bottom: 8%;
+      opacity: 0;
+      animation: decoAppear 2s 1s ease-out forwards, decoFloat 9s 3s ease-in-out infinite;
+    }
+    /* Chart / growth — far right low */
+    .deco-chart {
+      width: 180px;
+      height: 120px;
+      right: 2%;
+      bottom: 10%;
+      opacity: 0;
+      animation: decoAppear 2s 1.1s ease-out forwards;
+    }
+
+    @keyframes decoAppear {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes decoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    @media (max-width: 1100px) {
+      .funding-hero-art { display: none; }
+    }
+    @media (max-width: 768px) {
+      .funding-steps {
+        grid-template-columns: 1fr;
+      }
+      .funding-tiers {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── NAVBAR ──────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="navbar-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="3"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+        </svg>
+        Mercury
+      </a>
+      <ul class="navbar-links">
+        <li><a href="index.html">Suite</a></li>
+        <li><a href="architect.html">Architect</a></li>
+        <li><a href="architect-app.html#research">Research</a></li>
+        <li><a href="#">Backtest</a></li>
+        <li><a href="architect.html#pricing">Pricing</a></li>
+      </ul>
+      <div class="navbar-actions">
+        <a href="#" class="btn" id="navProfile">Profile</a>
+        <a href="#" class="btn" onclick="window.signOut && window.signOut()">Logout</a>
+      </div>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html">Suite</a>
+    <a href="architect.html">Architect</a>
+    <a href="architect-app.html#research">Research</a>
+    <a href="#">Backtest</a>
+    <a href="architect.html#pricing">Pricing</a>
+    <a href="#" onclick="window.signOut && window.signOut()">Logout</a>
+  </div>
+
+  <!-- ─── HERO ──────────────────────────────────────── -->
+  <section class="funding-hero">
+    <!-- ── Hero wireframe illustration ── -->
+    <div class="funding-hero-art">
+
+      <!-- SAFE — open vault door with money spilling out -->
+      <svg class="deco-safe" viewBox="0 0 260 300">
+        <!-- Safe body -->
+        <rect x="10" y="40" width="160" height="200" rx="4"/>
+        <rect x="20" y="50" width="140" height="180" rx="2"/>
+        <!-- Dial -->
+        <circle cx="90" cy="140" r="30"/>
+        <circle cx="90" cy="140" r="20"/>
+        <circle cx="90" cy="140" r="5"/>
+        <line x1="90" y1="110" x2="90" y2="118"/>
+        <line x1="90" y1="162" x2="90" y2="170"/>
+        <line x1="60" y1="140" x2="68" y2="140"/>
+        <line x1="112" y1="140" x2="120" y2="140"/>
+        <!-- Handle -->
+        <rect x="130" y="120" width="18" height="40" rx="3"/>
+        <!-- Open door (swung right) -->
+        <path d="M170,40 L240,65 L240,215 L170,240" stroke-dasharray="4 3"/>
+        <line x1="170" y1="40" x2="170" y2="240" stroke-dasharray="3 2" stroke-opacity="0.15"/>
+        <!-- Hinges -->
+        <rect x="6" y="70" width="8" height="16" rx="2"/>
+        <rect x="6" y="195" width="8" height="16" rx="2"/>
+        <!-- Feet -->
+        <rect x="15" y="240" width="30" height="18" rx="2"/>
+        <rect x="125" y="240" width="30" height="18" rx="2"/>
+        <!-- Money spilling out! -->
+        <!-- Bill 1 (falling right) -->
+        <rect x="170" y="100" width="55" height="28" rx="2" transform="rotate(15 197 114)"/>
+        <circle cx="197" cy="114" r="6" transform="rotate(15 197 114)"/>
+        <!-- Bill 2 (further out, more rotated) -->
+        <rect x="185" y="145" width="55" height="28" rx="2" transform="rotate(-8 212 159)"/>
+        <circle cx="212" cy="159" r="6" transform="rotate(-8 212 159)"/>
+        <!-- Bill 3 (falling down) -->
+        <rect x="160" y="185" width="55" height="28" rx="2" transform="rotate(25 187 199)"/>
+        <circle cx="187" cy="199" r="6" transform="rotate(25 187 199)"/>
+        <!-- Bill 4 (on ground) -->
+        <rect x="145" y="250" width="55" height="28" rx="2" transform="rotate(-5 172 264)"/>
+        <!-- Coins tumbling out -->
+        <ellipse cx="200" cy="248" rx="14" ry="6"/>
+        <ellipse cx="200" cy="244" rx="14" ry="6"/>
+        <ellipse cx="225" cy="256" rx="11" ry="5"/>
+        <ellipse cx="225" cy="252" rx="11" ry="5"/>
+        <ellipse cx="180" cy="265" rx="10" ry="4"/>
+        <!-- Sparkle -->
+        <line x1="235" y1="85" x2="245" y2="75"/>
+        <line x1="245" y1="85" x2="235" y2="75"/>
+        <line x1="250" y1="130" x2="256" y2="124"/>
+        <line x1="256" y1="130" x2="250" y2="124"/>
+      </svg>
+
+      <!-- GOLD BARS — stacked pyramid -->
+      <svg class="deco-bars" viewBox="0 0 220 160">
+        <!-- Bottom row (3 bars) — trapezoids -->
+        <polygon points="10,140 30,105 75,105 55,140"/>
+        <polygon points="60,140 80,105 125,105 105,140"/>
+        <polygon points="110,140 130,105 175,105 155,140"/>
+        <!-- Middle row (2 bars) -->
+        <polygon points="40,105 60,70 105,70 85,105"/>
+        <polygon points="90,105 110,70 155,70 135,105"/>
+        <!-- Top bar -->
+        <polygon points="70,70 90,35 135,35 115,70"/>
+        <!-- Gleam lines -->
+        <line x1="95" y1="40" x2="95" y2="52" stroke-opacity="0.5"/>
+        <line x1="75" y1="75" x2="75" y2="87" stroke-opacity="0.5"/>
+        <line x1="125" y1="75" x2="125" y2="87" stroke-opacity="0.5"/>
+        <!-- Sparkle on top -->
+        <line x1="140" y1="22" x2="148" y2="14"/>
+        <line x1="148" y1="22" x2="140" y2="14"/>
+        <!-- Dollar sign floating -->
+        <text x="185" y="60" font-size="28" fill="none" stroke="rgba(255,215,0,0.2)" stroke-width="1" font-family="monospace">$</text>
+        <text x="195" y="100" font-size="20" fill="none" stroke="rgba(255,215,0,0.15)" stroke-width="0.8" font-family="monospace">$</text>
+      </svg>
+
+      <!-- COINS — scattered stack -->
+      <svg class="deco-coins" viewBox="0 0 180 180">
+        <!-- Stack 1 (tall) -->
+        <ellipse cx="50" cy="140" rx="28" ry="10"/>
+        <ellipse cx="50" cy="130" rx="28" ry="10"/>
+        <ellipse cx="50" cy="120" rx="28" ry="10"/>
+        <ellipse cx="50" cy="110" rx="28" ry="10"/>
+        <ellipse cx="50" cy="100" rx="28" ry="10"/>
+        <line x1="22" y1="100" x2="22" y2="140"/>
+        <line x1="78" y1="100" x2="78" y2="140"/>
+        <!-- Stack 2 (short, offset) -->
+        <ellipse cx="120" cy="150" rx="24" ry="9"/>
+        <ellipse cx="120" cy="142" rx="24" ry="9"/>
+        <ellipse cx="120" cy="134" rx="24" ry="9"/>
+        <line x1="96" y1="134" x2="96" y2="150"/>
+        <line x1="144" y1="134" x2="144" y2="150"/>
+        <!-- Single coin rolling -->
+        <ellipse cx="155" cy="168" rx="18" ry="18"/>
+        <ellipse cx="155" cy="168" rx="12" ry="12"/>
+        <text x="148" y="174" font-size="14" fill="none" stroke="rgba(255,215,0,0.25)" stroke-width="0.8" font-family="serif">M</text>
+        <!-- Floating coin top -->
+        <ellipse cx="80" cy="50" rx="22" ry="22"/>
+        <ellipse cx="80" cy="50" rx="16" ry="16"/>
+        <text x="73" y="56" font-size="16" fill="none" stroke="rgba(255,215,0,0.25)" stroke-width="0.8" font-family="serif">$</text>
+        <!-- Sparkle -->
+        <line x1="110" y1="30" x2="118" y2="22"/>
+        <line x1="118" y1="30" x2="110" y2="22"/>
+        <line x1="30" y1="70" x2="36" y2="64"/>
+        <line x1="36" y1="70" x2="30" y2="64"/>
+      </svg>
+
+      <!-- BILLS (loose, floating) -->
+      <svg class="deco-bills" viewBox="0 0 200 180">
+        <rect x="10" y="20" width="80" height="42" rx="3" transform="rotate(-12 50 41)"/>
+        <circle cx="50" cy="41" r="10" transform="rotate(-12 50 41)"/>
+        <rect x="30" y="60" width="80" height="42" rx="3" transform="rotate(6 70 81)"/>
+        <circle cx="70" cy="81" r="10" transform="rotate(6 70 81)"/>
+        <rect x="5" y="105" width="80" height="42" rx="3" transform="rotate(-3 45 126)"/>
+        <circle cx="45" cy="126" r="10" transform="rotate(-3 45 126)"/>
+        <rect x="100" y="40" width="80" height="42" rx="3" transform="rotate(18 140 61)"/>
+        <circle cx="140" cy="61" r="10" transform="rotate(18 140 61)"/>
+        <rect x="110" y="110" width="80" height="42" rx="3" transform="rotate(-10 150 131)"/>
+        <circle cx="150" cy="131" r="10" transform="rotate(-10 150 131)"/>
+      </svg>
+
+      <!-- BRIEFCASE -->
+      <svg class="deco-briefcase" viewBox="0 0 140 110">
+        <rect x="5" y="30" width="130" height="70" rx="3"/>
+        <rect x="40" y="10" width="60" height="22" rx="2"/>
+        <line x1="40" y1="30" x2="40" y2="14"/>
+        <line x1="100" y1="30" x2="100" y2="14"/>
+        <rect x="55" y="55" width="30" height="18" rx="2"/>
+        <circle cx="70" cy="64" r="5"/>
+        <line x1="5" y1="64" x2="55" y2="64"/>
+        <line x1="85" y1="64" x2="135" y2="64"/>
+      </svg>
+
+      <!-- CHART arrow going up -->
+      <svg class="deco-chart" viewBox="0 0 160 100">
+        <!-- Axis -->
+        <line x1="20" y1="10" x2="20" y2="85"/>
+        <line x1="20" y1="85" x2="145" y2="85"/>
+        <!-- Bars -->
+        <rect x="30" y="60" width="14" height="25"/>
+        <rect x="50" y="50" width="14" height="35"/>
+        <rect x="70" y="38" width="14" height="47"/>
+        <rect x="90" y="28" width="14" height="57"/>
+        <rect x="110" y="15" width="14" height="70"/>
+        <!-- Arrow -->
+        <polyline points="35,55 57,45 77,33 97,22 117,10"/>
+        <polyline points="108,10 117,10 117,19"/>
+      </svg>
+
+    </div>
+
+    <div class="container">
+      <div class="funding-badge">Pro Exclusive Program</div>
+      <h1 class="funding-headline">Prove your edge.<br><span>Trade our capital.</span></h1>
+      <p class="funding-sub">Mercury Funding is our way of rewarding loyal users who build profitable algorithms on the platform. You bring the strategy — we bring the capital.</p>
+      <div class="funding-amount-hero">
+        <span class="up-to">Up to</span>
+        <span class="number">$5,000</span>
+      </div>
+      <div class="funding-amount-caption">in funded trading capital</div>
+      <div style="margin-top:2rem; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <a href="#apply" class="btn btn-primary" style="background:rgba(255,215,0,0.85); color:#000; border-color:rgba(255,215,0,0.85);">Apply for Funding</a>
+        <a href="architect.html" class="btn">Start Building on Architect</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── HOW IT WORKS ──────────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="section-label">How It Works</div>
+      <div class="funding-steps">
+        <div class="funding-step">
+          <div class="funding-step-num">01</div>
+          <div class="funding-step-title">Build Your Strategy</div>
+          <div class="funding-step-desc">Use Architect to design and refine your algorithm. Any data source, any market, any execution style. Paper trade until you're confident in your edge.</div>
+        </div>
+        <div class="funding-step">
+          <div class="funding-step-num">02</div>
+          <div class="funding-step-title">Prove Profitability</div>
+          <div class="funding-step-desc">Run your strategy live on Pro for at least 30 days. Meet the minimum performance thresholds — positive P&L, controlled drawdown, consistent execution.</div>
+        </div>
+        <div class="funding-step">
+          <div class="funding-step-num">03</div>
+          <div class="funding-step-title">Apply for Funding</div>
+          <div class="funding-step-desc">Submit your application with your strategy's track record. Our team reviews performance, risk profile, and strategy quality. Decisions within 5 business days.</div>
+        </div>
+        <div class="funding-step">
+          <div class="funding-step-num">04</div>
+          <div class="funding-step-title">Trade Funded</div>
+          <div class="funding-step-desc">Mercury deposits capital into your trading wallet. Your bot continues running — same strategy, same infrastructure. You keep 80% of profits. We handle the rest.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── LOYALTY ──────────────────────────────────── -->
+  <section class="page-section" style="padding-top:0;">
+    <div class="container">
+      <div class="funding-loyalty">
+        <div class="funding-loyalty-title">A reward for Mercury builders.</div>
+        <div class="funding-loyalty-text">Mercury Funding isn't an open prop firm — it's an exclusive program for dedicated users who have built real, profitable algorithms on our platform. We invest in the traders who invest their time mastering prediction markets with Mercury. The better your track record, the more capital we allocate.</div>
+        <div style="margin-top:1.5rem;">
+          <a href="architect.html" class="btn btn-primary" style="font-size:0.7rem;">Start Building on Architect</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FUNDING TIERS ─────────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="section-label">Funding Tiers</div>
+      <div class="funding-tiers">
+        <div class="funding-tier">
+          <div class="funding-tier-name">Tier 1 — Starter</div>
+          <div class="funding-tier-amount">$1,000</div>
+          <div class="funding-tier-req">30+ days live trading<br>Positive net P&L<br>Max drawdown &lt; 15%<br>Min 20 trades executed</div>
+        </div>
+        <div class="funding-tier funding-tier--featured">
+          <div class="funding-tier-name">Tier 2 — Proven</div>
+          <div class="funding-tier-amount">$2,500</div>
+          <div class="funding-tier-req">60+ days live trading<br>+10% net ROI or higher<br>Max drawdown &lt; 10%<br>Win rate &gt; 55%</div>
+        </div>
+        <div class="funding-tier">
+          <div class="funding-tier-name">Tier 3 — Elite</div>
+          <div class="funding-tier-amount">$5,000</div>
+          <div class="funding-tier-req">90+ days live trading<br>+20% net ROI or higher<br>Max drawdown &lt; 8%<br>Sharpe ratio &gt; 1.5</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── RULES ─────────────────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="funding-rules">
+        <div class="section-label">Program Rules</div>
+        <div class="funding-rules-title">Rules &amp; Requirements</div>
+        <div class="funding-rules-sub">Mercury Funding operates like a managed capital program. These rules protect both you and us. Read them carefully before applying.</div>
+
+        <div class="rule-category">
+          <div class="rule-category-title">Eligibility</div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--check">&#10003;</span>
+            <div class="rule-text"><strong>Active Pro subscription</strong> — You must be on the Pro plan ($99/mo) at the time of application and throughout the funded period.</div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--check">&#10003;</span>
+            <div class="rule-text"><strong>Verified track record</strong> — All performance data must come from live trading on Mercury. Backtests alone do not qualify. Paper trading does not qualify.</div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--check">&#10003;</span>
+            <div class="rule-text"><strong>Account in good standing</strong> — No prior violations of Mercury's terms of service. No history of market manipulation or wash trading.</div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--check">&#10003;</span>
+            <div class="rule-text"><strong>Single strategy per application</strong> — Each funding application is tied to one strategy. You may apply with multiple strategies separately.</div>
+          </div>
+        </div>
+
+        <div class="rule-category">
+          <div class="rule-category-title">Capital &amp; Profit Split</div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--info">&#9679;</span>
+            <div class="rule-text"><strong>80/20 profit split</strong> — You keep 80% of net profits generated with funded capital. Mercury retains 20%. Payouts are calculated monthly.</div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--info">&#9679;</span>
+            <div class="rule-text"><strong>No upfront fees</strong> — There is no evaluation fee or challenge fee. Your Pro subscription is the only cost. Mercury Funding is a reward, not a product.</div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--info">&#9679;</span>
+            <div class="rule-text"><strong>Capital stays on Mercury</strong> — Funded capital is deposited into your Mercury trading wallet and can only be used for bot execution on the platform. It cannot be withdrawn.</div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--info">&#9679;</span>
+            <div class="rule-text"><strong>Profits are yours</strong> — Your 80% profit share is withdrawable to your personal wallet at any time after each monthly settlement.</div>
+          </div>
+        </div>
+
+        <div class="rule-category">
+          <div class="rule-category-title">Risk Limits</div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--x">&#10005;</span>
+            <div class="rule-text"><strong>Maximum daily drawdown: 5%</strong> — If your funded strategy loses more than 5% of allocated capital in a single day, trading is automatically paused for 24 hours.</div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--x">&#10005;</span>
+            <div class="rule-text"><strong>Maximum total drawdown: 10%</strong> — If cumulative losses reach 10% of funded capital, the allocation is revoked. You may reapply after 30 days with a new track record.</div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--x">&#10005;</span>
+            <div class="rule-text"><strong>No martingale or grid strategies</strong> — Strategies that double down on losing positions or rely on unlimited capital are not eligible.</div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--x">&#10005;</span>
+            <div class="rule-text"><strong>No single-market concentration &gt; 40%</strong> — You cannot allocate more than 40% of funded capital to any single prediction market contract.</div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--x">&#10005;</span>
+            <div class="rule-text"><strong>No manual override of funded bots</strong> — Funded strategies must run autonomously. Manual trades on funded capital are not permitted.</div>
+          </div>
+        </div>
+
+        <div class="rule-category">
+          <div class="rule-category-title">Monitoring &amp; Compliance</div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--info">&#9679;</span>
+            <div class="rule-text"><strong>Real-time monitoring</strong> — Mercury monitors all funded strategies 24/7. Automated risk controls enforce daily and total drawdown limits.</div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--info">&#9679;</span>
+            <div class="rule-text"><strong>Monthly performance reviews</strong> — Funded accounts are reviewed monthly. Consistently profitable strategies may be offered higher allocations.</div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--info">&#9679;</span>
+            <div class="rule-text"><strong>Strategy transparency</strong> — Mercury can view your strategy's node graph and execution logs. We will never share, copy, or redistribute your strategy.</div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--info">&#9679;</span>
+            <div class="rule-text"><strong>Revocation</strong> — Mercury reserves the right to revoke funding at any time if rules are violated, performance degrades significantly, or your Pro subscription lapses.</div>
+          </div>
+        </div>
+
+        <div class="rule-category">
+          <div class="rule-category-title">Scaling</div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--check">&#10003;</span>
+            <div class="rule-text"><strong>Performance-based increases</strong> — Funded traders who maintain profitability for 60+ consecutive days are eligible for capital increases up to the next tier.</div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--check">&#10003;</span>
+            <div class="rule-text"><strong>Multi-strategy funding</strong> — Elite-tier traders may apply for funding on additional strategies. Maximum total allocation across all strategies: $10,000.</div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-icon rule-icon--check">&#10003;</span>
+            <div class="rule-text"><strong>No cap on earnings</strong> — There is no maximum profit limit. The more your strategy earns, the more you take home.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:2.5rem; padding:2rem; border:1px solid var(--border); background:var(--surface);">
+        <div style="font-size:0.8rem; font-weight:600; color:var(--pure); margin-bottom:0.5rem;">Not on Mercury yet?</div>
+        <div style="font-size:0.7rem; color:var(--silver); line-height:1.6; margin-bottom:1rem; max-width:400px; margin-left:auto; margin-right:auto;">Start building your first strategy for free. Paper trade, refine your edge, then upgrade to Pro when you're ready to go live and apply for funding.</div>
+        <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+          <a href="architect.html" class="btn btn-primary" style="font-size:0.7rem;">Explore Architect</a>
+          <a href="signup.html" class="btn" style="font-size:0.7rem;">Sign Up Free</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── APPLICATION ────────────────────────────────── -->
+  <section class="page-section" id="apply">
+    <div class="container">
+      <div class="funding-apply">
+        <div class="section-label">Apply</div>
+        <div class="funding-apply-title">Apply for Mercury Funding</div>
+        <div class="funding-apply-sub">Fill out the form below with details about your strategy and track record. Our team will review your application and respond within 5 business days.</div>
+
+        <form class="funding-form" id="fundingForm">
+          <div class="form-group">
+            <label class="form-label" for="fundingEmail">Email</label>
+            <input class="form-input" type="email" id="fundingEmail" placeholder="your@email.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fundingStrategy">Strategy Name</label>
+            <input class="form-input" type="text" id="fundingStrategy" placeholder="e.g. polling_momentum_v3" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fundingTier">Funding Tier</label>
+            <select class="form-input" id="fundingTier" required>
+              <option value="">Select a tier</option>
+              <option value="starter">Tier 1 — Starter ($1,000)</option>
+              <option value="proven">Tier 2 — Proven ($2,500)</option>
+              <option value="elite">Tier 3 — Elite ($5,000)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fundingDays">Days Live Trading</label>
+            <input class="form-input" type="number" id="fundingDays" placeholder="e.g. 45" min="30" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fundingROI">Net ROI (%)</label>
+            <input class="form-input" type="text" id="fundingROI" placeholder="e.g. +14.2%" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fundingDrawdown">Maximum Drawdown (%)</label>
+            <input class="form-input" type="text" id="fundingDrawdown" placeholder="e.g. 8.1%" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fundingDesc">Strategy Description</label>
+            <textarea class="form-input form-textarea" id="fundingDesc" placeholder="Briefly describe your strategy — what data sources it uses, what markets it trades, how it generates edge..." rows="5" required></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fundingWhy">Why should Mercury fund you?</label>
+            <textarea class="form-input form-textarea" id="fundingWhy" placeholder="Tell us about your experience with prediction markets, how long you've been using Mercury, and why your strategy is sustainable..." rows="4" required></textarea>
+          </div>
+          <button type="submit" class="funding-submit" id="fundingSubmitBtn">Submit Application</button>
+          <div class="funding-note">By submitting, you agree to the Mercury Funding program rules above. All performance claims will be verified against your Mercury account data. Applications with falsified data will result in permanent disqualification.</div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ──────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">Mercury</div>
+          <p class="footer-desc">Liquid intelligence &amp; infrastructure for the next generation of traders.</p>
+        </div>
+        <div>
+          <div class="footer-col-title">Product</div>
+          <ul class="footer-links">
+            <li><a href="index.html">Suite</a></li>
+            <li><a href="architect.html">Architect</a></li>
+            <li><a href="architect.html#pricing">Pricing</a></li>
+            <li><a href="signup.html">Sign Up Free</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="about.html">About</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <ul class="footer-links">
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
+            <li><a href="disclaimer.html">Disclaimer</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Mercury — Hg 80. All rights reserved.</span>
+        <div class="footer-socials">
+          <a href="#">Twitter</a>
+          <a href="#">Discord</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('hamburgerBtn')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('open');
+    });
+    document.getElementById('fundingForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      // Check if user is Pro/Enterprise before allowing submission
+      let user = null;
+      let tier = 'free';
+      try {
+        if (typeof window.getCurrentUser === 'function') {
+          user = await window.getCurrentUser();
+        }
+        if (user && typeof window.getUserTier === 'function') {
+          tier = window.getUserTier(user);
+        }
+      } catch (err) {}
+
+      if (tier !== 'pro' && tier !== 'enterprise') {
+        if (typeof showUpgradeModal === 'function') {
+          showUpgradeModal('funding');
+        } else {
+          alert('Funding applications require a Pro plan. Upgrade to apply.');
+        }
+        return;
+      }
+
+      const btn = document.getElementById('fundingSubmitBtn');
+      btn.textContent = 'Application Submitted';
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./scripts/auth.js"></script>
+  <script src="./scripts/nav-auth.js"></script>
+  <script src="./scripts/tiers.js"></script>
+  <script src="./scripts/upgrade-modal.js"></script>
+  <script src="./scripts/page-transition.js"></script>
+  <script src="scripts/ambient.js"></script>
+
+
+</body>
+</html>

@@ -254,6 +254,7 @@
 
                     if (error) throw error;
 
+                    localStorage.setItem('mercury_new_signup', '1');
                     showSuccess('Success! Please check your email or try logging in.');
                     signupForm.reset();
 
@@ -283,5 +284,6 @@
             }
         })();
     </script>
+    <script src="./scripts/page-transition.js"></script>
 </body>
 </html>

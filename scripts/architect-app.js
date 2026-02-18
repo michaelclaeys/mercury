@@ -1,7 +1,9 @@
 /* ================================================================
    MERCURY ARCHITECT APP — Bot Builder Dashboard
    Node editor, bot management, backtesting, templates
+   v8 — 2026-02-17
    ================================================================ */
+console.log('[Mercury] architect-app.js v8 loaded');
 
 // ═══════════════════════════════════════════════════════════════
 // AUTH
@@ -14,7 +16,7 @@ async function initAuth() {
     try {
       await window.requireAuth();
       currentUser = typeof window.getCurrentUser === 'function' ? await window.getCurrentUser() : null;
-      userTier = typeof window.getUserTier === 'function' ? window.getUserTier() : 'free';
+      userTier = typeof window.getUserTier === 'function' ? window.getUserTier(currentUser) : 'free';
     } catch (e) {
       // dev mode fallback
       currentUser = { email: 'dev@local' };
@@ -33,7 +35,19 @@ async function initAuth() {
     if (avatarEl) avatarEl.textContent = currentUser.email.charAt(0).toUpperCase();
     if (nameEl) nameEl.textContent = currentUser.email;
   }
-  if (planEl) planEl.textContent = userTier + ' plan';
+  const tierConfig = window.MercuryTiers ? window.MercuryTiers.getTierConfig(userTier) : null;
+  if (planEl) planEl.textContent = (tierConfig ? tierConfig.label : userTier) + ' Plan';
+
+  // Show/hide sidebar upgrade button
+  const upgradeSection = document.getElementById('sidebarUpgrade');
+  if (upgradeSection) {
+    upgradeSection.style.display = userTier === 'free' ? '' : 'none';
+  }
+}
+
+// Funding sidebar link handler — everyone can read about funding
+function handleArchitectFunding() {
+  window.location.href = 'funding.html';
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -49,6 +63,8 @@ const canvas = {
   panY: 0,
   gridVisible: true,
   isPanning: false,
+  maybePanning: false,
+  didPan: false, // true if a pan actually happened (suppresses click)
   panStartX: 0,
   panStartY: 0,
   panStartPanX: 0,
@@ -65,6 +81,7 @@ let dragOffsetX = 0;
 let dragOffsetY = 0;
 let connectingFrom = null; // { nodeId, portId, portType }
 let tempConnectionLine = null;
+let selectedConnectionId = null;
 let nextNodeId = 1;
 let nextConnId = 1;
 
@@ -81,26 +98,46 @@ let charts = {};
 let logInterval = null;
 
 // ═══════════════════════════════════════════════════════════════
+// CUSTOM API PRESETS
+// ═══════════════════════════════════════════════════════════════
+const API_DATA_PRESETS = {
+  'BTC Price (USD)':       { url: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd', json_path: 'bitcoin.usd' },
+  'ETH Price (USD)':       { url: 'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd', json_path: 'ethereum.usd' },
+  'Fear & Greed Index':    { url: 'https://api.alternative.me/fng/', json_path: 'data.0.value' },
+  'ETH Gas Price (Gwei)':  { url: 'https://api.etherscan.io/api?module=gastracker&action=gasoracle', json_path: 'result.ProposeGasPrice' },
+  'Gold Price (USD/oz)':   { url: 'https://api.metals.dev/v1/latest?api_key=demo&currency=USD&unit=toz', json_path: 'metals.gold' },
+};
+
+// ═══════════════════════════════════════════════════════════════
 // NODE TYPE DEFINITIONS
 // ═══════════════════════════════════════════════════════════════
 const NODE_TYPES = {
   // TRIGGERS
-  'price-threshold': {
-    category: 'trigger', label: 'Price Threshold', color: '#00c853',
+  'market': {
+    category: 'trigger', label: 'Market', color: '#00c853',
     inputs: [],
     outputs: [{ id: 'out', label: 'Signal' }],
     properties: [
+      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+    ],
+  },
+  'price-threshold': {
+    category: 'trigger', label: 'Price Threshold', color: '#00c853',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Signal' }],
+    properties: [
       { key: 'market', type: 'select', label: 'Market', options: ['Any', 'Polymarket', 'Kalshi'], default: 'Any' },
-      { key: 'contract', type: 'text', label: 'Contract', default: '' },
+      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
       { key: 'direction', type: 'select', label: 'Direction', options: ['Crosses Above', 'Crosses Below'], default: 'Crosses Above' },
       { key: 'threshold', type: 'number', label: 'Threshold (cents)', default: 50, min: 1, max: 99 },
     ],
   },
   'volume-spike': {
     category: 'trigger', label: 'Volume Spike', color: '#00c853',
-    inputs: [],
+    inputs: [{ id: 'in', label: 'Input' }],
     outputs: [{ id: 'out', label: 'Signal' }],
     properties: [
+      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
       { key: 'multiplier', type: 'number', label: 'Spike Multiplier', default: 3, min: 1.5, max: 20 },
       { key: 'window', type: 'select', label: 'Window', options: ['1hr', '4hr', '24hr'], default: '1hr' },
       { key: 'market', type: 'select', label: 'Market', options: ['Any', 'Polymarket', 'Kalshi'], default: 'Any' },
@@ -108,7 +145,7 @@ const NODE_TYPES = {
   },
   'time-based': {
     category: 'trigger', label: 'Time-Based', color: '#00c853',
-    inputs: [],
+    inputs: [{ id: 'in', label: 'Input' }],
     outputs: [{ id: 'out', label: 'Signal' }],
     properties: [
       { key: 'schedule', type: 'select', label: 'Schedule', options: ['Every 1hr', 'Every 4hr', 'Every 12hr', 'Daily 9AM', 'Daily 5PM'], default: 'Every 4hr' },
@@ -117,7 +154,7 @@ const NODE_TYPES = {
   },
   'market-event': {
     category: 'trigger', label: 'Market Event', color: '#00c853',
-    inputs: [],
+    inputs: [{ id: 'in', label: 'Input' }],
     outputs: [{ id: 'out', label: 'Signal' }],
     properties: [
       { key: 'event', type: 'select', label: 'Event Type', options: ['New Listing', 'Resolution', 'Volume Surge', 'Price Alert'], default: 'Resolution' },
@@ -126,12 +163,183 @@ const NODE_TYPES = {
   },
   'probability-cross': {
     category: 'trigger', label: 'Probability Cross', color: '#00c853',
-    inputs: [],
+    inputs: [{ id: 'in', label: 'Input' }],
     outputs: [{ id: 'out', label: 'Signal' }],
     properties: [
       { key: 'direction', type: 'select', label: 'Direction', options: ['Crosses Above', 'Crosses Below'], default: 'Crosses Above' },
       { key: 'level', type: 'number', label: 'Level (cents)', default: 60, min: 1, max: 99 },
-      { key: 'contract', type: 'text', label: 'Contract', default: '' },
+      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+    ],
+  },
+  'api-data': {
+    category: 'trigger', label: 'Custom API', color: '#00c853',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Signal' }],
+    properties: [
+      { key: 'preset', type: 'select', label: 'Data Source', options: ['Custom URL', 'BTC Price (USD)', 'ETH Price (USD)', 'Fear & Greed Index', 'ETH Gas Price (Gwei)', 'Gold Price (USD/oz)'], default: 'Custom URL' },
+      { key: 'url', type: 'text', label: 'API URL', default: '', placeholder: 'https://api.example.com/data' },
+      { key: 'method', type: 'select', label: 'Method', options: ['GET', 'POST'], default: 'GET' },
+      { key: 'headers', type: 'text', label: 'Headers (JSON)', default: '{}', placeholder: '{"Authorization": "Bearer ..."}' },
+      { key: 'json_path', type: 'text', label: 'JSON Path', default: '', placeholder: 'result.data.price' },
+      { key: 'operator', type: 'select', label: 'Fire When', options: ['>', '<', '==', '!=', 'Crosses Above', 'Crosses Below'], default: '>' },
+      { key: 'threshold', type: 'number', label: 'Threshold', default: 0 },
+      { key: 'poll_interval', type: 'number', label: 'Poll Interval (sec)', default: 60, min: 5, max: 3600 },
+    ],
+  },
+  'spread-detector': {
+    category: 'trigger', label: 'Spread Detector', color: '#00c853',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Signal' }],
+    properties: [
+      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'platform_a', type: 'select', label: 'Platform A', options: ['Polymarket', 'Kalshi'], default: 'Polymarket' },
+      { key: 'platform_b', type: 'select', label: 'Platform B', options: ['Polymarket', 'Kalshi'], default: 'Kalshi' },
+      { key: 'minSpread', type: 'number', label: 'Min Spread (cents)', default: 3, min: 1, max: 50 },
+    ],
+  },
+  'whale-alert': {
+    category: 'trigger', label: 'Whale Alert', color: '#00c853',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Signal' }],
+    properties: [
+      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'minSize', type: 'number', label: 'Min Order Size ($)', default: 5000, min: 100 },
+      { key: 'side', type: 'select', label: 'Side', options: ['Any', 'Buy', 'Sell'], default: 'Any' },
+      { key: 'market', type: 'select', label: 'Market', options: ['Any', 'Polymarket', 'Kalshi'], default: 'Any' },
+    ],
+  },
+  'resolution-countdown': {
+    category: 'trigger', label: 'Resolution Countdown', color: '#00c853',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Signal' }],
+    properties: [
+      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'timeLeft', type: 'select', label: 'Time Remaining', options: ['1hr', '6hr', '12hr', '24hr', '48hr', '7d'], default: '24hr' },
+      { key: 'probDirection', type: 'select', label: 'Prob Trending', options: ['Any', 'Toward YES', 'Toward NO'], default: 'Any' },
+    ],
+  },
+  'sentiment': {
+    category: 'trigger', label: 'Sentiment', color: '#00c853',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Signal' }],
+    properties: [
+      { key: 'source', type: 'select', label: 'Source', options: ['Twitter/X', 'News Headlines', 'Reddit', 'Combined'], default: 'Combined' },
+      { key: 'keyword', type: 'text', label: 'Keyword/Topic', default: '' },
+      { key: 'sentiment', type: 'select', label: 'Fire When', options: ['Bullish', 'Bearish', 'Extreme Bullish', 'Extreme Bearish', 'Sentiment Shift'], default: 'Bullish' },
+      { key: 'minScore', type: 'number', label: 'Min Confidence (%)', default: 70, min: 0, max: 100 },
+    ],
+  },
+  'social-buzz': {
+    category: 'trigger', label: 'Social Buzz', color: '#00c853',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Signal' }],
+    properties: [
+      { key: 'preset', type: 'select', label: 'Preset', options: ['Custom', 'Crypto Twitter', 'Political', 'Disaster/Weather', 'Meme Stocks'], default: 'Custom' },
+      { key: 'keyword', type: 'text', label: 'Keyword/Topic', default: '', placeholder: 'hurricane, #btc, trump...' },
+      { key: 'spike_pct', type: 'number', label: 'Spike Threshold (%)', default: 200, min: 50, max: 1000 },
+      { key: 'min_mentions', type: 'number', label: 'Min Mentions', default: 50, min: 1 },
+      { key: 'poll_interval', type: 'number', label: 'Poll Interval (sec)', default: 60, min: 30, max: 3600 },
+    ],
+  },
+  'news-alert': {
+    category: 'trigger', label: 'News Alert', color: '#00c853',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Signal' }],
+    properties: [
+      { key: 'preset', type: 'select', label: 'Alert Source', options: ['NWS Weather Alerts', 'USGS Earthquakes (M4+)', 'Custom URL'], default: 'NWS Weather Alerts' },
+      { key: 'url', type: 'text', label: 'Custom API URL', default: '', placeholder: 'https://api.example.com/alerts' },
+      { key: 'json_path', type: 'text', label: 'JSON Path', default: '', placeholder: 'data.alerts' },
+      { key: 'min_severity', type: 'select', label: 'Min Severity', options: ['Advisory', 'Watch', 'Warning', 'Emergency'], default: 'Warning' },
+      { key: 'keyword', type: 'text', label: 'Keyword Filter', default: '', placeholder: 'hurricane, tornado...' },
+      { key: 'region', type: 'text', label: 'Region Filter', default: '', placeholder: 'Florida, California...' },
+      { key: 'poll_interval', type: 'number', label: 'Poll Interval (sec)', default: 120, min: 30, max: 3600 },
+    ],
+  },
+  'multi-market': {
+    category: 'trigger', label: 'Multi-Market', color: '#00c853',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Signal' }],
+    properties: [
+      { key: 'contracts', type: 'text', label: 'Contracts (comma-sep)', default: '' },
+      { key: 'condition', type: 'select', label: 'Condition', options: ['Any Moves', 'All Move Same Dir', 'Divergence Detected', 'Avg Crosses Level'], default: 'Any Moves' },
+      { key: 'threshold', type: 'number', label: 'Threshold (cents)', default: 5, min: 1, max: 50 },
+    ],
+  },
+  'order-flow': {
+    category: 'trigger', label: 'Order Flow', color: '#00c853',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Signal' }],
+    properties: [
+      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'metric', type: 'select', label: 'Metric', options: ['Buy/Sell Ratio', 'Net Flow ($)', 'Order Count Spike', 'Bid Wall Detected', 'Ask Wall Detected'], default: 'Buy/Sell Ratio' },
+      { key: 'operator', type: 'select', label: 'Operator', options: ['>', '<', 'Crosses Above', 'Crosses Below'], default: '>' },
+      { key: 'threshold', type: 'number', label: 'Threshold', default: 2, min: 0 },
+      { key: 'window', type: 'select', label: 'Window', options: ['5min', '15min', '1hr', '4hr'], default: '1hr' },
+    ],
+  },
+
+  // TECHNICAL INDICATORS
+  'rsi': {
+    category: 'trigger', label: 'RSI', color: '#00c853',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Signal' }],
+    properties: [
+      { key: 'period', type: 'number', label: 'Period', default: 14, min: 2, max: 100 },
+      { key: 'overbought', type: 'number', label: 'Overbought Level', default: 70, min: 50, max: 95 },
+      { key: 'oversold', type: 'number', label: 'Oversold Level', default: 30, min: 5, max: 50 },
+      { key: 'signal', type: 'select', label: 'Fire On', options: ['Overbought', 'Oversold', 'Both'], default: 'Both' },
+    ],
+  },
+  'macd': {
+    category: 'trigger', label: 'MACD', color: '#00c853',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Signal' }],
+    properties: [
+      { key: 'fast', type: 'number', label: 'Fast Period', default: 12, min: 2, max: 50 },
+      { key: 'slow', type: 'number', label: 'Slow Period', default: 26, min: 5, max: 100 },
+      { key: 'signal_period', type: 'number', label: 'Signal Period', default: 9, min: 2, max: 50 },
+      { key: 'crossover', type: 'select', label: 'Fire On', options: ['Bullish Cross', 'Bearish Cross', 'Both'], default: 'Both' },
+    ],
+  },
+  'bollinger': {
+    category: 'trigger', label: 'Bollinger Bands', color: '#00c853',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Signal' }],
+    properties: [
+      { key: 'period', type: 'number', label: 'Period', default: 20, min: 5, max: 100 },
+      { key: 'std_dev', type: 'number', label: 'Std Deviations', default: 2, min: 0.5, max: 4 },
+      { key: 'signal', type: 'select', label: 'Fire On', options: ['Upper Break', 'Lower Break', 'Squeeze', 'Both Breaks'], default: 'Both Breaks' },
+    ],
+  },
+  'moving-average': {
+    category: 'trigger', label: 'Moving Average', color: '#00c853',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Signal' }],
+    properties: [
+      { key: 'fast_period', type: 'number', label: 'Fast Period', default: 10, min: 2, max: 50 },
+      { key: 'slow_period', type: 'number', label: 'Slow Period', default: 30, min: 5, max: 200 },
+      { key: 'ma_type', type: 'select', label: 'MA Type', options: ['SMA', 'EMA'], default: 'EMA' },
+      { key: 'signal', type: 'select', label: 'Fire On', options: ['Golden Cross', 'Death Cross', 'Both'], default: 'Both' },
+    ],
+  },
+  'rate-of-change': {
+    category: 'trigger', label: 'Rate of Change', color: '#00c853',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Signal' }],
+    properties: [
+      { key: 'period', type: 'number', label: 'Period', default: 12, min: 1, max: 100 },
+      { key: 'threshold', type: 'number', label: 'Threshold (%)', default: 5, min: 0.5, max: 50 },
+      { key: 'direction', type: 'select', label: 'Direction', options: ['Up', 'Down', 'Both'], default: 'Both' },
+    ],
+  },
+  'pattern': {
+    category: 'trigger', label: 'Pattern Detect', color: '#00c853',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Signal' }],
+    properties: [
+      { key: 'pattern', type: 'select', label: 'Pattern', options: ['Breakout', 'Breakdown', 'Range Bound', 'Trend Reversal', 'Consolidation'], default: 'Breakout' },
+      { key: 'lookback', type: 'number', label: 'Lookback Periods', default: 30, min: 5, max: 200 },
+      { key: 'sensitivity', type: 'select', label: 'Sensitivity', options: ['Low', 'Medium', 'High'], default: 'Medium' },
     ],
   },
 
@@ -150,7 +358,7 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Input' }],
     outputs: [{ id: 'pass', label: 'Pass' }, { id: 'fail', label: 'Fail' }],
     properties: [
-      { key: 'minLiquidity', type: 'number', label: 'Min Liquidity ($)', default: 50000, min: 1000 },
+      { key: 'minLiquidity', type: 'number', label: 'Min Liquidity ($)', default: 5000, min: 1000 },
       { key: 'depth', type: 'select', label: 'Order Book Depth', options: ['Top of Book', '1% Depth', '5% Depth'], default: '1% Depth' },
     ],
   },
@@ -172,6 +380,72 @@ const NODE_TYPES = {
       { key: 'action', type: 'select', label: 'If Correlated', options: ['Block', 'Reduce Size', 'Allow'], default: 'Block' },
     ],
   },
+  'time-window': {
+    category: 'condition', label: 'Time Window', color: '#60a5fa',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'pass', label: 'Pass' }, { id: 'fail', label: 'Fail' }],
+    properties: [
+      { key: 'startHour', type: 'number', label: 'Start Hour (0-23)', default: 9, min: 0, max: 23 },
+      { key: 'endHour', type: 'number', label: 'End Hour (0-23)', default: 17, min: 0, max: 23 },
+      { key: 'timezone', type: 'select', label: 'Timezone', options: ['UTC', 'ET', 'PT', 'CT', 'GMT', 'CET'], default: 'ET' },
+      { key: 'days', type: 'select', label: 'Days', options: ['Every Day', 'Weekdays Only', 'Weekends Only', 'Mon/Wed/Fri', 'Tue/Thu'], default: 'Every Day' },
+    ],
+  },
+  'spread-check': {
+    category: 'condition', label: 'Spread Check', color: '#60a5fa',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'pass', label: 'Pass' }, { id: 'fail', label: 'Fail' }],
+    properties: [
+      { key: 'maxSpread', type: 'number', label: 'Max Bid-Ask Spread (cents)', default: 3, min: 1, max: 50 },
+    ],
+  },
+  'momentum': {
+    category: 'condition', label: 'Momentum', color: '#60a5fa',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'pass', label: 'Pass' }, { id: 'fail', label: 'Fail' }],
+    properties: [
+      { key: 'direction', type: 'select', label: 'Direction', options: ['Bullish', 'Bearish', 'Any Strong Move'], default: 'Bullish' },
+      { key: 'period', type: 'select', label: 'Period', options: ['1hr', '4hr', '12hr', '24hr', '7d'], default: '24hr' },
+      { key: 'minChange', type: 'number', label: 'Min Change (cents)', default: 5, min: 1, max: 50 },
+    ],
+  },
+  'volatility': {
+    category: 'condition', label: 'Volatility', color: '#60a5fa',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'pass', label: 'Pass' }, { id: 'fail', label: 'Fail' }],
+    properties: [
+      { key: 'range', type: 'select', label: 'Volatility', options: ['Low', 'Medium', 'High', 'Extreme'], default: 'Medium' },
+      { key: 'period', type: 'select', label: 'Period', options: ['1hr', '4hr', '24hr', '7d'], default: '24hr' },
+      { key: 'action', type: 'select', label: 'Pass When', options: ['Within Range', 'Above Range', 'Below Range'], default: 'Within Range' },
+    ],
+  },
+  'logic-gate': {
+    category: 'condition', label: 'Logic Gate', color: '#60a5fa',
+    inputs: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }],
+    outputs: [{ id: 'pass', label: 'Pass' }, { id: 'fail', label: 'Fail' }],
+    properties: [
+      { key: 'mode', type: 'select', label: 'Mode', options: ['AND (both)', 'OR (either)', 'XOR (one only)', 'NAND (not both)'], default: 'AND (both)' },
+    ],
+  },
+  'price-range': {
+    category: 'condition', label: 'Price Range', color: '#60a5fa',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'pass', label: 'Pass' }, { id: 'fail', label: 'Fail' }],
+    properties: [
+      { key: 'min', type: 'number', label: 'Min Price (cents)', default: 10, min: 1, max: 99 },
+      { key: 'max', type: 'number', label: 'Max Price (cents)', default: 90, min: 1, max: 99 },
+      { key: 'action', type: 'select', label: 'Pass When', options: ['Inside Range', 'Outside Range'], default: 'Inside Range' },
+    ],
+  },
+  'volume-filter': {
+    category: 'condition', label: 'Volume Filter', color: '#60a5fa',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'pass', label: 'Pass' }, { id: 'fail', label: 'Fail' }],
+    properties: [
+      { key: 'minVolume', type: 'number', label: 'Min 24h Volume ($)', default: 10000, min: 100 },
+      { key: 'maxVolume', type: 'number', label: 'Max 24h Volume ($)', default: 0, min: 0 },
+    ],
+  },
 
   // EXECUTION
   'market-order': {
@@ -179,8 +453,9 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Trigger' }],
     outputs: [{ id: 'out', label: 'Filled' }],
     properties: [
+      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
       { key: 'side', type: 'select', label: 'Side', options: ['Buy YES', 'Buy NO', 'Sell YES', 'Sell NO'], default: 'Buy YES' },
-      { key: 'amount', type: 'number', label: 'Amount ($)', default: 100, min: 1 },
+      { key: 'amount', type: 'number', label: 'Amount ($)', default: 25, min: 1 },
       { key: 'platform', type: 'select', label: 'Platform', options: ['Auto', 'Polymarket', 'Kalshi'], default: 'Auto' },
     ],
   },
@@ -189,9 +464,10 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Trigger' }],
     outputs: [{ id: 'out', label: 'Filled' }],
     properties: [
+      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
       { key: 'side', type: 'select', label: 'Side', options: ['Buy YES', 'Buy NO', 'Sell YES', 'Sell NO'], default: 'Buy YES' },
       { key: 'limitPrice', type: 'number', label: 'Limit Price (cents)', default: 55, min: 1, max: 99 },
-      { key: 'amount', type: 'number', label: 'Amount ($)', default: 100, min: 1 },
+      { key: 'amount', type: 'number', label: 'Amount ($)', default: 25, min: 1 },
       { key: 'expiry', type: 'select', label: 'Expiry', options: ['GTC', '1hr', '4hr', '24hr'], default: 'GTC' },
     ],
   },
@@ -200,7 +476,8 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Trigger' }],
     outputs: [{ id: 'out', label: 'Complete' }],
     properties: [
-      { key: 'totalAmount', type: 'number', label: 'Total Amount ($)', default: 500, min: 10 },
+      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'totalAmount', type: 'number', label: 'Total Amount ($)', default: 100, min: 10 },
       { key: 'tranches', type: 'number', label: 'Tranches', default: 5, min: 2, max: 20 },
       { key: 'priceRange', type: 'number', label: 'Price Range (cents)', default: 10, min: 1, max: 50 },
     ],
@@ -210,9 +487,66 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Trigger' }],
     outputs: [{ id: 'out', label: 'Executed' }],
     properties: [
-      { key: 'amountPer', type: 'number', label: 'Amount Per Buy ($)', default: 50, min: 1 },
+      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'amountPer', type: 'number', label: 'Amount Per Buy ($)', default: 10, min: 1 },
       { key: 'interval', type: 'select', label: 'Interval', options: ['Every 1hr', 'Every 4hr', 'Every 12hr', 'Daily'], default: 'Every 4hr' },
       { key: 'maxBuys', type: 'number', label: 'Max Buys', default: 10, min: 1, max: 100 },
+    ],
+  },
+  'close-position': {
+    category: 'execution', label: 'Close Position', color: '#e8e8e8',
+    inputs: [{ id: 'in', label: 'Trigger' }],
+    outputs: [{ id: 'out', label: 'Closed' }],
+    properties: [
+      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'amount', type: 'select', label: 'Amount', options: ['100% (Full)', '75%', '50%', '25%', 'Custom'], default: '100% (Full)' },
+      { key: 'customPct', type: 'number', label: 'Custom %', default: 100, min: 1, max: 100 },
+      { key: 'urgency', type: 'select', label: 'Urgency', options: ['Market (Instant)', 'Limit (Best Price)', 'TWAP (Spread Out)'], default: 'Market (Instant)' },
+    ],
+  },
+  'hedge': {
+    category: 'execution', label: 'Hedge', color: '#e8e8e8',
+    inputs: [{ id: 'in', label: 'Trigger' }],
+    outputs: [{ id: 'out', label: 'Hedged' }],
+    properties: [
+      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'strategy', type: 'select', label: 'Hedge Strategy', options: ['Buy Opposite Side', 'Correlated Market', 'Partial Close + Opposite'], default: 'Buy Opposite Side' },
+      { key: 'ratio', type: 'number', label: 'Hedge Ratio (%)', default: 100, min: 10, max: 200 },
+      { key: 'platform', type: 'select', label: 'Platform', options: ['Same', 'Polymarket', 'Kalshi'], default: 'Same' },
+    ],
+  },
+  'twap': {
+    category: 'execution', label: 'TWAP', color: '#e8e8e8',
+    inputs: [{ id: 'in', label: 'Trigger' }],
+    outputs: [{ id: 'out', label: 'Complete' }],
+    properties: [
+      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'side', type: 'select', label: 'Side', options: ['Buy YES', 'Buy NO', 'Sell YES', 'Sell NO'], default: 'Buy YES' },
+      { key: 'totalAmount', type: 'number', label: 'Total Amount ($)', default: 500, min: 10 },
+      { key: 'duration', type: 'select', label: 'Duration', options: ['5min', '15min', '30min', '1hr', '4hr'], default: '30min' },
+      { key: 'slices', type: 'number', label: 'Slices', default: 10, min: 2, max: 100 },
+    ],
+  },
+  'conditional-order': {
+    category: 'execution', label: 'Conditional Order', color: '#e8e8e8',
+    inputs: [{ id: 'in', label: 'Trigger' }],
+    outputs: [{ id: 'out', label: 'Filled' }],
+    properties: [
+      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'side', type: 'select', label: 'Side', options: ['Buy YES', 'Buy NO', 'Sell YES', 'Sell NO'], default: 'Buy YES' },
+      { key: 'amount', type: 'number', label: 'Amount ($)', default: 50, min: 1 },
+      { key: 'condition', type: 'select', label: 'Execute When', options: ['Price Hits Level', 'Volume Exceeds', 'Spread Narrows Below', 'After Delay'], default: 'Price Hits Level' },
+      { key: 'conditionValue', type: 'number', label: 'Condition Value', default: 50 },
+    ],
+  },
+  'rebalance': {
+    category: 'execution', label: 'Rebalance', color: '#e8e8e8',
+    inputs: [{ id: 'in', label: 'Trigger' }],
+    outputs: [{ id: 'out', label: 'Rebalanced' }],
+    properties: [
+      { key: 'target', type: 'select', label: 'Target Allocation', options: ['Equal Weight', 'By Conviction', 'Risk Parity', 'Custom Weights'], default: 'Equal Weight' },
+      { key: 'threshold', type: 'number', label: 'Rebalance Threshold (%)', default: 5, min: 1, max: 50 },
+      { key: 'maxTrades', type: 'number', label: 'Max Trades Per Rebalance', default: 5, min: 1, max: 20 },
     ],
   },
 
@@ -223,7 +557,16 @@ const NODE_TYPES = {
     outputs: [{ id: 'out', label: 'Triggered' }],
     properties: [
       { key: 'type', type: 'select', label: 'Type', options: ['Percentage', 'Fixed Amount', 'Probability Level'], default: 'Percentage' },
-      { key: 'value', type: 'number', label: 'Value', default: 15 },
+      { key: 'value', type: 'number', label: 'Value', default: 10 },
+    ],
+  },
+  'take-profit': {
+    category: 'risk', label: 'Take Profit', color: '#ff1744',
+    inputs: [{ id: 'in', label: 'Position' }],
+    outputs: [{ id: 'out', label: 'Triggered' }],
+    properties: [
+      { key: 'type', type: 'select', label: 'Type', options: ['Percentage', 'Fixed Amount', 'Probability Level'], default: 'Percentage' },
+      { key: 'value', type: 'number', label: 'Value', default: 20 },
     ],
   },
   'position-limit': {
@@ -231,8 +574,8 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Check' }],
     outputs: [{ id: 'pass', label: 'OK' }, { id: 'fail', label: 'Blocked' }],
     properties: [
-      { key: 'maxPositions', type: 'number', label: 'Max Positions', default: 5, min: 1, max: 50 },
-      { key: 'maxPerContract', type: 'number', label: 'Max Per Contract ($)', default: 500, min: 10 },
+      { key: 'maxPositions', type: 'number', label: 'Max Positions', default: 3, min: 1, max: 50 },
+      { key: 'maxPerContract', type: 'number', label: 'Max Per Contract ($)', default: 100, min: 10 },
     ],
   },
   'portfolio-cap': {
@@ -240,7 +583,7 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Check' }],
     outputs: [{ id: 'pass', label: 'OK' }, { id: 'fail', label: 'Blocked' }],
     properties: [
-      { key: 'maxCapital', type: 'number', label: 'Max Capital ($)', default: 5000, min: 100 },
+      { key: 'maxCapital', type: 'number', label: 'Max Capital ($)', default: 1000, min: 100 },
       { key: 'action', type: 'select', label: 'On Limit', options: ['Block New Trades', 'Close Smallest', 'Notify Only'], default: 'Block New Trades' },
     ],
   },
@@ -249,14 +592,99 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Monitor' }],
     outputs: [{ id: 'out', label: 'Triggered' }],
     properties: [
-      { key: 'maxDD', type: 'number', label: 'Max Drawdown (%)', default: 20, min: 1, max: 100 },
+      { key: 'maxDD', type: 'number', label: 'Max Drawdown (%)', default: 10, min: 1, max: 100 },
       { key: 'action', type: 'select', label: 'Action', options: ['Kill All Bots', 'Pause All Bots', 'Notify Only'], default: 'Pause All Bots' },
+    ],
+  },
+  'trailing-stop': {
+    category: 'risk', label: 'Trailing Stop', color: '#ff1744',
+    inputs: [{ id: 'in', label: 'Position' }],
+    outputs: [{ id: 'out', label: 'Triggered' }],
+    properties: [
+      { key: 'type', type: 'select', label: 'Trail Type', options: ['Percentage', 'Fixed Cents', 'ATR-Based'], default: 'Percentage' },
+      { key: 'value', type: 'number', label: 'Trail Value', default: 5 },
+      { key: 'activation', type: 'number', label: 'Activate After Gain (%)', default: 0, min: 0 },
+    ],
+  },
+  'time-exit': {
+    category: 'risk', label: 'Time Exit', color: '#ff1744',
+    inputs: [{ id: 'in', label: 'Position' }],
+    outputs: [{ id: 'out', label: 'Triggered' }],
+    properties: [
+      { key: 'maxHold', type: 'select', label: 'Max Hold Time', options: ['1hr', '4hr', '12hr', '24hr', '48hr', '7d', '30d'], default: '24hr' },
+      { key: 'action', type: 'select', label: 'Action', options: ['Close All', 'Close If Profitable', 'Close If Losing', 'Tighten Stop'], default: 'Close All' },
+    ],
+  },
+  'daily-loss-limit': {
+    category: 'risk', label: 'Daily Loss Limit', color: '#ff1744',
+    inputs: [{ id: 'in', label: 'Monitor' }],
+    outputs: [{ id: 'out', label: 'Triggered' }],
+    properties: [
+      { key: 'maxLoss', type: 'number', label: 'Max Daily Loss ($)', default: 100, min: 1 },
+      { key: 'action', type: 'select', label: 'Action', options: ['Stop Trading Today', 'Pause 1hr', 'Reduce Size 50%', 'Notify Only'], default: 'Stop Trading Today' },
+      { key: 'resetTime', type: 'select', label: 'Reset Time', options: ['Midnight UTC', 'Midnight ET', '9AM ET'], default: 'Midnight ET' },
+    ],
+  },
+  'cooldown': {
+    category: 'risk', label: 'Cooldown', color: '#ff1744',
+    inputs: [{ id: 'in', label: 'Check' }],
+    outputs: [{ id: 'pass', label: 'OK' }, { id: 'fail', label: 'Wait' }],
+    properties: [
+      { key: 'after', type: 'select', label: 'After', options: ['Any Trade', 'Loss', 'Win', 'Stop Loss Hit', 'Take Profit Hit'], default: 'Any Trade' },
+      { key: 'duration', type: 'select', label: 'Wait Duration', options: ['5min', '15min', '30min', '1hr', '4hr', '24hr'], default: '1hr' },
+    ],
+  },
+  'size-scaler': {
+    category: 'risk', label: 'Size Scaler', color: '#ff1744',
+    inputs: [{ id: 'in', label: 'Check' }],
+    outputs: [{ id: 'pass', label: 'Sized' }],
+    properties: [
+      { key: 'method', type: 'select', label: 'Sizing Method', options: ['Kelly Criterion', 'Fixed Fractional', 'Volatility Scaled', 'Confidence Based'], default: 'Fixed Fractional' },
+      { key: 'riskPct', type: 'number', label: 'Risk Per Trade (%)', default: 2, min: 0.1, max: 50 },
+      { key: 'maxSize', type: 'number', label: 'Max Position ($)', default: 500, min: 10 },
+    ],
+  },
+
+  // UTILITY
+  'alert': {
+    category: 'utility', label: 'Alert', color: '#fbbf24',
+    inputs: [{ id: 'in', label: 'Trigger' }],
+    outputs: [{ id: 'out', label: 'Pass' }],
+    properties: [
+      { key: 'channel', type: 'select', label: 'Channel', options: ['Dashboard', 'Email', 'Webhook', 'Telegram', 'Discord'], default: 'Dashboard' },
+      { key: 'message', type: 'text', label: 'Message', default: 'Strategy alert triggered' },
+      { key: 'webhookUrl', type: 'text', label: 'Webhook URL', default: '' },
+    ],
+  },
+  'delay': {
+    category: 'utility', label: 'Delay', color: '#fbbf24',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'out', label: 'Output' }],
+    properties: [
+      { key: 'duration', type: 'select', label: 'Duration', options: ['10sec', '30sec', '1min', '5min', '15min', '30min', '1hr'], default: '5min' },
+      { key: 'cancelIf', type: 'select', label: 'Cancel If', options: ['Never', 'Signal Reverses', 'Price Changes >5%'], default: 'Never' },
+    ],
+  },
+  'note': {
+    category: 'utility', label: 'Note', color: '#fbbf24',
+    inputs: [],
+    outputs: [],
+    properties: [
+      { key: 'text', type: 'text', label: 'Note', default: 'Strategy notes...' },
+    ],
+  },
+  'splitter': {
+    category: 'utility', label: 'Splitter', color: '#fbbf24',
+    inputs: [{ id: 'in', label: 'Input' }],
+    outputs: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }, { id: 'c', label: 'C' }],
+    properties: [
+      { key: 'mode', type: 'select', label: 'Mode', options: ['Duplicate (send to all)', 'Round Robin', 'Random', 'Weighted'], default: 'Duplicate (send to all)' },
     ],
   },
 };
 
 const CATEGORY_LABELS = {
-  trigger: 'TRIGGER', condition: 'CONDITION', execution: 'EXEC', risk: 'RISK',
+  trigger: 'TRIGGER', condition: 'CONDITION', execution: 'EXEC', risk: 'RISK', utility: 'UTIL',
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -302,47 +730,101 @@ function cacheElements() {
 // INITIALIZATION
 // ═══════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('[Mercury] DOMContentLoaded fired');
   cacheElements();
-  initAuth().then(() => {
-    initMockData();
-    setupEventListeners();
+
+  function bootApp() {
+    console.log('[Mercury] bootApp() starting');
+
+    try { setupEventListeners(); }
+    catch (e) { console.error('[Mercury] setupEventListeners failed:', e); }
 
     // Check for #research hash to deep-link into research view
     const hashView = window.location.hash.replace('#', '');
-    if (hashView === 'research') {
-      switchView('research');
-    } else {
-      switchView('builder');
-    }
+    try {
+      if (hashView === 'research') { switchView('research'); }
+      else { switchView('builder'); }
+    } catch (e) { console.error('[Mercury] switchView failed:', e); }
+
+    // Initialize strategy manager (tabs, multi-strategy storage)
+    try { initStrategyManager(); }
+    catch (e) { console.error('[Mercury] initStrategyManager failed:', e); }
 
     // Show wizard for first-time users, otherwise load default strategy
-    if (!localStorage.getItem('mercury_wizard_done')) {
-      showWizard();
-    } else {
-      // Try restoring auto-saved strategy, fall back to default
-      if (!restoreAutoSave()) {
-        loadDefaultStrategy();
+    try {
+      if (!localStorage.getItem('mercury_wizard_done')) {
+        showWizard();
+      } else {
+        // Try restoring auto-saved strategy, fall back to default
+        if (!restoreAutoSave()) {
+          loadDefaultStrategy();
+        }
+        // Safety net: if restore succeeded but canvas is still empty, load default
+        if (nodes.length === 0) {
+          loadDefaultStrategy();
+        }
+        maybeStartArchitectTour();
       }
+    } catch (e) {
+      console.error('[Mercury] Strategy restore/load failed:', e);
+      try { loadDefaultStrategy(); } catch (e2) { console.error('[Mercury] loadDefaultStrategy failed:', e2); }
     }
 
-    updateMercuryScript();
-    updateStatusBar();
+    try { updateMercuryScript(); } catch (e) {}
+    try { updateStatusBar(); } catch (e) {}
 
-    // Palette tooltip for first visit
+    // Hide agent tip if previously dismissed
+    if (localStorage.getItem('mercury_agent_tip_dismissed')) {
+      const tip = document.getElementById('canvasAgentTip');
+      if (tip) tip.style.display = 'none';
+    }
+
     if (!localStorage.getItem('mercury_palette_seen')) {
-      showPaletteTooltip();
+      try { showPaletteTooltip(); } catch (e) {}
     }
-  });
+
+    console.log('[Mercury] bootApp() done — nodes on canvas:', nodes.length);
+
+    // Final safety net: if canvas is STILL empty after everything, place Market node
+    setTimeout(() => {
+      if (nodes.length === 0) {
+        console.log('[Mercury] Canvas empty after init — placing default Market node');
+        try { loadDefaultStrategy(); } catch (e) { console.error('[Mercury] Final safety loadDefault failed:', e); }
+      }
+    }, 500);
+  }
+
+  initAuth()
+    .then(() => initMockData())
+    .then(() => bootApp())
+    .catch(err => {
+      console.warn('[Mercury] Init error, booting anyway:', err);
+      bootApp();
+    });
 });
 
 // ═══════════════════════════════════════════════════════════════
 // VIEW SWITCHING
 // ═══════════════════════════════════════════════════════════════
 function switchView(viewName, params) {
+  // ── Tier gating ──
+  if (viewName === 'backtest' && window.MercuryTiers && !window.MercuryTiers.tierCan(userTier, 'backtest')) {
+    if (typeof showUpgradeModal === 'function') showUpgradeModal('backtest');
+    return;
+  }
+
   if (logInterval) { clearInterval(logInterval); logInterval = null; }
+  stopEngineLogPolling();
 
   // Teardown research dashboard when leaving
   if (typeof teardownResearchDashboard === 'function') teardownResearchDashboard();
+
+  // Play transition scoped to main content area (not sub-navigation like bot-detail)
+  const transitionViews = ['builder', 'my-bots', 'backtest', 'templates', 'research'];
+  if (transitionViews.includes(viewName) && viewName !== currentView && typeof playMercuryTransition === 'function') {
+    const mainContent = document.querySelector('.main-content');
+    playMercuryTransition({ container: mainContent });
+  }
 
   currentView = viewName;
 
@@ -367,6 +849,13 @@ function switchView(viewName, params) {
     logoSub.textContent = viewName === 'research' ? 'Research' : 'Architect';
   }
 
+  // Clean up when leaving bot detail view
+  if (viewName !== 'bot-detail') {
+    selectedBotId = null;
+    if (logInterval) { clearInterval(logInterval); logInterval = null; }
+    stopEngineLogPolling();
+  }
+
   switch (viewName) {
     case 'builder':
       requestAnimationFrame(() => applyCanvasTransform());
@@ -387,6 +876,13 @@ function switchView(viewName, params) {
       renderTemplates();
       break;
     case 'research':
+      // Ensure sidebar Agent/Research tabs reflect Research as active
+      if (el.tabAgent) el.tabAgent.classList.remove('active');
+      if (el.tabResearch) el.tabResearch.classList.add('active');
+      if (el.agentTabContent) {
+        el.agentTabContent.style.display = 'none';
+        el.agentTabContent.classList.remove('active');
+      }
       if (typeof initResearchDashboard === 'function') initResearchDashboard();
       break;
   }
@@ -420,7 +916,8 @@ function setupEventListeners() {
   document.getElementById('paletteSearch').addEventListener('input', e => {
     const q = e.target.value.toLowerCase();
     document.querySelectorAll('.palette-item').forEach(item => {
-      const name = item.querySelector('.palette-item-name').textContent.toLowerCase();
+      const nameEl = item.querySelector('.palette-item-name');
+      const name = nameEl ? nameEl.textContent.toLowerCase() : '';
       item.style.display = name.includes(q) ? '' : 'none';
     });
     if (q) {
@@ -460,11 +957,20 @@ function setupEventListeners() {
   window.addEventListener('mouseup', onCanvasMouseUp);
   el.canvasContainer.addEventListener('wheel', onCanvasWheel, { passive: false });
 
-  // Canvas click (deselect)
+  // Canvas click (deselect or cancel connection — suppressed after panning)
   el.canvasContainer.addEventListener('click', e => {
+    if (canvas.didPan) {
+      canvas.didPan = false;
+      return; // suppress click that follows a pan drag
+    }
     if (e.target === el.canvasContainer || e.target === el.canvasViewport ||
         e.target === el.connectionsLayer) {
-      deselectNode();
+      if (connectingFrom) {
+        cancelConnection();
+      } else {
+        deselectNode();
+        deselectConnection();
+      }
     }
   });
 
@@ -515,16 +1021,22 @@ function setupEventListeners() {
   });
 
   // Connect account modal
-  document.getElementById('connectModalClose').addEventListener('click', closeConnectModal);
-  document.getElementById('connectCancel').addEventListener('click', closeConnectModal);
-  document.getElementById('connectConfirm').addEventListener('click', confirmConnect);
-  document.getElementById('connectAccountModal').addEventListener('click', e => {
+  const connectClose = document.getElementById('connectModalClose');
+  const connectCancel = document.getElementById('connectCancel');
+  const connectConfirm = document.getElementById('connectConfirm');
+  const connectModal = document.getElementById('connectAccountModal');
+  if (connectClose) connectClose.addEventListener('click', closeConnectModal);
+  if (connectCancel) connectCancel.addEventListener('click', closeConnectModal);
+  if (connectConfirm) connectConfirm.addEventListener('click', confirmConnect);
+  if (connectModal) connectModal.addEventListener('click', e => {
     if (e.target.id === 'connectAccountModal') closeConnectModal();
   });
 
   // MercuryScript panel toggle
   document.getElementById('btnScriptToggle').addEventListener('click', toggleScriptPanel);
-  document.getElementById('mercuryScriptPanel').querySelector('.mercuryscript-header').addEventListener('click', toggleScriptPanel);
+  const scriptPanel = document.getElementById('mercuryScriptPanel');
+  const scriptHeader = scriptPanel ? scriptPanel.querySelector('.mercuryscript-header') : null;
+  if (scriptHeader) scriptHeader.addEventListener('click', toggleScriptPanel);
 
   // Deploy modal
   document.getElementById('deployModalClose').addEventListener('click', closeDeployModal);
@@ -539,6 +1051,7 @@ function setupEventListeners() {
   document.getElementById('btnPauseBot').addEventListener('click', () => toggleBotStatus('paused'));
   document.getElementById('btnRestartBot').addEventListener('click', () => toggleBotStatus('live'));
   document.getElementById('btnKillBot').addEventListener('click', killBot);
+  document.getElementById('btnDeleteBot').addEventListener('click', deleteBot);
   document.getElementById('btnEditStrategy').addEventListener('click', () => {
     switchView('builder');
     showToast('Strategy loaded into builder');
@@ -580,8 +1093,10 @@ function setupEventListeners() {
 // ═══════════════════════════════════════════════════════════════
 // CANVAS — PAN & ZOOM
 // ═══════════════════════════════════════════════════════════════
+const PAN_THRESHOLD = 4; // px — must move this far before it counts as a pan (vs a click)
+
 function onCanvasMouseDown(e) {
-  // Only pan on middle mouse or space+left
+  // Middle mouse or space+left: always pan
   if (e.button === 1 || (e.button === 0 && canvas.spaceHeld)) {
     e.preventDefault();
     canvas.isPanning = true;
@@ -590,15 +1105,83 @@ function onCanvasMouseDown(e) {
     canvas.panStartPanX = canvas.panX;
     canvas.panStartPanY = canvas.panY;
     el.canvasContainer.classList.add('panning');
+    return;
+  }
+
+  // Left-click on empty canvas background: start potential pan
+  if (e.button === 0 && (
+    e.target === el.canvasContainer ||
+    e.target === el.canvasViewport ||
+    e.target === el.connectionsLayer
+  )) {
+    canvas.maybePanning = true;
+    canvas.panStartX = e.clientX;
+    canvas.panStartY = e.clientY;
+    canvas.panStartPanX = canvas.panX;
+    canvas.panStartPanY = canvas.panY;
   }
 }
 
+/** Find the nearest port to screen coordinates (px). Returns { nodeId, portId, portType, dist, dotEl } or null. */
+function findNearestPort(screenX, screenY, excludeNodeId, wantType) {
+  let best = null;
+  let bestDist = Infinity;
+  const SNAP_RADIUS = 30; // px on screen
+
+  nodes.forEach(node => {
+    if (node.id === excludeNodeId) return;
+    if (!node.domElement) return;
+    const def = NODE_TYPES[node.type];
+    if (!def) return;
+
+    const checkPorts = (ports, portType) => {
+      if (wantType && portType !== wantType) return;
+      ports.forEach(port => {
+        const dotEl = node.domElement.querySelector(
+          `.node-port-${portType === 'output' ? 'out' : 'in'}[data-port="${port.id}"] .port-dot`
+        );
+        if (!dotEl) return;
+        const rect = dotEl.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dist = Math.hypot(screenX - cx, screenY - cy);
+        if (dist < SNAP_RADIUS && dist < bestDist) {
+          bestDist = dist;
+          best = { nodeId: node.id, portId: port.id, portType, dist, dotEl };
+        }
+      });
+    };
+
+    checkPorts(def.inputs, 'input');
+    checkPorts(def.outputs, 'output');
+  });
+
+  return best;
+}
+
+/** Clear all connection-mode highlights */
+function clearPortHighlights() {
+  document.querySelectorAll('.port-dot.drop-target').forEach(d => d.classList.remove('drop-target'));
+  document.querySelectorAll('.canvas-node.connect-target').forEach(n => n.classList.remove('connect-target'));
+}
+
 function onCanvasMouseMove(e) {
+  // Promote maybe-pan to real pan once threshold is crossed
+  if (canvas.maybePanning && !canvas.isPanning) {
+    const dx = e.clientX - canvas.panStartX;
+    const dy = e.clientY - canvas.panStartY;
+    if (Math.abs(dx) > PAN_THRESHOLD || Math.abs(dy) > PAN_THRESHOLD) {
+      canvas.isPanning = true;
+      canvas.didPan = true;
+      canvas.maybePanning = false;
+      el.canvasContainer.classList.add('panning');
+    }
+  }
+
   if (canvas.isPanning) {
     canvas.panX = canvas.panStartPanX + (e.clientX - canvas.panStartX);
     canvas.panY = canvas.panStartPanY + (e.clientY - canvas.panStartY);
     applyCanvasTransform();
-    updateMercuryScript();
     return;
   }
 
@@ -620,6 +1203,20 @@ function onCanvasMouseMove(e) {
     const pos = screenToCanvas(e.clientX, e.clientY);
     const fromNode = nodes.find(n => n.id === connectingFrom.nodeId);
     if (fromNode) {
+      // Highlight nearest valid target port & snap wire to it
+      clearPortHighlights();
+      const wantType = connectingFrom.portType === 'output' ? 'input' : 'output';
+      const nearest = findNearestPort(e.clientX, e.clientY, connectingFrom.nodeId, wantType);
+      if (nearest && nearest.dotEl) {
+        nearest.dotEl.classList.add('drop-target');
+        const targetNode = nodes.find(n => n.id === nearest.nodeId);
+        if (targetNode) {
+          const snapPos = getPortPosition(targetNode, nearest.portId, nearest.portType);
+          const fromPos = getPortPosition(fromNode, connectingFrom.portId, connectingFrom.portType);
+          tempConnectionLine.setAttribute('d', calcBezierPath(fromPos.x, fromPos.y, snapPos.x, snapPos.y));
+          return;
+        }
+      }
       const fromPos = getPortPosition(fromNode, connectingFrom.portId, connectingFrom.portType);
       tempConnectionLine.setAttribute('d', calcBezierPath(fromPos.x, fromPos.y, pos.x, pos.y));
     }
@@ -627,10 +1224,12 @@ function onCanvasMouseMove(e) {
 }
 
 function onCanvasMouseUp(e) {
+  // End panning (real or aborted maybe-pan)
   if (canvas.isPanning) {
     canvas.isPanning = false;
     el.canvasContainer.classList.remove('panning');
   }
+  canvas.maybePanning = false;
 
   if (draggingNodeId) {
     const node = nodes.find(n => n.id === draggingNodeId);
@@ -639,12 +1238,15 @@ function onCanvasMouseUp(e) {
     autoSaveStrategy();
   }
 
-  if (connectingFrom) {
-    if (tempConnectionLine) {
-      tempConnectionLine.remove();
-      tempConnectionLine = null;
+  // For drag-to-connect: try proximity snap on mouseup
+  // For click-to-connect: don't cancel here (user will click the target port)
+  if (connectingFrom && draggingNodeId === null) {
+    const wantType = connectingFrom.portType === 'output' ? 'input' : 'output';
+    const nearest = findNearestPort(e.clientX, e.clientY, connectingFrom.nodeId, wantType);
+    if (nearest) {
+      endConnection(nearest.nodeId, nearest.portId, nearest.portType);
     }
-    connectingFrom = null;
+    // Don't cancel — connection stays active for click-to-connect mode
   }
 }
 
@@ -709,14 +1311,43 @@ function snapToGrid(val) {
   return Math.round(val / 20) * 20;
 }
 
+/** Fit all nodes into view with padding */
+function fitToView() {
+  if (nodes.length === 0) return;
+  const rect = el.canvasContainer.getBoundingClientRect();
+  const PAD = 60;
+
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  nodes.forEach(n => {
+    const w = n.domElement ? n.domElement.offsetWidth : 180;
+    const h = n.domElement ? n.domElement.offsetHeight : 100;
+    minX = Math.min(minX, n.x);
+    minY = Math.min(minY, n.y);
+    maxX = Math.max(maxX, n.x + w);
+    maxY = Math.max(maxY, n.y + h);
+  });
+
+  const contentW = maxX - minX;
+  const contentH = maxY - minY;
+  const scaleX = (rect.width - PAD * 2) / contentW;
+  const scaleY = (rect.height - PAD * 2) / contentH;
+  const newZoom = Math.max(0.25, Math.min(1.5, Math.min(scaleX, scaleY)));
+
+  canvas.zoom = newZoom;
+  canvas.panX = (rect.width - contentW * newZoom) / 2 - minX * newZoom;
+  canvas.panY = (rect.height - contentH * newZoom) / 2 - minY * newZoom;
+  applyCanvasTransform();
+}
+window.fitToView = fitToView;
+
 // ═══════════════════════════════════════════════════════════════
 // NODE MANAGEMENT
 // ═══════════════════════════════════════════════════════════════
-function createNode(type, x, y, propOverrides) {
+function createNode(type, x, y, propOverrides, idOverride) {
   const def = NODE_TYPES[type];
   if (!def) return null;
 
-  const id = 'node-' + (nextNodeId++);
+  const id = idOverride || ('node-' + (nextNodeId++));
   const props = {};
   def.properties.forEach(p => {
     props[p.key] = propOverrides && propOverrides[p.key] !== undefined ? propOverrides[p.key] : p.default;
@@ -753,28 +1384,13 @@ function createNode(type, x, y, propOverrides) {
 
   // Node click select
   div.addEventListener('click', e => {
+    if (e.target.closest('.node-port')) return; // handled by port click
     e.stopPropagation();
     selectNode(id);
   });
 
-  // Port interactions
-  div.querySelectorAll('.node-port').forEach(portEl => {
-    portEl.addEventListener('mousedown', e => {
-      e.stopPropagation();
-      e.preventDefault();
-      const portId = portEl.dataset.port;
-      const portType = portEl.classList.contains('node-port-out') ? 'output' : 'input';
-      startConnection(id, portId, portType);
-    });
-
-    portEl.addEventListener('mouseup', e => {
-      if (connectingFrom) {
-        const portId = portEl.dataset.port;
-        const portType = portEl.classList.contains('node-port-out') ? 'output' : 'input';
-        endConnection(id, portId, portType);
-      }
-    });
-  });
+  // Port interactions — click-to-connect + drag-to-connect
+  bindPortEvents(div, id);
 
   nodes.push(node);
   autoSaveStrategy();
@@ -809,7 +1425,18 @@ function buildNodeHTML(node, def) {
   const previewProps = def.properties.slice(0, 3);
   previewProps.forEach(p => {
     const val = node.properties[p.key];
-    const display = val !== undefined && val !== '' ? val : '--';
+    let display;
+    if (p.type === 'contract-picker') {
+      if (val && typeof val === 'object' && val.question) {
+        display = val.question.length > 28 ? val.question.slice(0, 28) + '...' : val.question;
+      } else if (typeof val === 'string' && val) {
+        display = val.length > 28 ? val.slice(0, 28) + '...' : val;
+      } else {
+        display = '--';
+      }
+    } else {
+      display = val !== undefined && val !== null && val !== '' ? val : '--';
+    }
     html += `<div class="node-prop-row">
       <span class="node-prop-key">${p.label}</span>
       <span class="node-prop-val">${display}</span>
@@ -833,28 +1460,51 @@ function buildNodeHTML(node, def) {
   return html;
 }
 
-function refreshNodeDOM(node) {
-  const def = NODE_TYPES[node.type];
-  if (!def || !node.domElement) return;
-  node.domElement.innerHTML = buildNodeHTML(node, def);
+/** Bind port event handlers (click-to-connect + drag-to-connect) */
+function bindPortEvents(container, nodeId) {
+  container.querySelectorAll('.node-port').forEach(portEl => {
+    // Click: start or complete connection
+    portEl.addEventListener('click', e => {
+      e.stopPropagation();
+      const portId = portEl.dataset.port;
+      const portType = portEl.classList.contains('node-port-out') ? 'output' : 'input';
 
-  // Re-bind port events
-  node.domElement.querySelectorAll('.node-port').forEach(portEl => {
+      if (connectingFrom) {
+        // Complete the connection
+        endConnection(nodeId, portId, portType);
+      } else {
+        // Start a new connection
+        startConnection(nodeId, portId, portType);
+      }
+    });
+
+    // Mousedown: also start connection (for drag-to-connect)
     portEl.addEventListener('mousedown', e => {
       e.stopPropagation();
       e.preventDefault();
+      // Don't re-start if already connecting (click mode)
+      if (connectingFrom) return;
       const portId = portEl.dataset.port;
       const portType = portEl.classList.contains('node-port-out') ? 'output' : 'input';
-      startConnection(node.id, portId, portType);
+      startConnection(nodeId, portId, portType);
     });
+
+    // Mouseup on port: complete if dragging
     portEl.addEventListener('mouseup', e => {
       if (connectingFrom) {
         const portId = portEl.dataset.port;
         const portType = portEl.classList.contains('node-port-out') ? 'output' : 'input';
-        endConnection(node.id, portId, portType);
+        endConnection(nodeId, portId, portType);
       }
     });
   });
+}
+
+function refreshNodeDOM(node) {
+  const def = NODE_TYPES[node.type];
+  if (!def || !node.domElement) return;
+  node.domElement.innerHTML = buildNodeHTML(node, def);
+  bindPortEvents(node.domElement, node.id);
 }
 
 function deleteNode(nodeId) {
@@ -868,7 +1518,7 @@ function deleteNode(nodeId) {
   // Remove connections
   connections = connections.filter(c => {
     if (c.fromNodeId === nodeId || c.toNodeId === nodeId) {
-      if (c.svgPath) c.svgPath.remove();
+      if (c.svgPath) c.svgPath.remove(); if (c.hitArea) c.hitArea.remove();
       return false;
     }
     return true;
@@ -882,6 +1532,7 @@ function deleteNode(nodeId) {
 
 function selectNode(nodeId) {
   deselectNode();
+  deselectConnection();
   selectedNodeId = nodeId;
   const node = nodes.find(n => n.id === nodeId);
   if (!node) return;
@@ -922,6 +1573,17 @@ function startConnection(nodeId, portId, portType) {
   tempConnectionLine = document.createElementNS(svgNS, 'path');
   tempConnectionLine.classList.add('temp-connection');
   el.connectionsLayer.appendChild(tempConnectionLine);
+
+  // Show connection mode UI
+  showConnectModeBanner();
+  highlightValidTargets(nodeId, portType);
+}
+
+function cancelConnection() {
+  clearPortHighlights();
+  hideConnectModeBanner();
+  if (tempConnectionLine) { tempConnectionLine.remove(); tempConnectionLine = null; }
+  connectingFrom = null;
 }
 
 function endConnection(nodeId, portId, portType) {
@@ -940,16 +1602,13 @@ function endConnection(nodeId, portId, portType) {
     toNodeId = connectingFrom.nodeId;
     toPortId = connectingFrom.portId;
   } else {
-    // Same type — invalid
-    if (tempConnectionLine) { tempConnectionLine.remove(); tempConnectionLine = null; }
-    connectingFrom = null;
+    cancelConnection();
     return;
   }
 
   // No self-connection
   if (fromNodeId === toNodeId) {
-    if (tempConnectionLine) { tempConnectionLine.remove(); tempConnectionLine = null; }
-    connectingFrom = null;
+    cancelConnection();
     return;
   }
 
@@ -962,31 +1621,112 @@ function endConnection(nodeId, portId, portType) {
   if (!exists) {
     pushUndo();
     addConnection(fromNodeId, fromPortId, toNodeId, toPortId);
+    showToast('Connected!');
   }
 
+  clearPortHighlights();
+  hideConnectModeBanner();
   if (tempConnectionLine) { tempConnectionLine.remove(); tempConnectionLine = null; }
   connectingFrom = null;
+}
+
+/** Show a banner telling the user they're in connection mode */
+function showConnectModeBanner() {
+  hideConnectModeBanner();
+  const banner = document.createElement('div');
+  banner.id = 'connectModeBanner';
+  banner.className = 'connect-mode-banner';
+  banner.innerHTML = 'Click a port on another node to connect &nbsp;<kbd>Esc</kbd> to cancel <button class="connect-mode-close" onclick="cancelConnection()">&times;</button>';
+  document.body.appendChild(banner);
+}
+
+function hideConnectModeBanner() {
+  const banner = document.getElementById('connectModeBanner');
+  if (banner) banner.remove();
+}
+
+/** Highlight all valid target nodes (those with ports of the opposite type) */
+function highlightValidTargets(sourceNodeId, sourcePortType) {
+  const wantType = sourcePortType === 'output' ? 'input' : 'output';
+  nodes.forEach(node => {
+    if (node.id === sourceNodeId || !node.domElement) return;
+    const def = NODE_TYPES[node.type];
+    if (!def) return;
+    const hasPorts = wantType === 'input' ? def.inputs.length > 0 : def.outputs.length > 0;
+    if (hasPorts) {
+      node.domElement.classList.add('connect-target');
+    }
+  });
 }
 
 function addConnection(fromNodeId, fromPortId, toNodeId, toPortId) {
   const id = 'conn-' + (nextConnId++);
   const fromNode = nodes.find(n => n.id === fromNodeId);
-  const category = fromNode ? NODE_TYPES[fromNode.type].category : '';
+  const nodeDef = fromNode ? NODE_TYPES[fromNode.type] : null;
+  const category = nodeDef ? nodeDef.category : '';
 
   const svgNS = 'http://www.w3.org/2000/svg';
+
+  // Invisible fat hit-area path (easy to click)
+  const hitArea = document.createElementNS(svgNS, 'path');
+  hitArea.classList.add('connection-hit-area');
+  el.connectionsLayer.appendChild(hitArea);
+
+  // Visible thin path
   const path = document.createElementNS(svgNS, 'path');
   path.classList.add('connection-path');
   if (category) path.classList.add(category);
   path.id = id;
   el.connectionsLayer.appendChild(path);
 
-  const conn = { id, fromNodeId, fromPortId, toNodeId, toPortId, svgPath: path };
+  // Click on either the visible path or the wide hit area
+  const onClick = e => {
+    e.stopPropagation();
+    selectConnection(id);
+  };
+  path.addEventListener('click', onClick);
+  hitArea.addEventListener('click', onClick);
+
+  const conn = { id, fromNodeId, fromPortId, toNodeId, toPortId, svgPath: path, hitArea };
   connections.push(conn);
 
   updateConnectionPath(conn);
   updatePortDots();
   autoSaveStrategy();
   return conn;
+}
+
+function selectConnection(connId) {
+  deselectConnection();
+  deselectNode();
+  selectedConnectionId = connId;
+  const conn = connections.find(c => c.id === connId);
+  if (conn && conn.svgPath) {
+    conn.svgPath.classList.add('selected-conn');
+  }
+  showToast('Connection selected — press Delete to remove');
+}
+
+function deselectConnection() {
+  if (selectedConnectionId) {
+    const conn = connections.find(c => c.id === selectedConnectionId);
+    if (conn && conn.svgPath) conn.svgPath.classList.remove('selected-conn');
+  }
+  selectedConnectionId = null;
+}
+
+function deleteConnection(connId) {
+  const idx = connections.findIndex(c => c.id === connId);
+  if (idx === -1) return;
+  const conn = connections[idx];
+  if (conn.svgPath) conn.svgPath.remove();
+  if (conn.hitArea) conn.hitArea.remove();
+  connections.splice(idx, 1);
+  if (selectedConnectionId === connId) selectedConnectionId = null;
+  updatePortDots();
+  updateMercuryScript();
+  autoSaveStrategy();
+  showToast('Connection removed');
 }
 
 function updateConnectionPath(conn) {
@@ -997,7 +1737,9 @@ function updateConnectionPath(conn) {
   const from = getPortPosition(fromNode, conn.fromPortId, 'output');
   const to = getPortPosition(toNode, conn.toPortId, 'input');
 
-  conn.svgPath.setAttribute('d', calcBezierPath(from.x, from.y, to.x, to.y));
+  const d = calcBezierPath(from.x, from.y, to.x, to.y);
+  conn.svgPath.setAttribute('d', d);
+  if (conn.hitArea) conn.hitArea.setAttribute('d', d);
 }
 
 function updateAllConnections() {
@@ -1095,6 +1837,10 @@ function updateMercuryScript() {
       const paramStr = def.properties.map(p => {
         const val = node.properties[p.key];
         if (p.type === 'number') return `<span class="ms-number">${val}</span>`;
+        if (p.type === 'contract-picker') {
+          const q = val && typeof val === 'object' ? val.question : val;
+          return `<span class="ms-string">"${q || 'any'}"</span>`;
+        }
         return `<span class="ms-string">"${val}"</span>`;
       }).join(', ');
       out += paramStr + '):\n';
@@ -1103,6 +1849,10 @@ function updateMercuryScript() {
       const paramStr = def.properties.map(p => {
         const val = node.properties[p.key];
         if (p.type === 'number') return `<span class="ms-number">${val}</span>`;
+        if (p.type === 'contract-picker') {
+          const q = val && typeof val === 'object' ? val.question : val;
+          return `<span class="ms-string">"${q || 'any'}"</span>`;
+        }
         return `<span class="ms-string">"${val}"</span>`;
       }).join(', ');
       out += paramStr + '):\n';
@@ -1111,6 +1861,10 @@ function updateMercuryScript() {
       const paramStr = def.properties.map(p => {
         const val = node.properties[p.key];
         if (p.type === 'number') return `<span class="ms-number">${val}</span>`;
+        if (p.type === 'contract-picker') {
+          const q = val && typeof val === 'object' ? val.question : val;
+          return `<span class="ms-string">"${q || 'any'}"</span>`;
+        }
         return `<span class="ms-string">"${val}"</span>`;
       }).join(', ');
       out += paramStr + ')\n';
@@ -1119,6 +1873,10 @@ function updateMercuryScript() {
       const paramStr = def.properties.map(p => {
         const val = node.properties[p.key];
         if (p.type === 'number') return `<span class="ms-number">${val}</span>`;
+        if (p.type === 'contract-picker') {
+          const q = val && typeof val === 'object' ? val.question : val;
+          return `<span class="ms-string">"${q || 'any'}"</span>`;
+        }
         return `<span class="ms-string">"${val}"</span>`;
       }).join(', ');
       out += paramStr + ')\n';
@@ -1370,13 +2128,9 @@ function loadStrategyFromJSON(strategy) {
   _suppressAutoSave = true;
   clearCanvas();
 
-  // Rebuild nodes from layout
+  // Rebuild nodes from layout (pass saved ID so event closures are correct)
   strategy.layout.nodes.forEach(ns => {
-    const node = createNode(ns.type, ns.x, ns.y, ns.properties);
-    if (node) {
-      node.id = ns.id;
-      if (node.domElement) node.domElement.id = ns.id;
-    }
+    createNode(ns.type, ns.x, ns.y, ns.properties, ns.id);
   });
 
   // Rebuild connections
@@ -1414,6 +2168,7 @@ function loadStrategyFromJSON(strategy) {
  * Auto-save current strategy to localStorage.
  */
 let _suppressAutoSave = false;
+const AUTOSAVE_VERSION = 4; // Bump to invalidate old autosaves
 
 function autoSaveStrategy() {
   if (_suppressAutoSave) return;
@@ -1423,6 +2178,7 @@ function autoSaveStrategy() {
   }
 
   const state = {
+    v: AUTOSAVE_VERSION,
     name: el.strategyName ? el.strategyName.value : 'untitled_strategy',
     nodes: nodes.map(n => ({ id: n.id, type: n.type, x: n.x, y: n.y, properties: { ...n.properties } })),
     connections: connections.map(c => ({
@@ -1449,25 +2205,33 @@ function restoreAutoSave() {
     const state = JSON.parse(saved);
     if (!state.nodes || state.nodes.length === 0) return false;
 
+    // Discard autosaves from older versions
+    if ((state.v || 0) < AUTOSAVE_VERSION) {
+      localStorage.removeItem('mercury_autosave');
+      return false;
+    }
+
+    // Verify all saved node types are still valid
+    const allValid = state.nodes.every(ns => NODE_TYPES[ns.type]);
+    if (!allValid) {
+      localStorage.removeItem('mercury_autosave');
+      return false;
+    }
+
     _suppressAutoSave = true;
 
     // Clear current canvas
     nodes.forEach(n => { if (n.domElement) n.domElement.remove(); });
-    connections.forEach(c => { if (c.svgPath) c.svgPath.remove(); });
+    connections.forEach(c => { if (c.svgPath) c.svgPath.remove(); if (c.hitArea) c.hitArea.remove(); });
     nodes = [];
     connections = [];
 
     nextNodeId = state.nextNodeId || 1;
     nextConnId = state.nextConnId || 1;
 
-    // Recreate nodes
+    // Recreate nodes (pass saved ID so event handler closures capture the correct ID)
     state.nodes.forEach(ns => {
-      createNode(ns.type, ns.x, ns.y, ns.properties);
-      const node = nodes[nodes.length - 1];
-      if (node) {
-        node.id = ns.id;
-        if (node.domElement) node.domElement.id = ns.id;
-      }
+      createNode(ns.type, ns.x, ns.y, ns.properties, ns.id);
     });
 
     // Recreate connections
@@ -1493,6 +2257,341 @@ function restoreAutoSave() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// MULTI-STRATEGY MANAGER
+// ═══════════════════════════════════════════════════════════════
+
+const STRATEGIES_KEY = 'mercury_strategies';
+let activeStrategyId = null;
+let openStrategyIds = []; // tabs currently open
+
+function getStrategiesList() {
+  try {
+    return JSON.parse(localStorage.getItem(STRATEGIES_KEY) || '[]');
+  } catch (e) { return []; }
+}
+
+function saveStrategiesList(list) {
+  localStorage.setItem(STRATEGIES_KEY, JSON.stringify(list));
+}
+
+/** Snapshot current canvas into a strategy object */
+function snapshotStrategy() {
+  return {
+    name: el.strategyName ? el.strategyName.value : 'untitled_strategy',
+    nodes: nodes.map(n => ({ id: n.id, type: n.type, x: n.x, y: n.y, properties: { ...n.properties } })),
+    connections: connections.map(c => ({
+      fromNodeId: c.fromNodeId, fromPortId: c.fromPortId,
+      toNodeId: c.toNodeId, toPortId: c.toPortId,
+    })),
+    nextNodeId,
+    nextConnId,
+  };
+}
+
+/** Save the active strategy to the strategies list */
+function persistActiveStrategy() {
+  if (!activeStrategyId) return;
+  const list = getStrategiesList();
+  const idx = list.findIndex(s => s.id === activeStrategyId);
+  if (idx === -1) return;
+
+  const snap = snapshotStrategy();
+  list[idx].name = snap.name;
+  list[idx].data = snap;
+  list[idx].updatedAt = Date.now();
+  saveStrategiesList(list);
+}
+
+/** Load a strategy by ID onto the canvas */
+function loadStrategyById(id) {
+  // Save current work first
+  if (activeStrategyId) persistActiveStrategy();
+
+  const list = getStrategiesList();
+  const entry = list.find(s => s.id === id);
+  if (!entry || !entry.data) return;
+
+  _suppressAutoSave = true;
+  clearCanvas();
+
+  const state = entry.data;
+  nextNodeId = state.nextNodeId || 1;
+  nextConnId = state.nextConnId || 1;
+
+  state.nodes.forEach(ns => {
+    createNode(ns.type, ns.x, ns.y, ns.properties, ns.id);
+  });
+
+  state.connections.forEach(cs => {
+    addConnection(cs.fromNodeId, cs.fromPortId, cs.toNodeId, cs.toPortId);
+  });
+
+  _suppressAutoSave = false;
+
+  if (state.name && el.strategyName) {
+    el.strategyName.value = state.name;
+  }
+
+  activeStrategyId = id;
+
+  // Add to open tabs if not already there
+  if (!openStrategyIds.includes(id)) {
+    openStrategyIds.push(id);
+  }
+
+  deselectNode();
+  updateMercuryScript();
+  autoSaveStrategy();
+  renderStrategyTabs();
+
+  // Center canvas
+  if (nodes.length > 0) {
+    const avgX = nodes.reduce((s, n) => s + n.x, 0) / nodes.length;
+    const avgY = nodes.reduce((s, n) => s + n.y, 0) / nodes.length;
+    canvas.panX = -(avgX - 400);
+    canvas.panY = -(avgY - 250);
+    applyCanvasTransform();
+  }
+}
+
+/** Create a brand new strategy and switch to it */
+function createNewStrategy() {
+  // Save current work
+  if (activeStrategyId) persistActiveStrategy();
+
+  const id = 'strat_' + Date.now();
+  const entry = {
+    id,
+    name: 'untitled_strategy',
+    data: { name: 'untitled_strategy', nodes: [], connections: [], nextNodeId: 1, nextConnId: 1 },
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+
+  const list = getStrategiesList();
+  list.unshift(entry);
+  saveStrategiesList(list);
+
+  // Clear canvas for new strategy
+  _suppressAutoSave = true;
+  clearCanvas();
+  nextNodeId = 1;
+  nextConnId = 1;
+  _suppressAutoSave = false;
+
+  if (el.strategyName) el.strategyName.value = 'untitled_strategy';
+  activeStrategyId = id;
+  openStrategyIds.push(id);
+
+  updateMercuryScript();
+  renderStrategyTabs();
+}
+
+/** Close a tab (doesn't delete the strategy, just removes from open tabs) */
+function closeStrategyTab(id) {
+  // Save before closing
+  if (id === activeStrategyId) persistActiveStrategy();
+
+  openStrategyIds = openStrategyIds.filter(sid => sid !== id);
+
+  if (id === activeStrategyId) {
+    // Switch to another open tab, or create new
+    if (openStrategyIds.length > 0) {
+      loadStrategyById(openStrategyIds[openStrategyIds.length - 1]);
+    } else {
+      createNewStrategy();
+    }
+  } else {
+    renderStrategyTabs();
+  }
+}
+
+/** Delete a strategy permanently */
+function deleteStrategy(id) {
+  let list = getStrategiesList();
+  list = list.filter(s => s.id !== id);
+  saveStrategiesList(list);
+  openStrategyIds = openStrategyIds.filter(sid => sid !== id);
+
+  if (id === activeStrategyId) {
+    if (openStrategyIds.length > 0) {
+      loadStrategyById(openStrategyIds[openStrategyIds.length - 1]);
+    } else if (list.length > 0) {
+      loadStrategyById(list[0].id);
+    } else {
+      createNewStrategy();
+    }
+  }
+  renderStrategyTabs();
+  renderStrategyBrowser();
+}
+
+/** Render the strategy tabs in the bar */
+function renderStrategyTabs() {
+  const tabsEl = document.getElementById('strategyTabs');
+  if (!tabsEl) return;
+
+  const list = getStrategiesList();
+  tabsEl.innerHTML = '';
+
+  openStrategyIds.forEach(id => {
+    const entry = list.find(s => s.id === id);
+    if (!entry) return;
+
+    const tab = document.createElement('button');
+    tab.className = 'strategy-tab' + (id === activeStrategyId ? ' active' : '');
+    tab.innerHTML =
+      '<span class="strategy-tab-dot"></span>' +
+      '<span class="strategy-tab-name">' + (entry.name || 'untitled') + '</span>' +
+      '<span class="strategy-tab-close" title="Close">&times;</span>';
+
+    tab.addEventListener('click', (e) => {
+      if (e.target.classList.contains('strategy-tab-close')) {
+        e.stopPropagation();
+        closeStrategyTab(id);
+        return;
+      }
+      if (id !== activeStrategyId) {
+        loadStrategyById(id);
+      }
+    });
+
+    tabsEl.appendChild(tab);
+  });
+}
+
+/** Render the strategy browser dropdown */
+function renderStrategyBrowser() {
+  let browser = document.querySelector('.strategy-browser');
+  if (!browser) {
+    browser = document.createElement('div');
+    browser.className = 'strategy-browser';
+    const bar = document.getElementById('strategyBar');
+    if (bar) {
+      bar.style.position = 'relative';
+      bar.appendChild(browser);
+    }
+  }
+
+  const list = getStrategiesList();
+
+  let html = '<div class="strategy-browser-header"><span>My Strategies</span><span>' + list.length + ' saved</span></div>';
+
+  if (list.length === 0) {
+    html += '<div class="strategy-browser-empty">No saved strategies yet</div>';
+  } else {
+    html += '<div class="strategy-browser-list">';
+    list.forEach(entry => {
+      const dateStr = entry.updatedAt ? new Date(entry.updatedAt).toLocaleDateString() : '';
+      html +=
+        '<div class="strategy-browser-item' + (entry.id === activeStrategyId ? ' active' : '') + '" data-id="' + entry.id + '">' +
+          '<span class="strategy-browser-item-name">' + (entry.name || 'untitled') + '</span>' +
+          '<span class="strategy-browser-item-date">' + dateStr + '</span>' +
+          '<span class="strategy-browser-item-delete" data-delete="' + entry.id + '" title="Delete">&times;</span>' +
+        '</div>';
+    });
+    html += '</div>';
+  }
+
+  browser.innerHTML = html;
+
+  // Bind events
+  browser.querySelectorAll('.strategy-browser-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      if (e.target.dataset.delete) {
+        e.stopPropagation();
+        deleteStrategy(e.target.dataset.delete);
+        return;
+      }
+      const id = item.dataset.id;
+      loadStrategyById(id);
+      browser.classList.remove('open');
+    });
+  });
+}
+
+function toggleStrategyBrowser() {
+  let browser = document.querySelector('.strategy-browser');
+  if (!browser) {
+    renderStrategyBrowser();
+    browser = document.querySelector('.strategy-browser');
+  }
+  const opening = !browser.classList.contains('open');
+  browser.classList.toggle('open');
+  if (opening) renderStrategyBrowser();
+}
+
+/** Initialize strategy manager — migrate from single autosave if needed */
+function initStrategyManager() {
+  const list = getStrategiesList();
+
+  // Migrate existing autosave to strategy list
+  if (list.length === 0) {
+    const saved = localStorage.getItem('mercury_autosave');
+    if (saved) {
+      try {
+        const state = JSON.parse(saved);
+        if (state.nodes && state.nodes.length > 0) {
+          const id = 'strat_' + Date.now();
+          list.push({
+            id,
+            name: state.name || 'untitled_strategy',
+            data: state,
+            createdAt: state.savedAt || Date.now(),
+            updatedAt: state.savedAt || Date.now(),
+          });
+          saveStrategiesList(list);
+          activeStrategyId = id;
+          openStrategyIds = [id];
+          renderStrategyTabs();
+          return;
+        }
+      } catch (e) {}
+    }
+    // No existing work — create a blank strategy
+    createNewStrategy();
+    return;
+  }
+
+  // Open the most recently updated strategy
+  const sorted = [...list].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  activeStrategyId = sorted[0].id;
+  openStrategyIds = [activeStrategyId];
+  renderStrategyTabs();
+
+  // Wire up buttons
+  const btnNew = document.getElementById('btnNewStrategy');
+  const btnBrowse = document.getElementById('btnBrowseStrategies');
+  if (btnNew) btnNew.addEventListener('click', createNewStrategy);
+  if (btnBrowse) btnBrowse.addEventListener('click', toggleStrategyBrowser);
+
+  // Close browser on outside click
+  document.addEventListener('click', (e) => {
+    const browser = document.querySelector('.strategy-browser');
+    if (browser && browser.classList.contains('open')) {
+      if (!e.target.closest('.strategy-browser') && !e.target.closest('#btnBrowseStrategies')) {
+        browser.classList.remove('open');
+      }
+    }
+  });
+}
+
+// Hook into autoSaveStrategy to also persist to strategy list
+const _origAutoSave = autoSaveStrategy;
+autoSaveStrategy = function() {
+  _origAutoSave();
+  persistActiveStrategy();
+  // Update tab name if it changed
+  const tabsEl = document.getElementById('strategyTabs');
+  if (tabsEl && activeStrategyId) {
+    const activeTab = tabsEl.querySelector('.strategy-tab.active .strategy-tab-name');
+    if (activeTab && el.strategyName) {
+      activeTab.textContent = el.strategyName.value || 'untitled';
+    }
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
 // INSPECTOR
 // ═══════════════════════════════════════════════════════════════
 function renderInspector(nodeId) {
@@ -1506,12 +2605,55 @@ function renderInspector(nodeId) {
   let html = '<div class="inspector-section">';
   html += `<div class="inspector-section-title">Configuration</div>`;
 
+  // Helper hint for api-data nodes
+  if (node.type === 'api-data') {
+    const isCustom = node.properties.preset === 'Custom URL' || !node.properties.preset;
+    if (isCustom) {
+      html += `<div class="api-hint">Enter any REST API URL below. The bot will poll it and fire when the extracted value matches your condition.</div>`;
+    } else {
+      html += `<div class="api-hint">Using preset: <strong>${node.properties.preset}</strong> — URL and path are auto-filled. Change to "Custom URL" to use your own API.</div>`;
+    }
+  }
+  if (node.type === 'news-alert') {
+    const isCustom = node.properties.preset === 'Custom URL';
+    if (isCustom) {
+      html += `<div class="api-hint">Enter any alert/event API URL. The bot will poll it and fire when alerts match your severity and keyword filters.</div>`;
+    } else {
+      html += `<div class="api-hint">Using <strong>${esc(node.properties.preset)}</strong> — real-time data from a free public API. No API key required.</div>`;
+    }
+  }
+  if (node.type === 'social-buzz') {
+    html += `<div class="api-hint">Monitors social media mention volume for your keyword. Fires when mentions spike above your threshold. Uses simulated data in paper mode.</div>`;
+  }
+
+  const isApiPresetActive = node.type === 'api-data' && node.properties.preset && node.properties.preset !== 'Custom URL';
+  const isNewsPresetActive = node.type === 'news-alert' && node.properties.preset && node.properties.preset !== 'Custom URL';
+
   def.properties.forEach(p => {
     const val = node.properties[p.key];
+    // Hide URL/method/headers/json_path when a preset is active (they're auto-managed)
+    const isAutoField = isApiPresetActive && ['url', 'method', 'headers', 'json_path'].includes(p.key);
+    const isNewsAutoField = isNewsPresetActive && ['url', 'json_path'].includes(p.key);
+    if (isAutoField || isNewsAutoField) return;  // Skip these fields when preset is selected
+
     html += `<div class="inspector-field">`;
     html += `<label class="field-label">${p.label}</label>`;
 
-    if (p.type === 'select') {
+    if (p.type === 'contract-picker') {
+      const contract = val;
+      if (contract && contract.question) {
+        const truncQ = contract.question.length > 40 ? contract.question.slice(0, 40) + '...' : contract.question;
+        const price = parseOutcomePrice(contract.outcome_prices, 0);
+        const priceStr = price !== null ? ` @ ${price}c` : '';
+        html += `<button class="contract-picker-btn contract-picker-btn--selected" onclick="openContractPicker('${nodeId}','${p.key}')">
+          <span class="contract-picker-question">${truncQ}</span>
+          <span class="contract-picker-price">${priceStr}</span>
+        </button>`;
+        html += `<button class="contract-picker-clear" onclick="clearContract('${nodeId}','${p.key}')">Clear</button>`;
+      } else {
+        html += `<button class="contract-picker-btn" onclick="openContractPicker('${nodeId}','${p.key}')">Select contract...</button>`;
+      }
+    } else if (p.type === 'select') {
       html += `<select class="field-select" data-prop="${p.key}" onchange="onInspectorChange('${nodeId}','${p.key}',this.value)">`;
       p.options.forEach(opt => {
         html += `<option ${val === opt ? 'selected' : ''}>${opt}</option>`;
@@ -1523,12 +2665,21 @@ function renderInspector(nodeId) {
         ${p.max !== undefined ? 'max="' + p.max + '"' : ''}
         onchange="onInspectorChange('${nodeId}','${p.key}',this.value)">`;
     } else {
-      html += `<input class="field-input" type="text" data-prop="${p.key}" value="${val || ''}"
+      const placeholder = p.placeholder ? ` placeholder="${p.placeholder}"` : '';
+      html += `<input class="field-input" type="text" data-prop="${p.key}" value="${val || ''}"${placeholder}
         onchange="onInspectorChange('${nodeId}','${p.key}',this.value)">`;
     }
 
     html += '</div>';
   });
+
+  // Test API button for api-data nodes
+  if (node.type === 'api-data') {
+    html += `<div class="inspector-field" style="margin-top:8px">
+      <button class="api-test-btn" onclick="testApiDataNode('${nodeId}')">Test API</button>
+      <div id="apiTestResult" class="api-test-result" style="display:none"></div>
+    </div>`;
+  }
 
   html += '</div>';
 
@@ -1564,6 +2715,363 @@ window.onInspectorChange = function(nodeId, key, value) {
   const propDef = def.properties.find(p => p.key === key);
   if (propDef && propDef.type === 'number') value = parseFloat(value);
   node.properties[key] = value;
+
+  // Auto-fill URL + json_path when a preset is selected on api-data nodes
+  if (node.type === 'api-data' && key === 'preset') {
+    if (value === 'Custom URL') {
+      node.properties.url = '';
+      node.properties.json_path = '';
+      renderInspector(nodeId);
+    } else {
+      const preset = API_DATA_PRESETS[value];
+      if (preset) {
+        node.properties.url = preset.url;
+        node.properties.json_path = preset.json_path;
+        renderInspector(nodeId);
+      }
+    }
+  }
+
+  // Auto-fill URL + json_path when a preset is selected on news-alert nodes
+  if (node.type === 'news-alert' && key === 'preset') {
+    const NEWS_ALERT_PRESETS = {
+      'NWS Weather Alerts': { url: 'https://api.weather.gov/alerts/active', json_path: 'features' },
+      'USGS Earthquakes (M4+)': { url: 'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=4&limit=10&orderby=time', json_path: 'features' },
+    };
+    if (value === 'Custom URL') {
+      node.properties.url = '';
+      node.properties.json_path = '';
+      renderInspector(nodeId);
+    } else {
+      const preset = NEWS_ALERT_PRESETS[value];
+      if (preset) {
+        node.properties.url = preset.url;
+        node.properties.json_path = preset.json_path;
+        renderInspector(nodeId);
+      }
+    }
+  }
+
+  refreshNodeDOM(node);
+  autoSaveStrategy();
+};
+
+// Test API handler for api-data nodes
+window.testApiDataNode = async function(nodeId) {
+  const node = nodes.find(n => n.id === nodeId);
+  if (!node) return;
+  const resultEl = document.getElementById('apiTestResult');
+  if (!resultEl) return;
+
+  const url = node.properties.url || '';
+  const method = node.properties.method || 'GET';
+  const headers = node.properties.headers || '{}';
+  const jsonPath = node.properties.json_path || '';
+
+  if (!url) {
+    resultEl.style.display = 'block';
+    resultEl.className = 'api-test-result api-test-error';
+    resultEl.textContent = 'Enter a URL first';
+    return;
+  }
+
+  resultEl.style.display = 'block';
+  resultEl.className = 'api-test-result';
+  resultEl.textContent = 'Testing...';
+
+  try {
+    const data = await engineBridge.testApiUrl(url, method, headers, jsonPath);
+    if (data.ok) {
+      resultEl.className = 'api-test-result api-test-success';
+      const val = data.extracted;
+      const display = typeof val === 'object' ? JSON.stringify(val, null, 2) : String(val);
+      resultEl.textContent = jsonPath ? `${jsonPath} = ${display}` : display;
+    } else {
+      resultEl.className = 'api-test-result api-test-error';
+      resultEl.textContent = data.error || 'Request failed';
+    }
+  } catch (e) {
+    resultEl.className = 'api-test-result api-test-error';
+    resultEl.textContent = e.message || 'Connection failed';
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// CONTRACT PICKER
+// ═══════════════════════════════════════════════════════════════
+
+let _contractPickerOpen = false;
+let _contractPickerNodeId = null;
+let _contractPickerKey = null;
+let _contractPickerMarkets = [];   // currently displayed
+let _contractPickerAllMarkets = []; // full cached list for local filtering
+
+function parseOutcomePrice(outcomePrices, index) {
+  if (!outcomePrices) return null;
+  try {
+    const prices = typeof outcomePrices === 'string' ? JSON.parse(outcomePrices) : outcomePrices;
+    if (Array.isArray(prices) && prices[index] !== undefined) {
+      return Math.round(parseFloat(prices[index]) * 100);
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+window.parseOutcomePrice = parseOutcomePrice;
+
+function formatVolume(vol) {
+  if (vol >= 1_000_000) return '$' + (vol / 1_000_000).toFixed(1) + 'M';
+  if (vol >= 1_000) return '$' + (vol / 1_000).toFixed(0) + 'K';
+  return '$' + Math.round(vol);
+}
+
+window.openContractPicker = async function(nodeId, propKey) {
+  _contractPickerNodeId = nodeId;
+  _contractPickerKey = propKey;
+  dismissMarketPrompt();
+
+  // Remove existing picker if any
+  closeContractPicker();
+
+  const panel = document.createElement('div');
+  panel.id = 'contractPickerPanel';
+  panel.className = 'contract-picker-panel';
+  panel.innerHTML = `
+    <div class="contract-picker-header">
+      <input type="text" class="contract-picker-search" placeholder="Search markets..." autofocus>
+      <button class="contract-picker-close" onclick="closeContractPicker()">&times;</button>
+    </div>
+    <div class="contract-picker-filters">
+      <button class="cp-filter active" data-filter="all">All</button>
+      <button class="cp-filter" data-filter="polymarket">Poly</button>
+      <button class="cp-filter" data-filter="kalshi">Kalshi</button>
+    </div>
+    <div class="contract-picker-list">
+      <div class="contract-picker-loading">Loading markets...</div>
+    </div>
+  `;
+  document.body.appendChild(panel);
+  _contractPickerOpen = true;
+
+  // Position near inspector
+  const inspector = el.nodeInspector;
+  if (inspector) {
+    const rect = inspector.getBoundingClientRect();
+    panel.style.top = rect.top + 'px';
+    panel.style.left = (rect.left - 340) + 'px';
+  }
+
+  let _cpFilter = 'all';
+
+  // Fetch markets — try MercuryLiveMarkets first (both platforms), fall back to engine
+  try {
+    let allMarkets = [];
+    if (typeof MercuryLiveMarkets !== 'undefined') {
+      const combined = await MercuryLiveMarkets.fetchAllMarkets();
+      // Flatten: top-level markets + sub-markets from events
+      for (const m of combined) {
+        allMarkets.push({
+          id: m._polyId || m._kalshiTicker || m.short,
+          question: m.name,
+          price: m.price,
+          volume_24h: m._volNum || 0,
+          source: m.source,
+          _clobTokenId: m._clobTokenId || null,
+          _kalshiTicker: m._kalshiTicker || null,
+          _conditionId: m._conditionId || null,
+          isEvent: m.isEvent,
+        });
+        // Also add sub-markets as selectable entries
+        if (m.isEvent && m.subMarkets && m.subMarkets.length > 1) {
+          for (const sm of m.subMarkets) {
+            allMarkets.push({
+              id: sm._conditionId || sm.ticker || sm.name,
+              question: sm.name,
+              price: sm.price || sm.kalshiPrice || 0,
+              volume_24h: sm._volNum || 0,
+              source: sm.source || m.source,
+              _clobTokenId: sm._clobTokenId || null,
+              _kalshiTicker: sm.ticker || null,
+              _conditionId: sm._conditionId || null,
+              _parentEvent: m.name,
+              isEvent: false,
+            });
+          }
+        }
+      }
+    }
+
+    // Fall back to engine API if MercuryLiveMarkets returned nothing
+    if (allMarkets.length === 0) {
+      const data = await engineBridge.getPolymarketActive(200);
+      const raw = (data && data.markets) || [];
+      allMarkets = raw.map(m => ({
+        id: m.id,
+        question: m.question,
+        price: parseOutcomePrice(m.outcome_prices, 0),
+        volume_24h: m.volume_24h || 0,
+        source: 'polymarket',
+        _clobTokenId: _parseClobTokenIdFromRaw(m.clob_token_ids),
+        _kalshiTicker: null,
+        _conditionId: null,
+        isEvent: false,
+      }));
+    }
+
+    _contractPickerAllMarkets = allMarkets;
+    _contractPickerMarkets = allMarkets.slice(0, 60);
+    renderContractList(_contractPickerMarkets);
+  } catch (e) {
+    const listEl = panel.querySelector('.contract-picker-list');
+    if (listEl) listEl.innerHTML = '<div class="contract-picker-loading">Could not load markets</div>';
+  }
+
+  // Filter buttons
+  panel.querySelectorAll('.cp-filter').forEach(btn => {
+    btn.addEventListener('click', () => {
+      panel.querySelectorAll('.cp-filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      _cpFilter = btn.dataset.filter;
+      applyPickerFilter();
+    });
+  });
+
+  function applyPickerFilter() {
+    const query = (panel.querySelector('.contract-picker-search')?.value || '').trim().toLowerCase();
+    let filtered = _contractPickerAllMarkets;
+    if (_cpFilter !== 'all') {
+      filtered = filtered.filter(m => m.source === _cpFilter);
+    }
+    if (query.length > 0) {
+      const terms = query.split(/\s+/);
+      filtered = filtered.filter(m => {
+        const text = (m.question || '').toLowerCase();
+        return terms.every(t => text.includes(t));
+      });
+    }
+    _contractPickerMarkets = filtered.slice(0, 60);
+    renderContractList(_contractPickerMarkets);
+  }
+
+  // Search handler
+  const searchInput = panel.querySelector('.contract-picker-search');
+  searchInput.addEventListener('input', applyPickerFilter);
+
+  // Click outside to close
+  setTimeout(() => {
+    document.addEventListener('mousedown', _contractPickerOutsideClick);
+  }, 100);
+};
+
+function _contractPickerOutsideClick(e) {
+  const panel = document.getElementById('contractPickerPanel');
+  if (panel && !panel.contains(e.target) && !e.target.classList.contains('contract-picker-btn')) {
+    closeContractPicker();
+  }
+}
+
+window.closeContractPicker = function() {
+  const existing = document.getElementById('contractPickerPanel');
+  if (existing) existing.remove();
+  _contractPickerOpen = false;
+  document.removeEventListener('mousedown', _contractPickerOutsideClick);
+};
+
+function _parseClobTokenIdFromRaw(clobIds) {
+  if (!clobIds) return '';
+  try {
+    if (typeof clobIds === 'string' && clobIds.startsWith('[')) {
+      return JSON.parse(clobIds)[0] || '';
+    }
+    return String(clobIds).split(',')[0].trim();
+  } catch { return ''; }
+}
+
+function renderContractList(markets) {
+  const panel = document.getElementById('contractPickerPanel');
+  if (!panel) return;
+  const listEl = panel.querySelector('.contract-picker-list');
+  if (!listEl) return;
+
+  if (!markets || markets.length === 0) {
+    listEl.innerHTML = '<div class="contract-picker-loading">No markets found</div>';
+    return;
+  }
+
+  let html = '';
+  markets.forEach(m => {
+    const price = m.price != null ? m.price : null;
+    const priceStr = price !== null ? `${price}c YES` : '';
+    const vol = formatVolume(m.volume_24h || 0);
+    const q = m.question || '';
+    const truncQ = q.length > 55 ? q.slice(0, 55) + '...' : q;
+    const src = m.source || 'polymarket';
+    const srcBadge = src === 'kalshi'
+      ? '<span class="cp-badge cp-badge--kalshi">K</span>'
+      : '<span class="cp-badge cp-badge--poly">P</span>';
+    const parentHint = m._parentEvent
+      ? `<span class="cp-parent">${m._parentEvent.length > 30 ? m._parentEvent.slice(0, 30) + '...' : m._parentEvent}</span>`
+      : '';
+
+    const tokenId = m._clobTokenId || '';
+    const kalshiTicker = m._kalshiTicker || '';
+
+    const data = JSON.stringify({
+      market_id: m.id || '',
+      token_id: tokenId,
+      question: q,
+      price: price,
+      source: src,
+      kalshi_ticker: kalshiTicker,
+    }).replace(/'/g, '&#39;');
+
+    html += `<div class="contract-picker-item" onclick="selectContract('${escapeAttr(m.id || '')}','${escapeAttr(tokenId)}',this)" data-market='${data}'>
+      <div class="contract-picker-question">${srcBadge} ${esc(truncQ)}</div>
+      ${parentHint}
+      <div class="contract-picker-meta">
+        <span class="contract-picker-price-tag">${priceStr}</span>
+        <span class="contract-picker-vol">${vol} 24h</span>
+      </div>
+    </div>`;
+  });
+
+  listEl.innerHTML = html;
+}
+
+function escapeAttr(str) {
+  return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+window.selectContract = function(marketId, tokenId, el) {
+  const dataStr = el.getAttribute('data-market');
+  if (!dataStr) return;
+
+  let market;
+  try { market = JSON.parse(dataStr); } catch { return; }
+
+  const node = nodes.find(n => n.id === _contractPickerNodeId);
+  if (!node) return;
+
+  node.properties[_contractPickerKey] = {
+    market_id: market.market_id,
+    token_id: market.token_id,
+    question: market.question,
+    price: market.price,
+    source: market.source || 'polymarket',
+    kalshi_ticker: market.kalshi_ticker || '',
+    outcome_prices: market.outcome_prices,
+  };
+
+  closeContractPicker();
+  renderInspector(_contractPickerNodeId);
+  refreshNodeDOM(node);
+  autoSaveStrategy();
+};
+
+window.clearContract = function(nodeId, propKey) {
+  const node = nodes.find(n => n.id === nodeId);
+  if (!node) return;
+  node.properties[propKey] = null;
+  renderInspector(nodeId);
   refreshNodeDOM(node);
   autoSaveStrategy();
 };
@@ -1585,20 +3093,16 @@ function getState() {
 function restoreState(state) {
   // Clear current
   nodes.forEach(n => { if (n.domElement) n.domElement.remove(); });
-  connections.forEach(c => { if (c.svgPath) c.svgPath.remove(); });
+  connections.forEach(c => { if (c.svgPath) c.svgPath.remove(); if (c.hitArea) c.hitArea.remove(); });
   nodes = [];
   connections = [];
 
   nextNodeId = state.nextNodeId;
   nextConnId = state.nextConnId;
 
-  // Recreate nodes
+  // Recreate nodes (pass saved ID so event closures are correct)
   state.nodes.forEach(ns => {
-    createNode(ns.type, ns.x, ns.y, ns.properties);
-    // Overwrite ID
-    const node = nodes[nodes.length - 1];
-    if (node.domElement) node.domElement.id = ns.id;
-    node.id = ns.id;
+    createNode(ns.type, ns.x, ns.y, ns.properties, ns.id);
   });
 
   // Recreate connections
@@ -1670,14 +3174,24 @@ function onKeyDown(e) {
     exportStrategy();
   }
 
-  if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId) {
-    e.preventDefault();
-    pushUndo();
-    deleteNode(selectedNodeId);
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    if (selectedConnectionId) {
+      e.preventDefault();
+      pushUndo();
+      deleteConnection(selectedConnectionId);
+    } else if (selectedNodeId) {
+      e.preventDefault();
+      pushUndo();
+      deleteNode(selectedNodeId);
+    }
   }
 
   if (e.key === 'Escape') {
-    deselectNode();
+    if (connectingFrom) {
+      cancelConnection();
+    } else {
+      deselectNode();
+    }
   }
 }
 
@@ -1766,7 +3280,27 @@ function openDeployModal() {
 
   const name = el.strategyName.value || 'untitled_strategy';
   document.getElementById('deployBotName').value = name;
+  applyTierToDeployModal();
   document.getElementById('deployModal').classList.add('open');
+}
+
+function applyTierToDeployModal() {
+  const modeSelect = document.getElementById('deployMode');
+  if (!modeSelect || !window.MercuryTiers) return;
+
+  const canLive = window.MercuryTiers.tierCan(userTier, 'live');
+
+  Array.from(modeSelect.options).forEach(opt => {
+    if (opt.value === 'live') {
+      opt.disabled = !canLive;
+      opt.textContent = canLive ? 'Live' : 'Live (Pro)';
+    }
+  });
+
+  // If current selection is disabled, reset to paper
+  if (modeSelect.value === 'live' && !canLive) {
+    modeSelect.value = 'paper';
+  }
 }
 
 function closeDeployModal() {
@@ -1778,6 +3312,24 @@ function confirmDeploy() {
   const platform = document.getElementById('deployPlatform').value;
   const capital = document.getElementById('deployCapital').value;
   const mode = document.getElementById('deployMode').value;
+
+  // ── Tier gating: live mode ──
+  if (mode === 'live' && window.MercuryTiers && !window.MercuryTiers.tierCan(userTier, 'live')) {
+    closeDeployModal();
+    if (typeof showUpgradeModal === 'function') showUpgradeModal('live');
+    return;
+  }
+
+  // ── Tier gating: bot count ──
+  if (window.MercuryTiers) {
+    const maxBots = window.MercuryTiers.tierMaxBots(userTier);
+    const currentBotCount = bots.length;
+    if (currentBotCount >= maxBots) {
+      closeDeployModal();
+      if (typeof showUpgradeModal === 'function') showUpgradeModal('bot-limit');
+      return;
+    }
+  }
 
   // Compile strategy
   const { strategy, errors } = compileStrategy();
@@ -1792,25 +3344,36 @@ function confirmDeploy() {
   strategy.config = {
     platform,
     capital: parseFloat(capital) || 10000,
-    mode: mode || 'Paper Trading',
+    mode: mode || 'paper',
   };
 
-  // Log compiled strategy to console for development
   console.log('[Mercury Compiler] Strategy compiled successfully:');
   console.log(JSON.stringify(strategy, null, 2));
 
   closeDeployModal();
 
-  // Launch compiler animation
-  runCompilerAnimation(botName, platform, mode, () => {
-    const newBot = createMockBot(botName, 'Custom', 'live', platform, parseFloat(capital));
-    // Attach compiled strategy to bot for future use
-    newBot.compiledStrategy = strategy;
-    bots.unshift(newBot);
-    updateStatusBar();
-    autoSaveStrategy();
-    showToast('Bot "' + botName + '" is now live on ' + platform);
-    switchView('my-bots');
+  // Launch compiler animation, then deploy to engine
+  runCompilerAnimation(botName, platform, mode, async () => {
+    try {
+      const result = await engineBridge.deployBot(
+        strategy, botName, platform, parseFloat(capital) || 10000, mode || 'paper'
+      );
+      console.log('[Mercury Engine] Deploy response:', result);
+      autoSaveStrategy();
+      showToast('Bot "' + botName + '" deployed — ' + (mode === 'paper' ? 'paper trading' : 'LIVE'));
+      switchView('my-bots');
+    } catch (e) {
+      console.error('[Mercury Engine] Deploy failed:', e);
+      // Fallback: create local bot so UI isn't empty
+      const newBot = createMockBot(botName, 'Custom', 'live', platform, parseFloat(capital));
+      newBot.compiledStrategy = strategy;
+      newBot._local = true;
+      bots.unshift(newBot);
+      updateStatusBar();
+      autoSaveStrategy();
+      showToast('Engine offline — bot created locally (no live trading)', 'warn');
+      switchView('my-bots');
+    }
   });
 }
 
@@ -1865,19 +3428,292 @@ function runCompilerAnimation(botName, platform, mode, onComplete) {
 let connectedAccounts = { polymarket: false, kalshi: false };
 let connectingPlatform = null;
 
-window.openConnectModal = function(platform) {
+window.openConnectModal = async function(platform) {
   connectingPlatform = platform;
   document.getElementById('connectModalTitle').textContent = 'Connect ' + platform.charAt(0).toUpperCase() + platform.slice(1);
   document.getElementById('connectPlatformBadge').textContent = platform.toUpperCase();
   document.getElementById('connectApiKey').value = '';
   document.getElementById('connectApiSecret').value = '';
+  const passphraseField = document.getElementById('connectPassphraseField');
+  const passphraseInput = document.getElementById('connectPassphrase');
+  if (passphraseInput) passphraseInput.value = '';
+
+  // Show wallet section + passphrase only for Polymarket
+  const walletSection = document.getElementById('connectWalletSection');
+  if (walletSection) {
+    walletSection.style.display = platform === 'polymarket' ? 'block' : 'none';
+  }
+  if (passphraseField) {
+    passphraseField.style.display = platform === 'polymarket' ? 'block' : 'none';
+  }
+  // Update API section label
+  const apiLabel = document.getElementById('connectApiLabel');
+  if (apiLabel) {
+    apiLabel.textContent = platform === 'polymarket' ? 'Or Connect via API Key' : 'API Key Connection';
+  }
+
+  // Check if user already has a managed wallet
+  if (platform === 'polymarket' && window.walletService) {
+    try {
+      const wallet = await window.walletService.getWallet();
+      updateWalletUI(wallet);
+    } catch (e) {
+      updateWalletUI(null);
+    }
+  }
+
   document.getElementById('connectAccountModal').classList.add('open');
+};
+
+function updateWalletUI(wallet) {
+  const createState = document.getElementById('walletStateCreate');
+  const activeState = document.getElementById('walletStateActive');
+  if (!createState || !activeState) return;
+
+  if (wallet && wallet.address) {
+    createState.style.display = 'none';
+    activeState.style.display = 'block';
+    document.getElementById('walletAddress').textContent = wallet.address;
+    refreshWalletBalance();
+  } else {
+    createState.style.display = 'block';
+    activeState.style.display = 'none';
+  }
+}
+
+async function refreshWalletBalance() {
+  if (!window.walletService || !window.walletService.hasWallet) return;
+  try {
+    const balance = await window.walletService.getBalance();
+    document.getElementById('walletBalanceUsdc').textContent =
+      '$' + (balance.usdc || 0).toFixed(2);
+    document.getElementById('walletBalancePositions').textContent =
+      '$' + (balance.positions_value || 0).toFixed(2);
+    document.getElementById('walletBalancePending').textContent =
+      '$' + (balance.pending_deposits || 0).toFixed(2);
+  } catch (e) {
+    document.getElementById('walletBalanceUsdc').textContent = '$0.00';
+    document.getElementById('walletBalancePositions').textContent = '$0.00';
+    document.getElementById('walletBalancePending').textContent = '$0.00';
+  }
+}
+
+window.createManagedWallet = async function() {
+  const btn = document.getElementById('createWalletBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = 'Creating wallet...';
+  }
+  try {
+    const wallet = await window.walletService.getOrCreateWallet();
+    updateWalletUI(wallet);
+
+    // Mark Polymarket as connected in sidebar
+    connectedAccounts.polymarket = true;
+    const row = document.getElementById('accountPolymarket');
+    if (row) {
+      const dot = row.querySelector('.account-dot');
+      if (dot) { dot.classList.remove('disconnected'); dot.classList.add('connected'); }
+      const abtn = row.querySelector('.account-btn');
+      if (abtn) { abtn.textContent = 'Wallet Active'; abtn.classList.add('connected'); }
+    }
+    updateStatusBar();
+    showToast('Trading wallet created — deposit USDC to start');
+  } catch (e) {
+    showToast('Failed to create wallet: ' + e.message, 'error');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = 'Create Trading Wallet';
+    }
+  }
+};
+
+window.copyWalletAddress = function() {
+  const addr = window.walletService?.walletAddress;
+  if (!addr) return;
+  navigator.clipboard.writeText(addr).then(() => {
+    showToast('Address copied to clipboard');
+  }).catch(() => {
+    const temp = document.createElement('textarea');
+    temp.value = addr;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand('copy');
+    document.body.removeChild(temp);
+    showToast('Address copied to clipboard');
+  });
+};
+
+window.openDepositInfo = function() {
+  const addr = window.walletService?.walletAddress || '—';
+  document.getElementById('depositAddress').textContent = addr;
+  document.getElementById('depositInfoModal').classList.add('open');
+};
+
+window.closeDepositInfo = function() {
+  document.getElementById('depositInfoModal').classList.remove('open');
+};
+
+window.openWithdrawModal = async function() {
+  document.getElementById('withdrawAddress').value = '';
+  document.getElementById('withdrawAmount').value = '';
+
+  const available = window.walletService?.balance?.usdc || 0;
+  document.getElementById('withdrawAvailable').textContent = '$' + available.toFixed(2);
+
+  // Check cooldown
+  const cooldownMsg = document.getElementById('withdrawCooldownMsg');
+  try {
+    const check = await window.walletService.checkWithdrawalEligibility();
+    if (!check.allowed) {
+      cooldownMsg.style.display = 'flex';
+      document.getElementById('withdrawCooldownText').textContent = check.reason ||
+        'Withdrawal cooldown active. ' + Math.ceil((check.cooldown_remaining_seconds || 0) / 3600) + 'h remaining.';
+      document.getElementById('withdrawConfirmBtn').disabled = true;
+    } else {
+      cooldownMsg.style.display = 'none';
+      document.getElementById('withdrawConfirmBtn').disabled = false;
+    }
+  } catch {
+    cooldownMsg.style.display = 'none';
+    document.getElementById('withdrawConfirmBtn').disabled = false;
+  }
+
+  document.getElementById('withdrawModal').classList.add('open');
+};
+
+window.closeWithdrawModal = function() {
+  document.getElementById('withdrawModal').classList.remove('open');
+};
+
+window.setMaxWithdraw = function() {
+  const available = window.walletService?.balance?.usdc || 0;
+  document.getElementById('withdrawAmount').value = available.toFixed(2);
+};
+
+window.confirmWithdraw = async function() {
+  const address = document.getElementById('withdrawAddress').value.trim();
+  const amount = parseFloat(document.getElementById('withdrawAmount').value);
+  const btn = document.getElementById('withdrawConfirmBtn');
+
+  if (!address.match(/^0x[a-fA-F0-9]{40}$/)) {
+    showToast('Invalid Polygon address', 'error');
+    return;
+  }
+  if (!amount || amount < 1) {
+    showToast('Minimum withdrawal is $1.00 USDC', 'error');
+    return;
+  }
+
+  const available = window.walletService?.balance?.usdc || 0;
+  if (amount > available) {
+    showToast('Insufficient balance', 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+  try {
+    const result = await window.walletService.requestWithdrawal(address, amount);
+    showToast('Withdrawal submitted — TX: ' + (result.tx_hash || 'pending').slice(0, 12) + '...');
+    closeWithdrawModal();
+    refreshWalletBalance();
+  } catch (e) {
+    showToast('Withdrawal failed: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Withdraw';
+  }
+};
+
+window.viewWalletHistory = function() {
+  const addr = window.walletService?.walletAddress;
+  if (addr) {
+    window.open('https://polygonscan.com/address/' + addr, '_blank');
+  } else {
+    showToast('No wallet address available', 'info');
+  }
 };
 
 function closeConnectModal() {
   document.getElementById('connectAccountModal').classList.remove('open');
   connectingPlatform = null;
 }
+
+/* ── Profile / Account Settings Modal ── */
+window.openProfileModal = function() {
+  const modal = document.getElementById('profileModal');
+  if (!modal) return;
+  // Populate fields
+  const emailEl = document.getElementById('profileEmail');
+  const planEl = document.getElementById('profilePlan');
+  const upgradeBtn = document.getElementById('profileUpgradeBtn');
+  if (currentUser && currentUser.email) {
+    emailEl.textContent = currentUser.email;
+  }
+  const tier = (typeof window.getUserTier === 'function') ? window.getUserTier(currentUser) : 'free';
+  const tierLabel = (window.MercuryTiers && window.MercuryTiers.tierLabel) ? window.MercuryTiers.tierLabel(tier) : tier;
+  planEl.textContent = tierLabel;
+  if (tier !== 'free') {
+    upgradeBtn.style.display = 'none';
+  } else {
+    upgradeBtn.style.display = '';
+  }
+  document.getElementById('profileNewPw').value = '';
+  document.getElementById('profileConfirmPw').value = '';
+  const msg = document.getElementById('profilePwMsg');
+  msg.style.display = 'none';
+  modal.classList.add('open');
+};
+
+window.closeProfileModal = function() {
+  document.getElementById('profileModal').classList.remove('open');
+};
+
+window.profileUpgrade = function() {
+  closeProfileModal();
+  if (typeof window.showUpgradeModal === 'function') {
+    window.showUpgradeModal('general');
+  }
+};
+
+window.changePassword = async function() {
+  const newPw = document.getElementById('profileNewPw').value;
+  const confirmPw = document.getElementById('profileConfirmPw').value;
+  const msg = document.getElementById('profilePwMsg');
+  msg.style.display = 'block';
+
+  if (!newPw || newPw.length < 6) {
+    msg.style.color = 'var(--red)';
+    msg.textContent = 'Password must be at least 6 characters.';
+    return;
+  }
+  if (newPw !== confirmPw) {
+    msg.style.color = 'var(--red)';
+    msg.textContent = 'Passwords do not match.';
+    return;
+  }
+  try {
+    if (window.supabaseClient) {
+      const { error } = await window.supabaseClient.auth.updateUser({ password: newPw });
+      if (error) throw error;
+      msg.style.color = 'var(--green)';
+      msg.textContent = 'Password updated.';
+      document.getElementById('profileNewPw').value = '';
+      document.getElementById('profileConfirmPw').value = '';
+    }
+  } catch (e) {
+    msg.style.color = 'var(--red)';
+    msg.textContent = e.message || 'Failed to update password.';
+  }
+};
+
+// Close modals on overlay click
+document.addEventListener('click', function(e) {
+  if (e.target.id === 'profileModal') closeProfileModal();
+  if (e.target.id === 'depositInfoModal') closeDepositInfo();
+  if (e.target.id === 'withdrawModal') closeWithdrawModal();
+});
 
 function confirmConnect() {
   if (!connectingPlatform) return;
@@ -1887,6 +3723,8 @@ function confirmConnect() {
     return;
   }
 
+  // Beta: API key storage is not yet implemented on the backend.
+  // Keys are held in-memory for this session only and never transmitted.
   connectedAccounts[connectingPlatform] = true;
 
   // Update sidebar dot
@@ -1904,7 +3742,7 @@ function confirmConnect() {
 
   closeConnectModal();
   updateStatusBar();
-  showToast(connectingPlatform.charAt(0).toUpperCase() + connectingPlatform.slice(1) + ' connected successfully');
+  showToast(connectingPlatform.charAt(0).toUpperCase() + connectingPlatform.slice(1) + ' connected (session only — live trading coming soon)');
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1918,7 +3756,9 @@ window.useQuickPrompt = function(text) {
 // ═══════════════════════════════════════════════════════════════
 // AGENT PANEL (replaces old AI Terminal)
 // ═══════════════════════════════════════════════════════════════
-function handleAgentInput() {
+let agentHistory = [];
+
+async function handleAgentInput() {
   const text = (el.agentInput ? el.agentInput.value : '').trim();
   if (!text) return;
 
@@ -1929,10 +3769,85 @@ function handleAgentInput() {
   const quickPrompts = document.getElementById('agentQuickPrompts');
   if (quickPrompts) quickPrompts.style.display = 'none';
 
-  // Simulate AI response with typing delay
-  setTimeout(() => {
-    simulateAgentResponse(text);
-  }, 600);
+  // Add to history
+  agentHistory.push({ role: 'user', content: text });
+
+  // Show typing indicator
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'agent-msg assistant agent-typing';
+  typingDiv.innerHTML = '<div class="agent-msg-label">MERCURY AI</div><span class="typing-dots">Thinking<span>.</span><span>.</span><span>.</span></span>';
+  if (el.agentMessages) {
+    el.agentMessages.appendChild(typingDiv);
+    el.agentMessages.scrollTop = el.agentMessages.scrollHeight;
+  }
+
+  try {
+    const response = await engineBridge.agentChat(text, agentHistory.slice(-10), userTier);
+    // Remove typing indicator
+    if (typingDiv.parentNode) typingDiv.remove();
+
+    // Show text response
+    if (response.message) {
+      addAgentMessage(response.message, 'assistant');
+      agentHistory.push({ role: 'assistant', content: response.message });
+    }
+
+    // Update usage indicator
+    if (response.usage) updateAgentUsageIndicator(response.usage);
+
+    // Build strategy on canvas if returned
+    if (response.strategy) {
+      const s = response.strategy;
+      pushUndo();
+      clearCanvas();
+
+      // Create nodes and track their IDs
+      const nodeIds = [];
+      for (const node of s.nodes) {
+        const created = createNode(node.type, node.x || 100, node.y || 150, node.properties || {});
+        nodeIds.push(created.id);
+      }
+
+      // Create connections
+      for (const conn of (s.connections || [])) {
+        const fromId = nodeIds[conn.fromIndex];
+        const toId = nodeIds[conn.toIndex];
+        if (fromId && toId) {
+          addConnection(fromId, conn.fromPort || 'out', toId, conn.toPort || 'in');
+        }
+      }
+
+      updateMercuryScript();
+
+      // Show strategy card
+      addStrategyCard({
+        name: s.name || 'AI Strategy',
+        nodes: s.nodes.length,
+        market: s.market || 'Prediction Markets',
+        edge: s.edge || '',
+        script: '',
+      });
+    }
+  } catch (err) {
+    // Remove typing indicator
+    if (typingDiv.parentNode) typingDiv.remove();
+
+    if (err.rateLimited) {
+      if (err.rateLimitType === 'rate_limit_tokens') {
+        addAgentMessage(
+          'Daily token limit reached. ' + (err.upgrade ? 'Upgrade to Pro for 10x more usage.' : 'Resets at midnight UTC.'),
+          'assistant'
+        );
+      } else {
+        addAgentMessage('Slow down — too many messages. Wait a moment and try again.', 'assistant');
+      }
+      if (err.usage) updateAgentUsageIndicator(err.usage);
+    } else {
+      console.warn('Agent API unavailable, falling back to simulation:', err.message);
+      simulateAgentResponse(text);
+      agentHistory.push({ role: 'assistant', content: '(simulated response)' });
+    }
+  }
 }
 
 function addAgentMessage(content, type) {
@@ -1954,6 +3869,33 @@ function addAgentMessage(content, type) {
 
   el.agentMessages.appendChild(div);
   el.agentMessages.scrollTop = el.agentMessages.scrollHeight;
+}
+
+function updateAgentUsageIndicator(usage) {
+  let indicator = document.getElementById('agentUsageIndicator');
+  if (!indicator) {
+    const inputArea = document.querySelector('.agent-input-area');
+    if (!inputArea) return;
+    indicator = document.createElement('div');
+    indicator.id = 'agentUsageIndicator';
+    indicator.className = 'agent-usage-indicator';
+    inputArea.insertBefore(indicator, inputArea.firstChild);
+  }
+
+  const pct = Math.min(100, Math.round((usage.tokens_used / usage.tokens_limit) * 100));
+  const remaining = usage.tokens_remaining.toLocaleString();
+
+  let barColor = 'var(--green)';
+  if (pct > 75) barColor = '#f59e0b';
+  if (pct > 90) barColor = 'var(--red, #ef4444)';
+
+  indicator.innerHTML = `
+    <div class="usage-bar-track">
+      <div class="usage-bar-fill" style="width:${pct}%; background:${barColor}"></div>
+    </div>
+    <span class="usage-bar-label">${remaining} tokens remaining</span>
+  `;
+  indicator.style.display = '';
 }
 
 function addStrategyCard(data) {
@@ -2100,6 +4042,94 @@ function simulateAgentResponse(userText) {
         script: 'when schedule("Daily 9AM", "ET") {\n  if portfolio_exposure < 25% {\n    execute dca(50, "Daily", 20)\n  }\n}',
       });
     }, 1200);
+  } else if (lower.includes('fear') || lower.includes('greed') || lower.includes('api') || lower.includes('custom data') || lower.includes('external') || lower.includes('gold') || lower.includes('gas price')) {
+    addAgentMessage('Building a strategy using external data feeds. This uses the Custom API trigger to pull real-time data and fire when your conditions are met.', 'assistant');
+    setTimeout(() => {
+      pushUndo();
+      clearCanvas();
+      const n1 = createNode('api-data', 100, 150, { preset: 'Fear & Greed Index', url: 'https://api.alternative.me/fng/', json_path: 'data.0.value', operator: '<', threshold: 25, poll_interval: 300, method: 'GET', headers: '{}' });
+      const n2 = createNode('portfolio-exposure', 380, 150, { maxExposure: 30, scope: 'Total Portfolio' });
+      const n3 = createNode('market-order', 660, 100, { side: 'Buy YES', amount: 25, platform: 'Auto' });
+      const n4 = createNode('stop-loss', 660, 300, { type: 'Percentage', value: 10 });
+      addConnection(n1.id, 'out', n2.id, 'in');
+      addConnection(n2.id, 'pass', n3.id, 'in');
+      addConnection(n3.id, 'out', n4.id, 'in');
+      updateMercuryScript();
+      addStrategyCard({
+        name: 'Fear & Greed Contrarian',
+        nodes: 4,
+        market: 'Polymarket',
+        edge: '+11.4%',
+        script: 'when api_data("Fear & Greed Index") < 25 {\n  if portfolio_exposure < 30% {\n    execute market_buy(25)\n    guard stop_loss(10%)\n  }\n}',
+      });
+    }, 1200);
+  } else if (lower.includes('social') || lower.includes('buzz') || lower.includes('twitter') || lower.includes('mention') || lower.includes('trending') || lower.includes('viral')) {
+    addAgentMessage('Building a social media spike detection strategy. This monitors mention volume and triggers when buzz around your keyword exceeds the spike threshold. Combined with a sentiment filter to confirm the direction.', 'assistant');
+    setTimeout(() => {
+      pushUndo();
+      clearCanvas();
+      const n1 = createNode('social-buzz', 100, 150, { preset: 'Crypto Twitter', keyword: 'bitcoin', spike_pct: 300, min_mentions: 100, poll_interval: 60 });
+      const n2 = createNode('sentiment', 380, 80, { source: 'Twitter/X', keyword: 'bitcoin', sentiment: 'Bullish', minScore: 65 });
+      const n3 = createNode('probability-band', 380, 260, { min: 20, max: 70 });
+      const n4 = createNode('market-order', 660, 100, { side: 'Buy YES', amount: 100, platform: 'Auto' });
+      const n5 = createNode('stop-loss', 660, 300, { type: 'Percentage', value: 15 });
+      addConnection(n1.id, 'out', n2.id, 'in');
+      addConnection(n2.id, 'out', n3.id, 'in');
+      addConnection(n3.id, 'pass', n4.id, 'in');
+      addConnection(n4.id, 'out', n5.id, 'in');
+      updateMercuryScript();
+      addStrategyCard({
+        name: 'Social Buzz Detector',
+        nodes: 5,
+        market: 'Auto',
+        edge: '+14.6%',
+        script: 'when social_buzz("bitcoin", spike > 300%) {\n  if sentiment("twitter", bullish > 65%) {\n    if prob_band(20, 70) {\n      execute market_buy(100)\n      guard stop_loss(15%)\n    }\n  }\n}',
+      });
+    }, 1200);
+  } else if (lower.includes('hurricane') || lower.includes('weather') || lower.includes('earthquake') || lower.includes('disaster') || lower.includes('nws') || lower.includes('usgs') || lower.includes('seismic') || lower.includes('tornado') || lower.includes('tsunami')) {
+    addAgentMessage('Building an external event trigger strategy. This monitors real government alert feeds (NWS for weather, USGS for earthquakes) and fires when events match your severity threshold. Combined with social buzz to confirm market impact before entry.', 'assistant');
+    setTimeout(() => {
+      pushUndo();
+      clearCanvas();
+      const n1 = createNode('news-alert', 100, 100, { preset: 'NWS Weather Alerts', min_severity: 'Warning', keyword: 'hurricane', region: '', poll_interval: 120 });
+      const n2 = createNode('social-buzz', 100, 320, { preset: 'Disaster/Weather', keyword: 'hurricane', spike_pct: 200, min_mentions: 50, poll_interval: 60 });
+      const n3 = createNode('probability-band', 400, 200, { min: 15, max: 60 });
+      const n4 = createNode('market-order', 680, 130, { side: 'Buy YES', amount: 200, platform: 'Auto' });
+      const n5 = createNode('stop-loss', 680, 330, { type: 'Percentage', value: 20 });
+      addConnection(n1.id, 'out', n3.id, 'in');
+      addConnection(n2.id, 'out', n3.id, 'in');
+      addConnection(n3.id, 'pass', n4.id, 'in');
+      addConnection(n4.id, 'out', n5.id, 'in');
+      updateMercuryScript();
+      addStrategyCard({
+        name: 'Disaster Event Trader',
+        nodes: 5,
+        market: 'Kalshi',
+        edge: '+18.3%',
+        script: 'when nws_alert("hurricane", severity >= Warning)\n  AND social_buzz("hurricane", spike > 200%) {\n  if prob_band(15, 60) {\n    execute market_buy(200)\n    guard stop_loss(20%)\n  }\n}',
+      });
+    }, 1200);
+  } else if (lower.includes('rsi') || lower.includes('macd') || lower.includes('bollinger') || lower.includes('moving average') || lower.includes('technical') || lower.includes('indicator') || lower.includes('rate of change') || lower.includes('pattern detect') || lower.includes('overbought') || lower.includes('oversold')) {
+    addAgentMessage('Building a technical analysis strategy using probability curve indicators. RSI and MACD analyze the probability momentum, with momentum confirmation and a trailing stop to lock in profits.', 'assistant');
+    setTimeout(() => {
+      pushUndo();
+      clearCanvas();
+      const n1 = createNode('rsi', 100, 100, { period: 14, overbought: 70, oversold: 30, signal: 'Oversold' });
+      const n2 = createNode('momentum', 380, 100, { direction: 'Bullish', period: '4hr', minChange: 3 });
+      const n3 = createNode('market-order', 660, 100, { side: 'Buy YES', amount: 150, platform: 'Auto' });
+      const n4 = createNode('trailing-stop', 660, 300, { type: 'Percentage', value: 8, activation: 5 });
+      addConnection(n1.id, 'out', n2.id, 'in');
+      addConnection(n2.id, 'pass', n3.id, 'in');
+      addConnection(n3.id, 'out', n4.id, 'in');
+      updateMercuryScript();
+      addStrategyCard({
+        name: 'Technical Probability Trader',
+        nodes: 4,
+        market: 'Multi-Platform',
+        edge: '+15.7%',
+        script: 'when rsi(14, oversold <= 30) {\n  if momentum(bullish, 4hr, +3c) {\n    execute market_buy(150)\n    guard trailing_stop(8%, activate: +5%)\n  }\n}',
+      });
+    }, 1200);
   } else if (lower.includes('edge') || lower.includes('find') || lower.includes('scan')) {
     addAgentMessage('Running a full market scan across Polymarket and Kalshi... Analyzing 847 active contracts for statistical edge. Found 5 contracts with probability mispricing > 5c based on historical resolution patterns.', 'assistant');
     setTimeout(() => {
@@ -2174,11 +4204,19 @@ function switchAgentTab(tabName) {
 // ═══════════════════════════════════════════════════════════════
 // AGENT STATUS BAR
 // ═══════════════════════════════════════════════════════════════
-function updateStatusBar() {
-  const liveBots = bots.filter(b => b.status === 'live').length;
+async function updateStatusBar() {
   const statusBots = document.getElementById('statusBots');
   const statusPoly = document.getElementById('statusPoly');
   const statusKalshi = document.getElementById('statusKalshi');
+
+  // Try fetching live stats from engine
+  let liveBots = bots.filter(b => b.status === 'live').length;
+  try {
+    const stats = await engineBridge.getStats();
+    if (stats) {
+      liveBots = stats.bots_live || 0;
+    }
+  } catch { /* engine offline — use local count */ }
 
   if (statusBots) {
     const dot = statusBots.querySelector('.status-dot');
@@ -2198,54 +4236,148 @@ function updateStatusBar() {
   }
 }
 
+function updateEngineStatus(connected) {
+  const statusEngine = document.getElementById('statusEngine');
+  if (statusEngine) {
+    const dot = statusEngine.querySelector('.status-dot');
+    const label = statusEngine.querySelector('span:last-child');
+    if (dot) dot.className = 'status-dot ' + (connected ? 'connected' : 'disconnected');
+    if (label) label.textContent = connected ? 'Engine Live' : 'Engine Offline';
+  }
+}
+
 function clearCanvas() {
   nodes.forEach(n => { if (n.domElement) n.domElement.remove(); });
-  connections.forEach(c => { if (c.svgPath) c.svgPath.remove(); });
+  connections.forEach(c => { if (c.svgPath) c.svgPath.remove(); if (c.hitArea) c.hitArea.remove(); });
   nodes = [];
   connections = [];
+  selectedNodeId = null;
+  draggingNodeId = null;
+  connectingFrom = null;
+  if (typeof tempConnectionLine !== 'undefined' && tempConnectionLine) {
+    tempConnectionLine.remove();
+    tempConnectionLine = null;
+  }
+  deselectNode();
 }
 
 // ═══════════════════════════════════════════════════════════════
 // DEFAULT STRATEGY (loaded on first open)
 // ═══════════════════════════════════════════════════════════════
 function loadDefaultStrategy() {
-  const n1 = createNode('probability-cross', 120, 180, {
-    direction: 'Crosses Above', level: 65, contract: 'Fed Rate Cut Mar 2026'
-  });
-  const n2 = createNode('liquidity-check', 420, 180, { minLiquidity: 25000, depth: '1% Depth' });
-  const n3 = createNode('market-order', 720, 130, { side: 'Buy YES', amount: 200, platform: 'Polymarket' });
-  const n4 = createNode('stop-loss', 720, 340, { type: 'Percentage', value: 15 });
+  const market = createNode('market', 120, 180);
+  const exec = createNode('market-order', 520, 180, { side: 'Buy YES', amount: 25, platform: 'Polymarket' });
+  const risk = createNode('stop-loss', 520, 360, { type: 'Percentage', value: 15 });
 
-  if (n1 && n2) addConnection(n1.id, 'out', n2.id, 'in');
-  if (n2 && n3) addConnection(n2.id, 'pass', n3.id, 'in');
-  if (n3 && n4) addConnection(n3.id, 'out', n4.id, 'in');
+  if (market && exec) addConnection(market.id, 'out', exec.id, 'in');
+  if (exec && risk) addConnection(exec.id, 'out', risk.id, 'in');
 
-  el.strategyName.value = 'rate_cut_momentum';
+  el.strategyName.value = 'my_strategy';
 
-  // Center canvas on nodes
+  // Select the Market node and show the configure prompt
   setTimeout(() => {
     canvas.panX = 80;
     canvas.panY = 20;
     applyCanvasTransform();
     updateMercuryScript();
-  }, 100);
+    if (market) {
+      selectNode(market.id);
+      showMarketPrompt(market);
+    }
+  }, 150);
 }
+
+function showMarketPrompt(marketNode) {
+  // Remove existing prompt if any
+  const existing = document.getElementById('marketPrompt');
+  if (existing) existing.remove();
+
+  const prompt = document.createElement('div');
+  prompt.id = 'marketPrompt';
+  prompt.className = 'market-prompt';
+
+  // Position above the Market node on the canvas
+  const nodeEl = marketNode.domElement;
+  if (nodeEl) {
+    const rect = nodeEl.getBoundingClientRect();
+    prompt.style.position = 'fixed';
+    prompt.style.left = rect.left + 'px';
+    prompt.style.top = (rect.top - 60) + 'px';
+  }
+
+  prompt.innerHTML = `
+    <span class="market-prompt-text">Click this node and pick a contract to get started</span>
+    <button class="market-prompt-dismiss" onclick="dismissMarketPrompt()">&times;</button>
+  `;
+  document.body.appendChild(prompt);
+
+  // Also show a brief canvas hint
+  showCanvasHints();
+
+  // Auto-dismiss after 8 seconds
+  setTimeout(() => dismissMarketPrompt(), 8000);
+}
+
+/** Show brief hints on the canvas for new users */
+function showCanvasHints() {
+  if (localStorage.getItem('mercury_hints_seen')) return;
+
+  const hint = document.createElement('div');
+  hint.id = 'canvasHints';
+  hint.className = 'canvas-hints';
+  hint.innerHTML = `
+    <div class="canvas-hint-title">Quick tips</div>
+    <div class="canvas-hint-item">Click a node to select and configure it</div>
+    <div class="canvas-hint-item">Click a port (circle on a node) to start connecting, then click another port</div>
+    <div class="canvas-hint-item">Drag nodes to rearrange them</div>
+    <div class="canvas-hint-item">Drag from the Node Palette on the left to add new nodes</div>
+    <button class="canvas-hint-dismiss" onclick="dismissCanvasHints()">Got it</button>
+  `;
+  document.body.appendChild(hint);
+}
+
+window.dismissCanvasHints = function() {
+  const el = document.getElementById('canvasHints');
+  if (el) el.remove();
+  localStorage.setItem('mercury_hints_seen', '1');
+};
+
+window.dismissMarketPrompt = function() {
+  const el = document.getElementById('marketPrompt');
+  if (el) el.remove();
+};
 
 // ═══════════════════════════════════════════════════════════════
 // MY BOTS VIEW
 // ═══════════════════════════════════════════════════════════════
-function renderBots() {
+async function renderBots() {
   const filter = document.querySelector('#botFilters .filter-tab.active')?.dataset.filter || 'all';
   const sort = document.getElementById('botSort')?.value || 'updated';
 
-  let filtered = filter === 'all' ? [...bots] : bots.filter(b => b.status === filter);
+  // Try fetching real bots from engine
+  let engineBots = [];
+  try {
+    const raw = await engineBridge.listBots();
+    if (Array.isArray(raw)) {
+      engineBots = raw.map(normalizeEngineBotToLocal);
+    }
+  } catch (e) {
+    console.warn('[Mercury] Engine offline — showing local bots only');
+  }
+
+  // Merge: engine bots first, then any local-only bots not in the engine
+  const engineIds = new Set(engineBots.map(b => b.id));
+  const localOnly = bots.filter(b => b._local && !engineIds.has(b.id));
+  const allBots = [...engineBots, ...localOnly];
+
+  let filtered = filter === 'all' ? [...allBots] : allBots.filter(b => b.status === filter);
 
   // Sort
   filtered.sort((a, b) => {
-    if (sort === 'pnl') return b.metrics.pnl - a.metrics.pnl;
-    if (sort === 'winrate') return b.metrics.winRate - a.metrics.winRate;
-    if (sort === 'name') return a.name.localeCompare(b.name);
-    return new Date(b.updatedAt) - new Date(a.updatedAt);
+    if (sort === 'pnl') return (b.metrics?.pnl || 0) - (a.metrics?.pnl || 0);
+    if (sort === 'winrate') return (b.metrics?.winRate || 0) - (a.metrics?.winRate || 0);
+    if (sort === 'name') return (a.name || '').localeCompare(b.name || '');
+    return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0);
   });
 
   document.getElementById('botCount').textContent = filtered.length + ' bot' + (filtered.length !== 1 ? 's' : '');
@@ -2259,38 +4391,86 @@ function renderBots() {
   }
 
   el.botsGrid.innerHTML = filtered.map(bot => {
-    const pnlClass = bot.metrics.pnl >= 0 ? 'positive' : 'negative';
-    const pnlSign = bot.metrics.pnl >= 0 ? '+' : '';
+    const pnl = bot.metrics?.pnl || 0;
+    const pnlClass = pnl >= 0 ? 'positive' : 'negative';
+    const pnlSign = pnl >= 0 ? '+' : '';
+    const winRate = bot.metrics?.winRate || 0;
+    const volume = bot.metrics?.volume || 0;
 
     return `<div class="bot-card" data-bot-id="${bot.id}" onclick="switchView('bot-detail',{botId:'${bot.id}'})">
       <div class="bot-card-header">
         <div>
-          <div class="bot-card-name">${bot.name}</div>
-          <div class="bot-card-type">${bot.strategyType}</div>
-          <div class="bot-card-market">${bot.market}</div>
+          <div class="bot-card-name">${esc(bot.name)}</div>
+          <div class="bot-card-type">${esc(bot.strategyType || 'Custom')}</div>
+          <div class="bot-card-market">${esc(bot.market || bot.platform || '')}</div>
         </div>
-        <span class="status-badge ${bot.status}">${bot.status}</span>
+        <span class="status-badge ${bot.status}">${bot.status}${bot._local ? ' (local)' : ''}</span>
       </div>
       <div class="bot-card-metrics">
         <div class="bot-metric">
           <span class="bot-metric-label">Win Rate</span>
-          <span class="bot-metric-value">${bot.metrics.winRate.toFixed(1)}%</span>
+          <span class="bot-metric-value">${winRate.toFixed(1)}%</span>
         </div>
         <div class="bot-metric">
           <span class="bot-metric-label">P&L</span>
-          <span class="bot-metric-value ${pnlClass}">${pnlSign}$${Math.abs(bot.metrics.pnl).toLocaleString()}</span>
+          <span class="bot-metric-value ${pnlClass}">${pnlSign}$${Math.abs(pnl).toLocaleString()}</span>
         </div>
         <div class="bot-metric">
           <span class="bot-metric-label">Volume</span>
-          <span class="bot-metric-value">$${(bot.metrics.volume / 1000).toFixed(1)}K</span>
+          <span class="bot-metric-value">$${(volume / 1000).toFixed(1)}K</span>
         </div>
       </div>
       <div class="bot-card-sparkline">${renderSparklineSVG(bot.sparklineData, pnlClass === 'positive' ? '#00c853' : '#ff1744')}</div>
       <div class="bot-card-footer">
-        <span class="bot-card-updated">${timeAgo(bot.updatedAt)}</span>
+        <span class="bot-card-updated">${bot.updatedAt ? timeAgo(bot.updatedAt) : bot.mode || ''}</span>
       </div>
     </div>`;
   }).join('');
+
+  // Append "Add More" upgrade card if free user is at bot limit
+  if (window.MercuryTiers) {
+    const maxBots = window.MercuryTiers.tierMaxBots(userTier);
+    if (filtered.length >= maxBots && maxBots < Infinity) {
+      el.botsGrid.innerHTML += `<div class="bot-card bot-card-upgrade" onclick="showUpgradeModal('bot-limit')">
+        <div class="bot-card-upgrade-text">+ Add More Bots</div>
+        <div class="bot-card-upgrade-cta">Upgrade to Pro</div>
+      </div>`;
+    }
+  }
+}
+
+/** Convert engine bot summary to the shape the frontend expects */
+function normalizeEngineBotToLocal(eb) {
+  const status = (eb.status || 'starting').toLowerCase();
+  // Map engine statuses to frontend statuses
+  const statusMap = { starting: 'live', live: 'live', paused: 'paused', stopped: 'draft', error: 'error' };
+  return {
+    id: eb.id,
+    name: eb.name,
+    strategyType: eb.strategy_type || 'Custom',
+    status: statusMap[status] || status,
+    market: eb.platform || 'Auto',
+    platform: eb.platform,
+    mode: eb.mode,
+    contract: '',
+    createdAt: eb.created_at || new Date().toISOString(),
+    updatedAt: eb.started_at || eb.created_at || new Date().toISOString(),
+    metrics: {
+      winRate: eb.win_rate || 0,
+      pnl: eb.pnl || 0,
+      pnlPercent: eb.pnl_pct || 0,
+      totalTrades: eb.total_trades || 0,
+      volume: (eb.total_trades || 0) * (eb.initial_capital || 0) * 0.1,
+      sharpe: eb.sharpe || 0,
+      maxDrawdown: eb.max_drawdown || 0,
+      openPositions: eb.positions_count || 0,
+    },
+    sparklineData: eb.spark_data || [],
+    trades: [],
+    positions: [],
+    logs: [],
+    _engine: true,  // marker: this bot came from the engine
+  };
 }
 
 function renderSparklineSVG(data, color) {
@@ -2320,24 +4500,50 @@ function timeAgo(dateStr) {
 // ═══════════════════════════════════════════════════════════════
 // BOT DETAIL VIEW
 // ═══════════════════════════════════════════════════════════════
-function renderBotDetail(botId) {
-  const bot = bots.find(b => b.id === botId);
+async function renderBotDetail(botId) {
+  // Try fetching from engine first
+  let bot = null;
+  let isEngine = false;
+
+  if (botId.startsWith('bot-')) {
+    try {
+      const detail = await engineBridge.getBot(botId);
+      if (detail) {
+        bot = normalizeEngineBotDetail(detail);
+        isEngine = true;
+      }
+    } catch (e) {
+      console.warn('[Mercury] Could not fetch bot from engine:', e.message);
+    }
+  }
+
+  // Fall back to local bots
+  if (!bot) {
+    bot = bots.find(b => b.id === botId);
+  }
   if (!bot) return;
 
   document.getElementById('detailBotName').textContent = bot.name;
   const statusEl = document.getElementById('detailStatus');
-  statusEl.textContent = bot.status;
+  statusEl.textContent = bot.status + (isEngine ? '' : ' (local)');
   statusEl.className = 'status-badge ' + bot.status;
 
   // Metrics
-  const m = bot.metrics;
+  const m = bot.metrics || {};
+  const winRate = m.winRate || 0;
+  const pnl = m.pnl || 0;
+  const volume = m.volume || 0;
+  const sharpe = m.sharpe || 0;
+  const maxDD = m.maxDrawdown || 0;
+  const openPos = m.openPositions || 0;
+
   document.getElementById('detailMetrics').innerHTML = [
-    { label: 'Win Rate', value: m.winRate.toFixed(1) + '%', cls: m.winRate >= 50 ? 'positive' : 'negative' },
-    { label: 'P&L', value: (m.pnl >= 0 ? '+$' : '-$') + Math.abs(m.pnl).toLocaleString(), cls: m.pnl >= 0 ? 'positive' : 'negative' },
-    { label: 'Volume', value: '$' + m.volume.toLocaleString(), cls: '' },
-    { label: 'Sharpe', value: m.sharpe.toFixed(2), cls: m.sharpe >= 1 ? 'positive' : '' },
-    { label: 'Max DD', value: m.maxDrawdown.toFixed(1) + '%', cls: 'negative' },
-    { label: 'Positions', value: m.openPositions, cls: '' },
+    { label: 'Win Rate', value: winRate.toFixed(1) + '%', cls: winRate >= 50 ? 'positive' : 'negative' },
+    { label: 'P&L', value: (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toLocaleString(), cls: pnl >= 0 ? 'positive' : 'negative' },
+    { label: 'Capital', value: '$' + (m.currentCapital || volume).toLocaleString(), cls: '' },
+    { label: 'Sharpe', value: sharpe.toFixed(2), cls: sharpe >= 1 ? 'positive' : '' },
+    { label: 'Max DD', value: maxDD.toFixed(1) + '%', cls: 'negative' },
+    { label: 'Positions', value: openPos, cls: '' },
   ].map(c => `<div class="detail-metric-card">
     <span class="detail-metric-label">${c.label}</span>
     <span class="detail-metric-value ${c.cls}">${c.value}</span>
@@ -2347,42 +4553,93 @@ function renderBotDetail(botId) {
   renderPerfChart(bot);
 
   // Positions
-  document.getElementById('positionCount').textContent = bot.positions.length;
-  document.getElementById('positionsBody').innerHTML = bot.positions.map(p => {
-    const pnlCls = p.pnl >= 0 ? 'positive' : 'negative';
+  const positions = bot.positions || [];
+  document.getElementById('positionCount').textContent = positions.length;
+  document.getElementById('positionsBody').innerHTML = positions.map(p => {
+    const posPnl = p.unrealized_pnl != null ? p.unrealized_pnl : (p.pnl || 0);
+    const pnlCls = posPnl >= 0 ? 'positive' : 'negative';
     return `<div class="data-table-row positions-row">
-      <span class="data-table-cell bright">${p.contract}</span>
-      <span class="data-table-cell">${p.side}</span>
-      <span class="data-table-cell">${p.qty}</span>
-      <span class="data-table-cell">${p.entry}c</span>
-      <span class="data-table-cell ${pnlCls}">${p.pnl >= 0 ? '+' : ''}$${p.pnl.toFixed(2)}</span>
+      <span class="data-table-cell bright">${esc(p.contract || p.contract_id || '')}</span>
+      <span class="data-table-cell">${esc(p.side || '')}</span>
+      <span class="data-table-cell">${p.qty || p.quantity || ''}</span>
+      <span class="data-table-cell">${p.entry || p.entry_price || ''}c</span>
+      <span class="data-table-cell ${pnlCls}">${posPnl >= 0 ? '+' : ''}$${posPnl.toFixed(2)}</span>
     </div>`;
   }).join('');
 
   // Trades
-  document.getElementById('tradeCount').textContent = bot.trades.length + ' trades';
-  document.getElementById('tradesBody').innerHTML = bot.trades.slice(0, 30).map(t => {
-    const pnlCls = t.pnl >= 0 ? 'positive' : 'negative';
+  const trades = bot.trades || [];
+  document.getElementById('tradeCount').textContent = trades.length + ' trades';
+  document.getElementById('tradesBody').innerHTML = trades.slice(0, 30).map(t => {
+    const tPnl = t.pnl || 0;
+    const pnlCls = tPnl >= 0 ? 'positive' : 'negative';
     return `<div class="data-table-row trades-row">
-      <span class="data-table-cell muted">${formatTime(t.timestamp)}</span>
-      <span class="data-table-cell ${t.side === 'BUY' ? 'positive' : 'negative'}">${t.side}</span>
-      <span class="data-table-cell bright">${t.contract}</span>
-      <span class="data-table-cell">${t.price}c</span>
-      <span class="data-table-cell">$${t.amount}</span>
-      <span class="data-table-cell ${pnlCls}">${t.pnl >= 0 ? '+' : ''}$${t.pnl.toFixed(2)}</span>
+      <span class="data-table-cell muted">${formatTime(t.timestamp || t.executed_at || '')}</span>
+      <span class="data-table-cell ${(t.side || '').toUpperCase() === 'BUY' ? 'positive' : 'negative'}">${esc((t.side || '').toUpperCase())}</span>
+      <span class="data-table-cell bright">${esc(t.contract || t.contract_id || '')}</span>
+      <span class="data-table-cell">${t.price || ''}c</span>
+      <span class="data-table-cell">$${t.amount || ''}</span>
+      <span class="data-table-cell ${pnlCls}">${tPnl >= 0 ? '+' : ''}$${tPnl.toFixed(2)}</span>
     </div>`;
   }).join('');
 
   // Logs
   renderBotLogs(bot);
-  startLogSimulation(bot);
+
+  // If engine bot, poll for live updates instead of fake simulation
+  if (isEngine) {
+    startEngineLogPolling(botId);
+  } else {
+    startLogSimulation(bot);
+  }
+}
+
+/** Convert engine bot detail response to the shape the frontend expects */
+function normalizeEngineBotDetail(d) {
+  const statusMap = { starting: 'live', live: 'live', paused: 'paused', stopped: 'draft', error: 'error' };
+  const status = statusMap[(d.status || '').toLowerCase()] || d.status;
+  return {
+    id: d.id,
+    name: d.name,
+    strategyType: d.strategy_type || 'Custom',
+    status,
+    market: d.platform || 'Auto',
+    platform: d.platform,
+    mode: d.mode,
+    contract: '',
+    createdAt: d.created_at || new Date().toISOString(),
+    updatedAt: d.started_at || d.created_at || new Date().toISOString(),
+    metrics: {
+      winRate: d.win_rate || 0,
+      pnl: d.pnl || 0,
+      pnlPercent: d.pnl_pct || 0,
+      totalTrades: d.total_trades || 0,
+      volume: (d.total_trades || 0) * (d.initial_capital || 0) * 0.1,
+      currentCapital: d.current_capital || d.initial_capital || 0,
+      sharpe: d.sharpe || 0,
+      maxDrawdown: d.max_drawdown || 0,
+      openPositions: d.positions_count || (d.positions || []).length,
+    },
+    sparklineData: d.spark_data || d.equity_history || [],
+    trades: d.trades || [],
+    positions: d.positions || [],
+    logs: (d.logs || []).map(l => ({
+      timestamp: l.timestamp || l.ts,
+      level: l.level,
+      message: l.message || l.msg,
+    })),
+    _engine: true,
+  };
 }
 
 function renderPerfChart(bot) {
   if (charts.detailPerf) { charts.detailPerf.destroy(); charts.detailPerf = null; }
 
-  const data = bot.sparklineData.map((v, i) => ({
-    x: Date.now() - (bot.sparklineData.length - 1 - i) * 3600000,
+  const sparkData = bot.sparklineData || [];
+  if (sparkData.length < 2) return; // Need at least 2 points
+
+  const data = sparkData.map((v, i) => ({
+    x: Date.now() - (sparkData.length - 1 - i) * 3600000,
     y: v,
   }));
 
@@ -2403,7 +4660,7 @@ function renderPerfChart(bot) {
         stops: [0, 100],
       },
     },
-    colors: [bot.metrics.pnl >= 0 ? '#00c853' : '#ff1744'],
+    colors: [(bot.metrics?.pnl || 0) >= 0 ? '#00c853' : '#ff1744'],
     xaxis: {
       type: 'datetime',
       labels: { style: { colors: '#444', fontFamily: 'JetBrains Mono', fontSize: '9px' } },
@@ -2430,11 +4687,13 @@ function renderPerfChart(bot) {
 
 function renderBotLogs(bot) {
   const logsEl = document.getElementById('botLogs');
-  logsEl.innerHTML = bot.logs.map(l =>
+  if (!logsEl) return;
+  const logs = bot.logs || [];
+  logsEl.innerHTML = logs.map(l =>
     `<div class="log-entry">
       <span class="log-time">${formatTime(l.timestamp)}</span>
-      <span class="log-level ${l.level}">${l.level}</span>
-      <span class="log-message">${l.message}</span>
+      <span class="log-level ${l.level || 'info'}">${l.level || 'info'}</span>
+      <span class="log-message">${esc(l.message || '')}</span>
     </div>`
   ).join('');
   logsEl.scrollTop = logsEl.scrollHeight;
@@ -2445,6 +4704,7 @@ function startLogSimulation(bot) {
   if (bot.status !== 'live') return;
 
   const logsEl = document.getElementById('botLogs');
+  if (!logsEl) return;
   const messages = [
     { level: 'info', msg: 'Heartbeat OK — latency 8ms' },
     { level: 'info', msg: 'Market scan complete — 0 new signals' },
@@ -2462,7 +4722,7 @@ function startLogSimulation(bot) {
     entry.className = 'log-entry';
     entry.innerHTML = `<span class="log-time">${formatTime(new Date().toISOString())}</span>
       <span class="log-level ${m.level}">${m.level}</span>
-      <span class="log-message">${m.msg}</span>`;
+      <span class="log-message">${esc(m.msg)}</span>`;
     logsEl.appendChild(entry);
     logsEl.scrollTop = logsEl.scrollHeight;
 
@@ -2471,7 +4731,147 @@ function startLogSimulation(bot) {
   }, 3000 + Math.random() * 4000);
 }
 
-function toggleBotStatus(newStatus) {
+// Engine live log polling (replaces fake simulation for engine bots)
+let _engineLogPollId = null;
+let _lastLogCount = 0;
+let _pollInFlight = false;
+
+function startEngineLogPolling(botId) {
+  stopEngineLogPolling();
+  _lastLogCount = 0;
+  _pollInFlight = false;
+
+  const poll = async () => {
+    // Guard: skip if previous poll still running
+    if (_pollInFlight) return;
+    _pollInFlight = true;
+
+    try {
+      const logs = await engineBridge.getBotLogs(botId, 100);
+      if (!Array.isArray(logs)) return;
+
+      // Only render new logs
+      if (logs.length > _lastLogCount) {
+        const newLogs = logs.slice(_lastLogCount);
+        const logsEl = document.getElementById('botLogs');
+        if (!logsEl) return;
+
+        for (const l of newLogs) {
+          const entry = document.createElement('div');
+          entry.className = 'log-entry';
+          entry.innerHTML = `<span class="log-time">${formatTime(l.timestamp || l.ts || '')}</span>
+            <span class="log-level ${esc(l.level || 'info')}">${esc(l.level || 'info')}</span>
+            <span class="log-message">${esc(l.message || l.msg || '')}</span>`;
+          logsEl.appendChild(entry);
+        }
+        logsEl.scrollTop = logsEl.scrollHeight;
+        while (logsEl.children.length > 200) logsEl.removeChild(logsEl.firstChild);
+        _lastLogCount = logs.length;
+      }
+
+      // Also refresh metrics + positions + trades
+      try {
+        const detail = await engineBridge.getBot(botId);
+        if (detail) {
+          const bot = normalizeEngineBotDetail(detail);
+          const m = bot.metrics;
+          const metricsEl = document.getElementById('detailMetrics');
+          if (metricsEl) {
+            metricsEl.innerHTML = [
+              { label: 'Win Rate', value: (m.winRate || 0).toFixed(1) + '%', cls: (m.winRate || 0) >= 50 ? 'positive' : 'negative' },
+              { label: 'P&L', value: ((m.pnl || 0) >= 0 ? '+$' : '-$') + Math.abs(m.pnl || 0).toLocaleString(), cls: (m.pnl || 0) >= 0 ? 'positive' : 'negative' },
+              { label: 'Capital', value: '$' + (m.currentCapital || 0).toLocaleString(), cls: '' },
+              { label: 'Sharpe', value: (m.sharpe || 0).toFixed(2), cls: (m.sharpe || 0) >= 1 ? 'positive' : '' },
+              { label: 'Max DD', value: (m.maxDrawdown || 0).toFixed(1) + '%', cls: 'negative' },
+              { label: 'Positions', value: m.openPositions || 0, cls: '' },
+            ].map(c => `<div class="detail-metric-card">
+              <span class="detail-metric-label">${c.label}</span>
+              <span class="detail-metric-value ${c.cls}">${c.value}</span>
+            </div>`).join('');
+          }
+
+          // Update positions table
+          const positions = bot.positions || [];
+          const posCountEl = document.getElementById('positionCount');
+          const posBody = document.getElementById('positionsBody');
+          if (posCountEl) posCountEl.textContent = positions.length;
+          if (posBody) {
+            posBody.innerHTML = positions.map(p => {
+              const posPnl = p.unrealized_pnl != null ? p.unrealized_pnl : (p.pnl || 0);
+              const pnlCls = posPnl >= 0 ? 'positive' : 'negative';
+              return `<div class="data-table-row positions-row">
+                <span class="data-table-cell bright">${esc(p.contract || p.contract_id || '')}</span>
+                <span class="data-table-cell">${esc(p.side || '')}</span>
+                <span class="data-table-cell">${p.qty || p.quantity || ''}</span>
+                <span class="data-table-cell">${p.entry || p.entry_price || ''}c</span>
+                <span class="data-table-cell ${pnlCls}">${posPnl >= 0 ? '+' : ''}$${posPnl.toFixed(2)}</span>
+              </div>`;
+            }).join('');
+          }
+
+          // Update trades table
+          const trades = bot.trades || [];
+          const tradeCountEl = document.getElementById('tradeCount');
+          const tradesBody = document.getElementById('tradesBody');
+          if (tradeCountEl) tradeCountEl.textContent = trades.length + ' trades';
+          if (tradesBody) {
+            tradesBody.innerHTML = trades.slice(0, 30).map(t => {
+              const tPnl = t.pnl || 0;
+              const pnlCls = tPnl >= 0 ? 'positive' : 'negative';
+              return `<div class="data-table-row trades-row">
+                <span class="data-table-cell muted">${formatTime(t.timestamp || t.executed_at || '')}</span>
+                <span class="data-table-cell ${(t.side || '').toUpperCase() === 'BUY' ? 'positive' : 'negative'}">${esc((t.side || '').toUpperCase())}</span>
+                <span class="data-table-cell bright">${esc(t.contract || t.contract_id || '')}</span>
+                <span class="data-table-cell">${t.price || ''}c</span>
+                <span class="data-table-cell">$${t.amount || ''}</span>
+                <span class="data-table-cell ${pnlCls}">${tPnl >= 0 ? '+' : ''}$${tPnl.toFixed(2)}</span>
+              </div>`;
+            }).join('');
+          }
+
+          // Update performance chart if equity data changed
+          if (bot.sparklineData && bot.sparklineData.length > 1) {
+            renderPerfChart(bot);
+          }
+        }
+      } catch { /* metrics refresh is best-effort */ }
+    } catch (e) {
+      console.warn('[Mercury] Log poll error:', e.message);
+    } finally {
+      _pollInFlight = false;
+    }
+  };
+
+  poll(); // immediate
+  _engineLogPollId = setInterval(poll, 5000);
+}
+
+function stopEngineLogPolling() {
+  if (_engineLogPollId) {
+    clearInterval(_engineLogPollId);
+    _engineLogPollId = null;
+  }
+  _pollInFlight = false;
+}
+
+async function toggleBotStatus(newStatus) {
+  if (!selectedBotId) return;
+
+  // Try engine first
+  try {
+    if (newStatus === 'paused') {
+      await engineBridge.pauseBot(selectedBotId);
+    } else {
+      await engineBridge.resumeBot(selectedBotId);
+    }
+    showToast('Bot ' + (newStatus === 'paused' ? 'paused' : 'resumed'));
+    renderBotDetail(selectedBotId);
+    return;
+  } catch (e) {
+    console.warn('[Mercury] Engine toggle failed:', e.message);
+  }
+
+  // Fallback to local
   const bot = bots.find(b => b.id === selectedBotId);
   if (!bot) return;
   bot.status = newStatus;
@@ -2479,12 +4879,46 @@ function toggleBotStatus(newStatus) {
   showToast('Bot ' + (newStatus === 'paused' ? 'paused' : 'restarted'));
 }
 
-function killBot() {
+async function killBot() {
+  if (!selectedBotId) return;
+
+  // Try engine first
+  try {
+    await engineBridge.stopBot(selectedBotId);
+    showToast('Bot stopped');
+    if (logInterval) { clearInterval(logInterval); logInterval = null; }
+    stopEngineLogPolling();
+    switchView('my-bots');
+    return;
+  } catch (e) {
+    console.warn('[Mercury] Engine stop failed:', e.message);
+  }
+
+  // Fallback to local
   const bot = bots.find(b => b.id === selectedBotId);
   if (!bot) return;
   bot.status = 'draft';
   if (logInterval) { clearInterval(logInterval); logInterval = null; }
   showToast('Bot killed — moved to draft');
+  switchView('my-bots');
+}
+
+async function deleteBot() {
+  if (!selectedBotId) return;
+  if (!confirm('Delete this bot permanently? This cannot be undone.')) return;
+
+  // Try engine first
+  try {
+    await engineBridge.deleteBot(selectedBotId);
+  } catch (e) {
+    console.warn('[Mercury] Engine delete failed:', e.message);
+  }
+
+  // Also remove from local bots array
+  bots = bots.filter(b => b.id !== selectedBotId);
+  if (logInterval) { clearInterval(logInterval); logInterval = null; }
+  stopEngineLogPolling();
+  showToast('Bot deleted');
   switchView('my-bots');
 }
 
@@ -2495,11 +4929,18 @@ function populateBacktestStrategies() {
   const sel = document.getElementById('btStrategy');
   sel.innerHTML = '<option value="current">Current Builder Strategy</option>';
   bots.forEach(b => {
-    sel.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+    sel.innerHTML += `<option value="${esc(b.id)}">${esc(b.name)}</option>`;
   });
 }
 
 function runBacktest() {
+  // Compile strategy first to validate
+  const { strategy, errors } = compileStrategy();
+  if (!strategy) {
+    showToast(errors[0] || 'Build a strategy first — add at least a trigger and execution node', 'error');
+    return;
+  }
+
   const running = document.getElementById('backtestRunning');
   const results = document.getElementById('backtestResults');
   running.style.display = 'flex';
@@ -2507,55 +4948,116 @@ function runBacktest() {
 
   setTimeout(() => {
     running.style.display = 'none';
-    renderBacktestResults();
+    renderBacktestResults(strategy);
     results.style.display = 'block';
   }, 2200);
 }
 
-function renderBacktestResults() {
+function renderBacktestResults(strategy) {
   const capital = parseFloat(document.getElementById('btCapital').value) || 10000;
   const days = parseInt(document.getElementById('btPeriod').value) || 90;
 
-  // Simulate results
-  const totalReturn = 12 + Math.random() * 30;
-  const sharpe = 1.2 + Math.random() * 1.2;
-  const winRate = 55 + Math.random() * 20;
-  const maxDD = -(5 + Math.random() * 15);
-  const totalTrades = Math.floor(days * (1 + Math.random() * 2));
-  const avgTrade = (capital * totalReturn / 100) / totalTrades;
+  // Derive simulation parameters from strategy structure
+  const pipeline = strategy.pipeline || {};
+  const triggerNodes = pipeline.triggers || [];
+  const conditionNodes = pipeline.conditions || [];
+  const executionNodes = pipeline.executions || [];
+  const riskNodes = pipeline.risk || [];
 
-  // Equity curve
+  // More conditions = higher selectivity = higher win rate but fewer trades
+  const conditionBonus = conditionNodes.length * 4;
+  // Risk nodes reduce drawdown
+  const riskBonus = riskNodes.length * 3;
+  // Multiple triggers = more signals = more trades
+  const triggerMultiplier = Math.max(1, triggerNodes.length);
+
+  // Extract strategy-specific params
+  let stopLossLevel = 15;
+  let orderAmount = 200;
+  let contractName = 'Market Contract';
+  riskNodes.forEach(n => {
+    if (n.type === 'stop-loss' && n.params?.value) stopLossLevel = n.params.value;
+  });
+  executionNodes.forEach(n => {
+    if (n.params?.amount) orderAmount = n.params.amount;
+    if (n.params?.platform) contractName = n.params.platform + ' Contract';
+  });
+  triggerNodes.forEach(n => {
+    if (n.params?.contract) contractName = n.params.contract;
+  });
+
+  // Seeded pseudo-random from strategy name for consistent results
+  let seed = 0;
+  const name = strategy.name || 'unnamed';
+  for (let i = 0; i < name.length; i++) seed = ((seed << 5) - seed + name.charCodeAt(i)) | 0;
+  const seededRand = () => { seed = (seed * 16807 + 0) % 2147483647; return (seed & 0x7fffffff) / 2147483647; };
+
+  // Simulated results based on strategy composition
+  const baseWinRate = 48 + conditionBonus + (riskBonus > 0 ? 5 : 0);
+  const winRate = Math.min(85, baseWinRate + seededRand() * 8);
+  const tradesPerDay = (0.5 + seededRand() * 1.5) * triggerMultiplier;
+  const totalTrades = Math.floor(days * tradesPerDay);
+  const avgWin = orderAmount * (0.08 + seededRand() * 0.12);
+  const avgLoss = orderAmount * (stopLossLevel / 100) * (0.6 + seededRand() * 0.4);
+  const expectedPnl = totalTrades * ((winRate / 100) * avgWin - ((100 - winRate) / 100) * avgLoss);
+  const totalReturn = (expectedPnl / capital) * 100;
+  const volatility = Math.max(0.005, (100 - winRate) / 100 * 0.03);
+  const dailyReturn = totalReturn / 100 / days;
+  const dailyVol = volatility;
+  const sharpe = dailyVol > 0 ? (dailyReturn / dailyVol) * Math.sqrt(252) : 0;
+  const maxDD = -(stopLossLevel * 0.5 + (100 - winRate) * 0.15 + seededRand() * 5);
+  const avgTrade = totalTrades > 0 ? expectedPnl / totalTrades : 0;
+
+  // Equity curve using strategy-aware simulation
   const equityData = [];
   let equity = capital;
+  let maxEquity = capital;
   for (let i = 0; i < days; i++) {
-    equity += equity * ((Math.random() - 0.4) * 0.02);
+    const dailyTrades = Math.max(0, Math.floor(tradesPerDay + (seededRand() - 0.5)));
+    for (let t = 0; t < dailyTrades; t++) {
+      const isWin = seededRand() < winRate / 100;
+      equity += isWin ? avgWin * (0.5 + seededRand()) : -avgLoss * (0.5 + seededRand());
+    }
+    equity = Math.max(equity, capital * 0.5); // floor at 50% of starting capital
+    maxEquity = Math.max(maxEquity, equity);
     equityData.push({
       x: Date.now() - (days - i) * 86400000,
       y: Math.round(equity * 100) / 100,
     });
   }
 
-  // Mock trades
+  // Generate trades using strategy parameters
+  const sides = executionNodes.map(n => {
+    const s = (n.params?.side || 'Buy YES').toUpperCase();
+    return s.includes('BUY') ? 'BUY' : 'SELL';
+  });
+  const defaultSide = sides[0] || 'BUY';
+
   const trades = [];
   for (let i = 0; i < Math.min(totalTrades, 40); i++) {
-    const pnl = (Math.random() - 0.35) * 100;
+    const isWin = seededRand() < winRate / 100;
+    const pnl = isWin ? avgWin * (0.5 + seededRand()) : -avgLoss * (0.5 + seededRand());
     trades.push({
-      timestamp: new Date(Date.now() - Math.random() * days * 86400000).toISOString(),
-      side: Math.random() > 0.5 ? 'BUY' : 'SELL',
-      contract: ['Fed Rate Cut', 'BTC > $100K', 'Trump 2028', 'Recession 2026'][Math.floor(Math.random() * 4)],
-      price: Math.floor(30 + Math.random() * 50),
-      amount: Math.floor(50 + Math.random() * 200),
+      timestamp: new Date(Date.now() - seededRand() * days * 86400000).toISOString(),
+      side: sides[Math.floor(seededRand() * sides.length)] || defaultSide,
+      contract: contractName,
+      price: Math.floor(30 + seededRand() * 50),
+      amount: Math.floor(orderAmount * (0.8 + seededRand() * 0.4)),
       pnl,
     });
   }
   trades.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
   const container = document.getElementById('backtestResults');
+  const nodeCount = (triggerNodes.length + conditionNodes.length + executionNodes.length + riskNodes.length);
   container.innerHTML = `
+    <div style="margin-bottom:12px;padding:8px 12px;background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.15);border-radius:6px;font-size:11px;color:#888;">
+      Simulated backtest for <strong style="color:#ccc">${esc(strategy.name || 'Unnamed')}</strong> &middot; ${nodeCount} nodes &middot; No historical data — results are modeled from strategy structure
+    </div>
     <div class="backtest-stats">
       <div class="backtest-stat-card">
         <span class="backtest-stat-label">Total Return</span>
-        <span class="backtest-stat-value positive">+${totalReturn.toFixed(1)}%</span>
+        <span class="backtest-stat-value ${totalReturn >= 0 ? 'positive' : 'negative'}">${totalReturn >= 0 ? '+' : ''}${totalReturn.toFixed(1)}%</span>
       </div>
       <div class="backtest-stat-card">
         <span class="backtest-stat-label">Sharpe Ratio</span>
@@ -2603,8 +5105,8 @@ function renderBacktestResults() {
         </div>
         ${trades.map(t => `<div class="data-table-row trades-row">
           <span class="data-table-cell muted">${formatTime(t.timestamp)}</span>
-          <span class="data-table-cell ${t.side === 'BUY' ? 'positive' : 'negative'}">${t.side}</span>
-          <span class="data-table-cell bright">${t.contract}</span>
+          <span class="data-table-cell ${t.side === 'BUY' ? 'positive' : 'negative'}">${esc(t.side)}</span>
+          <span class="data-table-cell bright">${esc(t.contract)}</span>
           <span class="data-table-cell">${t.price}c</span>
           <span class="data-table-cell">$${t.amount}</span>
           <span class="data-table-cell ${t.pnl >= 0 ? 'positive' : 'negative'}">${t.pnl >= 0 ? '+' : ''}$${t.pnl.toFixed(2)}</span>
@@ -2776,8 +5278,15 @@ function showToast(message, type) {
 // ═══════════════════════════════════════════════════════════════
 // UTILITIES
 // ═══════════════════════════════════════════════════════════════
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 function formatTime(iso) {
+  if (!iso) return '--:--:--';
   const d = new Date(iso);
+  if (isNaN(d.getTime())) return '--:--:--';
   const h = d.getHours().toString().padStart(2, '0');
   const m = d.getMinutes().toString().padStart(2, '0');
   const s = d.getSeconds().toString().padStart(2, '0');
@@ -2787,17 +5296,31 @@ function formatTime(iso) {
 // ═══════════════════════════════════════════════════════════════
 // MOCK DATA
 // ═══════════════════════════════════════════════════════════════
-function initMockData() {
-  bots = [
-    createMockBot('Rate Cut Momentum', 'Momentum', 'live', 'Polymarket', 10000),
-    createMockBot('Election Arbitrage', 'Arbitrage', 'live', 'Multi-Platform', 25000),
-    createMockBot('Reversion Scanner', 'Mean Reversion', 'paused', 'Kalshi', 5000),
-    createMockBot('Event Catalyst', 'Event-Driven', 'live', 'Polymarket', 8000),
-    createMockBot('Breakout Sniper', 'Momentum', 'draft', 'Polymarket', 0),
-    createMockBot('Cross-Platform Arb', 'Arbitrage', 'error', 'Multi-Platform', 15000),
-    createMockBot('Prob Decay Farmer', 'Mean Reversion', 'live', 'Kalshi', 12000),
-    createMockBot('Resolution Rush', 'Event-Driven', 'paused', 'Polymarket', 3000),
-  ];
+async function initMockData() {
+  // Start with empty local bots — real bots come from the engine
+  bots = [];
+
+  // Check engine connection
+  try {
+    const health = await engineBridge.checkHealth();
+    if (health) {
+      console.log('[Mercury Engine] Connected:', health);
+      updateEngineStatus(true);
+    } else {
+      throw new Error('offline');
+    }
+  } catch {
+    console.warn('[Mercury Engine] Offline — features limited to local mode');
+    updateEngineStatus(false);
+    // Populate demo bots so the UI isn't empty when engine is off
+    bots = [
+      createMockBot('Rate Cut Momentum', 'Momentum', 'live', 'Polymarket', 10000),
+      createMockBot('Election Arbitrage', 'Arbitrage', 'live', 'Multi-Platform', 25000),
+      createMockBot('Reversion Scanner', 'Mean Reversion', 'paused', 'Kalshi', 5000),
+      createMockBot('Event Catalyst', 'Event-Driven', 'live', 'Polymarket', 8000),
+    ];
+    bots.forEach(b => b._local = true);
+  }
 
   templates = [
     {
@@ -2926,6 +5449,196 @@ function initMockData() {
         { from: 3, fromPort: 'out', to: 4, toPort: 'in' },
       ],
     },
+    {
+      id: 'tmpl-9', name: 'Bond Arb (Yield Farming)', category: 'bond-arb',
+      description: 'Buys near-certain outcomes (>90c) close to resolution for guaranteed yield. Like buying a bond that matures on resolution day. Low risk, steady returns.',
+      difficulty: 'Beginner', winRate: 96, avgReturn: 6.8, nodeCount: 6,
+      nodes: [
+        { type: 'resolution-countdown', x: 80, y: 150, properties: { timeLeft: '48hr', probDirection: 'Toward YES' } },
+        { type: 'probability-band', x: 340, y: 80, properties: { min: 90, max: 99 } },
+        { type: 'liquidity-check', x: 340, y: 250, properties: { minLiquidity: 10000, depth: '1% Depth' } },
+        { type: 'limit-order', x: 620, y: 80, properties: { side: 'Buy YES', limitPrice: 95, amount: 500 } },
+        { type: 'portfolio-cap', x: 620, y: 250, properties: { maxCapital: 5000, action: 'Block New Trades' } },
+        { type: 'daily-loss-limit', x: 900, y: 150, properties: { maxLoss: 50, action: 'Stop Trading Today' } },
+      ],
+      connections: [
+        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
+        { from: 0, fromPort: 'out', to: 2, toPort: 'in' },
+        { from: 1, fromPort: 'pass', to: 3, toPort: 'in' },
+        { from: 2, fromPort: 'pass', to: 3, toPort: 'in' },
+        { from: 3, fromPort: 'out', to: 4, toPort: 'in' },
+        { from: 4, fromPort: 'pass', to: 5, toPort: 'in' },
+      ],
+    },
+    {
+      id: 'tmpl-10', name: 'Whale Follower', category: 'momentum',
+      description: 'Detects large orders from whales and follows their direction. Momentum filter ensures the move has legs. Trailing stop locks in profits.',
+      difficulty: 'Intermediate', winRate: 61, avgReturn: 19.3, nodeCount: 5,
+      nodes: [
+        { type: 'whale-alert', x: 80, y: 150, properties: { minSize: 10000, side: 'Any' } },
+        { type: 'momentum', x: 340, y: 150, properties: { direction: 'Any Strong Move', period: '1hr', minChange: 3 } },
+        { type: 'market-order', x: 600, y: 80, properties: { side: 'Buy YES', amount: 200 } },
+        { type: 'trailing-stop', x: 600, y: 250, properties: { type: 'Percentage', value: 8, activation: 5 } },
+        { type: 'cooldown', x: 860, y: 150, properties: { after: 'Any Trade', duration: '30min' } },
+      ],
+      connections: [
+        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
+        { from: 1, fromPort: 'pass', to: 2, toPort: 'in' },
+        { from: 2, fromPort: 'out', to: 3, toPort: 'in' },
+        { from: 2, fromPort: 'out', to: 4, toPort: 'in' },
+      ],
+    },
+    {
+      id: 'tmpl-11', name: 'Sentiment Contrarian', category: 'mean-reversion',
+      description: 'Goes against extreme crowd sentiment. When everyone is bearish, buy. When everyone is bullish, sell. Volatility filter avoids choppy markets.',
+      difficulty: 'Intermediate', winRate: 59, avgReturn: 21.2, nodeCount: 5,
+      nodes: [
+        { type: 'sentiment', x: 80, y: 150, properties: { source: 'Combined', sentiment: 'Extreme Bearish', minScore: 80 } },
+        { type: 'volatility', x: 340, y: 80, properties: { range: 'High', period: '24hr', action: 'Above Range' } },
+        { type: 'price-range', x: 340, y: 250, properties: { min: 15, max: 45, action: 'Inside Range' } },
+        { type: 'scaled-entry', x: 620, y: 150, properties: { totalAmount: 500, tranches: 5, priceRange: 10 } },
+        { type: 'stop-loss', x: 900, y: 150, properties: { type: 'Percentage', value: 20 } },
+      ],
+      connections: [
+        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
+        { from: 0, fromPort: 'out', to: 2, toPort: 'in' },
+        { from: 1, fromPort: 'pass', to: 3, toPort: 'in' },
+        { from: 2, fromPort: 'pass', to: 3, toPort: 'in' },
+        { from: 3, fromPort: 'out', to: 4, toPort: 'in' },
+      ],
+    },
+    {
+      id: 'tmpl-12', name: 'Spread Arbitrage', category: 'arbitrage',
+      description: 'Monitors cross-platform spreads between Polymarket and Kalshi. When spread widens, buys cheap side and sells expensive side simultaneously.',
+      difficulty: 'Advanced', winRate: 88, avgReturn: 7.5, nodeCount: 5,
+      nodes: [
+        { type: 'spread-detector', x: 80, y: 150, properties: { platform_a: 'Polymarket', platform_b: 'Kalshi', minSpread: 4 } },
+        { type: 'spread-check', x: 340, y: 150, properties: { maxSpread: 2 } },
+        { type: 'market-order', x: 620, y: 80, properties: { side: 'Buy YES', platform: 'Polymarket', amount: 300 } },
+        { type: 'market-order', x: 620, y: 250, properties: { side: 'Buy NO', platform: 'Kalshi', amount: 300 } },
+        { type: 'position-limit', x: 900, y: 150, properties: { maxPositions: 5, maxPerContract: 1000 } },
+      ],
+      connections: [
+        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
+        { from: 1, fromPort: 'pass', to: 2, toPort: 'in' },
+        { from: 1, fromPort: 'pass', to: 3, toPort: 'in' },
+        { from: 2, fromPort: 'out', to: 4, toPort: 'in' },
+      ],
+    },
+    {
+      id: 'tmpl-13', name: 'Order Flow Scalper', category: 'momentum',
+      description: 'Watches real-time order flow for buy/sell imbalances. Enters with TWAP to minimize slippage. Time exit forces close if trade stalls.',
+      difficulty: 'Advanced', winRate: 56, avgReturn: 25.8, nodeCount: 5,
+      nodes: [
+        { type: 'order-flow', x: 80, y: 150, properties: { metric: 'Buy/Sell Ratio', operator: '>', threshold: 3, window: '15min' } },
+        { type: 'volume-filter', x: 340, y: 150, properties: { minVolume: 50000, maxVolume: 0 } },
+        { type: 'twap', x: 600, y: 80, properties: { side: 'Buy YES', totalAmount: 500, duration: '15min', slices: 5 } },
+        { type: 'take-profit', x: 600, y: 250, properties: { type: 'Percentage', value: 10 } },
+        { type: 'time-exit', x: 860, y: 150, properties: { maxHold: '4hr', action: 'Close All' } },
+      ],
+      connections: [
+        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
+        { from: 1, fromPort: 'pass', to: 2, toPort: 'in' },
+        { from: 2, fromPort: 'out', to: 3, toPort: 'in' },
+        { from: 2, fromPort: 'out', to: 4, toPort: 'in' },
+      ],
+    },
+    {
+      id: 'tmpl-14', name: 'Smart DCA + Alerts', category: 'mean-reversion',
+      description: 'Dollar-cost averages during trading hours only, with momentum and volatility filters. Sends alerts on every execution for monitoring.',
+      difficulty: 'Beginner', winRate: 67, avgReturn: 12.1, nodeCount: 6,
+      nodes: [
+        { type: 'time-based', x: 80, y: 150, properties: { schedule: 'Every 4hr', timezone: 'ET' } },
+        { type: 'time-window', x: 340, y: 80, properties: { startHour: 9, endHour: 16, timezone: 'ET', days: 'Weekdays Only' } },
+        { type: 'momentum', x: 340, y: 250, properties: { direction: 'Bearish', period: '24hr', minChange: 3 } },
+        { type: 'dca', x: 620, y: 150, properties: { amountPer: 25, interval: 'Every 4hr', maxBuys: 50 } },
+        { type: 'alert', x: 620, y: 320, properties: { channel: 'Dashboard', message: 'DCA buy executed' } },
+        { type: 'size-scaler', x: 900, y: 150, properties: { method: 'Fixed Fractional', riskPct: 2, maxSize: 200 } },
+      ],
+      connections: [
+        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
+        { from: 0, fromPort: 'out', to: 2, toPort: 'in' },
+        { from: 1, fromPort: 'pass', to: 3, toPort: 'in' },
+        { from: 2, fromPort: 'pass', to: 3, toPort: 'in' },
+        { from: 3, fromPort: 'out', to: 4, toPort: 'in' },
+        { from: 3, fromPort: 'out', to: 5, toPort: 'in' },
+      ],
+    },
+    {
+      id: 'tmpl-15', name: 'Bond Arb (Conservative)', category: 'bond-arb',
+      description: 'Ultra-safe bonding strategy. Only buys contracts above 95c with 7+ days to resolution. Kelly-sized positions with strict portfolio cap.',
+      difficulty: 'Beginner', winRate: 99, avgReturn: 4.2, nodeCount: 5,
+      nodes: [
+        { type: 'resolution-countdown', x: 80, y: 150, properties: { timeLeft: '7d', probDirection: 'Any' } },
+        { type: 'probability-band', x: 340, y: 150, properties: { min: 95, max: 99 } },
+        { type: 'size-scaler', x: 600, y: 80, properties: { method: 'Kelly Criterion', riskPct: 1, maxSize: 1000 } },
+        { type: 'limit-order', x: 600, y: 250, properties: { side: 'Buy YES', limitPrice: 97, amount: 1000 } },
+        { type: 'portfolio-cap', x: 860, y: 150, properties: { maxCapital: 10000, action: 'Block New Trades' } },
+      ],
+      connections: [
+        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
+        { from: 1, fromPort: 'pass', to: 2, toPort: 'in' },
+        { from: 2, fromPort: 'pass', to: 3, toPort: 'in' },
+        { from: 3, fromPort: 'out', to: 4, toPort: 'in' },
+      ],
+    },
+    {
+      id: 'tmpl-16', name: 'Multi-Market Hedge', category: 'event-driven',
+      description: 'Monitors correlated markets for divergence. When detected, hedges across both sides. Logic gate ensures both conditions are met before entry.',
+      difficulty: 'Advanced', winRate: 70, avgReturn: 13.5, nodeCount: 6,
+      nodes: [
+        { type: 'multi-market', x: 80, y: 150, properties: { condition: 'Divergence Detected', threshold: 5 } },
+        { type: 'logic-gate', x: 340, y: 80, properties: { mode: 'AND (both)' } },
+        { type: 'liquidity-check', x: 340, y: 250, properties: { minLiquidity: 25000 } },
+        { type: 'hedge', x: 620, y: 80, properties: { strategy: 'Buy Opposite Side', ratio: 100 } },
+        { type: 'trailing-stop', x: 620, y: 250, properties: { type: 'Percentage', value: 5, activation: 3 } },
+        { type: 'alert', x: 900, y: 150, properties: { channel: 'Webhook', message: 'Hedge position opened' } },
+      ],
+      connections: [
+        { from: 0, fromPort: 'out', to: 1, toPort: 'a' },
+        { from: 2, fromPort: 'pass', to: 1, toPort: 'b' },
+        { from: 0, fromPort: 'out', to: 2, toPort: 'in' },
+        { from: 1, fromPort: 'pass', to: 3, toPort: 'in' },
+        { from: 3, fromPort: 'out', to: 4, toPort: 'in' },
+        { from: 3, fromPort: 'out', to: 5, toPort: 'in' },
+      ],
+    },
+    {
+      id: 'tmpl-17', name: 'Social Buzz Scalper', category: 'event-driven',
+      description: 'Detects social media mention spikes and buys prediction contracts before the market fully prices in the event. Sentiment filter confirms the direction before entry.',
+      difficulty: 'Intermediate', winRate: 58, avgReturn: 16.8, nodeCount: 5,
+      nodes: [
+        { type: 'social-buzz', x: 80, y: 150, properties: { preset: 'Crypto Twitter', keyword: '', spike_pct: 250, min_mentions: 75, poll_interval: 60 } },
+        { type: 'sentiment', x: 340, y: 80, properties: { source: 'Combined', sentiment: 'Bullish', minScore: 65 } },
+        { type: 'probability-band', x: 340, y: 250, properties: { min: 20, max: 65 } },
+        { type: 'market-order', x: 620, y: 150, properties: { side: 'Buy YES', amount: 150, platform: 'Auto' } },
+        { type: 'stop-loss', x: 900, y: 150, properties: { type: 'Percentage', value: 15 } },
+      ],
+      connections: [
+        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
+        { from: 1, fromPort: 'out', to: 2, toPort: 'in' },
+        { from: 2, fromPort: 'pass', to: 3, toPort: 'in' },
+        { from: 3, fromPort: 'out', to: 4, toPort: 'in' },
+      ],
+    },
+    {
+      id: 'tmpl-18', name: 'Disaster Event Alpha', category: 'event-driven',
+      description: 'Monitors NWS weather alerts and social media simultaneously. When a real alert fires AND social mentions spike, buys disaster-related contracts before the crowd.',
+      difficulty: 'Advanced', winRate: 55, avgReturn: 22.1, nodeCount: 5,
+      nodes: [
+        { type: 'news-alert', x: 80, y: 100, properties: { preset: 'NWS Weather Alerts', min_severity: 'Warning', keyword: 'hurricane', poll_interval: 120 } },
+        { type: 'social-buzz', x: 80, y: 320, properties: { preset: 'Disaster/Weather', keyword: 'hurricane', spike_pct: 200, min_mentions: 50, poll_interval: 60 } },
+        { type: 'probability-band', x: 380, y: 200, properties: { min: 10, max: 55 } },
+        { type: 'market-order', x: 660, y: 150, properties: { side: 'Buy YES', amount: 250, platform: 'Auto' } },
+        { type: 'trailing-stop', x: 660, y: 350, properties: { type: 'Percentage', value: 12, activation: 5 } },
+      ],
+      connections: [
+        { from: 0, fromPort: 'out', to: 2, toPort: 'in' },
+        { from: 1, fromPort: 'out', to: 2, toPort: 'in' },
+        { from: 2, fromPort: 'pass', to: 3, toPort: 'in' },
+        { from: 3, fromPort: 'out', to: 4, toPort: 'in' },
+      ],
+    },
   ];
 }
 
@@ -3018,6 +5731,99 @@ function createMockBot(name, strategyType, status, market, capital) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// ARCHITECT SPOTLIGHT TOUR (runs after wizard)
+// ═══════════════════════════════════════════════════════════════
+
+function maybeStartArchitectTour(force) {
+  console.log('[Tour] maybeStartArchitectTour called, force =', !!force);
+  if (!force && localStorage.getItem('mercury_arch_tour_done')) {
+    console.log('[Tour] Already completed — skipping');
+    return;
+  }
+  if (!window.MercuryTour) {
+    console.log('[Tour] MercuryTour engine not loaded');
+    return;
+  }
+
+  console.log('[Tour] Starting in 600ms...');
+  setTimeout(() => {
+    // Remove existing tour overlay if forcing restart
+    if (force) {
+      const existing = document.querySelector('.tour-overlay');
+      if (existing) existing.remove();
+      localStorage.removeItem('mercury_arch_tour_done');
+    }
+
+    const tour = window.MercuryTour.create({
+      steps: [
+        {
+          selector: '.sidebar-nav',
+          title: 'Navigation',
+          text: 'Switch between views here — Agent, My Bots, Backtest, Templates, and Research. Each one gives you a different tool for building and managing strategies.',
+          position: 'right',
+          padding: 6,
+        },
+        {
+          selector: '#strategyBar',
+          title: 'Strategy Tabs',
+          text: 'Create multiple strategies and switch between them instantly. Click "New" for a blank canvas or "My Strategies" to browse all your saved work.',
+          position: 'bottom',
+          padding: 4,
+        },
+        {
+          selector: '#canvasContainer',
+          title: 'Strategy Canvas',
+          text: 'This is where your strategy lives. Right-click to add blocks, then drag between ports to connect them. Triggers flow into logic, logic into execution, execution into risk.',
+          position: 'bottom',
+          padding: 6,
+        },
+        {
+          selector: '.agent-input-area',
+          title: 'Mercury Agent',
+          text: 'Describe what you want in plain English and the AI builds the entire strategy for you. Try "buy YES on any market where polls cross 60% and sentiment is bullish".',
+          position: 'top',
+          padding: 6,
+        },
+        {
+          selector: '.nav-item[data-view="research"]',
+          title: 'Research',
+          text: 'Live market feeds, order books, cross-platform divergence scanner, and sentiment analysis across Polymarket and Kalshi — all the data you need to find edge before you build.',
+          position: 'right',
+          padding: 4,
+        },
+        {
+          selector: '.sidebar-accounts',
+          title: 'Connected Accounts',
+          text: 'Connect your Polymarket and Kalshi accounts here. Paper trading works without an account — connect when you\'re ready to go live.',
+          position: 'right',
+          padding: 6,
+        },
+        {
+          selector: '.nav-item--funding',
+          title: 'Mercury Funding',
+          text: 'Pro users with profitable strategies can apply for up to $5,000 in funded trading capital. Build your track record, then apply here.',
+          position: 'right',
+          padding: 4,
+        },
+        {
+          selector: '.builder-toolbar',
+          title: 'Toolbar',
+          text: 'Name your strategy, deploy it, import/export strategies, and access the tutorial again from here. When your strategy is ready, hit Deploy.',
+          position: 'bottom',
+          padding: 4,
+        },
+      ],
+      storageKey: 'mercury_arch_tour_done',
+    });
+    console.log('[Tour] Calling tour.start()');
+    tour.start();
+  }, 600);
+}
+
+// Expose for manual testing from console: startTour()
+window.startTour = function() { maybeStartArchitectTour(true); };
+
+// ═══════════════════════════════════════════════════════════════
 // TUTORIAL (first-time users)
 // ═══════════════════════════════════════════════════════════════
 
@@ -3038,6 +5844,7 @@ window.hideWizard = function() {
   if (overlay) overlay.classList.remove('active');
   localStorage.setItem('mercury_wizard_done', '1');
   if (nodes.length === 0) loadDefaultStrategy();
+  maybeStartArchitectTour();
 };
 
 window.wizardGoToStep = function(step) {
@@ -3056,7 +5863,7 @@ window.tutStartBlank = function() {
   const overlay = document.getElementById('wizardOverlay');
   if (overlay) overlay.classList.remove('active');
   localStorage.setItem('mercury_wizard_done', '1');
-  // Empty canvas — user builds from scratch
+  maybeStartArchitectTour();
 };
 
 window.tutStartTemplate = function() {
@@ -3064,6 +5871,7 @@ window.tutStartTemplate = function() {
   if (overlay) overlay.classList.remove('active');
   localStorage.setItem('mercury_wizard_done', '1');
   switchView('templates');
+  maybeStartArchitectTour();
 };
 
 window.tutStartAgent = function() {
@@ -3075,6 +5883,7 @@ window.tutStartAgent = function() {
     el.agentInput.focus();
     el.agentInput.placeholder = 'Describe the bot you want to build...';
   }
+  maybeStartArchitectTour();
 };
 
 // ═══════════════════════════════════════════════════════════════

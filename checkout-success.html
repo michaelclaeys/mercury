@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Pro — Mercury</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --black: #000000;
+            --surface: #080808;
+            --border: #1a1a1a;
+            --dim: #444;
+            --muted: #888;
+            --white: #e0e0e0;
+            --green: #00c853;
+        }
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 24px;
+        }
+        .card {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            padding: 48px 40px;
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+        }
+        .icon {
+            width: 48px;
+            height: 48px;
+            border: 2px solid var(--green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            color: var(--green);
+            font-size: 24px;
+        }
+        h1 {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-bottom: 12px;
+        }
+        .sub {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+        .status {
+            font-size: 11px;
+            color: var(--dim);
+            margin-bottom: 28px;
+            min-height: 20px;
+        }
+        .status.ready { color: var(--green); }
+        .btn {
+            display: inline-block;
+            padding: 10px 24px;
+            border: 1px solid var(--green);
+            background: var(--green);
+            color: var(--black);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn:hover { background: #00e676; }
+        /* Scanline overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9998;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(255, 255, 255, 0.007) 2px,
+                rgba(255, 255, 255, 0.007) 4px
+            );
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .logo-container svg { margin-bottom: 4px; }
+        .logo-container p {
+            color: var(--dim);
+            font-size: 0.6rem;
+            letter-spacing: 0.1em;
+        }
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--dim);
+            border-top-color: var(--green);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo-container">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="3"/>
+                <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
+                <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+            </svg>
+            <p>Mercury</p>
+        </div>
+        <div class="icon">&#10003;</div>
+        <h1>Welcome to Mercury Pro</h1>
+        <p class="sub">Your payment was successful. We're activating your Pro features now.</p>
+        <p class="status" id="status"><span class="spinner"></span>Activating your account...</p>
+        <a href="architect-app.html" class="btn" id="continueBtn" style="display:none;">Open Architect</a>
+    </div>
+    <div style="margin-top:1rem;text-align:center;">
+        <a href="index.html" style="color:var(--dim);text-decoration:none;font-size:0.6rem;letter-spacing:0.05em;">&larr; Back to home</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./scripts/auth.js"></script>
+    <script>
+    (async function() {
+        const statusEl = document.getElementById('status');
+        const btnEl = document.getElementById('continueBtn');
+
+        // Poll for tier update (webhook may take a few seconds)
+        let attempts = 0;
+        const maxAttempts = 20;
+
+        async function checkTier() {
+            attempts++;
+            try {
+                if (typeof window.refreshTier === 'function') {
+                    await window.refreshTier();
+                }
+                const user = typeof window.getCurrentUser === 'function' ? await window.getCurrentUser() : null;
+                const tier = typeof window.getUserTier === 'function' ? window.getUserTier(user) : 'free';
+
+                if (tier === 'pro' || tier === 'enterprise') {
+                    statusEl.textContent = 'Pro features activated!';
+                    statusEl.className = 'status ready';
+                    btnEl.style.display = 'inline-block';
+                    return;
+                }
+            } catch (e) {
+                // ignore, keep polling
+            }
+
+            if (attempts >= maxAttempts) {
+                statusEl.textContent = 'Taking longer than expected. Your Pro access will be ready shortly.';
+                btnEl.style.display = 'inline-block';
+                return;
+            }
+
+            setTimeout(checkTier, 2000);
+        }
+
+        checkTier();
+    })();
+    </script>
+</body>
+</html>

@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles/architect-app.css">
-  <link rel="stylesheet" href="./styles/research.css">
+  <link rel="stylesheet" href="./styles/architect-app.css?v=27">
+  <link rel="stylesheet" href="./styles/research.css?v=27">
 </head>
 <body>
 
@@ -83,12 +83,20 @@
 
       <div class="nav-separator"></div>
 
-      <a href="index.html" class="nav-item">
+      <a href="index.html" class="nav-item nav-item--home">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
           <polyline points="9 22 9 12 15 12 15 22"></polyline>
         </svg>
-        Home
+        Suite Home
+      </a>
+      <a href="#" class="nav-item nav-item--funding" onclick="event.preventDefault(); handleArchitectFunding();">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="6" width="20" height="14" rx="0"/>
+          <path d="M16 14a2 2 0 100-4 2 2 0 000 4z"/>
+          <path d="M2 10h20"/>
+        </svg>
+        Funding
       </a>
     </nav>
 
@@ -107,13 +115,32 @@
       </div>
     </div>
 
+    <div class="sidebar-upgrade-section" id="sidebarUpgrade">
+      <button class="sidebar-upgrade-btn" onclick="showUpgradeModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+        Upgrade to Pro
+      </button>
+    </div>
+
+    <div class="sidebar-pref">
+      <label class="skip-anim-label">
+        <input type="checkbox" id="skipAnimToggle" onchange="toggleSkipAnimations(this.checked)">
+        <span class="skip-anim-text">Skip animations</span>
+      </label>
+    </div>
+
     <div class="sidebar-footer">
-      <div class="user-info">
+      <div class="user-info" onclick="openProfileModal()" style="cursor:pointer;" title="Account settings">
         <div class="user-avatar" id="userAvatar">?</div>
         <div class="user-details">
           <span class="user-name" id="userName">Loading...</span>
           <span class="user-plan" id="userPlan">Free Plan</span>
         </div>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--dim);flex-shrink:0;">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
       </div>
       <button class="sign-out-btn" onclick="window.signOut()">Sign Out</button>
     </div>
@@ -133,58 +160,70 @@
           <!-- Progress -->
           <div class="wizard-progress">
             <div class="wizard-step active" data-step="1"><span class="wiz-dot"></span>Welcome</div>
-            <div class="wizard-step" data-step="2"><span class="wiz-dot"></span>AI Agent</div>
+            <div class="wizard-step" data-step="2"><span class="wiz-dot"></span>Blocks</div>
             <div class="wizard-step" data-step="3"><span class="wiz-dot"></span>Canvas</div>
-            <div class="wizard-step" data-step="4"><span class="wiz-dot"></span>Start</div>
+            <div class="wizard-step" data-step="4"><span class="wiz-dot"></span>Agent</div>
+            <div class="wizard-step" data-step="5"><span class="wiz-dot"></span>Start</div>
           </div>
 
           <!-- Step 1: Welcome -->
           <div class="wizard-page active" id="wizStep1">
             <div class="tut-hero-icon">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+              <svg width="40" height="40" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3">
+                <circle cx="50" cy="50" r="8" fill="currentColor"/>
+                <ellipse cx="50" cy="50" rx="40" ry="14" transform="rotate(30 50 50)"/>
+                <ellipse cx="50" cy="50" rx="40" ry="14" transform="rotate(-30 50 50)"/>
+                <ellipse cx="50" cy="50" rx="40" ry="14" transform="rotate(90 50 50)"/>
               </svg>
             </div>
             <h2 class="wizard-title">Welcome to Architect</h2>
-            <p class="wizard-subtitle">Build automated trading bots in plain English. Just describe your strategy to the AI agent and it builds, wires, and deploys everything for you.</p>
+            <p class="wizard-subtitle">Production-grade infrastructure for prediction market trading. Pre-built building blocks, real-time data, and one-click deploy — paper trade free, go live when ready.</p>
             <div class="tut-features">
               <div class="tut-feature">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                <span>Describe any strategy in plain English</span>
-              </div>
-              <div class="tut-feature">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                <span>AI builds and wires the nodes for you</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                <span>Pre-built triggers, logic, execution, and risk blocks</span>
               </div>
               <div class="tut-feature">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                <span>One-click deploy to production</span>
+                <span>One-click deploy to production infrastructure</span>
+              </div>
+              <div class="tut-feature">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Paper trade free — no credit card required</span>
               </div>
             </div>
             <button class="wizard-next-btn tut-start-btn" onclick="wizardGoToStep(2)">Show me how it works</button>
           </div>
 
-          <!-- Step 2: AI Agent -->
+          <!-- Step 2: Strategy Builder -->
           <div class="wizard-page" id="wizStep2">
-            <h2 class="wizard-title">Just tell the AI what you want</h2>
-            <p class="wizard-subtitle">The AI agent chat is on the right side of the canvas. Describe any strategy &mdash; it handles the rest.</p>
+            <h2 class="wizard-title">Build with pre-built building blocks</h2>
+            <p class="wizard-subtitle">Mercury provides ready-to-use components for every layer of your strategy. Drag, connect, and deploy &mdash; or describe what you want in the agent chat.</p>
             <div class="tut-ai-examples">
               <div class="tut-ai-example">
-                <span class="tut-ai-prompt">&gt;</span>
-                <span class="tut-ai-text">"Buy YES on any election market where polling crosses 60% and sentiment is bullish"</span>
+                <span class="tut-ai-prompt" style="color:var(--green);">&#9632;</span>
+                <span class="tut-ai-text">Data triggers: polling shifts, price moves, news events, sentiment spikes, custom API webhooks</span>
               </div>
               <div class="tut-ai-example">
-                <span class="tut-ai-prompt">&gt;</span>
-                <span class="tut-ai-text">"Scalp crypto prediction markets when Polymarket and Kalshi prices diverge by more than 5 cents"</span>
+                <span class="tut-ai-prompt" style="color:#448aff;">&#9632;</span>
+                <span class="tut-ai-text">Logic blocks: AND/OR gates, probability filters, cross-platform price checks, time windows</span>
               </div>
               <div class="tut-ai-example">
-                <span class="tut-ai-prompt">&gt;</span>
-                <span class="tut-ai-text">"DCA into weather markets when hurricane probability is underpriced vs NOAA data"</span>
+                <span class="tut-ai-prompt" style="color:#ffab00;">&#9632;</span>
+                <span class="tut-ai-text">Execution: market/limit orders, DCA, position sizing, multi-platform routing to Polymarket &amp; Kalshi</span>
+              </div>
+              <div class="tut-ai-example">
+                <span class="tut-ai-prompt" style="color:#ff5252;">&#9632;</span>
+                <span class="tut-ai-text">Risk controls: stop-loss, max exposure, take-profit, portfolio kill switch &mdash; all built in</span>
+              </div>
+              <div class="tut-ai-example" style="margin-top:10px; border-top:1px solid rgba(255,255,255,0.06); padding-top:10px;">
+                <span class="tut-ai-prompt" style="color:#a78bfa;">&#9632;</span>
+                <span class="tut-ai-text">Event-driven: Twitter sentiment spikes, NWS weather alerts, USGS earthquake data, social buzz detection, whale order tracking, RSI/MACD/Bollinger on probability curves</span>
               </div>
             </div>
             <div class="tut-tips">
-              <div class="tut-tip">The AI creates all the nodes, connects them, and configures properties automatically.</div>
-              <div class="tut-tip">You can refine &mdash; ask it to add a stop-loss, change position size, or switch platforms.</div>
+              <div class="tut-tip">Use the agent chat on the right to describe strategies in plain English &mdash; it assembles the blocks for you.</div>
+              <div class="tut-tip">Or drag blocks from the + menu and connect them manually for full control.</div>
             </div>
             <div class="wizard-nav">
               <button class="wizard-back-btn" onclick="wizardGoToStep(1)">&larr; Back</button>
@@ -236,8 +275,50 @@
             </div>
           </div>
 
-          <!-- Step 4: Start -->
+          <!-- Step 4: Meet Mercury Agent -->
           <div class="wizard-page" id="wizStep4">
+            <div class="tut-hero-icon" style="color:var(--silver);opacity:0.7;">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                <circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/>
+                <circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/>
+                <circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/>
+              </svg>
+            </div>
+            <h2 class="wizard-title">Meet Mercury Agent</h2>
+            <p class="wizard-subtitle">Your AI copilot for building strategies. Describe what you want in plain English &mdash; the agent assembles the blocks, wires the connections, and configures risk for you.</p>
+            <div class="tut-agent-demo">
+              <div class="tut-agent-msg tut-agent-msg--user">
+                <span class="tut-agent-label">> you</span>
+                <span>Buy YES on any Polymarket election market when polling averages cross 60%, but only if the price is still under 55 cents. Risk max $2,000 per position.</span>
+              </div>
+              <div class="tut-agent-msg tut-agent-msg--ai">
+                <span class="tut-agent-label">> mercury.ai</span>
+                <span>Built: <strong>polling_momentum_bot</strong><br>
+                  1. DATA: RealClearPolitics polling feed<br>
+                  2. TRIGGER: Rolling avg crosses 60%<br>
+                  3. FILTER: Market P(YES) &lt; $0.55<br>
+                  4. EXECUTE: Buy YES @ limit P+2c<br>
+                  5. RISK: $2,000 max / stop-loss at -25%<br><br>
+                  Deploy now or backtest first?</span>
+              </div>
+              <div class="tut-agent-msg tut-agent-msg--user" style="margin-top:12px; opacity:0.6;">
+                <span class="tut-agent-label">> you</span>
+                <span>Build a strategy that buys YES when Twitter sentiment spikes bullish and NWS issues a hurricane warning</span>
+              </div>
+            </div>
+            <div class="tut-tips">
+              <div class="tut-tip">The agent panel is always open on the right side of the canvas.</div>
+              <div class="tut-tip">You can iterate &mdash; ask it to change risk limits, add data sources, or adjust execution.</div>
+            </div>
+            <div class="wizard-nav">
+              <button class="wizard-back-btn" onclick="wizardGoToStep(3)">&larr; Back</button>
+              <button class="wizard-next-btn" onclick="wizardGoToStep(5)">Next &rarr;</button>
+            </div>
+          </div>
+
+          <!-- Step 5: Start -->
+          <div class="wizard-page" id="wizStep5">
             <h2 class="wizard-title">Ready to build</h2>
             <p class="wizard-subtitle">Choose how you'd like to get started.</p>
             <div class="tut-start-options">
@@ -245,8 +326,8 @@
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                   <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
                 </svg>
-                <span class="tut-option-name">Ask the AI agent <span class="tut-option-rec">recommended</span></span>
-                <span class="tut-option-desc">Describe what you want in plain English and the agent builds it</span>
+                <span class="tut-option-name">Describe your strategy <span class="tut-option-rec">recommended</span></span>
+                <span class="tut-option-desc">Tell the agent what you want and it assembles the building blocks</span>
               </button>
               <button class="tut-option" onclick="tutStartTemplate()">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -263,7 +344,7 @@
                 <span class="tut-option-desc">Start from scratch and build node by node</span>
               </button>
             </div>
-            <button class="wizard-back-btn" onclick="wizardGoToStep(3)">&larr; Back</button>
+            <button class="wizard-back-btn" onclick="wizardGoToStep(4)">&larr; Back</button>
           </div>
 
           <button class="wizard-skip" onclick="hideWizard()">Skip tutorial &rarr;</button>
@@ -284,13 +365,20 @@
               <span class="toolbar-status" id="toolbarStatus">Draft</span>
             </div>
             <div class="toolbar-right">
-              <button class="toolbar-btn" onclick="reopenTutorial()" title="Tutorial">
+              <button class="toolbar-btn" onclick="reopenTutorial()" title="Architect Tutorial">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"></circle>
                   <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"></path>
                   <line x1="12" y1="17" x2="12.01" y2="17"></line>
                 </svg>
-                Tutorial
+                Architect Tutorial
+              </button>
+              <button class="toolbar-btn" onclick="startTour()" title="Sitewide Tour">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Sitewide Tour
               </button>
               <button class="toolbar-btn" id="btnImportStrategy" title="Import Strategy">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -308,6 +396,12 @@
                 </svg>
                 Export
               </button>
+              <button class="toolbar-btn" onclick="fitToView()" title="Fit all nodes to view">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path>
+                </svg>
+                Fit View
+              </button>
               <button class="toolbar-btn" id="btnCommit">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="4"></circle>
@@ -320,9 +414,38 @@
             </div>
           </div>
 
+          <!-- Strategy Tabs -->
+          <div class="strategy-bar" id="strategyBar">
+            <div class="strategy-tabs" id="strategyTabs">
+              <!-- Strategy tabs populated by JS -->
+            </div>
+            <div class="strategy-bar-actions">
+              <button class="strategy-bar-btn" id="btnNewStrategy" title="New Strategy">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                New Strategy
+              </button>
+              <button class="strategy-bar-btn" id="btnBrowseStrategies" title="My Strategies">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"></path>
+                </svg>
+                My Strategies
+              </button>
+            </div>
+          </div>
+
           <!-- Canvas + Script -->
           <div class="canvas-script-column">
             <div class="canvas-container" id="canvasContainer">
+              <div class="canvas-agent-tip" id="canvasAgentTip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+                </svg>
+                <span>For complex strategies, custom APIs, or advanced data sources — <strong>use the Mercury Agent</strong>. Describe what you want in plain English and the AI handles the rest.</span>
+                <button class="canvas-agent-tip-close" onclick="this.parentElement.style.display='none'; localStorage.setItem('mercury_agent_tip_dismissed','1');">&times;</button>
+              </div>
               <div class="canvas-viewport grid-visible" id="canvasViewport">
                 <svg class="connections-layer" id="connectionsLayer"></svg>
               </div>
@@ -349,11 +472,28 @@
                       <span class="palette-group-name">Triggers</span>
                     </div>
                     <div class="palette-group-items">
+                      <div class="palette-item" data-node-type="market" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9733;</span><span class="palette-item-name">Market</span></div>
                       <div class="palette-item" data-node-type="price-threshold" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9673;</span><span class="palette-item-name">Price Threshold</span></div>
                       <div class="palette-item" data-node-type="volume-spike" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9650;</span><span class="palette-item-name">Volume Spike</span></div>
                       <div class="palette-item" data-node-type="time-based" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9201;</span><span class="palette-item-name">Time-Based</span></div>
                       <div class="palette-item" data-node-type="market-event" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9889;</span><span class="palette-item-name">Market Event</span></div>
                       <div class="palette-item" data-node-type="probability-cross" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#10539;</span><span class="palette-item-name">Probability Cross</span></div>
+                      <div class="palette-item" data-node-type="api-data" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9740;</span><span class="palette-item-name">Custom API</span></div>
+                      <div class="palette-item" data-node-type="spread-detector" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#8646;</span><span class="palette-item-name">Spread Detector</span></div>
+                      <div class="palette-item" data-node-type="whale-alert" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9875;</span><span class="palette-item-name">Whale Alert</span></div>
+                      <div class="palette-item" data-node-type="resolution-countdown" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9203;</span><span class="palette-item-name">Resolution Countdown</span></div>
+                      <div class="palette-item" data-node-type="sentiment" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9784;</span><span class="palette-item-name">Sentiment</span></div>
+                      <div class="palette-item" data-node-type="social-buzz" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#128200;</span><span class="palette-item-name">Social Buzz</span></div>
+                      <div class="palette-item" data-node-type="news-alert" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9888;</span><span class="palette-item-name">News Alert</span></div>
+                      <div class="palette-item" data-node-type="multi-market" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9881;</span><span class="palette-item-name">Multi-Market</span></div>
+                      <div class="palette-item" data-node-type="order-flow" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#8693;</span><span class="palette-item-name">Order Flow</span></div>
+                      <!-- Technical Indicators -->
+                      <div class="palette-item" data-node-type="rsi" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#8597;</span><span class="palette-item-name">RSI</span></div>
+                      <div class="palette-item" data-node-type="macd" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#8734;</span><span class="palette-item-name">MACD</span></div>
+                      <div class="palette-item" data-node-type="bollinger" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9186;</span><span class="palette-item-name">Bollinger Bands</span></div>
+                      <div class="palette-item" data-node-type="moving-average" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#8767;</span><span class="palette-item-name">Moving Average</span></div>
+                      <div class="palette-item" data-node-type="rate-of-change" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#916;</span><span class="palette-item-name">Rate of Change</span></div>
+                      <div class="palette-item" data-node-type="pattern" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9698;</span><span class="palette-item-name">Pattern Detect</span></div>
                     </div>
                   </div>
                   <div class="palette-group" data-category="condition">
@@ -367,6 +507,13 @@
                       <div class="palette-item" data-node-type="liquidity-check" draggable="true"><span class="palette-item-icon" style="color:#60a5fa">&#9679;</span><span class="palette-item-name">Liquidity Check</span></div>
                       <div class="palette-item" data-node-type="portfolio-exposure" draggable="true"><span class="palette-item-icon" style="color:#60a5fa">&#9645;</span><span class="palette-item-name">Portfolio Exposure</span></div>
                       <div class="palette-item" data-node-type="correlation" draggable="true"><span class="palette-item-icon" style="color:#60a5fa">&#8776;</span><span class="palette-item-name">Correlation</span></div>
+                      <div class="palette-item" data-node-type="time-window" draggable="true"><span class="palette-item-icon" style="color:#60a5fa">&#9200;</span><span class="palette-item-name">Time Window</span></div>
+                      <div class="palette-item" data-node-type="spread-check" draggable="true"><span class="palette-item-icon" style="color:#60a5fa">&#8596;</span><span class="palette-item-name">Spread Check</span></div>
+                      <div class="palette-item" data-node-type="momentum" draggable="true"><span class="palette-item-icon" style="color:#60a5fa">&#10132;</span><span class="palette-item-name">Momentum</span></div>
+                      <div class="palette-item" data-node-type="volatility" draggable="true"><span class="palette-item-icon" style="color:#60a5fa">&#10534;</span><span class="palette-item-name">Volatility</span></div>
+                      <div class="palette-item" data-node-type="logic-gate" draggable="true"><span class="palette-item-icon" style="color:#60a5fa">&#9783;</span><span class="palette-item-name">Logic Gate</span></div>
+                      <div class="palette-item" data-node-type="price-range" draggable="true"><span class="palette-item-icon" style="color:#60a5fa">&#9644;</span><span class="palette-item-name">Price Range</span></div>
+                      <div class="palette-item" data-node-type="volume-filter" draggable="true"><span class="palette-item-icon" style="color:#60a5fa">&#9638;</span><span class="palette-item-name">Volume Filter</span></div>
                     </div>
                   </div>
                   <div class="palette-group" data-category="execution">
@@ -380,6 +527,11 @@
                       <div class="palette-item" data-node-type="limit-order" draggable="true"><span class="palette-item-icon" style="color:#e8e8e8">&#9644;</span><span class="palette-item-name">Limit Order</span></div>
                       <div class="palette-item" data-node-type="scaled-entry" draggable="true"><span class="palette-item-icon" style="color:#e8e8e8">&#9638;</span><span class="palette-item-name">Scaled Entry</span></div>
                       <div class="palette-item" data-node-type="dca" draggable="true"><span class="palette-item-icon" style="color:#e8e8e8">&#8635;</span><span class="palette-item-name">DCA</span></div>
+                      <div class="palette-item" data-node-type="close-position" draggable="true"><span class="palette-item-icon" style="color:#e8e8e8">&#10006;</span><span class="palette-item-name">Close Position</span></div>
+                      <div class="palette-item" data-node-type="hedge" draggable="true"><span class="palette-item-icon" style="color:#e8e8e8">&#9878;</span><span class="palette-item-name">Hedge</span></div>
+                      <div class="palette-item" data-node-type="twap" draggable="true"><span class="palette-item-icon" style="color:#e8e8e8">&#9472;</span><span class="palette-item-name">TWAP</span></div>
+                      <div class="palette-item" data-node-type="conditional-order" draggable="true"><span class="palette-item-icon" style="color:#e8e8e8">&#9655;</span><span class="palette-item-name">Conditional Order</span></div>
+                      <div class="palette-item" data-node-type="rebalance" draggable="true"><span class="palette-item-icon" style="color:#e8e8e8">&#9881;</span><span class="palette-item-name">Rebalance</span></div>
                     </div>
                   </div>
                   <div class="palette-group" data-category="risk">
@@ -390,9 +542,28 @@
                     </div>
                     <div class="palette-group-items">
                       <div class="palette-item" data-node-type="stop-loss" draggable="true"><span class="palette-item-icon" style="color:#ff1744">&#9888;</span><span class="palette-item-name">Stop Loss</span></div>
+                      <div class="palette-item" data-node-type="take-profit" draggable="true"><span class="palette-item-icon" style="color:#ff1744">&#9650;</span><span class="palette-item-name">Take Profit</span></div>
+                      <div class="palette-item" data-node-type="trailing-stop" draggable="true"><span class="palette-item-icon" style="color:#ff1744">&#10549;</span><span class="palette-item-name">Trailing Stop</span></div>
                       <div class="palette-item" data-node-type="position-limit" draggable="true"><span class="palette-item-icon" style="color:#ff1744">&#9633;</span><span class="palette-item-name">Position Limit</span></div>
                       <div class="palette-item" data-node-type="portfolio-cap" draggable="true"><span class="palette-item-icon" style="color:#ff1744">&#9651;</span><span class="palette-item-name">Portfolio Cap</span></div>
                       <div class="palette-item" data-node-type="max-drawdown" draggable="true"><span class="palette-item-icon" style="color:#ff1744">&#9660;</span><span class="palette-item-name">Max Drawdown</span></div>
+                      <div class="palette-item" data-node-type="time-exit" draggable="true"><span class="palette-item-icon" style="color:#ff1744">&#9203;</span><span class="palette-item-name">Time Exit</span></div>
+                      <div class="palette-item" data-node-type="daily-loss-limit" draggable="true"><span class="palette-item-icon" style="color:#ff1744">&#9940;</span><span class="palette-item-name">Daily Loss Limit</span></div>
+                      <div class="palette-item" data-node-type="cooldown" draggable="true"><span class="palette-item-icon" style="color:#ff1744">&#10226;</span><span class="palette-item-name">Cooldown</span></div>
+                      <div class="palette-item" data-node-type="size-scaler" draggable="true"><span class="palette-item-icon" style="color:#ff1744">&#9878;</span><span class="palette-item-name">Size Scaler</span></div>
+                    </div>
+                  </div>
+                  <div class="palette-group" data-category="utility">
+                    <div class="palette-group-header">
+                      <span class="palette-group-indicator">&#9656;</span>
+                      <span class="palette-group-dot" style="background:#fbbf24"></span>
+                      <span class="palette-group-name">Utility</span>
+                    </div>
+                    <div class="palette-group-items">
+                      <div class="palette-item" data-node-type="alert" draggable="true"><span class="palette-item-icon" style="color:#fbbf24">&#9888;</span><span class="palette-item-name">Alert</span></div>
+                      <div class="palette-item" data-node-type="delay" draggable="true"><span class="palette-item-icon" style="color:#fbbf24">&#9201;</span><span class="palette-item-name">Delay</span></div>
+                      <div class="palette-item" data-node-type="note" draggable="true"><span class="palette-item-icon" style="color:#fbbf24">&#9998;</span><span class="palette-item-name">Note</span></div>
+                      <div class="palette-item" data-node-type="splitter" draggable="true"><span class="palette-item-icon" style="color:#fbbf24">&#9698;</span><span class="palette-item-name">Splitter</span></div>
                     </div>
                   </div>
                 </div>
@@ -454,6 +625,10 @@
 
           <!-- Status Bar -->
           <div class="agent-status-bar" id="agentStatusBar">
+            <div class="agent-status-badge" id="statusEngine">
+              <span class="status-dot disconnected"></span>
+              <span>Engine Offline</span>
+            </div>
             <div class="agent-status-badge" id="statusBots">
               <span class="status-dot live"></span>
               <span>0 Bots Live</span>
@@ -479,7 +654,7 @@
                   </svg>
                 </div>
                 <div class="agent-welcome-title">Mercury Agent</div>
-                <div class="agent-welcome-text">I help you find edge in prediction markets. Tell me what you're looking for and I'll build, analyze, and deploy strategies for you.</div>
+                <div class="agent-welcome-text">Describe any strategy and Mercury assembles the building blocks — triggers, logic, execution, and risk management — then deploys to production infrastructure.</div>
               </div>
             </div>
             <div class="agent-input-area">
@@ -560,6 +735,7 @@
           <button class="toolbar-btn" id="btnPauseBot">Pause</button>
           <button class="toolbar-btn" id="btnRestartBot">Restart</button>
           <button class="toolbar-btn toolbar-btn-danger" id="btnKillBot">Kill</button>
+          <button class="toolbar-btn toolbar-btn-danger" id="btnDeleteBot" style="margin-left:8px">Delete</button>
           <button class="toolbar-btn" id="btnEditStrategy">Edit Strategy</button>
         </div>
       </div>
@@ -706,6 +882,7 @@
             <button class="filter-tab" data-filter="momentum">Momentum</button>
             <button class="filter-tab" data-filter="mean-reversion">Mean Rev</button>
             <button class="filter-tab" data-filter="arbitrage">Arbitrage</button>
+            <button class="filter-tab" data-filter="bond-arb">Bond Arb</button>
             <button class="filter-tab" data-filter="event-driven">Event</button>
           </div>
         </div>
@@ -719,6 +896,85 @@
          VIEW 6: MERCURY RESEARCH + TERMINAL
     ────────────────────────────────────────────────────── -->
     <section id="view-research" class="app-view">
+
+      <!-- Research Tutorial Overlay -->
+      <div class="research-tutorial-overlay" id="researchTutorial">
+        <div class="research-tutorial">
+          <button class="research-tutorial-close" id="researchTutorialClose">&times;</button>
+
+          <div class="research-tutorial-hero">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--green)">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+            </svg>
+            <h2>Mercury Research</h2>
+            <p>Real-time market intelligence, cross-platform analytics, and live news &mdash; all in one terminal.</p>
+          </div>
+
+          <div class="research-tutorial-grid">
+
+            <div class="research-tutorial-card" onclick="dismissResearchTutorial(); switchResearchTab('edge');">
+              <span class="research-tutorial-icon" style="color:var(--green)">&#9673;</span>
+              <div class="research-tutorial-card-body">
+                <span class="research-tutorial-card-title">Overview &amp; Edge Scanner</span>
+                <span class="research-tutorial-card-desc">Live market metrics, top movers, edge detection across 100+ contracts. Click any market to see full price history, volume charts, and probability timelines.</span>
+              </div>
+            </div>
+
+            <div class="research-tutorial-card" onclick="dismissResearchTutorial(); switchResearchTab('crypto');">
+              <span class="research-tutorial-icon" style="color:#fbbf24">&#9830;</span>
+              <div class="research-tutorial-card-body">
+                <span class="research-tutorial-card-title">Crypto Dashboard</span>
+                <span class="research-tutorial-card-desc">BTC, ETH, SOL real-time prices and 24h charts. Track crypto alongside your prediction market positions for cross-asset correlation.</span>
+              </div>
+            </div>
+
+            <div class="research-tutorial-card" onclick="dismissResearchTutorial(); switchResearchTab('markets');">
+              <span class="research-tutorial-icon" style="color:#60a5fa">&#9638;</span>
+              <div class="research-tutorial-card-body">
+                <span class="research-tutorial-card-title">Market Scanner</span>
+                <span class="research-tutorial-card-desc">Browse all tracked contracts with sortable columns &mdash; price, volume, spread, platform. Click any row to drill into detailed stats and historical data.</span>
+              </div>
+            </div>
+
+            <div class="research-tutorial-card" onclick="dismissResearchTutorial(); switchResearchTab('news');">
+              <span class="research-tutorial-icon" style="color:#a78bfa">&#9889;</span>
+              <div class="research-tutorial-card-body">
+                <span class="research-tutorial-card-title">News</span>
+                <span class="research-tutorial-card-desc">Live news feed with sentiment analysis from Reuters, Bloomberg, and crypto sources.</span>
+              </div>
+            </div>
+
+            <div class="research-tutorial-card" onclick="dismissResearchTutorial(); switchResearchTab('bonding');">
+              <span class="research-tutorial-icon" style="color:#ff1744">&#9878;</span>
+              <div class="research-tutorial-card-body">
+                <span class="research-tutorial-card-title">Bonding Arb</span>
+                <span class="research-tutorial-card-desc">Find near-certain contracts close to resolution for risk-free yield. Buy at 95-99c, collect 100c on resolution &mdash; like a short-term bond. Sortable by annualized yield, days to maturity, and liquidity.</span>
+              </div>
+            </div>
+
+            <div class="research-tutorial-card" onclick="dismissResearchTutorial(); switchResearchTab('terminal');">
+              <span class="research-tutorial-icon" style="color:var(--silver)">&#9618;</span>
+              <div class="research-tutorial-card-body">
+                <span class="research-tutorial-card-title">Terminal</span>
+                <span class="research-tutorial-card-desc">Full execution dashboard with live order book, volume heatmap, execution logs, and an AI research assistant that can answer questions about any market.</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="research-tutorial-tips">
+            <div class="research-tutorial-tip">Click any market row or card throughout Research to see detailed stats, price history, and volume charts.</div>
+            <div class="research-tutorial-tip">Use the Terminal's AI chat to ask questions like "what's the edge on BTC contracts?" or "show me the biggest spreads."</div>
+            <div class="research-tutorial-tip">Found an opportunity? Jump to Architect to build a strategy around it, or use a Bond Arb preset template.</div>
+          </div>
+
+          <div class="research-tutorial-actions">
+            <button class="research-tutorial-start" onclick="dismissResearchTutorial(); startResearchTour(true);">Start Guided Tour</button>
+            <button class="research-tutorial-skip" onclick="dismissResearchTutorial();">Skip &mdash; I'll explore myself</button>
+          </div>
+        </div>
+      </div>
 
       <!-- Top Status Bar -->
       <div class="research-topbar" id="researchTopbar">
@@ -746,22 +1002,82 @@
         <button class="research-tab active" data-rtab="edge">Overview</button>
         <button class="research-tab" data-rtab="crypto">Crypto</button>
         <button class="research-tab" data-rtab="markets">Markets</button>
-        <button class="research-tab" data-rtab="news">News &amp; Signals</button>
+        <button class="research-tab" data-rtab="news">News</button>
         <div class="research-tab-sep"></div>
         <button class="research-tab research-tab--terminal" data-rtab="terminal">Terminal</button>
+        <button class="research-tab research-tab--tour" id="rewatchTourBtn" onclick="window.resetResearchTutorial();" title="Rewatch tutorial">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          Tutorial
+        </button>
       </div>
 
       <!-- ═══ TAB: EDGE SCANNER ═══ -->
       <div class="research-tab-panel active" id="rtab-edge">
+        <!-- Search + Filter Toolbar -->
+        <div class="research-toolbar" id="researchControlsBar">
+          <div class="research-toolbar-search">
+            <svg class="research-toolbar-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+            <input type="text" class="research-toolbar-input" id="edgeSearchInput" placeholder="Search prediction markets..." spellcheck="false" autocomplete="off">
+            <kbd class="research-toolbar-kbd">/</kbd>
+          </div>
+          <div class="research-toolbar-filters">
+            <div class="research-toolbar-group">
+              <span class="research-toolbar-label">PLATFORM</span>
+              <div class="module-platform-tabs" id="edgePlatformTabs">
+                <button class="plat-btn active" data-plat="all">ALL</button>
+                <button class="plat-btn plat-btn--poly" data-plat="polymarket">POLY</button>
+                <button class="plat-btn plat-btn--kalshi" data-plat="kalshi">KALSHI</button>
+              </div>
+            </div>
+            <div class="research-toolbar-group">
+              <span class="research-toolbar-label">CATEGORY</span>
+              <select class="research-category-select" id="edgeCategorySelect">
+                <option value="all">All Categories</option>
+                <option value="crypto">Crypto</option>
+                <option value="politics">Politics</option>
+                <option value="economics">Economics</option>
+                <option value="sports">Sports</option>
+                <option value="entertainment">Entertainment</option>
+                <option value="science">Science &amp; Tech</option>
+                <option value="world">World Events</option>
+              </select>
+            </div>
+            <div class="research-toolbar-group">
+              <span class="research-toolbar-label">TIMEFRAME</span>
+              <div class="module-timeframe-tabs" id="edgeTimeframeTabs">
+                <button class="tf-btn active" data-tf="all">ALL</button>
+                <button class="tf-btn" data-tf="15M">15M</button>
+                <button class="tf-btn" data-tf="1H">1H</button>
+                <button class="tf-btn" data-tf="1W">1W</button>
+                <button class="tf-btn" data-tf="1M">1M</button>
+                <button class="tf-btn" data-tf="1Y">1Y</button>
+              </div>
+            </div>
+            <div class="research-toolbar-group">
+              <span class="research-toolbar-label">SORT</span>
+              <select class="research-category-select" id="edgeSortSelect">
+                <option value="volume">Volume</option>
+                <option value="spread">Spread</option>
+                <option value="resolves">Resolves Soon</option>
+                <option value="price-high">Price: High</option>
+                <option value="price-low">Price: Low</option>
+              </select>
+            </div>
+            <span class="research-toolbar-count" id="edgeFilterMeta"></span>
+          </div>
+        </div>
+
         <div class="overview-metrics">
           <div class="overview-card">
             <div class="overview-card-label">Active Markets</div>
-            <div class="overview-card-value" id="metricActiveMarkets">8</div>
+            <div class="overview-card-value" id="metricActiveMarkets">—</div>
             <div class="overview-card-sub">Tracked across platforms</div>
           </div>
           <div class="overview-card">
             <div class="overview-card-label">24h Volume</div>
-            <div class="overview-card-value" id="metricTotalVol">$28.6M</div>
+            <div class="overview-card-value" id="metricTotalVol">—</div>
             <div class="overview-card-sub">Combined market volume</div>
           </div>
           <div class="overview-card">
@@ -770,34 +1086,82 @@
             <div class="overview-card-sub">Best cross-platform gap</div>
           </div>
           <div class="overview-card">
-            <div class="overview-card-label">Signals</div>
-            <div class="overview-card-value" id="metricSignals">0</div>
-            <div class="overview-card-sub">Active alerts today</div>
+            <div class="overview-card-label">Biggest Mover (30m)</div>
+            <div class="overview-card-value" id="metricBiggestMover">&mdash;</div>
+            <div class="overview-card-sub" id="metricBiggestMoverSub">Past 30 minutes</div>
           </div>
         </div>
+
         <div class="research-scroll">
+          <!-- Edge Scanner Table -->
           <div class="research-module">
             <div class="module-header">
-              <span class="module-title">Top Markets by Volume</span>
-              <div class="module-controls">
-                <div class="module-timeframe-tabs" id="edgeTimeframeTabs">
-                  <button class="tf-btn active" data-tf="all">ALL</button>
-                  <button class="tf-btn" data-tf="15M">15M</button>
-                  <button class="tf-btn" data-tf="1H">1H</button>
-                  <button class="tf-btn" data-tf="1W">1W</button>
-                  <button class="tf-btn" data-tf="1M">1M</button>
-                  <button class="tf-btn" data-tf="1Y">1Y</button>
-                </div>
-              </div>
+              <span class="module-title">Markets <span class="live-badge" id="edgeLiveBadge" style="display:none;">LIVE</span></span>
             </div>
             <div class="module-body">
               <div id="edgeResearchCards"></div>
             </div>
           </div>
 
+          <!-- Bonding Arb Section (inline) -->
+          <div class="research-module research-module--bonding">
+            <div class="module-header">
+              <span class="module-title">Bonding Arbitrage
+                <span class="module-title-badge module-title-badge--green">YIELD</span>
+              </span>
+              <div class="module-controls">
+                <select class="module-select" id="bondingSortSelect">
+                  <option value="yield">Sort: Yield</option>
+                  <option value="prob">Sort: Probability</option>
+                  <option value="volume">Sort: Volume</option>
+                  <option value="days">Sort: Days to Resolve</option>
+                </select>
+                <select class="module-select" id="bondingPlatformSelect">
+                  <option value="all">All Platforms</option>
+                  <option value="polymarket">Polymarket</option>
+                  <option value="kalshi">Kalshi</option>
+                </select>
+              </div>
+            </div>
+            <div class="module-body">
+              <div class="bonding-metrics-row">
+                <div class="bonding-metric">
+                  <span class="bonding-metric-val" id="bondingCount">0</span>
+                  <span class="bonding-metric-label">Markets</span>
+                </div>
+                <div class="bonding-metric">
+                  <span class="bonding-metric-val bonding-metric-val--green" id="bondingAvgYield">&mdash;</span>
+                  <span class="bonding-metric-label">Avg Yield</span>
+                </div>
+                <div class="bonding-metric">
+                  <span class="bonding-metric-val" id="bondingTotalLiq">&mdash;</span>
+                  <span class="bonding-metric-label">Liquidity</span>
+                </div>
+                <div class="bonding-metric">
+                  <span class="bonding-metric-val" id="bondingAvgDays">&mdash;</span>
+                  <span class="bonding-metric-label">Avg Days</span>
+                </div>
+              </div>
+              <div class="bonding-table-header">
+                <span class="bonding-col bonding-col--market">Market</span>
+                <span class="bonding-col bonding-col--platform">Platform</span>
+                <span class="bonding-col bonding-col--price">Price</span>
+                <span class="bonding-col bonding-col--prob">Implied Prob</span>
+                <span class="bonding-col bonding-col--yield">Est. Yield</span>
+                <span class="bonding-col bonding-col--days">Days Left</span>
+                <span class="bonding-col bonding-col--vol">24h Volume</span>
+                <span class="bonding-col bonding-col--action">Action</span>
+              </div>
+              <div id="bondingTableBody">
+                <div class="bonding-loading">Scanning for near-resolution opportunities...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cross-Platform Comparison -->
           <div class="research-module research-module--table">
             <div class="module-header">
-              <span class="module-title">Cross-Platform Data Comparison</span>
+              <span class="module-title">Cross-Platform Comparison</span>
               <span class="module-meta" id="arbTimestamp">Scanning...</span>
             </div>
             <div class="module-body">
@@ -897,7 +1261,7 @@
         </div>
       </div>
 
-      <!-- ═══ TAB: NEWS & SIGNALS ═══ -->
+      <!-- ═══ TAB: NEWS ═══ -->
       <div class="research-tab-panel" id="rtab-news">
         <div class="research-grid research-grid--news">
           <div class="research-module" id="mod-newsfeed">
@@ -909,17 +1273,20 @@
               <div class="news-feed" id="newsFeed"></div>
             </div>
           </div>
-          <div class="research-module" id="mod-signals">
+          <div class="research-module" id="mod-biggest-mover">
             <div class="module-header">
-              <span class="module-title">Signal Alerts</span>
-              <span class="module-meta" id="signalCount">0 new</span>
+              <span class="module-title">Biggest Movers</span>
+              <span class="module-meta">Last 30 min</span>
             </div>
             <div class="module-body">
-              <div class="signal-feed" id="signalFeed"></div>
+              <div id="biggestMoverBody"><div class="mover-empty">Loading market data...</div></div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- ═══ TAB: BONDING ARB ═══ -->
+      <!-- bonding arb moved to edge/overview tab -->
 
       <!-- ═══ TAB: TERMINAL (Execution Dashboard) ═══ -->
       <div class="research-tab-panel" id="rtab-terminal">
@@ -1040,8 +1407,8 @@
         <div class="inspector-field">
           <label class="field-label">Mode</label>
           <select class="field-select" id="deployMode">
-            <option>Paper Trading</option>
-            <option>Live</option>
+            <option value="paper">Paper Trading</option>
+            <option value="live">Live</option>
           </select>
         </div>
       </div>
@@ -1083,31 +1450,311 @@
     </div>
   </div>
 
+  <!-- Market Detail Modal -->
+  <div class="modal-overlay" id="marketDetailModal" onclick="if(event.target===this)closeMarketDetail()">
+    <div class="modal md-modal">
+      <div class="modal-header">
+        <div class="md-header-left">
+          <span class="md-short" id="mdShort">—</span>
+          <span class="md-name" id="mdName">—</span>
+        </div>
+        <div class="md-header-right">
+          <span class="md-price-big" id="mdPrice">—</span>
+          <span class="md-change" id="mdChange">—</span>
+        </div>
+        <button class="modal-close" onclick="closeMarketDetail()">&times;</button>
+      </div>
+      <div class="modal-body md-body">
+        <!-- Platform Price Toggle -->
+        <div class="md-platform-bar">
+          <div class="md-plat-tabs" id="mdPlatTabs">
+            <button class="md-plat-btn md-plat-btn--poly" data-mdplat="polymarket">Polymarket</button>
+            <button class="md-plat-btn md-plat-btn--kalshi" data-mdplat="kalshi">Kalshi</button>
+          </div>
+          <span class="md-platform-label" id="mdPlatformLabel"></span>
+        </div>
+
+        <!-- Price Chart -->
+        <div class="md-section">
+          <div class="md-section-header">
+            <div class="md-section-label">PRICE HISTORY</div>
+            <div class="md-chart-controls">
+              <div class="md-chart-type-toggle" id="mdChartTypeToggle">
+                <button class="md-ct-btn" data-ct="area" title="Line chart">&#9135;</button>
+                <button class="md-ct-btn active" data-ct="candlestick" title="Candlestick chart">&#9649;</button>
+              </div>
+              <div class="md-chart-tf-toggle" id="mdChartTfToggle">
+                <button class="md-tf-btn" data-tf="1h">1H</button>
+                <button class="md-tf-btn" data-tf="6h">6H</button>
+                <button class="md-tf-btn active" data-tf="24h">24H</button>
+                <button class="md-tf-btn" data-tf="7d">7D</button>
+                <button class="md-tf-btn" data-tf="max">MAX</button>
+              </div>
+            </div>
+          </div>
+          <div id="mdPriceChart" class="md-chart"></div>
+        </div>
+
+        <!-- Volume Chart -->
+        <div class="md-section">
+          <div class="md-section-label">VOLUME</div>
+          <div id="mdVolChart" class="md-vol-chart"></div>
+        </div>
+
+        <!-- Key Stats Grid -->
+        <div class="md-section">
+          <div class="md-section-label">ANALYTICS</div>
+          <div class="md-stats-grid">
+            <div class="md-stat">
+              <div class="md-stat-label">24h Volume</div>
+              <div class="md-stat-value" id="mdVol">—</div>
+            </div>
+            <div class="md-stat">
+              <div class="md-stat-label">Polymarket</div>
+              <div class="md-stat-value" id="mdPoly">—</div>
+            </div>
+            <div class="md-stat">
+              <div class="md-stat-label">Kalshi</div>
+              <div class="md-stat-value" id="mdKalshi">—</div>
+            </div>
+            <div class="md-stat">
+              <div class="md-stat-label">Spread</div>
+              <div class="md-stat-value md-stat-value--green" id="mdSpread">—</div>
+            </div>
+            <div class="md-stat">
+              <div class="md-stat-label">Implied Prob.</div>
+              <div class="md-stat-value" id="mdImplied">—</div>
+            </div>
+            <div class="md-stat">
+              <div class="md-stat-label">Timeframe</div>
+              <div class="md-stat-value" id="mdTimeframe">—</div>
+            </div>
+            <div class="md-stat">
+              <div class="md-stat-label">Resolves In</div>
+              <div class="md-stat-value" id="mdResolvesIn">—</div>
+            </div>
+            <div class="md-stat">
+              <div class="md-stat-label">NO Price</div>
+              <div class="md-stat-value" id="mdNoPrice">—</div>
+            </div>
+            <div class="md-stat">
+              <div class="md-stat-label">Expected Value</div>
+              <div class="md-stat-value" id="mdEV">—</div>
+            </div>
+            <div class="md-stat">
+              <div class="md-stat-label">Kelly %</div>
+              <div class="md-stat-value" id="mdKelly">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Connect Account Modal -->
   <div class="modal-overlay" id="connectAccountModal">
-    <div class="modal">
+    <div class="modal" style="max-width:500px;">
       <div class="modal-header">
         <span class="modal-title" id="connectModalTitle">Connect Account</span>
         <button class="modal-close" id="connectModalClose">&times;</button>
       </div>
       <div class="modal-body">
         <div class="connect-platform-badge" id="connectPlatformBadge">POLYMARKET</div>
-        <div class="inspector-field">
-          <label class="field-label">API Key</label>
-          <input class="field-input" id="connectApiKey" type="password" placeholder="Enter your API key" spellcheck="false">
+
+        <!-- Polymarket: Managed wallet (recommended) -->
+        <div id="connectWalletSection">
+          <div class="connect-method-label">Mercury Trading Wallet (Recommended)</div>
+          <div class="connect-wallet-info" style="margin-bottom:12px;">
+            Mercury creates a dedicated Polygon wallet for your bots. Deposit USDC, and your bots trade automatically. Withdraw anytime.
+          </div>
+
+          <!-- State: No wallet yet -->
+          <div id="walletStateCreate">
+            <button class="connect-wallet-btn" id="createWalletBtn" onclick="createManagedWallet()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="0"/><path d="M16 14a2 2 0 100-4 2 2 0 000 4z"/><path d="M2 10h20"/></svg>
+              Create Trading Wallet
+            </button>
+          </div>
+
+          <!-- State: Wallet exists -->
+          <div id="walletStateActive" style="display:none;">
+            <div class="wallet-info-card">
+              <div class="wallet-info-row">
+                <span class="wallet-info-label">Deposit Address (Polygon)</span>
+                <div class="wallet-address-row">
+                  <code class="wallet-address" id="walletAddress">—</code>
+                  <button class="wallet-copy-btn" onclick="copyWalletAddress()" title="Copy address">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="0"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="wallet-info-row">
+                <span class="wallet-info-label">Network</span>
+                <span class="wallet-info-value">Polygon (MATIC) — USDC only</span>
+              </div>
+              <div class="wallet-balance-grid">
+                <div class="wallet-balance-item">
+                  <div class="wallet-balance-label">Available USDC</div>
+                  <div class="wallet-balance-value" id="walletBalanceUsdc">$0.00</div>
+                </div>
+                <div class="wallet-balance-item">
+                  <div class="wallet-balance-label">In Positions</div>
+                  <div class="wallet-balance-value" id="walletBalancePositions">$0.00</div>
+                </div>
+                <div class="wallet-balance-item">
+                  <div class="wallet-balance-label">Pending</div>
+                  <div class="wallet-balance-value" id="walletBalancePending">$0.00</div>
+                </div>
+              </div>
+              <div class="wallet-actions">
+                <button class="toolbar-btn toolbar-btn-primary" onclick="openDepositInfo()" style="font-size:10px;">Deposit</button>
+                <button class="toolbar-btn" onclick="openWithdrawModal()" style="font-size:10px;">Withdraw</button>
+                <button class="toolbar-btn" onclick="viewWalletHistory()" style="font-size:10px;">History</button>
+              </div>
+            </div>
+            <div class="wallet-security-note">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>12-block confirmation on deposits. 24h cooldown on first withdrawal. Institutional-grade custody.</span>
+            </div>
+          </div>
         </div>
-        <div class="inspector-field">
-          <label class="field-label">API Secret</label>
-          <input class="field-input" id="connectApiSecret" type="password" placeholder="Enter your API secret" spellcheck="false">
-        </div>
-        <div class="connect-info">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="0"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-          <span>Keys are encrypted and stored locally. Mercury never sends your keys to our servers.</span>
+
+        <!-- API Key connection (Kalshi always, Polymarket alternative) -->
+        <div id="connectApiSection">
+          <div class="connect-method-label" id="connectApiLabel">API Key Connection</div>
+          <div class="connect-field">
+            <label class="connect-field-label">API Key</label>
+            <input type="text" class="connect-input" id="connectApiKey" placeholder="Paste your API key" autocomplete="off" />
+          </div>
+          <div class="connect-field">
+            <label class="connect-field-label">API Secret</label>
+            <input type="password" class="connect-input" id="connectApiSecret" placeholder="Paste your API secret" autocomplete="off" />
+          </div>
+          <div class="connect-field" id="connectPassphraseField" style="display:none;">
+            <label class="connect-field-label">Passphrase</label>
+            <input type="password" class="connect-input" id="connectPassphrase" placeholder="Passphrase (if set)" autocomplete="off" />
+          </div>
+          <div class="connect-api-note">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Keys are stored locally and never leave your browser. Live trading integration coming soon.</span>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
         <button class="toolbar-btn" id="connectCancel">Cancel</button>
         <button class="toolbar-btn toolbar-btn-primary" id="connectConfirm">Connect</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deposit Info Modal -->
+  <div class="modal-overlay" id="depositInfoModal">
+    <div class="modal" style="max-width:440px;">
+      <div class="modal-header">
+        <span class="modal-title">Deposit USDC</span>
+        <button class="modal-close" onclick="closeDepositInfo()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:16px 20px;">
+        <div class="deposit-warning">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>Only send USDC on Polygon network. Sending other tokens or using other networks will result in permanent loss of funds.</span>
+        </div>
+        <div class="deposit-address-section">
+          <div class="field-label">Your Deposit Address (Polygon)</div>
+          <div class="deposit-address-display">
+            <code id="depositAddress">—</code>
+            <button class="wallet-copy-btn" onclick="copyWalletAddress()" title="Copy">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="0"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="deposit-details">
+          <div class="deposit-detail-row">
+            <span>Network</span>
+            <span>Polygon (Chain ID: 137)</span>
+          </div>
+          <div class="deposit-detail-row">
+            <span>Token</span>
+            <span>USDC (0x3c499c...)</span>
+          </div>
+          <div class="deposit-detail-row">
+            <span>Confirmations</span>
+            <span>12 blocks (~24 seconds)</span>
+          </div>
+          <div class="deposit-detail-row">
+            <span>Min Deposit</span>
+            <span>$5.00 USDC</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="toolbar-btn" onclick="closeDepositInfo()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Withdraw Modal -->
+  <div class="modal-overlay" id="withdrawModal">
+    <div class="modal" style="max-width:440px;">
+      <div class="modal-header">
+        <span class="modal-title">Withdraw USDC</span>
+        <button class="modal-close" onclick="closeWithdrawModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:16px 20px;">
+        <div class="inspector-field">
+          <label class="field-label">Destination Address (Polygon)</label>
+          <input class="field-input" id="withdrawAddress" type="text" placeholder="0x..." spellcheck="false" autocomplete="off">
+        </div>
+        <div class="inspector-field">
+          <label class="field-label">Amount (USDC)</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input class="field-input" id="withdrawAmount" type="number" placeholder="0.00" min="1" step="0.01" style="flex:1;">
+            <button class="toolbar-btn" onclick="setMaxWithdraw()" style="font-size:9px;padding:4px 8px;">Max</button>
+          </div>
+          <div style="font-size:10px;color:var(--dim);margin-top:4px;">
+            Available: <span id="withdrawAvailable">$0.00</span>
+          </div>
+        </div>
+        <div id="withdrawCooldownMsg" style="display:none;" class="deposit-warning">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="withdrawCooldownText">Withdrawal cooldown active.</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="toolbar-btn" onclick="closeWithdrawModal()">Cancel</button>
+        <button class="toolbar-btn toolbar-btn-primary" id="withdrawConfirmBtn" onclick="confirmWithdraw()">Withdraw</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile / Account Settings Modal -->
+  <div class="modal-overlay" id="profileModal">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-header">
+        <span class="modal-title">Account Settings</span>
+        <button class="modal-close" onclick="closeProfileModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:16px 20px;">
+        <div class="profile-section">
+          <div class="profile-section-label">Email</div>
+          <div class="profile-section-value" id="profileEmail">—</div>
+        </div>
+        <div class="profile-section">
+          <div class="profile-section-label">Plan</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="profile-section-value" id="profilePlan">Free</span>
+            <button class="toolbar-btn toolbar-btn-primary" id="profileUpgradeBtn" onclick="profileUpgrade()" style="font-size:9px;padding:4px 10px;">Upgrade</button>
+          </div>
+        </div>
+        <div class="profile-section" style="border-bottom:none;">
+          <div class="profile-section-label">Change Password</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <input class="field-input" type="password" id="profileNewPw" placeholder="New password" style="font-size:11px;">
+            <input class="field-input" type="password" id="profileConfirmPw" placeholder="Confirm new password" style="font-size:11px;">
+            <button class="toolbar-btn" onclick="changePassword()" style="align-self:flex-start;font-size:10px;">Update Password</button>
+            <div id="profilePwMsg" style="font-size:10px;color:var(--dim);display:none;"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1133,13 +1780,18 @@
     <button class="toast-close" id="toastClose">&times;</button>
   </div>
 
-  <!-- Scripts -->
+  <!-- Scripts (v3 cache-bust) -->
+  <script src="./scripts/page-transition.js?v=27"></script>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.1/dist/apexcharts.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./scripts/auth.js"></script>
-  <script src="./scripts/architect-app.js"></script>
-  <script src="./scripts/data-bridge.js"></script>
-  <script src="./scripts/research.js"></script>
-  <script src="./scripts/ambient.js"></script>
+  <script src="./scripts/auth.js?v=27"></script>
+  <script src="./scripts/tiers.js?v=27"></script>
+  <script src="./scripts/upgrade-modal.js?v=27"></script>
+  <script src="./scripts/wallet-service.js?v=27"></script>
+  <script src="./scripts/tour-engine.js?v=27"></script>
+  <script src="./scripts/architect-app.js?v=27"></script>
+  <script src="./scripts/data-bridge.js?v=27"></script>
+  <script src="./scripts/research.js?v=27"></script>
+  <script src="./scripts/ambient.js?v=27"></script>
 </body>
 </html>

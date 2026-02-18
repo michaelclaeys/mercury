@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Reveal all elements by ID
     [
-      'hubLogo', 'hubLogoText', 'hubMotto', 'hubHeading', 'hubSub',
+      'hubLogo', 'hubLogoText', 'hubMotto', 'hubSub',
       'hubPanels', 'hubWatermark', 'hubElement',
       'hubSideWords', 'hubSideWordsR',
       'hubCoords', 'hubReadout', 'hubStatusBadges',
@@ -40,6 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Start hub background animation
     initHubBackground();
+
+    // Notify listeners that hub is fully revealed (used by onboarding tour)
+    window.dispatchEvent(new CustomEvent('mercury:hub-revealed'));
   }
 
 
