@@ -1,0 +1,27 @@
+# Mercury
+
+> Prediction market infrastructure. Build and deploy automated trading bots for Polymarket, Kalshi, and event markets.
+
+Mercury is a web-based platform that lets users build prediction market trading bots using a visual drag-and-drop node editor or an agentic AI that generates complete bots from natural language descriptions. Describe a strategy in plain English and the AI builds the full node graph — triggers, conditions, execution, and risk management — ready to deploy. It connects to Polymarket and Kalshi with sub-20ms execution latency. Users can paper trade for free, then deploy live when ready.
+
+## Key Pages
+
+- [Home](https://mercurysuite.io/): Mercury Suite overview and navigation
+- [Architect (Bot Builder)](https://mercurysuite.io/architect.html): Product page for the visual bot builder with pricing
+- [How to Trade on Polymarket](https://mercurysuite.io/guides/how-to-trade-on-polymarket.html): Beginner's guide to Polymarket trading
+- [How to Trade on Kalshi](https://mercurysuite.io/guides/how-to-trade-on-kalshi.html): Beginner's guide to Kalshi trading
+- [How to Build a Polymarket Bot](https://mercurysuite.io/guides/build-polymarket-bot.html): Step-by-step bot building guide
+- [How to Build a Kalshi Bot](https://mercurysuite.io/guides/build-kalshi-bot.html): Step-by-step bot building guide
+- [Prediction Market Bot Building Guide](https://mercurysuite.io/guides/prediction-market-bot-builder.html): Comprehensive guide
+- [Polymarket vs Kalshi](https://mercurysuite.io/guides/polymarket-vs-kalshi.html): Platform comparison for traders
+- [Prediction Market Arbitrage Bot](https://mercurysuite.io/guides/prediction-market-arbitrage-bot.html): Cross-platform arbitrage guide
+- [Prediction Market Bonding Curves](https://mercurysuite.io/guides/prediction-market-bonding.html): Bonding curves, AMMs, and liquidity
+- [Pricing](https://mercurysuite.io/architect.html#pricing): Free tier and Pro ($99/mo)
+- [API](https://mercurysuite.io/api.html): REST and WebSocket API for market data and execution
+- [Funding](https://mercurysuite.io/funding.html): Up to $5,000 funded trading capital
+- [About](https://mercurysuite.io/about.html): Company background and mission
+- [Blog](https://mercurysuite.io/blog.html): Research, analysis, and platform updates
+
+## Optional
+
+- [llms-full.txt](https://mercurysuite.io/llms-full.txt): Detailed product documentation for AI models

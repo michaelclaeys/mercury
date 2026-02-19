@@ -45,9 +45,9 @@
             padding: 8,
           },
           {
-            selector: '#researchPanel',
-            title: 'Research',
-            text: 'Live market feeds, order books, and cross-platform divergence scanner from Kalshi and Polymarket. Real-time news and sentiment analysis.',
+            selector: '#catalystPanel',
+            title: 'Catalyst',
+            text: 'Real-time keyword spike detection across Google News. Tracks 7 feeds, flags statistically significant surges using a 24-hour rolling baseline, and auto-categorizes keywords so you spot narrative shifts before they move markets.',
             position: 'bottom',
             padding: 8,
           },

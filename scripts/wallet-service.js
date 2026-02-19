@@ -1,28 +1,28 @@
 /* ================================================================
    MERCURY — Polymarket Wallet Service
 
-   Platform-managed wallets for automated Polymarket trading.
+   Non-custodial trading wallets via Turnkey HSM + Polymarket Builder.
 
    Architecture:
-     Frontend (this file) → mercury-engine backend → custody provider
+     Frontend (this file) → mercury-engine backend → Turnkey HSM
 
    Security model:
-   - All private keys held by third-party custody provider (never on frontend)
-   - Deposits credited after 12+ Polygon block confirmations
-   - Withdrawal cooldown: 24h after wallet creation or address change
+   - Private keys stored in Turnkey's Hardware Security Module (HSM)
+   - Mercury NEVER sees or handles private keys
+   - Users can independently recover wallets via Turnkey
+   - Proxy wallets deployed via Polymarket builder relayer (gasless)
+   - Builder attribution automatic — all trades earn volume revenue
    - All operations require Supabase auth token
-   - USDC-only (no flash loan risk across transactions)
-   - Rate-limited withdrawals with per-tier caps
 
    The mercury-engine backend handles:
-   - Wallet creation via custody provider API (Circle/Privy/Fireblocks)
-   - Deposit monitoring (Polygon RPC subscription for USDC transfers)
-   - Order signing for Polymarket CLOB (EIP-712 via custody provider)
-   - USDC withdrawals with confirmation checks
+   - Wallet creation via Turnkey API (HSM-backed EOA)
+   - Proxy wallet deployment via builder relayer (gasless)
+   - Order signing via Turnkey API (EIP-712 signatures)
+   - USDC balance queries (CLOB + on-chain)
    ================================================================ */
 
 class MercuryWalletService {
-  constructor(engineBase = 'http://localhost:8778') {
+  constructor(engineBase = (window.MERCURY_CONFIG && window.MERCURY_CONFIG.engineBase) || 'http://localhost:8778') {
     this.engineBase = engineBase;
     this._wallet = null;
     this._balance = null;
@@ -221,6 +221,8 @@ class MercuryWalletService {
   get balance() { return this._balance; }
   get hasWallet() { return !!this._wallet && !!this._wallet.address; }
   get walletAddress() { return this._wallet?.address || null; }
+  get proxyAddress() { return this._wallet?.proxy_address || null; }
+  get eoaAddress() { return this._wallet?.eoa_address || null; }
 }
 
 // Global instance

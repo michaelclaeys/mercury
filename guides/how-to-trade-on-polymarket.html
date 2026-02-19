@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Trade on Polymarket: Beginner's Guide (2026) — Mercury</title>
+  <meta name="description" content="Complete beginner's guide to trading on Polymarket in 2026. Learn what Polymarket is, how to get started, trading strategies, common mistakes, and how to automate your trades.">
+  <link rel="canonical" href="https://mercurysuite.io/guides/how-to-trade-on-polymarket.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Mercury">
+  <meta property="og:url" content="https://mercurysuite.io/guides/how-to-trade-on-polymarket.html">
+  <meta property="og:title" content="How to Trade on Polymarket: Beginner's Guide (2026) — Mercury">
+  <meta property="og:description" content="Complete beginner's guide to trading on Polymarket in 2026. Learn what Polymarket is, how to get started, trading strategies, common mistakes, and how to automate your trades.">
+  <meta property="og:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="How to Trade on Polymarket: Beginner's Guide (2026) — Mercury">
+  <meta name="twitter:description" content="Complete beginner's guide to trading on Polymarket in 2026. Learn what Polymarket is, how to get started, trading strategies, common mistakes, and how to automate your trades.">
+  <meta name="twitter:image" content="https://mercurysuite.io/images/og-default.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <link rel="stylesheet" href="../styles/pages.css">
+  <link rel="stylesheet" href="../styles/guides.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is Polymarket legal in the US?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. In 2025, Polymarket acquired a CFTC-licensed exchange and regained US access through regulated intermediaries. US users can now trade on Polymarket through these compliant channels, which may require additional identity verification steps. Non-US users can access Polymarket directly without KYC requirements."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much money do I need to start trading on Polymarket?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "There is no official minimum deposit on Polymarket, but most traders start with $50 to $200 in USDC. Since contracts are priced between $0.01 and $0.99, you can take meaningful positions with relatively small amounts. A single YES share at $0.30 costs just 30 cents and pays $1.00 if correct — a 233% return."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I lose more than I invest on Polymarket?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Polymarket uses binary contracts with a maximum loss equal to the price you paid per share. If you buy a YES share at $0.40, the most you can lose is $0.40 per share. There is no leverage, no margin calls, and no possibility of negative balances. Your maximum risk is always the capital you deploy."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What are the fees on Polymarket?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Polymarket uses a maker-taker fee model. Taker fees (market orders) range from 0.06% to 1.56% depending on the contract price. Maker fees (limit orders that add liquidity to the order book) are zero — you pay nothing when your limit order is filled. This fee structure rewards patient traders who use limit orders instead of market orders."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I automate my Polymarket trading?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Mercury Architect is a visual bot builder that lets you automate Polymarket trading without writing code. You can design strategies with drag-and-drop nodes or describe your strategy in plain English and let Mercury's AI build it for you. Paper trading is free, and live trading is available on the Pro plan ($99/month) with sub-12ms execution latency."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <!-- ─── NAVBAR ──────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="navbar-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="3"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+        </svg>
+        Mercury
+      </a>
+      <ul class="navbar-links">
+        <li><a href="../index.html">Suite</a></li>
+        <li><a href="../architect.html">Architect</a></li>
+        <li><a href="../architect-app.html#charting">Charting</a></li>
+        <li><a href="#">Backtest</a></li>
+        <li><a href="../architect.html#pricing">Pricing</a></li>
+      </ul>
+      <div class="navbar-actions">
+        <a href="#" class="btn" id="navProfile">Profile</a>
+        <a href="#" class="btn" onclick="window.signOut && window.signOut()">Logout</a>
+      </div>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="../index.html">Suite</a>
+    <a href="../architect.html">Architect</a>
+    <a href="../architect-app.html#charting">Charting</a>
+    <a href="#">Backtest</a>
+    <a href="../architect.html#pricing">Pricing</a>
+    <a href="#" onclick="window.signOut && window.signOut()">Logout</a>
+  </div>
+
+  <!-- ─── PAGE HERO ─────────────────────────────────────── -->
+  <section class="page-hero">
+    <div class="container">
+      <div class="section-label">Beginner Guide</div>
+      <h1 class="page-title">How to Trade on Polymarket: Complete Beginner's Guide (2026)</h1>
+      <p class="page-subtitle">Everything you need to start trading on the world's largest prediction market. This guide covers what Polymarket is, how to set up your account, beginner-friendly strategies, mistakes to avoid, and how to automate your trades for consistent edge.</p>
+    </div>
+  </section>
+
+  <!-- ─── WHAT IS POLYMARKET? ────────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">What is Polymarket and how does it work?</h2>
+          <p>Polymarket is the world's largest prediction market — a platform where you trade on the outcomes of real-world events instead of stocks or cryptocurrencies. Think of it as a stock exchange for probability. Instead of buying shares in a company, you buy shares in a question: "Will the Fed cut rates in March?", "Will it snow in New York on Christmas?", or "Will a specific candidate win the election?"</p>
+          <p>Every Polymarket contract is binary, meaning it resolves to one of two outcomes: YES or NO. Shares are priced between $0.01 and $0.99, and that price represents the market's implied probability of the event happening. A YES share priced at $0.65 means the market collectively believes there is a 65% chance the event occurs. If you disagree with that number, you have a trade.</p>
+          <p>The payout structure is simple. If you buy a YES share and the event happens, your share pays out $1.00. If the event does not happen, your share pays $0.00. The same logic applies in reverse for NO shares. Buy a NO share at $0.35, and you receive $1.00 if the event does not happen — a profit of $0.65 per share. If it does happen, you lose your $0.35.</p>
+          <p>Polymarket is built on the Polygon blockchain and settles all trades in USDC, a stablecoin pegged 1:1 to the US dollar. The platform uses a central limit order book (CLOB) model, which means you can place both market orders (instant fills at the best available price) and limit orders (you set the price and wait for a counterparty). Markets span politics, crypto, sports, culture, entertainment, science, and weather — hundreds of active contracts at any given time.</p>
+          <p>The core insight behind prediction markets is that they aggregate information more efficiently than polls, pundits, or models. When thousands of traders put real money on the line, the resulting prices tend to be remarkably accurate probability estimates. Your job as a trader is to find the moments when those prices are wrong.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── GETTING STARTED ────────────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">How do I get started on Polymarket?</h2>
+          <p>Setting up a Polymarket account and placing your first trade takes less than 10 minutes. Here is the step-by-step process for complete beginners.</p>
+          <ul class="legal-list">
+            <li><strong>1. Create your account</strong> — Visit polymarket.com and sign up with your email address or connect an existing crypto wallet. Non-US users can access Polymarket directly without identity verification. US users now access the platform through regulated intermediaries following Polymarket's 2025 acquisition of a CFTC-licensed exchange, which may involve additional verification steps.</li>
+            <li><strong>2. Set up your wallet</strong> — Polymarket runs on the Polygon blockchain and uses USDC for all trades. If you signed up with email, Polymarket creates a wallet for you automatically. If you connected an external wallet (MetaMask, Coinbase Wallet, etc.), make sure it is configured for the Polygon network. You will need USDC on Polygon to trade.</li>
+            <li><strong>3. Fund your account</strong> — Deposit USDC into your Polymarket wallet. You can purchase USDC directly through the platform with a credit card or bank transfer, or transfer USDC from an external wallet or exchange. Most beginners start with $50 to $200. Since individual shares cost less than $1, even small deposits let you take positions across multiple markets.</li>
+            <li><strong>4. Navigate the markets</strong> — Browse markets by category (politics, crypto, sports, weather, etc.) or search for specific events. Each market page shows the current YES/NO prices, trading volume, the resolution source (how the outcome is determined), and the resolution date. Read the resolution rules carefully before trading — they define exactly what counts as a YES or NO outcome.</li>
+            <li><strong>5. Place your first trade</strong> — Select a market you have conviction on. Choose YES or NO, enter the number of shares or dollar amount, and decide between a market order or a limit order. Market orders fill instantly at the current price but incur taker fees (0.06% to 1.56%). Limit orders let you set your own price and pay zero fees when filled — the tradeoff is that your order may not fill immediately, or at all, if the market does not reach your price.</li>
+          </ul>
+          <p>Start small. Place a few trades in markets you understand well, watch how prices move in response to news and events, and build intuition before deploying larger amounts. Polymarket is a skill game, not a lottery, and the learning curve rewards patience.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TRADING STRATEGIES ─────────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">What are the best Polymarket trading strategies for beginners?</h2>
+          <p>Profitable Polymarket trading comes down to one principle: finding situations where you believe the true probability of an event differs from the market price. Here are six strategies that work for beginners and scale as you gain experience.</p>
+          <ul class="legal-list">
+            <li><strong>Finding mispriced probabilities</strong> — This is the foundation of all prediction market trading. If a contract is priced at $0.40 (implying 40% probability) but your research tells you the true probability is 60%, you have a 20-cent edge. The key is doing better research than the market: reading primary sources, understanding base rates, and building simple probability models. Start with topics you know deeply — your domain expertise is your first edge.</li>
+            <li><strong>Correlated market arbitrage</strong> — Polymarket often has multiple contracts that are logically related. If "Candidate A wins the primary" is priced at $0.70 and "Candidate A wins the general election" is priced at $0.75, something is wrong — you cannot win the general without winning the primary (in most cases). These mispricings are rare but risk-free when you spot them. Compare related markets regularly and look for logical inconsistencies.</li>
+            <li><strong>News-driven trading</strong> — Prediction markets move on information. When breaking news hits — a court ruling, an economic report, a policy announcement — contract prices adjust, but not instantly. If you are among the first to read and correctly interpret a headline, you can trade before the market fully prices in the new information. Speed and source quality matter enormously here. Follow official sources (government agencies, wire services) rather than social media commentary.</li>
+            <li><strong>Resolution sniping</strong> — As a contract approaches its resolution date and the outcome becomes increasingly clear, the price converges toward $0.99 or $0.01 — but often lags behind reality. A contract that is virtually certain to resolve YES might still trade at $0.92 or $0.94, offering a small but nearly risk-free return. Resolution snipers accumulate these high-probability positions for small, consistent profits. The edge is modest per trade but compounds across hundreds of positions.</li>
+            <li><strong>Mean reversion on overreactions</strong> — Markets overreact to shocking headlines. A surprise poll result, a viral tweet, or a misleading news clip can push a contract 15 to 25 cents in minutes, only for it to retrace most of the move within hours as the market digests the information more carefully. If you can identify overreactions in real time, buying the dip (or selling the spike) captures the reversion. This requires emotional discipline — you are buying when everyone else is panicking.</li>
+            <li><strong>Following smart money and volume spikes</strong> — Unusually large orders or sudden volume spikes often signal that an informed trader has new information. While you should never blindly follow volume, a sharp increase in trading activity on a previously quiet contract is worth investigating. Check if there is a news catalyst, and if the volume move makes fundamental sense. Smart money leaves footprints in the order book.</li>
+          </ul>
+          <p>No single strategy works in every market. The best Polymarket traders combine multiple approaches, adjust to market conditions, and maintain strict position sizing discipline. Start with one strategy, master it, then layer in additional approaches as your bankroll and confidence grow.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── COMMON MISTAKES ────────────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">What mistakes do beginners make on Polymarket?</h2>
+          <p>Most new Polymarket traders lose money not because the markets are efficient, but because they repeat the same avoidable errors. Understanding these pitfalls before you start trading saves both capital and frustration.</p>
+          <ul class="legal-list">
+            <li><strong>Treating it like gambling instead of probability trading</strong> — Polymarket is not a sportsbook. The price is not a "line" to bet against — it is a probability estimate backed by real money. Successful traders think in expected value, not gut feelings. Before every trade, ask: "What is my estimated probability, and does the difference between my estimate and the market price justify the risk?" If you cannot articulate your edge in one sentence, you do not have one.</li>
+            <li><strong>Ignoring resolution rules</strong> — Every Polymarket contract has specific resolution criteria that define exactly what counts as YES and NO. A contract on "Will X happen by June 30?" resolves based on the exact wording, not your interpretation. Traders routinely lose money because they assumed a contract meant something it did not. Read the resolution source, understand the edge cases, and check the resolution date before entering any position.</li>
+            <li><strong>Overleveraging and poor position sizing</strong> — Putting 50% of your bankroll on a single contract is the fastest way to blow up your account. Even high-conviction trades can lose. Professional prediction market traders rarely risk more than 2-5% of their bankroll on a single position. Use the Kelly criterion or a fractional-Kelly approach to size positions mathematically based on your estimated edge and the odds. Survival comes first; profits come from compounding small, consistent edges over hundreds of trades.</li>
+            <li><strong>Trading illiquid markets</strong> — A contract might look like a bargain at $0.15, but if daily volume is only $200, you will struggle to fill your order and struggle even more to exit. Illiquid markets have wide bid-ask spreads, which erode your edge before you even start. Focus on markets with at least $5,000 in daily volume until you understand how liquidity affects execution.</li>
+            <li><strong>Emotional revenge trading</strong> — After a losing trade, the urge to immediately enter another position to "make it back" is powerful and destructive. Revenge trades are impulsive, oversized, and poorly reasoned. They turn a small loss into a large one. After a loss, step away. Review your thesis. If the next trade does not meet your normal criteria, do not take it. Discipline is the single best predictor of long-term profitability.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── AUTOMATE YOUR TRADING ──────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">How do I automate my Polymarket trading?</h2>
+          <p>Manual trading works for learning, but it has a ceiling. You cannot monitor markets 24 hours a day. You cannot react to breaking news in milliseconds. You cannot execute across dozens of correlated contracts simultaneously. And no matter how disciplined you are, emotion will eventually compromise a trade. Automation solves all four problems.</p>
+          <p><a href="../architect.html">Mercury Architect</a> is a visual bot builder designed specifically for prediction market automation. It combines a drag-and-drop strategy editor with agentic AI that can build entire trading bots from a plain-English description. No coding required.</p>
+          <p>Here is how it works. You describe your strategy in natural language — something like "buy YES when any political contract drops below $0.20 with daily volume above $10,000 and sell when it reaches $0.35 or hits my stop-loss at $0.10." Mercury's AI agent parses the description, builds the complete node graph (triggers, conditions, execution rules, and risk management), configures the parameters, and presents the finished bot for your review. You can adjust any node visually, then deploy.</p>
+          <p>Mercury offers a free tier that lets you build and paper trade bots with real-time Polymarket data — no credit card required. Paper trading validates your strategy logic against live order books without risking capital. When you are ready to go live, the Pro plan ($99/month) unlocks unlimited bots, live trading execution with sub-12ms latency, full backtesting against historical data, and 99.98% uptime on Mercury's production infrastructure.</p>
+          <p>Automation is not about removing the human from the process. It is about encoding your best thinking into a system that executes perfectly, 24/7, without fatigue or emotion. The traders who consistently profit on Polymarket are the ones who systematize their edge and let machines handle the execution.</p>
+          <p>Ready to build a bot? <a href="build-polymarket-bot.html">Read the full guide to building a Polymarket trading bot</a> for a detailed walkthrough of triggers, conditions, execution nodes, and risk management. Or compare Polymarket with other platforms in our <a href="polymarket-vs-kalshi.html">Polymarket vs. Kalshi comparison</a>.</p>
+          <div style="margin-top:2rem;">
+            <a href="../signup.html" class="btn btn-primary">Get Started Free</a>
+            <a href="../architect.html" class="btn" style="margin-left:1rem;">Open Architect</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FAQ ───────────────────────────────────────────── -->
+  <section class="faq-section" id="faq">
+    <div class="container">
+      <div class="section-label">// FAQ</div>
+      <h2 class="faq-headline">Frequently Asked Questions</h2>
+
+      <div class="faq-grid">
+        <details class="faq-item" open>
+          <summary class="faq-question">Is Polymarket legal in the US?</summary>
+          <div class="faq-answer">Yes. In 2025, Polymarket acquired a CFTC-licensed exchange and regained US access through regulated intermediaries. US users can now trade on Polymarket through these compliant channels, which may require additional identity verification steps. Non-US users can access Polymarket directly without KYC requirements. Polymarket operates in compliance with applicable regulations, but you should review the legal status in your specific jurisdiction before trading.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">How much money do I need to start trading on Polymarket?</summary>
+          <div class="faq-answer">There is no official minimum deposit on Polymarket, but most traders start with $50 to $200 in USDC. Since contracts are priced between $0.01 and $0.99, you can take meaningful positions with relatively small amounts. A single YES share at $0.30 costs just 30 cents and pays $1.00 if correct — a 233% return. Start small, learn the mechanics, and scale up as you develop consistent edge.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">Can I lose more than I invest on Polymarket?</summary>
+          <div class="faq-answer">No. Polymarket uses binary contracts with a maximum loss equal to the price you paid per share. If you buy a YES share at $0.40, the most you can lose is $0.40 per share. There is no leverage, no margin calls, and no possibility of negative balances. Your maximum risk is always the capital you deploy into a position.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">What are the fees on Polymarket?</summary>
+          <div class="faq-answer">Polymarket uses a maker-taker fee model. Taker fees (market orders that remove liquidity) range from 0.06% to 1.56% depending on the contract price. Maker fees (limit orders that add liquidity to the order book) are zero — you pay nothing when your limit order is filled. This fee structure rewards patient traders who place limit orders instead of market orders. There are no deposit or withdrawal fees on the platform itself, though blockchain gas fees may apply for on-chain transfers.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">Can I automate my Polymarket trading?</summary>
+          <div class="faq-answer">Yes. <a href="../architect.html">Mercury Architect</a> is a visual bot builder that lets you automate Polymarket trading without writing code. Describe your strategy in plain English and Mercury's AI builds the complete bot — triggers, conditions, execution, and risk management. Paper trading is free on every account. Live trading is available on the Pro plan ($99/month) with sub-12ms execution latency, unlimited bots, and 99.98% uptime. <a href="build-polymarket-bot.html">Read the full bot-building guide</a> for a detailed walkthrough.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FINAL CTA ─────────────────────────────────────── -->
+  <section class="final-cta">
+    <div class="container">
+      <h2 class="final-headline">Start trading smarter.</h2>
+      <p class="final-sub">From your first Polymarket trade to fully automated strategies. Mercury gives you the tools, data, and infrastructure to find edge and execute on it.</p>
+      <div class="final-ctas">
+        <a href="../signup.html" class="btn btn-primary">Get Started Free</a>
+        <a href="../architect.html" class="btn">Open Architect</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ──────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">Mercury</div>
+          <p class="footer-desc">Liquid intelligence &amp; infrastructure for the next generation of traders.</p>
+        </div>
+        <div>
+          <div class="footer-col-title">Product</div>
+          <ul class="footer-links">
+            <li><a href="../index.html#analytics">Analytics</a></li>
+            <li><a href="../architect.html">Architect</a></li>
+            <li><a href="../architect.html#pricing">Pricing</a></li>
+            <li><a href="../api.html">API</a></li>
+            <li><a href="../signup.html">Sign Up Free</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../careers.html">Careers</a></li>
+            <li><a href="../blog.html">Blog</a></li>
+            <li><a href="../contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <ul class="footer-links">
+            <li><a href="../privacy.html">Privacy</a></li>
+            <li><a href="../terms.html">Terms</a></li>
+            <li><a href="../disclaimer.html">Disclaimer</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Mercury — Hg 80. All rights reserved.</span>
+        <div class="footer-socials">
+          <a href="#">Twitter</a>
+          <a href="#">Discord</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../scripts/auth.js"></script>
+  <script src="../scripts/nav-auth.js"></script>
+  <script src="../scripts/page-transition.js"></script>
+  <script>
+    document.getElementById('hamburgerBtn')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('open');
+    });
+  </script>
+  <script src="../scripts/ambient.js"></script>
+</body>
+</html>

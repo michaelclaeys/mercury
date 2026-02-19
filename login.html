@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In — Mercury</title>
+    <meta name="description" content="Sign in to your Mercury account to manage bots, strategies, and prediction market trading.">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="canonical" href="https://mercurysuite.io/login.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Mercury">
+    <meta property="og:url" content="https://mercurysuite.io/login.html">
+    <meta property="og:title" content="Sign In — Mercury">
+    <meta property="og:description" content="Sign in to your Mercury account to manage bots, strategies, and prediction market trading.">
+    <meta property="og:image" content="https://mercurysuite.io/images/og-default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Sign In — Mercury">
+    <meta name="twitter:description" content="Sign in to your Mercury account to manage bots, strategies, and prediction market trading.">
+    <meta name="twitter:image" content="https://mercurysuite.io/images/og-default.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -153,6 +167,25 @@
         }
         .back-home a:hover {
             color: var(--white);
+        }
+        /* ── Mobile optimizations ── */
+        @media (max-width: 480px) {
+            body { padding: 12px; }
+            .login-container {
+                padding: 2rem 1.5rem;
+            }
+            .logo-container h2 { font-size: 0.95rem; }
+            input {
+                font-size: 16px; /* Prevent iOS zoom */
+                padding: 0.85rem 1rem;
+            }
+            .btn {
+                padding: 0.95rem;
+                font-size: 0.75rem;
+            }
+        }
+        @media (max-width: 360px) {
+            .login-container { padding: 1.5rem 1rem; }
         }
     </style>
 </head>

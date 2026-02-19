@@ -2,16 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="robots" content="noindex, nofollow">
   <title>Architect — Mercury</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <script>
+    // Mobile detection — runs before CSS paint to prevent layout flash
+    (function(){
+      var m = /Android|iPhone|iPad|iPod|webOS|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent) || window.innerWidth <= 768;
+      if(m) document.documentElement.classList.add('is-mobile');
+      window.__mercury_mobile = m;
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles/architect-app.css?v=27">
-  <link rel="stylesheet" href="./styles/research.css?v=27">
+  <link rel="stylesheet" href="./styles/architect-app.css?v=46">
+  <link rel="stylesheet" href="./styles/charting.css?v=37">
 </head>
 <body>
-
   <!-- Mobile Menu Button -->
   <button class="mobile-menu-btn" id="mobileMenuBtn">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -71,14 +80,37 @@
         </svg>
         Templates
       </a>
-      <a href="#" class="nav-item" data-view="research">
+      <a href="#" class="nav-item" data-view="charting">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="12" y1="2" x2="12" y2="22"></line>
           <line x1="2" y1="12" x2="22" y2="12"></line>
           <circle cx="12" cy="12" r="4"></circle>
         </svg>
-        Research
+        Charting
+      </a>
+      <a href="#" class="nav-item" data-view="portfolio">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12V7H5a2 2 0 010-4h14v4"/>
+          <path d="M3 5v14a2 2 0 002 2h16v-5"/>
+          <path d="M18 12a2 2 0 100 4h4v-4h-4z"/>
+        </svg>
+        Portfolio
+      </a>
+      <a href="#" class="nav-item" data-view="bonding-arb">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2v20M2 12h20"/>
+          <circle cx="12" cy="6" r="2"/>
+          <circle cx="12" cy="18" r="2"/>
+          <path d="M6 8l6-2 6 2M6 16l6 2 6-2"/>
+        </svg>
+        Bonding Arb
+      </a>
+      <a href="#" class="nav-item" data-view="catalyst">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 12h4l3-9 4 18 3-9h6"/>
+        </svg>
+        Catalyst
       </a>
 
       <div class="nav-separator"></div>
@@ -90,7 +122,7 @@
         </svg>
         Suite Home
       </a>
-      <a href="#" class="nav-item nav-item--funding" onclick="event.preventDefault(); handleArchitectFunding();">
+      <a href="/funding.html" class="nav-item nav-item--funding">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="2" y="6" width="20" height="14" rx="0"/>
           <path d="M16 14a2 2 0 100-4 2 2 0 000 4z"/>
@@ -163,7 +195,8 @@
             <div class="wizard-step" data-step="2"><span class="wiz-dot"></span>Blocks</div>
             <div class="wizard-step" data-step="3"><span class="wiz-dot"></span>Canvas</div>
             <div class="wizard-step" data-step="4"><span class="wiz-dot"></span>Agent</div>
-            <div class="wizard-step" data-step="5"><span class="wiz-dot"></span>Start</div>
+            <div class="wizard-step" data-step="5"><span class="wiz-dot"></span>Catalyst</div>
+            <div class="wizard-step" data-step="6"><span class="wiz-dot"></span>Start</div>
           </div>
 
           <!-- Step 1: Welcome -->
@@ -317,8 +350,45 @@
             </div>
           </div>
 
-          <!-- Step 5: Start -->
+          <!-- Step 5: Catalyst -->
           <div class="wizard-page" id="wizStep5">
+            <div class="tut-hero-icon" style="color:var(--green);opacity:0.7;">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M2 12h4l3-9 4 18 3-9h6"/>
+              </svg>
+            </div>
+            <h2 class="wizard-title">Catalyst &mdash; Keyword Intelligence</h2>
+            <p class="wizard-subtitle">Real-time keyword spike detection across news headlines. Spot narrative shifts before they move markets.</p>
+            <div class="tut-ai-examples">
+              <div class="tut-ai-example">
+                <span class="tut-ai-prompt" style="color:var(--green);">&#9650;</span>
+                <span class="tut-ai-text">Tracks keyword frequency across 7 Google News RSS feeds &mdash; crypto, politics, economy, AI, geopolitics, sports, and top stories</span>
+              </div>
+              <div class="tut-ai-example">
+                <span class="tut-ai-prompt" style="color:#f7931a;">&#9632;</span>
+                <span class="tut-ai-text">Spike detection uses 24-hour rolling baseline + standard deviation &mdash; only flags statistically significant surges, not noise</span>
+              </div>
+              <div class="tut-ai-example">
+                <span class="tut-ai-prompt" style="color:#7c4dff;">&#9632;</span>
+                <span class="tut-ai-text">Recent change column shows mention count deltas between readings so you can see momentum building in real time</span>
+              </div>
+              <div class="tut-ai-example">
+                <span class="tut-ai-prompt" style="color:#e53935;">&#9632;</span>
+                <span class="tut-ai-text">Auto-categorizes keywords into crypto, politics, economy, AI/tech, geopolitics, and sports for quick filtering</span>
+              </div>
+            </div>
+            <div class="tut-tips">
+              <div class="tut-tip">Click <strong>Catalyst</strong> in the sidebar to open. Data loads instantly from client-side extraction; spike detection builds over ~30 minutes.</div>
+              <div class="tut-tip">Sort by Recent Change or Spike % to surface the fastest-moving narratives.</div>
+            </div>
+            <div class="wizard-nav">
+              <button class="wizard-back-btn" onclick="wizardGoToStep(4)">&larr; Back</button>
+              <button class="wizard-next-btn" onclick="wizardGoToStep(6)">Next &rarr;</button>
+            </div>
+          </div>
+
+          <!-- Step 6: Start -->
+          <div class="wizard-page" id="wizStep6">
             <h2 class="wizard-title">Ready to build</h2>
             <p class="wizard-subtitle">Choose how you'd like to get started.</p>
             <div class="tut-start-options">
@@ -344,7 +414,7 @@
                 <span class="tut-option-desc">Start from scratch and build node by node</span>
               </button>
             </div>
-            <button class="wizard-back-btn" onclick="wizardGoToStep(4)">&larr; Back</button>
+            <button class="wizard-back-btn" onclick="wizardGoToStep(5)">&larr; Back</button>
           </div>
 
           <button class="wizard-skip" onclick="hideWizard()">Skip tutorial &rarr;</button>
@@ -448,6 +518,42 @@
               </div>
               <div class="canvas-viewport grid-visible" id="canvasViewport">
                 <svg class="connections-layer" id="connectionsLayer"></svg>
+              </div>
+
+              <!-- Agent Script Overlay (shown when AI builds a script strategy) -->
+              <div class="script-overlay" id="scriptOverlay" style="display:none">
+                <div class="script-overlay-header">
+                  <div class="script-overlay-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="16 18 22 12 16 6"></polyline>
+                      <polyline points="8 6 2 12 8 18"></polyline>
+                    </svg>
+                    <span>Strategy Script</span>
+                    <span class="script-overlay-badge" id="scriptOverlayBadge">AI Generated</span>
+                  </div>
+                  <div class="script-overlay-actions">
+                    <button class="script-overlay-btn" id="btnCopyScript" title="Copy to clipboard">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                      </svg>
+                      Copy
+                    </button>
+                    <button class="script-overlay-btn" id="btnSwitchToNodes" title="Switch to node editor">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                      </svg>
+                      Switch to Nodes
+                    </button>
+                  </div>
+                </div>
+                <pre class="script-overlay-code" id="scriptOverlayCode"></pre>
+                <div class="script-overlay-footer" id="scriptOverlayFooter">
+                  <span class="script-overlay-status">Ready to deploy</span>
+                </div>
               </div>
 
               <!-- Floating Node Palette -->
@@ -614,12 +720,6 @@
                 </svg>
                 Agent
               </button>
-              <button class="agent-tab" data-tab="research" id="tabResearch">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                Research
-              </button>
             </div>
           </div>
 
@@ -676,17 +776,6 @@
             </div>
           </div>
 
-          <!-- Research Tab Content -->
-          <div class="agent-tab-content" id="researchTabContent" style="display:none">
-            <div class="research-placeholder">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--dim)">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              <div class="research-placeholder-title">Research</div>
-              <div class="research-placeholder-text">Deep market research, sentiment analysis, and probability modeling — coming soon.</div>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -824,47 +913,86 @@
         </div>
       </div>
 
-      <div class="backtest-config">
-        <div class="backtest-row">
-          <div class="backtest-field">
+      <div class="bt-layout">
+        <!-- LEFT: Strategy + Config -->
+        <div class="bt-left-panel">
+          <div class="bt-section">
             <label class="field-label">Strategy</label>
-            <select class="field-select" id="btStrategy">
-              <option value="current">Current Builder Strategy</option>
+            <select class="field-select" id="btStrategyPicker">
+              <option value="current">Current Canvas</option>
+              <option value="upload">Upload .mercury.json...</option>
             </select>
+            <input type="file" id="btFileUpload" accept=".json,.mercury.json" style="display:none" />
+            <div class="bt-strategy-info" id="btStrategyInfo"></div>
           </div>
-          <div class="backtest-field">
-            <label class="field-label">Market</label>
-            <select class="field-select" id="btMarket">
-              <option>All Markets</option>
-              <option>Polymarket</option>
-              <option>Kalshi</option>
-            </select>
-          </div>
-          <div class="backtest-field">
+
+          <div class="bt-section">
             <label class="field-label">Period</label>
             <select class="field-select" id="btPeriod">
+              <option value="7">7 Days</option>
               <option value="30">30 Days</option>
               <option value="60">60 Days</option>
               <option value="90" selected>90 Days</option>
+              <option value="180">6 Months</option>
+              <option value="365">1 Year</option>
             </select>
           </div>
-          <div class="backtest-field">
+
+          <div class="bt-section">
             <label class="field-label">Initial Capital</label>
             <input class="field-input" type="number" id="btCapital" value="10000" min="100">
           </div>
-          <div class="backtest-field backtest-field-action">
-            <button class="toolbar-btn toolbar-btn-primary" id="btnRunBacktest">Run Backtest</button>
+
+          <div class="bt-section">
+            <label class="field-label">Interval</label>
+            <select class="field-select" id="btInterval">
+              <option value="auto" selected>Auto</option>
+              <option value="5m">5 min</option>
+              <option value="15m">15 min</option>
+              <option value="1h">1 hour</option>
+              <option value="4h">4 hour</option>
+              <option value="1d">1 day</option>
+            </select>
+          </div>
+
+          <div class="bt-section" style="margin-top:12px;">
+            <button class="toolbar-btn toolbar-btn-primary" id="btnRunBacktest" style="width:100%;justify-content:center;">Run Backtest</button>
+          </div>
+
+          <div class="bt-selected-market" id="btSelectedMarket"></div>
+          <input type="hidden" id="btAsset" value="" />
+          <input type="hidden" id="btAssetMeta" value="{}" />
+        </div>
+
+        <!-- RIGHT: Market Browser -->
+        <div class="bt-market-browser">
+          <input type="text" class="field-input bt-market-search" id="btMarketSearch" placeholder="Search markets..." autocomplete="off" />
+          <div class="bt-filter-tabs" id="btMarketFilters">
+            <button class="bt-filter-tab active" data-filter="all">All</button>
+            <button class="bt-filter-tab" data-filter="kalshi">Kalshi</button>
+            <button class="bt-filter-tab" data-filter="polymarket">Polymarket</button>
+            <button class="bt-filter-tab" data-filter="crypto">Crypto</button>
+            <button class="bt-filter-tab" data-filter="stocks">Stocks</button>
+            <button class="bt-filter-tab" data-filter="weather">Weather</button>
+          </div>
+          <div class="bt-market-list" id="btMarketList">
+            <div class="bt-market-loading">Loading markets...</div>
           </div>
         </div>
       </div>
 
-      <div class="backtest-scroll" id="backtestScroll">
-        <!-- Results rendered by JS after "Run" -->
+      <!-- Results overlay — takes over the full view when a backtest runs -->
+      <div class="bt-results-overlay" id="btResultsOverlay" style="display:none">
+        <div class="bt-results-header">
+          <button class="toolbar-btn" id="btnBackToSetup" onclick="showBacktestSetup()">Back to Setup</button>
+        </div>
         <div class="backtest-running" id="backtestRunning" style="display:none">
           <div class="backtest-spinner"></div>
           <span>Running backtest simulation...</span>
         </div>
-        <div id="backtestResults" style="display:none"></div>
+        <div class="bt-results-scroll">
+          <div id="backtestResults"></div>
+        </div>
       </div>
     </section>
 
@@ -893,420 +1021,280 @@
     </section>
 
     <!-- ──────────────────────────────────────────────────────
-         VIEW 6: MERCURY RESEARCH + TERMINAL
+         VIEW 6: MERCURY CHARTING + TERMINAL
     ────────────────────────────────────────────────────── -->
-    <section id="view-research" class="app-view">
+    <section id="view-charting" class="app-view tv-layout">
 
-      <!-- Research Tutorial Overlay -->
-      <div class="research-tutorial-overlay" id="researchTutorial">
-        <div class="research-tutorial">
-          <button class="research-tutorial-close" id="researchTutorialClose">&times;</button>
+      <!-- Coming Soon Lock Overlay -->
+      <div class="charting-lock-overlay" id="chartingLockOverlay">
+        <div class="charting-lock-card">
+          <div class="charting-lock-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+          </div>
+          <h2 class="charting-lock-title">Live Charting Coming Soon</h2>
+          <p class="charting-lock-desc">Real-time candlestick charts with live Polymarket &amp; Kalshi price action, instant execution, and advanced order routing.</p>
+          <div class="charting-lock-features">
+            <span class="charting-lock-feat">Live OHLC candles</span>
+            <span class="charting-lock-feat">Instant execution</span>
+            <span class="charting-lock-feat">Cross-platform split orders</span>
+            <span class="charting-lock-feat">Iceberg orders</span>
+            <span class="charting-lock-feat">Order book depth</span>
+            <span class="charting-lock-feat">Volume profiling</span>
+          </div>
+          <form class="charting-lock-form" id="chartingWaitlistForm">
+            <input type="email" class="charting-lock-input" id="chartingWaitlistEmail" placeholder="Enter your email for early access" required />
+            <button type="submit" class="charting-lock-btn">Join Waitlist</button>
+          </form>
+          <p class="charting-lock-note" id="chartingWaitlistMsg"></p>
+        </div>
+      </div>
 
-          <div class="research-tutorial-hero">
+      <!-- Charting Tutorial Overlay (keep as-is) -->
+      <div class="charting-tutorial-overlay" id="chartingTutorial">
+        <div class="charting-tutorial">
+          <button class="charting-tutorial-close" id="chartingTutorialClose">&times;</button>
+          <div class="charting-tutorial-hero">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--green)">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
             </svg>
-            <h2>Mercury Research</h2>
-            <p>Real-time market intelligence, cross-platform analytics, and live news &mdash; all in one terminal.</p>
+            <h2>Mercury Charting</h2>
+            <p>Real-time prediction market charting &mdash; Polymarket + Kalshi, cross-platform analytics.</p>
           </div>
-
-          <div class="research-tutorial-grid">
-
-            <div class="research-tutorial-card" onclick="dismissResearchTutorial(); switchResearchTab('edge');">
-              <span class="research-tutorial-icon" style="color:var(--green)">&#9673;</span>
-              <div class="research-tutorial-card-body">
-                <span class="research-tutorial-card-title">Overview &amp; Edge Scanner</span>
-                <span class="research-tutorial-card-desc">Live market metrics, top movers, edge detection across 100+ contracts. Click any market to see full price history, volume charts, and probability timelines.</span>
-              </div>
-            </div>
-
-            <div class="research-tutorial-card" onclick="dismissResearchTutorial(); switchResearchTab('crypto');">
-              <span class="research-tutorial-icon" style="color:#fbbf24">&#9830;</span>
-              <div class="research-tutorial-card-body">
-                <span class="research-tutorial-card-title">Crypto Dashboard</span>
-                <span class="research-tutorial-card-desc">BTC, ETH, SOL real-time prices and 24h charts. Track crypto alongside your prediction market positions for cross-asset correlation.</span>
-              </div>
-            </div>
-
-            <div class="research-tutorial-card" onclick="dismissResearchTutorial(); switchResearchTab('markets');">
-              <span class="research-tutorial-icon" style="color:#60a5fa">&#9638;</span>
-              <div class="research-tutorial-card-body">
-                <span class="research-tutorial-card-title">Market Scanner</span>
-                <span class="research-tutorial-card-desc">Browse all tracked contracts with sortable columns &mdash; price, volume, spread, platform. Click any row to drill into detailed stats and historical data.</span>
-              </div>
-            </div>
-
-            <div class="research-tutorial-card" onclick="dismissResearchTutorial(); switchResearchTab('news');">
-              <span class="research-tutorial-icon" style="color:#a78bfa">&#9889;</span>
-              <div class="research-tutorial-card-body">
-                <span class="research-tutorial-card-title">News</span>
-                <span class="research-tutorial-card-desc">Live news feed with sentiment analysis from Reuters, Bloomberg, and crypto sources.</span>
-              </div>
-            </div>
-
-            <div class="research-tutorial-card" onclick="dismissResearchTutorial(); switchResearchTab('bonding');">
-              <span class="research-tutorial-icon" style="color:#ff1744">&#9878;</span>
-              <div class="research-tutorial-card-body">
-                <span class="research-tutorial-card-title">Bonding Arb</span>
-                <span class="research-tutorial-card-desc">Find near-certain contracts close to resolution for risk-free yield. Buy at 95-99c, collect 100c on resolution &mdash; like a short-term bond. Sortable by annualized yield, days to maturity, and liquidity.</span>
-              </div>
-            </div>
-
-            <div class="research-tutorial-card" onclick="dismissResearchTutorial(); switchResearchTab('terminal');">
-              <span class="research-tutorial-icon" style="color:var(--silver)">&#9618;</span>
-              <div class="research-tutorial-card-body">
-                <span class="research-tutorial-card-title">Terminal</span>
-                <span class="research-tutorial-card-desc">Full execution dashboard with live order book, volume heatmap, execution logs, and an AI research assistant that can answer questions about any market.</span>
-              </div>
-            </div>
-
-          </div>
-
-          <div class="research-tutorial-tips">
-            <div class="research-tutorial-tip">Click any market row or card throughout Research to see detailed stats, price history, and volume charts.</div>
-            <div class="research-tutorial-tip">Use the Terminal's AI chat to ask questions like "what's the edge on BTC contracts?" or "show me the biggest spreads."</div>
-            <div class="research-tutorial-tip">Found an opportunity? Jump to Architect to build a strategy around it, or use a Bond Arb preset template.</div>
-          </div>
-
-          <div class="research-tutorial-actions">
-            <button class="research-tutorial-start" onclick="dismissResearchTutorial(); startResearchTour(true);">Start Guided Tour</button>
-            <button class="research-tutorial-skip" onclick="dismissResearchTutorial();">Skip &mdash; I'll explore myself</button>
+          <div class="charting-tutorial-actions">
+            <button class="charting-tutorial-start" onclick="dismissChartingTutorial();">Get Started</button>
           </div>
         </div>
       </div>
 
-      <!-- Top Status Bar -->
-      <div class="research-topbar" id="researchTopbar">
-        <div class="research-topbar-left">
-          <span class="research-topbar-title">Mercury Research</span>
-          <span class="research-live-dot"></span>
-          <span class="research-live-label">Live</span>
+      <!-- ═══ TOP BAR ═══ -->
+      <div class="tv-topbar" id="chartingTopbar">
+        <div class="tv-topbar-left">
+          <span class="tv-logo">Mercury</span>
+          <span class="charting-live-dot"></span>
+          <span class="charting-live-label">LIVE</span>
         </div>
-        <div class="research-topbar-center">
+        <div class="tv-topbar-center">
           <div class="ticker-tape" id="tickerTape">
             <div class="ticker-tape-track" id="tickerTrack"></div>
           </div>
         </div>
-        <div class="research-topbar-right">
-          <span class="research-clock" id="researchClock">00:00:00 UTC</span>
-          <button class="kill-switch" id="killSwitchBtn">
-            <span class="kill-switch-icon">&#9632;</span>
-            Kill All
-          </button>
+        <div class="tv-topbar-right">
+          <span class="tv-market-count" id="metricActiveMarkets">0</span>
+          <span class="tv-market-count-label">markets</span>
+          <span class="charting-clock" id="chartingClock">00:00:00 UTC</span>
         </div>
       </div>
 
-      <!-- Tab Bar -->
-      <div class="research-tab-bar" id="researchTabBar">
-        <button class="research-tab active" data-rtab="edge">Overview</button>
-        <button class="research-tab" data-rtab="crypto">Crypto</button>
-        <button class="research-tab" data-rtab="markets">Markets</button>
-        <button class="research-tab" data-rtab="news">News</button>
-        <div class="research-tab-sep"></div>
-        <button class="research-tab research-tab--terminal" data-rtab="terminal">Terminal</button>
-        <button class="research-tab research-tab--tour" id="rewatchTourBtn" onclick="window.resetResearchTutorial();" title="Rewatch tutorial">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-          </svg>
-          Tutorial
-        </button>
-      </div>
+      <!-- ═══ MAIN CONTENT: Chart + Watchlist ═══ -->
+      <div class="tv-main">
 
-      <!-- ═══ TAB: EDGE SCANNER ═══ -->
-      <div class="research-tab-panel active" id="rtab-edge">
-        <!-- Search + Filter Toolbar -->
-        <div class="research-toolbar" id="researchControlsBar">
-          <div class="research-toolbar-search">
-            <svg class="research-toolbar-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
-            <input type="text" class="research-toolbar-input" id="edgeSearchInput" placeholder="Search prediction markets..." spellcheck="false" autocomplete="off">
-            <kbd class="research-toolbar-kbd">/</kbd>
+        <!-- LEFT: Chart Panel -->
+        <div class="tv-chart-panel">
+
+          <!-- Chart Header: selected symbol info -->
+          <div class="tv-symbol-bar" id="tvSymbolBar">
+            <div class="tv-symbol-left">
+              <span class="tv-symbol-ticker" id="tvSymbolTicker">---</span>
+              <span class="tv-symbol-name" id="tvSymbolName">Select a market</span>
+              <span class="tv-symbol-source" id="tvSymbolSource"></span>
+            </div>
+            <div class="tv-symbol-right">
+              <span class="tv-symbol-price" id="tvSymbolPrice">--</span>
+              <span class="tv-symbol-change" id="tvSymbolChange"></span>
+            </div>
           </div>
-          <div class="research-toolbar-filters">
-            <div class="research-toolbar-group">
-              <span class="research-toolbar-label">PLATFORM</span>
-              <div class="module-platform-tabs" id="edgePlatformTabs">
-                <button class="plat-btn active" data-plat="all">ALL</button>
-                <button class="plat-btn plat-btn--poly" data-plat="polymarket">POLY</button>
-                <button class="plat-btn plat-btn--kalshi" data-plat="kalshi">KALSHI</button>
+
+          <!-- Chart Toolbar: timeframe + chart type -->
+          <div class="tv-chart-toolbar">
+            <div class="tv-chart-toolbar-left">
+              <div class="tv-tf-group" id="tvChartTfToggle">
+                <button class="tv-tf-btn" data-tf="1m">1m</button>
+                <button class="tv-tf-btn active" data-tf="5m">5m</button>
+                <button class="tv-tf-btn" data-tf="15m">15m</button>
+                <button class="tv-tf-btn" data-tf="30m">30m</button>
+                <button class="tv-tf-btn" data-tf="1h">1H</button>
+              </div>
+              <div class="tv-sep"></div>
+              <div class="tv-ct-group" id="tvChartTypeToggle">
+                <button class="tv-ct-btn active" data-ct="candlestick" title="Candlestick">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" y1="2" x2="4" y2="14"/><rect x="2" y="5" width="4" height="5" rx="0.5"/><line x1="12" y1="3" x2="12" y2="13"/><rect x="10" y="6" width="4" height="4" rx="0.5"/></svg>
+                </button>
+                <button class="tv-ct-btn" data-ct="area" title="Area chart">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1,12 4,7 8,9 12,4 15,6"/></svg>
+                </button>
+              </div>
+              <div class="tv-sep"></div>
+              <div class="tv-plat-group" id="tvPlatTabs">
+                <button class="tv-plat-btn tv-plat-btn--poly active" data-mdplat="polymarket">Poly</button>
+                <button class="tv-plat-btn tv-plat-btn--kalshi" data-mdplat="kalshi">Kalshi</button>
               </div>
             </div>
-            <div class="research-toolbar-group">
-              <span class="research-toolbar-label">CATEGORY</span>
-              <select class="research-category-select" id="edgeCategorySelect">
-                <option value="all">All Categories</option>
-                <option value="crypto">Crypto</option>
-                <option value="politics">Politics</option>
-                <option value="economics">Economics</option>
-                <option value="sports">Sports</option>
-                <option value="entertainment">Entertainment</option>
-                <option value="science">Science &amp; Tech</option>
-                <option value="world">World Events</option>
-              </select>
+            <div class="tv-chart-toolbar-right">
+              <span class="tv-data-label" id="tvDataLabel"></span>
             </div>
-            <div class="research-toolbar-group">
-              <span class="research-toolbar-label">TIMEFRAME</span>
-              <div class="module-timeframe-tabs" id="edgeTimeframeTabs">
-                <button class="tf-btn active" data-tf="all">ALL</button>
-                <button class="tf-btn" data-tf="15M">15M</button>
-                <button class="tf-btn" data-tf="1H">1H</button>
-                <button class="tf-btn" data-tf="1W">1W</button>
-                <button class="tf-btn" data-tf="1M">1M</button>
-                <button class="tf-btn" data-tf="1Y">1Y</button>
+          </div>
+
+          <!-- Main Chart -->
+          <div class="tv-chart-area">
+            <div id="tvMainChart" class="tv-main-chart">
+              <div class="tv-chart-placeholder"><div style="display:inline-block;width:20px;height:20px;border:2px solid #222;border-top-color:#00c853;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px"></div><br>Loading markets&hellip;</div>
+              <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+            </div>
+            <div id="tvVolChart" class="tv-vol-chart"></div>
+          </div>
+
+          <!-- Stats Bar -->
+          <div class="tv-stats-bar" id="tvStatsBar">
+            <div class="tv-stat">
+              <span class="tv-stat-label">Polymarket</span>
+              <span class="tv-stat-value" id="tvStatPoly">--</span>
+            </div>
+            <div class="tv-stat">
+              <span class="tv-stat-label">Kalshi</span>
+              <span class="tv-stat-value" id="tvStatKalshi">--</span>
+            </div>
+            <div class="tv-stat">
+              <span class="tv-stat-label">Spread</span>
+              <span class="tv-stat-value tv-stat-value--green" id="tvStatSpread">--</span>
+            </div>
+            <div class="tv-stat">
+              <span class="tv-stat-label">24h Vol</span>
+              <span class="tv-stat-value" id="tvStatVol">--</span>
+            </div>
+            <div class="tv-stat">
+              <span class="tv-stat-label">Implied Prob</span>
+              <span class="tv-stat-value" id="tvStatImplied">--</span>
+            </div>
+            <div class="tv-stat">
+              <span class="tv-stat-label">EV</span>
+              <span class="tv-stat-value" id="tvStatEV">--</span>
+            </div>
+            <div class="tv-stat">
+              <span class="tv-stat-label">Resolves</span>
+              <span class="tv-stat-value" id="tvStatResolves">--</span>
+            </div>
+          </div>
+
+          <!-- Bottom Panel: single tabbed area — pick one to show -->
+          <div class="tv-bottom-panel">
+            <div class="tv-bottom-tabs">
+              <button class="tv-bottom-tab active" data-bpanel="news">News</button>
+              <button class="tv-bottom-tab" data-bpanel="trending">Trending</button>
+              <button class="tv-bottom-tab" data-bpanel="arb">Cross-Platform Arb</button>
+            </div>
+            <div class="tv-bottom-content">
+              <!-- News -->
+              <div class="tv-bottom-pane active" id="tvBpNews">
+                <div class="news-feed" id="newsFeed"></div>
               </div>
-            </div>
-            <div class="research-toolbar-group">
-              <span class="research-toolbar-label">SORT</span>
-              <select class="research-category-select" id="edgeSortSelect">
-                <option value="volume">Volume</option>
-                <option value="spread">Spread</option>
-                <option value="resolves">Resolves Soon</option>
-                <option value="price-high">Price: High</option>
-                <option value="price-low">Price: Low</option>
-              </select>
-            </div>
-            <span class="research-toolbar-count" id="edgeFilterMeta"></span>
-          </div>
-        </div>
-
-        <div class="overview-metrics">
-          <div class="overview-card">
-            <div class="overview-card-label">Active Markets</div>
-            <div class="overview-card-value" id="metricActiveMarkets">—</div>
-            <div class="overview-card-sub">Tracked across platforms</div>
-          </div>
-          <div class="overview-card">
-            <div class="overview-card-label">24h Volume</div>
-            <div class="overview-card-value" id="metricTotalVol">—</div>
-            <div class="overview-card-sub">Combined market volume</div>
-          </div>
-          <div class="overview-card">
-            <div class="overview-card-label">Top Spread</div>
-            <div class="overview-card-value overview-card-value--green" id="metricTopSpread">&mdash;</div>
-            <div class="overview-card-sub">Best cross-platform gap</div>
-          </div>
-          <div class="overview-card">
-            <div class="overview-card-label">Biggest Mover (30m)</div>
-            <div class="overview-card-value" id="metricBiggestMover">&mdash;</div>
-            <div class="overview-card-sub" id="metricBiggestMoverSub">Past 30 minutes</div>
-          </div>
-        </div>
-
-        <div class="research-scroll">
-          <!-- Edge Scanner Table -->
-          <div class="research-module">
-            <div class="module-header">
-              <span class="module-title">Markets <span class="live-badge" id="edgeLiveBadge" style="display:none;">LIVE</span></span>
-            </div>
-            <div class="module-body">
-              <div id="edgeResearchCards"></div>
-            </div>
-          </div>
-
-          <!-- Bonding Arb Section (inline) -->
-          <div class="research-module research-module--bonding">
-            <div class="module-header">
-              <span class="module-title">Bonding Arbitrage
-                <span class="module-title-badge module-title-badge--green">YIELD</span>
-              </span>
-              <div class="module-controls">
-                <select class="module-select" id="bondingSortSelect">
-                  <option value="yield">Sort: Yield</option>
-                  <option value="prob">Sort: Probability</option>
-                  <option value="volume">Sort: Volume</option>
-                  <option value="days">Sort: Days to Resolve</option>
-                </select>
-                <select class="module-select" id="bondingPlatformSelect">
-                  <option value="all">All Platforms</option>
-                  <option value="polymarket">Polymarket</option>
-                  <option value="kalshi">Kalshi</option>
-                </select>
-              </div>
-            </div>
-            <div class="module-body">
-              <div class="bonding-metrics-row">
-                <div class="bonding-metric">
-                  <span class="bonding-metric-val" id="bondingCount">0</span>
-                  <span class="bonding-metric-label">Markets</span>
+              <!-- Trending Keywords -->
+              <div class="tv-bottom-pane" id="tvBpTrending">
+                <div class="trending-bar">
+                  <div class="trending-bar-left">
+                    <span class="trending-bar-label">KEYWORD SPIKES</span>
+                    <span class="trending-bar-count" id="trendingCount">--</span>
+                  </div>
+                  <div class="trending-bar-right">
+                    <select class="tv-wl-select" id="trendingCatSelect">
+                      <option value="all">All Categories</option>
+                      <option value="crypto">Crypto</option>
+                      <option value="politics">Politics</option>
+                      <option value="econ">Economy</option>
+                      <option value="ai">AI/Tech</option>
+                      <option value="geopolitics">Geopolitics</option>
+                      <option value="sports">Sports</option>
+                    </select>
+                  </div>
                 </div>
-                <div class="bonding-metric">
-                  <span class="bonding-metric-val bonding-metric-val--green" id="bondingAvgYield">&mdash;</span>
-                  <span class="bonding-metric-label">Avg Yield</span>
-                </div>
-                <div class="bonding-metric">
-                  <span class="bonding-metric-val" id="bondingTotalLiq">&mdash;</span>
-                  <span class="bonding-metric-label">Liquidity</span>
-                </div>
-                <div class="bonding-metric">
-                  <span class="bonding-metric-val" id="bondingAvgDays">&mdash;</span>
-                  <span class="bonding-metric-label">Avg Days</span>
+                <div class="trending-grid" id="trendingGrid">
+                  <div class="trending-loading">Scanning headlines&hellip;</div>
                 </div>
               </div>
-              <div class="bonding-table-header">
-                <span class="bonding-col bonding-col--market">Market</span>
-                <span class="bonding-col bonding-col--platform">Platform</span>
-                <span class="bonding-col bonding-col--price">Price</span>
-                <span class="bonding-col bonding-col--prob">Implied Prob</span>
-                <span class="bonding-col bonding-col--yield">Est. Yield</span>
-                <span class="bonding-col bonding-col--days">Days Left</span>
-                <span class="bonding-col bonding-col--vol">24h Volume</span>
-                <span class="bonding-col bonding-col--action">Action</span>
-              </div>
-              <div id="bondingTableBody">
-                <div class="bonding-loading">Scanning for near-resolution opportunities...</div>
+              <!-- Cross-Platform Arb -->
+              <div class="tv-bottom-pane" id="tvBpArb">
+                <div class="arb-table-header">
+                  <span class="arb-col arb-col--market">Market</span>
+                  <span class="arb-col arb-col--poly">Polymarket</span>
+                  <span class="arb-col arb-col--kalshi">Kalshi</span>
+                  <span class="arb-col arb-col--spread">Spread</span>
+                  <span class="arb-col arb-col--action">Cause</span>
+                </div>
+                <div id="arbTableBody"></div>
               </div>
             </div>
           </div>
 
-          <!-- Cross-Platform Comparison -->
-          <div class="research-module research-module--table">
-            <div class="module-header">
-              <span class="module-title">Cross-Platform Comparison</span>
-              <span class="module-meta" id="arbTimestamp">Scanning...</span>
-            </div>
-            <div class="module-body">
-              <div class="arb-table-header">
-                <span class="arb-col arb-col--market">Market</span>
-                <span class="arb-col arb-col--poly">Polymarket</span>
-                <span class="arb-col arb-col--kalshi">Kalshi</span>
-                <span class="arb-col arb-col--spread">Discrepancy</span>
-                <span class="arb-col arb-col--action">Possible Cause</span>
-              </div>
-              <div id="arbTableBody"></div>
-            </div>
-          </div>
         </div>
+
+        <!-- RIGHT: Watchlist Sidebar -->
+        <div class="tv-watchlist" id="tvWatchlist">
+
+          <!-- Search -->
+          <div class="tv-wl-search">
+            <svg class="tv-wl-search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+            <input type="text" class="tv-wl-search-input" id="edgeSearchInput" placeholder="Search markets..." spellcheck="false" autocomplete="off">
+          </div>
+
+          <!-- Filters Row -->
+          <div class="tv-wl-filters">
+            <div class="tv-wl-filter-group" id="edgePlatformTabs">
+              <button class="tv-wl-fbtn active" data-plat="all">All</button>
+              <button class="tv-wl-fbtn tv-wl-fbtn--poly" data-plat="polymarket">Poly</button>
+              <button class="tv-wl-fbtn tv-wl-fbtn--kalshi" data-plat="kalshi">Kalshi</button>
+            </div>
+            <select class="tv-wl-select" id="edgeSortSelect">
+              <option value="chart-quality">Best Charts</option>
+              <option value="volume">Volume</option>
+              <option value="spread">Spread</option>
+              <option value="resolves">Resolves Soon</option>
+              <option value="price-high">Price &darr;</option>
+              <option value="price-low">Price &uarr;</option>
+            </select>
+          </div>
+
+          <!-- Category -->
+          <div class="tv-wl-filters">
+            <select class="tv-wl-select tv-wl-select--full" id="edgeCategorySelect">
+              <option value="all">All Categories</option>
+              <option value="crypto">Crypto</option>
+              <option value="politics">Politics</option>
+              <option value="economics">Economics</option>
+              <option value="sports">Sports</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="science">Science &amp; Tech</option>
+              <option value="world">World Events</option>
+            </select>
+            <span class="tv-wl-count" id="edgeFilterMeta"></span>
+          </div>
+
+          <!-- Market List -->
+          <div class="tv-wl-list" id="edgeChartingCards"></div>
+
+        </div>
+
       </div>
 
-      <!-- ═══ TAB: CRYPTO ═══ -->
-      <div class="research-tab-panel" id="rtab-crypto">
-        <div class="overview-metrics crypto-metrics">
-          <div class="overview-card">
-            <div class="overview-card-label">BTC PRICE</div>
-            <div class="overview-card-value overview-card-value--green" id="cryptoBTCPrice">&mdash;</div>
-            <div class="overview-card-sub">Binance spot</div>
-          </div>
-          <div class="overview-card">
-            <div class="overview-card-label">DVOL</div>
-            <div class="overview-card-value" id="cryptoDVOL">&mdash;</div>
-            <div class="overview-card-sub">Implied volatility</div>
-          </div>
-        </div>
-
-        <div class="research-scroll">
-          <div class="research-module">
-            <div class="module-header">
-              <span class="module-title">15-Min Markets</span>
-              <span class="module-meta" id="crypto15mCount">&mdash;</span>
-            </div>
-            <div class="module-body">
-              <div class="crypto-mkt-header">
-                <span class="crypto-mkt-col crypto-mkt-col--strike">Price to Beat</span>
-                <span class="crypto-mkt-col">Kalshi</span>
-                <span class="crypto-mkt-col">Polymarket</span>
-                <span class="crypto-mkt-col">Spread</span>
-              </div>
-              <div id="crypto15mBody"></div>
-            </div>
-          </div>
-
-          <div class="research-module">
-            <div class="module-header">
-              <span class="module-title">1-Hour Markets</span>
-              <span class="module-meta" id="crypto1hCount">&mdash;</span>
-            </div>
-            <div class="module-body">
-              <div class="crypto-mkt-header">
-                <span class="crypto-mkt-col crypto-mkt-col--strike">Price to Beat</span>
-                <span class="crypto-mkt-col">Kalshi</span>
-                <span class="crypto-mkt-col">Polymarket</span>
-                <span class="crypto-mkt-col">Spread</span>
-              </div>
-              <div id="crypto1hBody"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ TAB: MARKETS ═══ -->
-      <div class="research-tab-panel" id="rtab-markets">
-        <div class="research-scroll">
-          <div class="research-module research-module--table">
-            <div class="module-header">
-              <span class="module-title">Market Scanner</span>
-              <div class="module-controls">
-                <select class="module-select" id="marketScannerSort">
-                  <option value="edge">Sort: Divergence</option>
-                  <option value="volume">Sort: Volume</option>
-                  <option value="change">Sort: 24h Change</option>
-                  <option value="name">Sort: Name</option>
-                </select>
-                <span class="module-live-badge">Live</span>
-              </div>
-            </div>
-            <div class="module-body">
-              <div class="market-table-header">
-                <span class="mkt-col mkt-col--name">Market</span>
-                <span class="mkt-col mkt-col--price">Price</span>
-                <span class="mkt-col mkt-col--fair">Fair Value</span>
-                <span class="mkt-col mkt-col--change">24h</span>
-                <span class="mkt-col mkt-col--vol">Volume</span>
-                <span class="mkt-col mkt-col--poly">Polymarket</span>
-                <span class="mkt-col mkt-col--kalshi">Kalshi</span>
-                <span class="mkt-col mkt-col--signal">Divergence</span>
-              </div>
-              <div id="marketTableBody"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ TAB: NEWS ═══ -->
-      <div class="research-tab-panel" id="rtab-news">
-        <div class="research-grid research-grid--news">
-          <div class="research-module" id="mod-newsfeed">
-            <div class="module-header">
-              <span class="module-title">News Feed</span>
-              <span class="module-live-badge">Live</span>
-            </div>
-            <div class="module-body">
-              <div class="news-feed" id="newsFeed"></div>
-            </div>
-          </div>
-          <div class="research-module" id="mod-biggest-mover">
-            <div class="module-header">
-              <span class="module-title">Biggest Movers</span>
-              <span class="module-meta">Last 30 min</span>
-            </div>
-            <div class="module-body">
-              <div id="biggestMoverBody"><div class="mover-empty">Loading market data...</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ TAB: BONDING ARB ═══ -->
-      <!-- bonding arb moved to edge/overview tab -->
-
-      <!-- ═══ TAB: TERMINAL (Execution Dashboard) ═══ -->
-      <div class="research-tab-panel" id="rtab-terminal">
-        <div class="research-grid research-grid--terminal">
-          <div class="research-module" id="mod-orderbook">
+      <!-- Hidden containers for tabs that still need their elements (Terminal) -->
+      <div class="charting-tab-panel" id="rtab-terminal" style="display:none;">
+        <div class="charting-grid charting-grid--terminal">
+          <div class="charting-module" id="mod-orderbook">
             <div class="module-header">
               <span class="module-title">Order Book</span>
               <div class="module-controls">
                 <select class="module-select" id="orderbookMarket">
                   <option>Fed Rate Cut Mar 2026</option>
                   <option>BTC > $100K</option>
-                  <option>Trump 2028 Nominee</option>
-                  <option>AI Regulation 2026</option>
                 </select>
                 <span class="module-live-badge">Live</span>
               </div>
             </div>
             <div class="module-body" id="orderbookBody"></div>
           </div>
-          <div class="research-module" id="mod-volume">
+          <div class="charting-module" id="mod-volume">
             <div class="module-header">
               <span class="module-title">Volume Footprint</span>
               <div class="module-controls">
@@ -1321,30 +1309,26 @@
               <div id="volumeChart" style="width:100%;height:100%;"></div>
             </div>
           </div>
-          <div class="research-module" id="mod-botlogs">
+          <div class="charting-module" id="mod-botlogs">
             <div class="module-header">
-              <span class="module-title">Bot Performance Log</span>
-              <span class="module-live-badge">LIVE FEED</span>
+              <span class="module-title">Bot Log</span>
+              <span class="module-live-badge">LIVE</span>
             </div>
             <div class="module-body">
-              <div class="research-logs" id="researchLogs"></div>
+              <div class="charting-logs" id="chartingLogs"></div>
             </div>
           </div>
-          <div class="research-module" id="mod-chat">
+          <div class="charting-module" id="mod-chat">
             <div class="module-header">
-              <span class="module-title">Research Chat</span>
+              <span class="module-title">Charting Chat</span>
             </div>
             <div class="module-body module-body-chat">
-              <div class="research-chat-messages" id="researchChatMessages">
-                <div class="research-chat-welcome">
-                  Ask Mercury anything about markets, probabilities, correlations, or strategy ideas.
-                </div>
+              <div class="charting-chat-messages" id="chartingChatMessages">
+                <div class="charting-chat-welcome">Ask Mercury anything about markets.</div>
               </div>
-              <div class="research-chat-input-area">
-                <input class="research-chat-input" id="researchChatInput"
-                       placeholder="Query markets, probabilities, correlations..."
-                       spellcheck="false">
-                <button class="research-chat-send" id="researchChatSend">
+              <div class="charting-chat-input-area">
+                <input class="charting-chat-input" id="chartingChatInput" placeholder="Ask about markets..." spellcheck="false">
+                <button class="charting-chat-send" id="chartingChatSend">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="22" y1="2" x2="11" y2="13"></line>
                     <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -1356,6 +1340,405 @@
         </div>
       </div>
 
+    </section>
+
+    <!-- ═══ VIEW: PORTFOLIO ═══ -->
+    <section id="view-portfolio" class="app-view">
+      <div class="view-header">
+        <div class="view-header-left">
+          <h1 class="view-title">Portfolio</h1>
+          <span class="view-count" id="portfolioPositionCount">0 positions</span>
+        </div>
+        <div class="view-header-right">
+          <div class="filter-tabs" id="portfolioFilterTabs">
+            <button class="filter-tab active" data-filter="all">All</button>
+            <button class="filter-tab" data-filter="open">Open</button>
+            <button class="filter-tab" data-filter="settled">Settled</button>
+          </div>
+          <select class="sort-select" id="portfolioSort">
+            <option value="pnl">Sort: P&amp;L</option>
+            <option value="value">Sort: Value</option>
+            <option value="recent">Sort: Recent</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Portfolio Summary -->
+      <div class="portfolio-summary">
+        <div class="portfolio-summary-metric portfolio-summary-metric--large">
+          <span class="portfolio-summary-label">Portfolio Value</span>
+          <span class="portfolio-summary-value" id="portfolioTotalValue">$0.00</span>
+        </div>
+        <div class="portfolio-summary-metric">
+          <span class="portfolio-summary-label">Total P&amp;L</span>
+          <span class="portfolio-summary-value portfolio-summary-value--green" id="portfolioTotalPnl">$0.00</span>
+        </div>
+        <div class="portfolio-summary-metric">
+          <span class="portfolio-summary-label">Open Positions</span>
+          <span class="portfolio-summary-value" id="portfolioOpenCount">0</span>
+        </div>
+        <div class="portfolio-summary-metric">
+          <span class="portfolio-summary-label">Win Rate</span>
+          <span class="portfolio-summary-value" id="portfolioWinRate">--</span>
+        </div>
+        <div class="portfolio-summary-metric">
+          <span class="portfolio-summary-label">Settled</span>
+          <span class="portfolio-summary-value" id="portfolioSettledCount">0</span>
+        </div>
+        <div class="portfolio-summary-metric">
+          <span class="portfolio-summary-label">Avg Return</span>
+          <span class="portfolio-summary-value portfolio-summary-value--green" id="portfolioAvgReturn">--</span>
+        </div>
+      </div>
+
+      <!-- Positions Table -->
+      <div class="portfolio-table">
+        <div class="portfolio-table-header">
+          <span class="portfolio-col portfolio-col--market">Market</span>
+          <span class="portfolio-col portfolio-col--platform">Platform</span>
+          <span class="portfolio-col portfolio-col--side">Side</span>
+          <span class="portfolio-col portfolio-col--qty">Qty</span>
+          <span class="portfolio-col portfolio-col--avg">Avg Price</span>
+          <span class="portfolio-col portfolio-col--current">Current</span>
+          <span class="portfolio-col portfolio-col--value">Value</span>
+          <span class="portfolio-col portfolio-col--pnl">P&amp;L</span>
+          <span class="portfolio-col portfolio-col--status">Status</span>
+        </div>
+        <div class="portfolio-table-body" id="portfolioTableBody">
+          <div class="bonding-loading">No positions yet&hellip;</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ VIEW: BONDING ARBITRAGE ═══ -->
+    <section id="view-bonding-arb" class="app-view">
+      <div class="view-header">
+        <div class="view-header-left">
+          <h1 class="view-title">Bonding Arbitrage</h1>
+          <span class="view-count" id="bondingViewCount">0 opportunities</span>
+        </div>
+        <div class="view-header-right">
+          <div class="filter-tabs" id="bondingViewPlatformTabs">
+            <button class="filter-tab active" data-plat="all">All</button>
+            <button class="filter-tab" data-plat="polymarket">Poly</button>
+            <button class="filter-tab" data-plat="kalshi">Kalshi</button>
+          </div>
+          <select class="sort-select" id="bondingViewSort">
+            <option value="yield">Sort: Yield</option>
+            <option value="prob">Sort: Prob</option>
+            <option value="volume">Sort: Volume</option>
+            <option value="days">Sort: Days</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Metrics Row -->
+      <div class="bonding-view-metrics">
+        <div class="bonding-view-metric">
+          <span class="bonding-view-metric-label">Opportunities</span>
+          <span class="bonding-view-metric-value" id="bondingViewOpps">0</span>
+        </div>
+        <div class="bonding-view-metric">
+          <span class="bonding-view-metric-label">Avg Yield (Ann.)</span>
+          <span class="bonding-view-metric-value bonding-view-metric-value--green" id="bondingViewYield">--</span>
+        </div>
+        <div class="bonding-view-metric">
+          <span class="bonding-view-metric-label">Total Liquidity</span>
+          <span class="bonding-view-metric-value" id="bondingViewLiq">--</span>
+        </div>
+        <div class="bonding-view-metric">
+          <span class="bonding-view-metric-label">Avg Days to Resolution</span>
+          <span class="bonding-view-metric-value" id="bondingViewDays">--</span>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="bonding-view-table">
+        <div class="bonding-view-table-header">
+          <span class="bonding-vcol bonding-vcol--market">Market</span>
+          <span class="bonding-vcol bonding-vcol--platform">Platform</span>
+          <span class="bonding-vcol bonding-vcol--side">Side</span>
+          <span class="bonding-vcol bonding-vcol--price">Price</span>
+          <span class="bonding-vcol bonding-vcol--prob">Prob</span>
+          <span class="bonding-vcol bonding-vcol--yield">Yield (Ann.)</span>
+          <span class="bonding-vcol bonding-vcol--days">Days</span>
+          <span class="bonding-vcol bonding-vcol--vol">Volume</span>
+          <span class="bonding-vcol bonding-vcol--action"></span>
+        </div>
+        <div class="bonding-view-table-body" id="bondingViewBody">
+          <div class="bonding-loading">Scanning markets&hellip;</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════ CATALYST VIEW ════════ -->
+    <section id="view-catalyst" class="app-view catalyst-layout">
+
+      <!-- Top Bar -->
+      <div class="catalyst-topbar">
+        <div class="catalyst-topbar-left">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--green)">
+            <path d="M2 12h4l3-9 4 18 3-9h6"/>
+          </svg>
+          <span class="catalyst-title">CATALYST</span>
+          <span class="catalyst-live-dot"></span>
+          <span class="catalyst-live-label">LIVE</span>
+        </div>
+        <div class="catalyst-topbar-right">
+          <span class="catalyst-topbar-stat">
+            <span class="catalyst-topbar-stat-label">KEYWORDS</span>
+            <span class="catalyst-topbar-stat-val" id="catalystKeywordCount">--</span>
+          </span>
+          <span class="catalyst-topbar-stat">
+            <span class="catalyst-topbar-stat-label">HEADLINES</span>
+            <span class="catalyst-topbar-stat-val" id="catalystHeadlineCount">--</span>
+          </span>
+          <span class="catalyst-topbar-stat">
+            <span class="catalyst-topbar-stat-label">UPDATED</span>
+            <span class="catalyst-topbar-stat-val" id="catalystLastUpdate">--</span>
+          </span>
+          <span class="catalyst-topbar-stat">
+            <span class="catalyst-topbar-stat-label">SOURCE</span>
+            <span class="catalyst-topbar-stat-val catalyst-source-val">Google News RSS</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Controls Bar -->
+      <div class="catalyst-controls">
+        <div class="catalyst-controls-left">
+          <div class="catalyst-cat-tabs" id="catalystCatTabs">
+            <button class="catalyst-cat-btn active" data-cat="all">All</button>
+            <button class="catalyst-cat-btn" data-cat="crypto">Crypto</button>
+            <button class="catalyst-cat-btn" data-cat="politics">Politics</button>
+            <button class="catalyst-cat-btn" data-cat="econ">Economy</button>
+            <button class="catalyst-cat-btn" data-cat="ai">AI/Tech</button>
+            <button class="catalyst-cat-btn" data-cat="geopolitics">Geopolitics</button>
+            <button class="catalyst-cat-btn" data-cat="sports">Sports</button>
+          </div>
+        </div>
+        <div class="catalyst-controls-right">
+          <select class="catalyst-select" id="catalystSortSelect">
+            <option value="count">Frequency</option>
+            <option value="change">Recent Change</option>
+            <option value="spike">Spike %</option>
+            <option value="alpha">A-Z</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="catalyst-main">
+        <!-- Left: Keyword Table -->
+        <div class="catalyst-table-panel">
+          <div class="catalyst-table-header">
+            <span class="catalyst-col catalyst-col--kw">Keyword</span>
+            <span class="catalyst-col catalyst-col--bar">Frequency</span>
+            <span class="catalyst-col catalyst-col--count">Mentions</span>
+            <span class="catalyst-col catalyst-col--change">Change</span>
+            <span class="catalyst-col catalyst-col--trend">Trend</span>
+            <span class="catalyst-col catalyst-col--spike">Spike</span>
+            <span class="catalyst-col catalyst-col--cat">Category</span>
+          </div>
+          <div class="catalyst-table-body" id="catalystTableBody">
+            <div class="catalyst-empty">Scanning news headlines&hellip;</div>
+          </div>
+        </div>
+
+        <!-- Right: Spike Alerts + Category Breakdown -->
+        <div class="catalyst-sidebar">
+          <!-- Spike Alerts -->
+          <div class="catalyst-panel">
+            <div class="catalyst-panel-header">
+              <span class="catalyst-panel-title">SPIKE ALERTS</span>
+              <span class="catalyst-panel-badge" id="catalystSpikeCount">0</span>
+            </div>
+            <div class="catalyst-panel-body" id="catalystSpikeList">
+              <div class="catalyst-empty-sm">No spikes detected yet</div>
+            </div>
+          </div>
+
+          <!-- Category Breakdown -->
+          <div class="catalyst-panel">
+            <div class="catalyst-panel-header">
+              <span class="catalyst-panel-title">CATEGORY MIX</span>
+            </div>
+            <div class="catalyst-panel-body" id="catalystCategoryBreakdown">
+              <div class="catalyst-empty-sm">Waiting for data&hellip;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- FUNDING VIEW                                            -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="view-funding" class="app-view">
+      <div class="view-header">
+        <div class="view-header-left">
+          <h2 class="view-title">Funding</h2>
+          <span class="view-subtitle">Manage wallets, deposits, and withdrawals</span>
+        </div>
+      </div>
+
+      <div class="funding-layout">
+        <!-- Wallet Cards Row -->
+        <div class="funding-wallets">
+
+          <!-- Polymarket Wallet -->
+          <div class="funding-card" id="fundingPolyCard">
+            <div class="funding-card-header">
+              <div class="funding-card-icon funding-card-icon--poly">P</div>
+              <div>
+                <div class="funding-card-title">Polymarket</div>
+                <div class="funding-card-network">Polygon USDC.e</div>
+              </div>
+              <div class="funding-card-status" id="polyWalletStatus">
+                <span class="account-dot disconnected"></span>
+                <span id="polyStatusText">Not Connected</span>
+              </div>
+            </div>
+            <div class="funding-card-body">
+              <div class="funding-balance-row">
+                <span class="funding-balance-label">CLOB Balance</span>
+                <span class="funding-balance-value" id="polyBalance">--</span>
+              </div>
+              <div class="funding-balance-row">
+                <span class="funding-balance-label">Wallet USDC</span>
+                <span class="funding-balance-value" id="polyWalletBalance">--</span>
+              </div>
+              <div class="funding-balance-row funding-balance-total">
+                <span class="funding-balance-label">Total</span>
+                <span class="funding-balance-value" id="polyTotalBalance">--</span>
+              </div>
+              <div class="funding-address-row" id="polyAddressRow" style="display:none;">
+                <span class="funding-address-label">Deposit Address</span>
+                <div class="funding-address-copy">
+                  <code class="funding-address" id="polyAddress">0x...</code>
+                  <button class="funding-copy-btn" onclick="copyPolyAddress()">Copy</button>
+                </div>
+                <div class="funding-address-note">Send USDC.e on Polygon only</div>
+              </div>
+            </div>
+            <div class="funding-card-actions">
+              <button class="funding-btn funding-btn--primary" id="polyConnectBtn" onclick="initPolymarketWallet()">
+                Create Wallet
+              </button>
+              <button class="funding-btn funding-btn--outline" id="polyRefreshBtn" onclick="refreshPolyBalance()" style="display:none;">
+                Refresh
+              </button>
+              <button class="funding-btn funding-btn--outline" id="polyWithdrawBtn" onclick="openPolyWithdraw()" style="display:none;">
+                Withdraw
+              </button>
+            </div>
+          </div>
+
+          <!-- Kalshi Account -->
+          <div class="funding-card" id="fundingKalshiCard">
+            <div class="funding-card-header">
+              <div class="funding-card-icon funding-card-icon--kalshi">K</div>
+              <div>
+                <div class="funding-card-title">Kalshi</div>
+                <div class="funding-card-network">US Regulated</div>
+              </div>
+              <div class="funding-card-status" id="kalshiWalletStatus">
+                <span class="account-dot disconnected"></span>
+                <span id="kalshiStatusText">Not Connected</span>
+              </div>
+            </div>
+            <div class="funding-card-body">
+              <div class="funding-balance-row">
+                <span class="funding-balance-label">Available</span>
+                <span class="funding-balance-value" id="kalshiBalance">--</span>
+              </div>
+              <div class="funding-balance-row">
+                <span class="funding-balance-label">P&L</span>
+                <span class="funding-balance-value" id="kalshiPnl">--</span>
+              </div>
+            </div>
+            <div class="funding-card-actions">
+              <button class="funding-btn funding-btn--primary" id="kalshiConnectBtn" onclick="initKalshiAccount()">
+                Connect Account
+              </button>
+              <button class="funding-btn funding-btn--outline" id="kalshiRefreshBtn" onclick="refreshKalshiBalance()" style="display:none;">
+                Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Positions Section -->
+        <div class="funding-section" id="fundingPositionsSection" style="display:none;">
+          <div class="funding-section-header">
+            <h3>Open Positions</h3>
+            <button class="funding-btn funding-btn--sm" onclick="refreshPositions()">Refresh</button>
+          </div>
+          <div class="funding-table-wrap">
+            <table class="funding-table">
+              <thead>
+                <tr>
+                  <th>Market</th>
+                  <th>Platform</th>
+                  <th>Side</th>
+                  <th>Size</th>
+                  <th>Price</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody id="fundingPositionsBody">
+                <tr><td colspan="6" class="funding-empty">Connect a wallet to view positions</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Recent Trades Section -->
+        <div class="funding-section" id="fundingTradesSection" style="display:none;">
+          <div class="funding-section-header">
+            <h3>Recent Trades</h3>
+          </div>
+          <div class="funding-table-wrap">
+            <table class="funding-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Side</th>
+                  <th>Price</th>
+                  <th>Size</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="fundingTradesBody">
+                <tr><td colspan="5" class="funding-empty">No trades yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Withdraw Modal (inline) -->
+        <div class="funding-modal-overlay" id="polyWithdrawModal" style="display:none;">
+          <div class="funding-modal">
+            <div class="funding-modal-header">
+              <h3>Withdraw USDC</h3>
+              <button class="modal-close" onclick="closePolyWithdraw()">&times;</button>
+            </div>
+            <div class="funding-modal-body">
+              <label class="funding-label">Destination Address (Polygon)</label>
+              <input type="text" class="funding-input" id="withdrawAddress" placeholder="0x..." />
+              <label class="funding-label">Amount (USDC)</label>
+              <input type="number" class="funding-input" id="withdrawAmount" placeholder="0.00" min="0" step="0.01" />
+              <div class="funding-modal-note" id="withdrawAvailable">Available: --</div>
+            </div>
+            <div class="funding-modal-footer">
+              <button class="funding-btn funding-btn--outline" onclick="closePolyWithdraw()">Cancel</button>
+              <button class="funding-btn funding-btn--primary" onclick="submitPolyWithdraw()">Withdraw</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </section>
 
   </main>
@@ -1395,9 +1778,9 @@
         <div class="inspector-field">
           <label class="field-label">Platform</label>
           <select class="field-select" id="deployPlatform">
-            <option>Polymarket</option>
-            <option>Kalshi</option>
-            <option>Both</option>
+            <option value="Polymarket">Polymarket</option>
+            <option value="Kalshi">Kalshi</option>
+            <option value="Auto">Auto</option>
           </select>
         </div>
         <div class="inspector-field">
@@ -1408,8 +1791,25 @@
           <label class="field-label">Mode</label>
           <select class="field-select" id="deployMode">
             <option value="paper">Paper Trading</option>
-            <option value="live">Live</option>
+            <option value="live">Live Trading</option>
           </select>
+        </div>
+        <!-- Exchange status (shown when live selected) -->
+        <div id="deployExchangeStatus" class="deploy-exchange-status" style="display:none">
+          <div class="deploy-exchange-row">
+            <span class="account-dot disconnected" id="deployPolyDot"></span>
+            <span>Polymarket</span>
+            <span class="deploy-exchange-label" id="deployPolyLabel">No Wallet</span>
+          </div>
+          <div class="deploy-exchange-row">
+            <span class="account-dot disconnected" id="deployKalshiDot"></span>
+            <span>Kalshi</span>
+            <span class="deploy-exchange-label" id="deployKalshiLabel">Not Configured</span>
+          </div>
+        </div>
+        <!-- Live warning -->
+        <div id="deployLiveWarning" class="deploy-live-warning" style="display:none">
+          This bot will execute real trades with real money. Ensure your wallet is funded before deploying.
         </div>
       </div>
       <div class="modal-footer">
@@ -1450,106 +1850,8 @@
     </div>
   </div>
 
-  <!-- Market Detail Modal -->
-  <div class="modal-overlay" id="marketDetailModal" onclick="if(event.target===this)closeMarketDetail()">
-    <div class="modal md-modal">
-      <div class="modal-header">
-        <div class="md-header-left">
-          <span class="md-short" id="mdShort">—</span>
-          <span class="md-name" id="mdName">—</span>
-        </div>
-        <div class="md-header-right">
-          <span class="md-price-big" id="mdPrice">—</span>
-          <span class="md-change" id="mdChange">—</span>
-        </div>
-        <button class="modal-close" onclick="closeMarketDetail()">&times;</button>
-      </div>
-      <div class="modal-body md-body">
-        <!-- Platform Price Toggle -->
-        <div class="md-platform-bar">
-          <div class="md-plat-tabs" id="mdPlatTabs">
-            <button class="md-plat-btn md-plat-btn--poly" data-mdplat="polymarket">Polymarket</button>
-            <button class="md-plat-btn md-plat-btn--kalshi" data-mdplat="kalshi">Kalshi</button>
-          </div>
-          <span class="md-platform-label" id="mdPlatformLabel"></span>
-        </div>
-
-        <!-- Price Chart -->
-        <div class="md-section">
-          <div class="md-section-header">
-            <div class="md-section-label">PRICE HISTORY</div>
-            <div class="md-chart-controls">
-              <div class="md-chart-type-toggle" id="mdChartTypeToggle">
-                <button class="md-ct-btn" data-ct="area" title="Line chart">&#9135;</button>
-                <button class="md-ct-btn active" data-ct="candlestick" title="Candlestick chart">&#9649;</button>
-              </div>
-              <div class="md-chart-tf-toggle" id="mdChartTfToggle">
-                <button class="md-tf-btn" data-tf="1h">1H</button>
-                <button class="md-tf-btn" data-tf="6h">6H</button>
-                <button class="md-tf-btn active" data-tf="24h">24H</button>
-                <button class="md-tf-btn" data-tf="7d">7D</button>
-                <button class="md-tf-btn" data-tf="max">MAX</button>
-              </div>
-            </div>
-          </div>
-          <div id="mdPriceChart" class="md-chart"></div>
-        </div>
-
-        <!-- Volume Chart -->
-        <div class="md-section">
-          <div class="md-section-label">VOLUME</div>
-          <div id="mdVolChart" class="md-vol-chart"></div>
-        </div>
-
-        <!-- Key Stats Grid -->
-        <div class="md-section">
-          <div class="md-section-label">ANALYTICS</div>
-          <div class="md-stats-grid">
-            <div class="md-stat">
-              <div class="md-stat-label">24h Volume</div>
-              <div class="md-stat-value" id="mdVol">—</div>
-            </div>
-            <div class="md-stat">
-              <div class="md-stat-label">Polymarket</div>
-              <div class="md-stat-value" id="mdPoly">—</div>
-            </div>
-            <div class="md-stat">
-              <div class="md-stat-label">Kalshi</div>
-              <div class="md-stat-value" id="mdKalshi">—</div>
-            </div>
-            <div class="md-stat">
-              <div class="md-stat-label">Spread</div>
-              <div class="md-stat-value md-stat-value--green" id="mdSpread">—</div>
-            </div>
-            <div class="md-stat">
-              <div class="md-stat-label">Implied Prob.</div>
-              <div class="md-stat-value" id="mdImplied">—</div>
-            </div>
-            <div class="md-stat">
-              <div class="md-stat-label">Timeframe</div>
-              <div class="md-stat-value" id="mdTimeframe">—</div>
-            </div>
-            <div class="md-stat">
-              <div class="md-stat-label">Resolves In</div>
-              <div class="md-stat-value" id="mdResolvesIn">—</div>
-            </div>
-            <div class="md-stat">
-              <div class="md-stat-label">NO Price</div>
-              <div class="md-stat-value" id="mdNoPrice">—</div>
-            </div>
-            <div class="md-stat">
-              <div class="md-stat-label">Expected Value</div>
-              <div class="md-stat-value" id="mdEV">—</div>
-            </div>
-            <div class="md-stat">
-              <div class="md-stat-label">Kelly %</div>
-              <div class="md-stat-value" id="mdKelly">—</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Market Detail Modal (replaced by inline TV chart) -->
+  <div class="modal-overlay" id="marketDetailModal" style="display:none;"></div>
 
   <!-- Connect Account Modal -->
   <div class="modal-overlay" id="connectAccountModal">
@@ -1781,17 +2083,18 @@
   </div>
 
   <!-- Scripts (v3 cache-bust) -->
-  <script src="./scripts/page-transition.js?v=27"></script>
+  <script src="./scripts/page-transition.js?v=28"></script>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.1/dist/apexcharts.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./scripts/auth.js?v=27"></script>
-  <script src="./scripts/tiers.js?v=27"></script>
-  <script src="./scripts/upgrade-modal.js?v=27"></script>
-  <script src="./scripts/wallet-service.js?v=27"></script>
-  <script src="./scripts/tour-engine.js?v=27"></script>
-  <script src="./scripts/architect-app.js?v=27"></script>
-  <script src="./scripts/data-bridge.js?v=27"></script>
-  <script src="./scripts/research.js?v=27"></script>
-  <script src="./scripts/ambient.js?v=27"></script>
+  <script src="./scripts/auth.js?v=28"></script>
+  <script src="./scripts/tiers.js?v=28"></script>
+  <script src="./scripts/upgrade-modal.js?v=28"></script>
+  <script src="./scripts/wallet-service.js?v=28"></script>
+  <script src="./scripts/tour-engine.js?v=28"></script>
+  <script src="./scripts/architect-app.js?v=47"></script>
+  <script src="./scripts/data-bridge.js?v=28"></script>
+  <script src="./scripts/charting.js?v=37"></script>
+  <script src="./scripts/funding.js?v=1"></script>
+  <script src="./scripts/ambient.js?v=28"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 /* ================================================================
-   MERCURY RESEARCH — Edge-Finding Platform + Terminal
-   Research: edge scanner, market scanner, news feed
+   MERCURY CHARTING — Edge-Finding Platform + Terminal
+   Charting: edge scanner, market scanner, news feed
    Terminal: order book, volume, bot logs, chat
    ================================================================ */
 
@@ -8,7 +8,7 @@
 // STATE
 // ═══════════════════════════════════════════════════════════════
 
-const research = {
+const charting = {
   charts: {},
   intervals: [],      // Global intervals (always-on: ticker, clock, live polling)
   tabIntervals: [],   // Current tab's intervals (cleared on tab switch)
@@ -32,7 +32,7 @@ const research = {
   lastLogLines: 0,
 };
 
-const RESEARCH_MARKETS = [
+const CHARTING_MARKETS = [
   // ── Crypto (20) ──
   { name: 'BTC > $100K by EOY', short: 'BTC100K', price: 48, vol: '$8.4M', polyPrice: 48, kalshiPrice: 46, tf: '1M' },
   { name: 'BTC > $150K by EOY', short: 'BTC150K', price: 18, vol: '$4.1M', polyPrice: 18, kalshiPrice: 20, tf: '1Y' },
@@ -73,7 +73,7 @@ const RESEARCH_MARKETS = [
   { name: '10Y Treasury > 5%', short: 'T10Y5', price: 26, vol: '$1.6M', polyPrice: 26, kalshiPrice: 28, tf: '1M' },
 
   // ── US Politics (15) ──
-  { name: 'Trump 2028 Nominee', short: 'TRUMP28', price: 34, vol: '$4.2M', polyPrice: 34, kalshiPrice: 37, tf: '1Y' },
+  { name: 'Vance 2028 Nominee', short: 'VANCE28', price: 34, vol: '$4.2M', polyPrice: 34, kalshiPrice: 37, tf: '1Y' },
   { name: 'DeSantis 2028 Nominee', short: 'DESAN28', price: 21, vol: '$2.1M', polyPrice: 21, kalshiPrice: 23, tf: '1Y' },
   { name: 'Vivek 2028 Nominee', short: 'VIVEK28', price: 8, vol: '$1.2M', polyPrice: 8, kalshiPrice: 10, tf: '1Y' },
   { name: 'Dem 2028 Nominee', short: 'DEM28', price: 28, vol: '$3.8M', polyPrice: 28, kalshiPrice: 26, tf: '1Y' },
@@ -119,13 +119,13 @@ const RESEARCH_MARKETS = [
   { name: 'Robotaxi Nationwide US', short: 'RTAXI', price: 15, vol: '$1.6M', polyPrice: 15, kalshiPrice: 17, tf: '1Y' },
 
   // ── Sports (12) ──
-  { name: 'Super Bowl Winner', short: 'SB', price: 55, vol: '$12.1M', polyPrice: 55, kalshiPrice: 54, tf: '1W' },
+  { name: 'World Cup 2026 USA Wins', short: 'WCUSA', price: 55, vol: '$12.1M', polyPrice: 55, kalshiPrice: 54, tf: '1Y' },
   { name: 'NBA Champion 2026', short: 'NBA26', price: 31, vol: '$7.8M', polyPrice: 31, kalshiPrice: 33, tf: '1Y' },
   { name: 'NBA MVP 2026', short: 'NBAMVP', price: 38, vol: '$3.2M', polyPrice: 38, kalshiPrice: 36, tf: '1Y' },
   { name: 'World Cup 2026 Winner', short: 'WC26', price: 18, vol: '$14.2M', polyPrice: 18, kalshiPrice: 20, tf: '1Y' },
   { name: 'World Cup 2026 Top Scorer', short: 'WCTOP', price: 12, vol: '$4.8M', polyPrice: 12, kalshiPrice: 14, tf: '1Y' },
   { name: 'MLB World Series 2026', short: 'MLB26', price: 14, vol: '$3.4M', polyPrice: 14, kalshiPrice: 16, tf: '1Y' },
-  { name: 'UFC 310 Main Event', short: 'UFC310', price: 58, vol: '$1.8M', polyPrice: 58, kalshiPrice: 56, tf: '1W' },
+  { name: 'UFC 315 Main Event', short: 'UFC315', price: 58, vol: '$1.8M', polyPrice: 58, kalshiPrice: 56, tf: '1W' },
   { name: 'F1 Champion 2026', short: 'F126', price: 44, vol: '$2.6M', polyPrice: 44, kalshiPrice: 42, tf: '1Y' },
   { name: 'NHL Stanley Cup 2026', short: 'NHL26', price: 22, vol: '$2.1M', polyPrice: 22, kalshiPrice: 24, tf: '1Y' },
   { name: 'March Madness Winner', short: 'NCAAM', price: 8, vol: '$5.4M', polyPrice: 8, kalshiPrice: 10, tf: '1M' },
@@ -156,8 +156,8 @@ const RESEARCH_MARKETS = [
   { name: 'UK Snap Election 2026', short: 'UKELEC', price: 11, vol: '$0.6M', polyPrice: 11, kalshiPrice: 13, tf: '1Y' },
   { name: 'Euro > $1.15', short: 'EUR115', price: 47, vol: '$1.4M', polyPrice: 47, kalshiPrice: 45, tf: '1M' },
   { name: 'Japan Rate Hike 2026', short: 'JPRATE', price: 62, vol: '$0.9M', polyPrice: 62, kalshiPrice: 60, tf: '1Y' },
-  { name: 'Gold > $2500/oz', short: 'GOLD25', price: 71, vol: '$2.3M', polyPrice: 71, kalshiPrice: 69, tf: '1M' },
-  { name: 'Gold > $3000/oz', short: 'GOLD30', price: 28, vol: '$1.7M', polyPrice: 28, kalshiPrice: 30, tf: '1Y' },
+  { name: 'Gold > $2800/oz', short: 'GOLD28', price: 82, vol: '$2.3M', polyPrice: 82, kalshiPrice: 80, tf: '1M' },
+  { name: 'Gold > $3500/oz by EOY', short: 'GOLD35', price: 28, vol: '$1.7M', polyPrice: 28, kalshiPrice: 30, tf: '1Y' },
   { name: 'India GDP > UK GDP', short: 'INDUK', price: 82, vol: '$0.4M', polyPrice: 82, kalshiPrice: 80, tf: '1Y' },
   { name: 'China GDP Growth > 5%', short: 'CNGDP5', price: 38, vol: '$1.1M', polyPrice: 38, kalshiPrice: 36, tf: '1Y' },
   { name: 'Germany Recession 2026', short: 'DERECSN', price: 34, vol: '$0.7M', polyPrice: 34, kalshiPrice: 32, tf: '1Y' },
@@ -210,7 +210,7 @@ const NEWS_HEADLINES = [
   { source: 'Reuters', headline: 'Fed officials signal openness to rate cut as inflation cools', markets: ['RATE', 'BTC100K'], sentiment: 'bullish' },
   { source: 'Bloomberg', headline: 'Bitcoin ETF inflows reach $2.1B this week, highest since January', markets: ['BTC100K', 'NVDA'], sentiment: 'bullish' },
   { source: 'WSJ', headline: 'EU proposes strict AI liability framework, US lawmakers watching closely', markets: ['AIREG'], sentiment: 'bearish' },
-  { source: 'AP News', headline: 'Trump announces 2028 exploratory committee, polls show mixed support', markets: ['TRUMP28'], sentiment: 'neutral' },
+  { source: 'AP News', headline: 'Vance teases 2028 presidential bid, allies form exploratory PAC', markets: ['VANCE28'], sentiment: 'neutral' },
   { source: 'CNBC', headline: 'US Treasury yields fall sharply on weak jobs data', markets: ['RATE', 'RECSN'], sentiment: 'bullish' },
   { source: 'Reuters', headline: 'SpaceX Starship test delayed again due to FAA review', markets: ['MARS'], sentiment: 'bearish' },
   { source: 'Bloomberg', headline: 'Nvidia earnings beat expectations, datacenter revenue up 140% YoY', markets: ['NVDA', 'AIREG'], sentiment: 'bullish' },
@@ -227,18 +227,18 @@ const NEWS_HEADLINES = [
 // LIFECYCLE
 // ═══════════════════════════════════════════════════════════════
 
-function initResearchDashboard() {
-  if (research.isActive) return;
-  research.isActive = true;
-  research.initializedTabs = {};
+function initChartingDashboard() {
+  if (charting.isActive) return;
+  charting.isActive = true;
+  charting.initializedTabs = {};
 
   // Show tutorial for first-time visitors
-  maybeShowResearchTutorial();
+  maybeShowChartingTutorial();
 
-  initResearchTabs();
+  initChartingTabs();
   initTicker();
   initKillSwitch();
-  startResearchClock();
+  startChartingClock();
 
   // Init Edge Scanner (default tab, visible immediately)
   initEdgeScanner();
@@ -247,57 +247,57 @@ function initResearchDashboard() {
   initLiveDataConnection();
 }
 
-function maybeShowResearchTutorial() {
-  if (localStorage.getItem('mercury_research_tutorial_done')) return;
-  const overlay = document.getElementById('researchTutorial');
+function maybeShowChartingTutorial() {
+  if (localStorage.getItem('mercury_charting_tutorial_done')) return;
+  const overlay = document.getElementById('chartingTutorial');
   if (!overlay) return;
   overlay.classList.add('active');
 
-  const closeBtn = document.getElementById('researchTutorialClose');
+  const closeBtn = document.getElementById('chartingTutorialClose');
   if (closeBtn) closeBtn.addEventListener('click', () => {
-    dismissResearchTutorial();
-    startResearchTour(true);
+    dismissChartingTutorial();
+    startChartingTour(true);
   });
 }
 
-function dismissResearchTutorial() {
-  const overlay = document.getElementById('researchTutorial');
+function dismissChartingTutorial() {
+  const overlay = document.getElementById('chartingTutorial');
   if (overlay) overlay.classList.remove('active');
-  localStorage.setItem('mercury_research_tutorial_done', '1');
+  localStorage.setItem('mercury_charting_tutorial_done', '1');
 }
 
-function startResearchTour(force) {
-  console.log('[Research Tour] startResearchTour called, force =', !!force);
-  if (!force && localStorage.getItem('mercury_research_tour_done')) {
-    console.log('[Research Tour] Already completed — skipping');
+function startChartingTour(force) {
+  console.log('[Charting Tour] startChartingTour called, force =', !!force);
+  if (!force && localStorage.getItem('mercury_charting_tour_done')) {
+    console.log('[Charting Tour] Already completed — skipping');
     return;
   }
   if (!window.MercuryTour) {
-    console.log('[Research Tour] MercuryTour engine not loaded');
+    console.log('[Charting Tour] MercuryTour engine not loaded');
     return;
   }
 
   // Clear previous completion if forcing
   if (force) {
-    localStorage.removeItem('mercury_research_tour_done');
+    localStorage.removeItem('mercury_charting_tour_done');
   }
 
   // Make sure we're on the Overview tab so tour elements are visible
-  switchResearchTab('edge');
+  switchChartingTab('edge');
 
   setTimeout(() => {
     const tour = window.MercuryTour.create({
       steps: [
         {
-          selector: '#researchTopbar',
+          selector: '#chartingTopbar',
           title: 'Live Status Bar',
           text: 'Real-time ticker tape scrolling every tracked market. The clock shows UTC time and the Kill All button instantly halts all running bots in an emergency.',
           position: 'bottom',
           padding: 4,
         },
         {
-          selector: '#researchTabBar',
-          title: 'Research Tabs',
+          selector: '#chartingTabBar',
+          title: 'Charting Tabs',
           text: 'Six specialized views: Overview for edge scanning, Crypto for BTC/ETH markets, Markets for the full contract scanner, News for live market headlines, Bonding Arb for risk-free yield, and Terminal for execution.',
           position: 'bottom',
           padding: 4,
@@ -310,44 +310,44 @@ function startResearchTour(force) {
           padding: 6,
         },
         {
-          selector: '#rtab-edge .research-scroll',
+          selector: '#rtab-edge .charting-scroll',
           title: 'Markets & Spreads',
           text: 'Top markets by volume and a live cross-platform comparison table. Click any market card to see full price history, volume charts, and probability timelines. Watch for 3c+ spreads — potential arbitrage.',
           position: 'top',
           padding: 6,
         },
         {
-          selector: '.research-tab[data-rtab="crypto"]',
+          selector: '.charting-tab[data-rtab="crypto"]',
           title: 'Crypto Dashboard',
           text: 'Live BTC and ETH prices from Binance, plus 15-min and 1-hour crypto prediction markets on Kalshi and Polymarket with cross-platform spread detection.',
           position: 'bottom',
           padding: 4,
         },
         {
-          selector: '.research-tab[data-rtab="markets"]',
+          selector: '.charting-tab[data-rtab="markets"]',
           title: 'Market Scanner',
           text: 'Full sortable table of every contract we track. Sort by divergence, volume, 24h change, or name. Click any row to drill into detailed stats and historical data.',
           position: 'bottom',
           padding: 4,
         },
         {
-          selector: '.research-tab[data-rtab="news"]',
+          selector: '.charting-tab[data-rtab="news"]',
           title: 'News',
           text: 'Live news feed from Reuters, Bloomberg, and crypto sources with sentiment tags.',
           position: 'bottom',
           padding: 4,
         },
         {
-          selector: '.research-tab[data-rtab="bonding"]',
+          selector: '.charting-tab[data-rtab="bonding"]',
           title: 'Bonding Arb',
           text: 'Find near-certain outcomes (95-99c) close to resolution. Buy at 97c, collect $1 when it resolves — like a short-term bond. Sort by annualized yield to find the best risk-free returns.',
           position: 'bottom',
           padding: 4,
         },
         {
-          selector: '.research-tab[data-rtab="terminal"]',
+          selector: '.charting-tab[data-rtab="terminal"]',
           title: 'Terminal',
-          text: 'Full execution dashboard: live order book, volume heatmap, trade logs, and an AI research chat. Ask it anything — "what\'s the edge on BTC?", "show biggest spreads", "find underpriced contracts".',
+          text: 'Full execution dashboard: live order book, volume heatmap, trade logs, and an AI chat. Ask it anything — "what\'s the edge on BTC?", "show biggest spreads", "find underpriced contracts".',
           position: 'bottom',
           padding: 4,
         },
@@ -359,141 +359,141 @@ function startResearchTour(force) {
           padding: 6,
         },
       ],
-      storageKey: 'mercury_research_tour_done',
+      storageKey: 'mercury_charting_tour_done',
     });
     tour.start();
   }, 600);
 }
 
 // Expose for manual console use (no-arg wrapper that forces)
-window.rerunResearchTour = function() { startResearchTour(true); };
+window.rerunChartingTour = function() { startChartingTour(true); };
 
 // Reset and immediately re-show tutorial + tour
-window.resetResearchTutorial = function() {
-  localStorage.removeItem('mercury_research_tutorial_done');
-  localStorage.removeItem('mercury_research_tour_done');
-  // Immediately show the tutorial overlay if we're on Research
-  const overlay = document.getElementById('researchTutorial');
+window.resetChartingTutorial = function() {
+  localStorage.removeItem('mercury_charting_tutorial_done');
+  localStorage.removeItem('mercury_charting_tour_done');
+  // Immediately show the tutorial overlay if we're on Charting
+  const overlay = document.getElementById('chartingTutorial');
   if (overlay) {
     overlay.classList.add('active');
-    console.log('[Mercury] Research tutorial re-shown');
+    console.log('[Mercury] Charting tutorial re-shown');
   } else {
-    console.log('[Mercury] Research tutorial reset — navigate to Research to see it');
+    console.log('[Mercury] Charting tutorial reset — navigate to Charting to see it');
   }
 };
 
-function teardownResearchDashboard() {
-  if (!research.isActive) return;
-  research.isActive = false;
+function teardownChartingDashboard() {
+  if (!charting.isActive) return;
+  charting.isActive = false;
 
   // Clear ALL intervals (global + tab)
-  research.intervals.forEach(id => { clearInterval(id); clearTimeout(id); });
-  research.intervals = [];
-  research.tabIntervals.forEach(id => { clearInterval(id); clearTimeout(id); });
-  research.tabIntervals = [];
+  charting.intervals.forEach(id => { clearInterval(id); clearTimeout(id); });
+  charting.intervals = [];
+  charting.tabIntervals.forEach(id => { clearInterval(id); clearTimeout(id); });
+  charting.tabIntervals = [];
 
   // Stop bridge polling
   if (typeof dataBridge !== 'undefined') {
     dataBridge.stopAllPolling();
   }
 
-  if (research.animFrameId) {
-    cancelAnimationFrame(research.animFrameId);
-    research.animFrameId = null;
+  if (charting.animFrameId) {
+    cancelAnimationFrame(charting.animFrameId);
+    charting.animFrameId = null;
   }
 
-  Object.keys(research.charts).forEach(key => {
-    if (research.charts[key]) {
-      research.charts[key].destroy();
-      research.charts[key] = null;
+  Object.keys(charting.charts).forEach(key => {
+    if (charting.charts[key]) {
+      charting.charts[key].destroy();
+      charting.charts[key] = null;
     }
   });
 
-  research.initializedTabs = {};
-  research.activeTab = 'edge';
+  charting.initializedTabs = {};
+  charting.activeTab = 'edge';
 }
 
 // Global interval — persists across tab switches (ticker, clock, live polling)
-function addResearchInterval(fn, ms) {
-  research.intervals.push(setInterval(fn, ms));
+function addChartingInterval(fn, ms) {
+  charting.intervals.push(setInterval(fn, ms));
 }
 
 // Tab-scoped interval — cleared when switching to a different tab
 function addTabInterval(fn, ms) {
-  research.tabIntervals.push(setInterval(fn, ms));
+  charting.tabIntervals.push(setInterval(fn, ms));
 }
 
 // Clear only tab-scoped intervals (called on tab switch)
 function clearTabIntervals() {
-  research.tabIntervals.forEach(id => { clearInterval(id); clearTimeout(id); });
-  research.tabIntervals = [];
+  charting.tabIntervals.forEach(id => { clearInterval(id); clearTimeout(id); });
+  charting.tabIntervals = [];
 }
 
 // ═══════════════════════════════════════════════════════════════
-// RESEARCH TABS
+// CHARTING TABS
 // ═══════════════════════════════════════════════════════════════
 
-function initResearchTabs() {
-  const tabBar = document.getElementById('researchTabBar');
+function initChartingTabs() {
+  const tabBar = document.getElementById('chartingTabBar');
   if (!tabBar) return;
 
   tabBar.addEventListener('click', (e) => {
-    const btn = e.target.closest('.research-tab');
+    const btn = e.target.closest('.charting-tab');
     if (!btn) return;
-    switchResearchTab(btn.dataset.rtab);
+    switchChartingTab(btn.dataset.rtab);
   });
 }
 
-function switchResearchTab(tabName) {
-  if (tabName === research.activeTab) return; // No-op if same tab
+function switchChartingTab(tabName) {
+  if (tabName === charting.activeTab) return; // No-op if same tab
 
   // ── Clear previous tab's intervals + mark for re-init ──
   clearTabIntervals();
-  if (research.activeTab) {
-    research.initializedTabs[research.activeTab] = false;
+  if (charting.activeTab) {
+    charting.initializedTabs[charting.activeTab] = false;
   }
 
   // Destroy tab-scoped charts to free memory
-  if (research.activeTab === 'terminal') {
-    if (research.charts.volume) { research.charts.volume.destroy(); research.charts.volume = null; }
+  if (charting.activeTab === 'terminal') {
+    if (charting.charts.volume) { charting.charts.volume.destroy(); charting.charts.volume = null; }
   }
 
-  research.activeTab = tabName;
+  charting.activeTab = tabName;
 
-  document.querySelectorAll('.research-tab').forEach(t => {
+  document.querySelectorAll('.charting-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.rtab === tabName);
   });
-  document.querySelectorAll('.research-tab-panel').forEach(p => {
+  document.querySelectorAll('.charting-tab-panel').forEach(p => {
     p.classList.toggle('active', p.id === 'rtab-' + tabName);
   });
 
   // Init the new tab (re-creates its intervals fresh)
-  if (tabName === 'markets' && !research.initializedTabs.markets) {
-    research.initializedTabs.markets = true;
+  if (tabName === 'markets' && !charting.initializedTabs.markets) {
+    charting.initializedTabs.markets = true;
     initMarketScanner();
   }
-  if (tabName === 'news' && !research.initializedTabs.news) {
-    research.initializedTabs.news = true;
+  if (tabName === 'news' && !charting.initializedTabs.news) {
+    charting.initializedTabs.news = true;
     initNewsFeed();
     initBiggestMovers();
   }
-  if (tabName === 'crypto' && !research.initializedTabs.crypto) {
-    research.initializedTabs.crypto = true;
+  if (tabName === 'crypto' && !charting.initializedTabs.crypto) {
+    charting.initializedTabs.crypto = true;
     initCryptoTab();
   }
-  if (tabName === 'terminal' && !research.initializedTabs.terminal) {
-    research.initializedTabs.terminal = true;
+  if (tabName === 'terminal' && !charting.initializedTabs.terminal) {
+    charting.initializedTabs.terminal = true;
     initOrderBook();
     initVolumeChart();
-    initResearchLogs();
-    initResearchChat();
+    initChartingLogs();
+    initChartingChat();
   }
 
   // Resize volume chart when switching to Terminal
   if (tabName === 'terminal') {
     setTimeout(() => {
-      if (research.charts.volume) {
-        try { research.charts.volume.resize(); } catch (_) {}
+      if (charting.charts.volume) {
+        try { charting.charts.volume.resize(); } catch (_) {}
       }
     }, 50);
   }
@@ -508,7 +508,7 @@ function initTicker() {
   if (!track) return;
 
   // Start with mock data for instant render, replaced by live when available
-  research.tickerData = RESEARCH_MARKETS.map(m => ({
+  charting.tickerData = CHARTING_MARKETS.map(m => ({
     name: m.short,
     price: m.price,
     delta: '0.0',
@@ -519,7 +519,7 @@ function initTicker() {
 
   // Build DOM elements once — never replace innerHTML again (prevents animation snap)
   function buildTicker() {
-    const items = [...research.tickerData, ...research.tickerData];
+    const items = [...charting.tickerData, ...charting.tickerData];
     track.innerHTML = items.map(t => {
       const up = parseFloat(t.delta) >= 0;
       return `<span class="ticker-item" onclick="openMarketDetail('${(t.name||'').replace(/'/g,"\\'")}')" style="cursor:pointer;">
@@ -534,7 +534,7 @@ function initTicker() {
   // Update existing DOM elements in-place (preserves CSS animation)
   function updateTickerInPlace() {
     const spans = track.querySelectorAll('.ticker-item');
-    const data = research.tickerData;
+    const data = charting.tickerData;
     const len = data.length;
     spans.forEach((span, i) => {
       const t = data[i % len];
@@ -556,15 +556,15 @@ function initTicker() {
 
   // Update ticker from live edge data when available (real prices)
   function refreshTickerFromLive() {
-    if (!research.liveMarkets || !research.edgeData || research.edgeData.length === 0) return;
-    const prevLen = research.tickerData.length;
-    const live = research.edgeData.slice(0, 40).map(m => {
-      const prev = research.tickerData.find(t => t.name === m.short);
+    if (!charting.liveMarkets || !charting.edgeData || charting.edgeData.length === 0) return;
+    const prevLen = charting.tickerData.length;
+    const live = charting.edgeData.slice(0, 40).map(m => {
+      const prev = charting.tickerData.find(t => t.name === m.short);
       const prevPrice = prev ? prev.price : m.price;
       const delta = m.change || (m.price - prevPrice).toFixed(1);
       return { name: m.short, price: m.price, delta: String(delta), _prevPrice: prevPrice };
     });
-    if (live.length > 0) research.tickerData = live;
+    if (live.length > 0) charting.tickerData = live;
     // Rebuild DOM only if item count changed (first live load), otherwise update in-place
     if (live.length !== prevLen || !tickerBuilt) {
       buildTicker();
@@ -574,13 +574,13 @@ function initTicker() {
   }
 
   // Check for live data every 5s — if live, use real; if not, do small random drift
-  addResearchInterval(() => {
-    if (research.liveMarkets) {
+  addChartingInterval(() => {
+    if (charting.liveMarkets) {
       refreshTickerFromLive();
     } else {
       for (let i = 0; i < 2 + Math.floor(Math.random() * 2); i++) {
-        const idx = Math.floor(Math.random() * research.tickerData.length);
-        const t = research.tickerData[idx];
+        const idx = Math.floor(Math.random() * charting.tickerData.length);
+        const t = charting.tickerData[idx];
         const change = (Math.random() * 4 - 2);
         t.price = Math.max(1, Math.min(99, Math.round(t.price + change)));
         t.delta = change.toFixed(1);
@@ -607,17 +607,17 @@ const ARB_CAUSES = [
 ];
 
 function initEdgeScanner() {
-  research.edgeTimeframe = 'all';
-  research.edgePlatform = 'all';
-  research.edgeSearch = '';
-  research.edgeCategory = 'all';
-  research.edgeSort = 'volume';
-  research.liveMarkets = false;
+  charting.edgeTimeframe = 'all';
+  charting.edgePlatform = 'all';
+  charting.edgeSearch = '';
+  charting.edgeCategory = 'all';
+  charting.edgeSort = 'chart-quality';
+  charting.liveMarkets = false;
 
   // Start with mock data for instant render
   loadMockEdgeData();
 
-  // Timeframe filter buttons
+  // Timeframe filter buttons (if present)
   const tabs = document.getElementById('edgeTimeframeTabs');
   if (tabs) {
     tabs.addEventListener('click', e => {
@@ -625,20 +625,22 @@ function initEdgeScanner() {
       if (!btn) return;
       tabs.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      research.edgeTimeframe = btn.dataset.tf;
+      charting.edgeTimeframe = btn.dataset.tf;
       renderEdgeCards();
     });
   }
+  // Default: show all timeframes in TradingView watchlist
+  charting.edgeTimeframe = 'all';
 
-  // Platform filter buttons
+  // Platform filter buttons (TradingView watchlist uses .tv-wl-fbtn)
   const platTabs = document.getElementById('edgePlatformTabs');
   if (platTabs) {
     platTabs.addEventListener('click', e => {
-      const btn = e.target.closest('.plat-btn');
+      const btn = e.target.closest('.tv-wl-fbtn') || e.target.closest('.plat-btn');
       if (!btn) return;
-      platTabs.querySelectorAll('.plat-btn').forEach(b => b.classList.remove('active'));
+      platTabs.querySelectorAll('.tv-wl-fbtn, .plat-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      research.edgePlatform = btn.dataset.plat;
+      charting.edgePlatform = btn.dataset.plat;
       renderEdgeCards();
     });
   }
@@ -650,7 +652,7 @@ function initEdgeScanner() {
     searchInput.addEventListener('input', () => {
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {
-        research.edgeSearch = searchInput.value.trim().toLowerCase();
+        charting.edgeSearch = searchInput.value.trim().toLowerCase();
         renderEdgeCards();
       }, 200);
     });
@@ -669,7 +671,7 @@ function initEdgeScanner() {
   const catSelect = document.getElementById('edgeCategorySelect');
   if (catSelect) {
     catSelect.addEventListener('change', () => {
-      research.edgeCategory = catSelect.value;
+      charting.edgeCategory = catSelect.value;
       renderEdgeCards();
     });
   }
@@ -678,30 +680,38 @@ function initEdgeScanner() {
   const sortSelect = document.getElementById('edgeSortSelect');
   if (sortSelect) {
     sortSelect.addEventListener('change', () => {
-      research.edgeSort = sortSelect.value;
+      charting.edgeSort = sortSelect.value;
       renderEdgeCards();
     });
   }
 
   renderEdgeCards();
   renderArbTable();
-  updateResearchMetrics();
+  updateChartingMetrics();
 
-  // Init bonding arb section (now inline in overview)
-  initBondingArb();
+  // Auto-select first mock market immediately for instant chart render
+  if (charting.edgeData.length > 0 && !charting._mdMarket) {
+    openMarketDetail(charting.edgeData[0].short);
+  }
+
+  // Init trending keywords (bottom panel)
+  initTrending();
+
+  // Init news feed (now in bottom panel)
+  if (!charting.initializedTabs.news) {
+    charting.initializedTabs.news = true;
+    initNewsFeed();
+  }
 
   // Try live public APIs first — Polymarket + Kalshi
+  // Fetch from server cache (polls Polymarket + Kalshi every 15s server-side)
   loadLivePublicMarkets();
-  addResearchInterval(loadLivePublicMarkets, 30000);
-
-  // Also try bridge (localhost engine) as secondary source
-  loadLiveMarkets();
-  addResearchInterval(loadLiveMarkets, 60000);
+  addChartingInterval(loadLivePublicMarkets, 15000);
 
   // Simulate price shifts for mock data only (when live APIs are offline)
-  addResearchInterval(() => {
-    if (research.liveMarkets) return;
-    research.edgeData.forEach(e => {
+  addChartingInterval(() => {
+    if (charting.liveMarkets) return;
+    charting.edgeData.forEach(e => {
       const shift = (Math.random() - 0.5) * 3;
       e.price = Math.max(1, Math.min(99, Math.round(e.price + shift)));
       e.change = ((Math.random() - 0.48) * 8).toFixed(1);
@@ -709,15 +719,15 @@ function initEdgeScanner() {
       e.kalshiPrice = e.price + Math.floor((Math.random() - 0.5) * 5);
     });
 
-    research.arbData.forEach(a => {
-      const m = research.edgeData.find(e => e.short === a.short);
+    charting.arbData.forEach(a => {
+      const m = charting.edgeData.find(e => e.short === a.short);
       if (m) {
         a.polyPrice = m.polyPrice;
         a.kalshiPrice = m.kalshiPrice;
         a.spread = Math.abs(a.polyPrice - a.kalshiPrice);
       }
     });
-    research.arbData.sort((a, b) => b.spread - a.spread);
+    charting.arbData.sort((a, b) => b.spread - a.spread);
 
     renderEdgeCards();
     renderArbTable();
@@ -729,21 +739,31 @@ function initEdgeScanner() {
 // ═══════════════════════════════════════════════════════════════
 
 async function loadLivePublicMarkets() {
-  if (!research.isActive) return;
-  if (typeof MercuryLiveMarkets === 'undefined') return;
+  if (!charting.isActive) return;
 
   try {
-    const markets = await MercuryLiveMarkets.fetchAllMarkets();
+    // Fetch from server cache — one fast request, no external API calls
+    const resp = await fetch('/api/markets', { signal: AbortSignal.timeout(5000) });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    const markets = data.markets;
     if (!markets || markets.length === 0) return;
 
-    console.log(`[Mercury] Live data: ${markets.length} markets from Polymarket + Kalshi`);
-    research.liveMarkets = true;
+    charting.liveMarkets = true;
+    charting._cacheStatus = data.status; // 'live', 'stale', 'starting'
+
+    // Update live badge
+    const liveBadge = document.getElementById('edgeLiveBadge');
+    if (liveBadge) {
+      liveBadge.style.display = 'inline';
+      liveBadge.textContent = data.status === 'live' ? 'LIVE' : data.status.toUpperCase();
+    }
 
     // Store previous prices for delta calculation
     const prevPrices = {};
-    research.edgeData.forEach(e => { prevPrices[e.short] = e.price; });
+    charting.edgeData.forEach(e => { prevPrices[e.short] = e.price; });
 
-    research.edgeData = markets.map(m => {
+    charting.edgeData = markets.map(m => {
       const prev = prevPrices[m.short];
       const change = prev != null ? (m.price - prev) : 0;
       return {
@@ -760,6 +780,7 @@ async function loadLivePublicMarkets() {
         kalshiBid: m.kalshiBid,
         kalshiAsk: m.kalshiAsk,
         tf: m.tf,
+        _endDate: m._endDate || null,
         source: m.source,
         slug: m.slug,
         _polyId: m._polyId,
@@ -774,7 +795,7 @@ async function loadLivePublicMarkets() {
     });
 
     // Build arb data from markets that have prices on both platforms
-    research.arbData = research.edgeData
+    charting.arbData = charting.edgeData
       .filter(e => e.polyPrice != null && e.kalshiPrice != null)
       .map(e => ({
         name: e.name,
@@ -788,7 +809,7 @@ async function loadLivePublicMarkets() {
       .sort((a, b) => b.spread - a.spread);
 
     // Update ticker with live data
-    research.tickerData = research.edgeData.slice(0, 60).map(m => ({
+    charting.tickerData = charting.edgeData.slice(0, 60).map(m => ({
       name: m.short,
       price: m.price,
       delta: m.change,
@@ -798,16 +819,21 @@ async function loadLivePublicMarkets() {
 
     renderEdgeCards();
     renderArbTable();
-    updateResearchMetrics();
+    updateChartingMetrics();
+
+    // Auto-select first market if none selected
+    if (!charting._mdMarket && charting.edgeData.length > 0) {
+      openMarketDetail(charting.edgeData[0].short);
+    }
   } catch (e) {
-    console.warn('[Mercury] Live market load failed:', e.message);
+    console.warn('[Mercury] Market cache fetch failed:', e.message);
   }
 }
 
 function renderLiveTicker(track) {
   // Update existing DOM in-place to preserve CSS animation (no innerHTML rebuild)
   const spans = track.querySelectorAll('.ticker-item');
-  const data = research.tickerData;
+  const data = charting.tickerData;
   const len = data.length;
   if (spans.length === 0 || spans.length !== len * 2) {
     // First render or count changed — must rebuild
@@ -836,10 +862,10 @@ function renderLiveTicker(track) {
   });
 }
 
-function updateResearchMetrics() {
-  const mktCount = research.edgeData.length;
-  const totalVol = research.edgeData.reduce((s, e) => s + (e._volNum || 0), 0);
-  const topSpread = research.arbData.length > 0 ? research.arbData[0].spread : 0;
+function updateChartingMetrics() {
+  const mktCount = charting.edgeData.length;
+  const totalVol = charting.edgeData.reduce((s, e) => s + (e._volNum || 0), 0);
+  const topSpread = charting.arbData.length > 0 ? charting.arbData[0].spread : 0;
 
   const el1 = document.getElementById('metricActiveMarkets');
   const el2 = document.getElementById('metricTotalVol');
@@ -854,8 +880,8 @@ function updateResearchMetrics() {
   // Biggest mover card
   const moverEl = document.getElementById('metricBiggestMover');
   const moverSub = document.getElementById('metricBiggestMoverSub');
-  if (moverEl && research.edgeData.length > 0) {
-    const sorted = [...research.edgeData]
+  if (moverEl && charting.edgeData.length > 0) {
+    const sorted = [...charting.edgeData]
       .filter(e => e.change !== '--' && e.change != null)
       .map(e => ({ ...e, absChange: Math.abs(parseFloat(e.change)) }))
       .sort((a, b) => b.absChange - a.absChange);
@@ -869,13 +895,11 @@ function updateResearchMetrics() {
     }
   }
 
-  // Show/hide LIVE badge
-  const liveBadge = document.getElementById('edgeLiveBadge');
-  if (liveBadge) liveBadge.style.display = research.liveMarkets ? 'inline-block' : 'none';
+  // LIVE badge is managed by loadLivePublicMarkets()
 }
 
 function loadMockEdgeData() {
-  research.edgeData = RESEARCH_MARKETS.map(m => ({
+  charting.edgeData = CHARTING_MARKETS.map(m => ({
     name: m.name,
     short: m.short,
     price: m.price,
@@ -887,7 +911,7 @@ function loadMockEdgeData() {
     tf: m.tf,
   }));
 
-  research.arbData = RESEARCH_MARKETS.map(m => ({
+  charting.arbData = CHARTING_MARKETS.map(m => ({
     name: m.name,
     short: m.short,
     polyPrice: m.polyPrice,
@@ -898,14 +922,14 @@ function loadMockEdgeData() {
 }
 
 async function loadLiveMarkets() {
-  if (!research.isActive || typeof dataBridge === 'undefined') return;
+  if (!charting.isActive || typeof dataBridge === 'undefined') return;
 
   try {
     const data = await dataBridge.getActiveMarkets();
     if (!data || !data.markets || data.markets.length === 0) return;
 
-    research.liveMarkets = true;
-    research.edgeData = data.markets.map(m => ({
+    charting.liveMarkets = true;
+    charting.edgeData = data.markets.map(m => ({
       name: m.name,
       short: m.ticker || '',
       price: m.price || 0,
@@ -920,7 +944,7 @@ async function loadLiveMarkets() {
 
     // Build arb data — only possible for same-name markets on both platforms
     // For now, just show all markets with their source prices
-    research.arbData = research.edgeData
+    charting.arbData = charting.edgeData
       .filter(e => e.price > 0)
       .map(e => ({
         name: e.name,
@@ -943,7 +967,7 @@ async function loadLiveMarkets() {
     renderEdgeCards();
     renderArbTable();
   } catch (e) {
-    console.warn('[Research] Live markets unavailable:', e);
+    console.warn('[Charting] Live markets unavailable:', e);
   }
 }
 
@@ -1006,17 +1030,17 @@ function formatTimeToRes(endDate) {
 }
 
 function renderEdgeCards() {
-  const container = document.getElementById('edgeResearchCards');
+  const container = document.getElementById('edgeChartingCards');
   if (!container) return;
 
   // Filter by timeframe
-  const tf = research.edgeTimeframe || 'all';
+  const tf = charting.edgeTimeframe || 'all';
   let filtered = tf === 'all'
-    ? [...research.edgeData]
-    : research.edgeData.filter(e => e.tf === tf);
+    ? [...charting.edgeData]
+    : charting.edgeData.filter(e => e.tf === tf);
 
   // Filter by platform
-  const plat = research.edgePlatform || 'all';
+  const plat = charting.edgePlatform || 'all';
   if (plat === 'polymarket') {
     filtered = filtered.filter(e => e.polyPrice != null);
   } else if (plat === 'kalshi') {
@@ -1024,7 +1048,7 @@ function renderEdgeCards() {
   }
 
   // Filter by search query
-  const searchQ = research.edgeSearch || '';
+  const searchQ = charting.edgeSearch || '';
   if (searchQ) {
     filtered = filtered.filter(e =>
       (e.name || '').toLowerCase().includes(searchQ) ||
@@ -1033,15 +1057,31 @@ function renderEdgeCards() {
   }
 
   // Filter by category
-  const cat = research.edgeCategory || 'all';
+  const cat = charting.edgeCategory || 'all';
   if (cat !== 'all') {
     filtered = filtered.filter(e => classifyMarketCategory(e.name) === cat);
   }
 
+  // Hide near-resolved markets (>97c or <3c) — they produce flat charts
+  filtered = filtered.filter(e => {
+    const p = e.price ?? 50;  // ?? not || — 0 is a valid price
+    return p >= 3 && p <= 97;
+  });
+
+  // Chart quality score: mid-range prices + high volume = best charts
+  function chartScore(m) {
+    const p = m.price ?? 50;  // ?? not || — 0 is a valid price
+    const dist = Math.abs(p - 50) / 50; // 0 at center, 1 at extremes
+    const priceWeight = Math.max(0.05, 1 - dist * dist);
+    return (m._volNum || 0) * priceWeight;
+  }
+
   // Sort
-  const sortMode = research.edgeSort || 'volume';
+  const sortMode = charting.edgeSort || 'chart-quality';
   let sorted;
-  if (sortMode === 'spread') {
+  if (sortMode === 'chart-quality') {
+    sorted = filtered.sort((a, b) => chartScore(b) - chartScore(a));
+  } else if (sortMode === 'spread') {
     sorted = filtered.sort((a, b) => {
       const sa = (a.polyPrice != null && a.kalshiPrice != null) ? Math.abs(a.polyPrice - a.kalshiPrice) : -1;
       const sb = (b.polyPrice != null && b.kalshiPrice != null) ? Math.abs(b.polyPrice - b.kalshiPrice) : -1;
@@ -1058,6 +1098,7 @@ function renderEdgeCards() {
   } else if (sortMode === 'price-low') {
     sorted = filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
   } else {
+    // volume
     sorted = filtered.sort((a, b) => (b._volNum || 0) - (a._volNum || 0));
   }
 
@@ -1078,97 +1119,42 @@ function renderEdgeCards() {
     return e.price;
   }
 
-  let html = `<div class="edge-table-header">
-    <span class="edge-col">Market</span>
-    <span class="edge-col">Price</span>
-    <span class="edge-col">Resolves</span>
-    <span class="edge-col">Volume</span>
-    <span class="edge-col">Source</span>
-    <span class="edge-col">Poly</span>
-    <span class="edge-col">Kalshi</span>
-    <span class="edge-col">Spread</span>
-  </div>`;
+  // Source badge
+  function srcBadge(e) {
+    if (e.polyPrice != null && e.kalshiPrice != null) return '<span class="tv-wl-item-src both">P+K</span>';
+    if (e.source === 'kalshi') return '<span class="tv-wl-item-src kalshi">K</span>';
+    if (e.source === 'polymarket') return '<span class="tv-wl-item-src poly">P</span>';
+    return '';
+  }
+
+  let html = '';
 
   if (sorted.length === 0) {
-    const emptyMsg = searchQ ? 'No markets matching \u201c' + esc(searchQ) + '\u201d' : 'No markets in this filter';
-    html += `<div style="padding: 12px 16px; color: var(--dim); font-size: 10px;">${emptyMsg}</div>`;
+    const emptyMsg = searchQ ? 'No markets matching \u201c' + esc(searchQ) + '\u201d' : 'No markets found';
+    html = `<div class="tv-wl-empty">${emptyMsg}</div>`;
   } else {
-    html += sorted.map(e => {
-      const polyStr = e.polyPrice != null ? `${e.polyPrice}c` : '\u2014';
-      const kalshiStr = e.kalshiPrice != null ? `${e.kalshiPrice}c` : '\u2014';
-      const spread = (e.polyPrice != null && e.kalshiPrice != null)
-        ? Math.abs(e.polyPrice - e.kalshiPrice) : null;
-      const spreadStr = spread != null ? `${spread}c` : '\u2014';
-      let sourceTag, sourceClass;
-      if (e.polyPrice != null && e.kalshiPrice != null) {
-        sourceTag = 'P+K'; sourceClass = 'edge-source-both';
-      } else if (e.source === 'kalshi') {
-        sourceTag = 'K'; sourceClass = 'edge-source-kalshi';
-      } else if (e.source === 'polymarket') {
-        sourceTag = 'P'; sourceClass = 'edge-source-polymarket';
-      } else {
-        sourceTag = research.liveMarkets ? '\u25cf' : (e.change || '\u2014');
-        sourceClass = research.liveMarkets ? 'edge-source-live' : 'edge-source-mock';
-      }
-
+    const activeShort = charting._mdMarket ? charting._mdMarket.short : null;
+    html = sorted.map(e => {
       const safeShort = (e.short || '').replace(/'/g, "\\'");
+      const p = displayPrice(e);
+      const noP = Math.round(100 - p);
+      const changeVal = parseFloat(e.change) || 0;
+      const changeClass = changeVal > 0 ? 'up' : changeVal < 0 ? 'down' : 'flat';
+      const changeStr = (changeVal >= 0 ? '+' : '') + changeVal.toFixed(1) + 'c';
+      const isActive = e.short === activeShort ? ' active' : '';
 
-      // Event row with expandable sub-markets
-      if (e.isEvent && e.subMarkets && e.subMarkets.length > 1) {
-        const eventId = 'evt_' + safeShort;
-        const resolves = formatTimeToRes(e._endDate);
-        let rowHtml = `<div class="edge-row edge-row--event" data-event-id="${eventId}" onclick="toggleEventSubs('${eventId}')">
-          <span class="edge-row-name">
-            <span class="edge-expand-icon">\u25B6</span>
-            ${esc(e.name)}
-            <span class="edge-sub-count">${e.subCount} mkts</span>
-            <span class="edge-row-short">${esc(e.short)}</span>
-          </span>
-          <span class="edge-row-val">${displayPrice(e)}c</span>
-          <span class="edge-row-val edge-row-resolves">${resolves}</span>
-          <span class="edge-row-vol-val">${e.vol}</span>
-          <span class="edge-row-val ${sourceClass}">${sourceTag}</span>
-          <span class="edge-row-val">${polyStr}</span>
-          <span class="edge-row-val">${kalshiStr}</span>
-          <span class="edge-row-spread ${spread >= 2 ? 'notable' : ''}">${spreadStr}</span>
-        </div>`;
-
-        // Sub-market rows (hidden by default)
-        rowHtml += `<div class="edge-sub-container" id="${eventId}">`;
-        const subs = [...e.subMarkets].sort((a, b) => b.price - a.price).slice(0, 20);
-        rowHtml += subs.map(sm => {
-          const smPolyStr = sm.source === 'polymarket' ? sm.price + 'c' : (sm.polyPrice != null ? sm.polyPrice + 'c' : '\u2014');
-          const smKalshiStr = sm.source === 'kalshi' ? sm.price + 'c' : (sm.kalshiPrice != null ? sm.kalshiPrice + 'c' : '\u2014');
-          const smSrc = sm.source === 'kalshi' ? 'K' : (sm.kalshiPrice != null && sm.source === 'polymarket' ? 'P+K' : 'P');
-          const smSrcClass = smSrc === 'P+K' ? 'edge-source-both' : (sm.source === 'kalshi' ? 'edge-source-kalshi' : 'edge-source-polymarket');
-          return `<div class="edge-sub-row">
-            <span class="edge-row-name">${esc(sm.name)}</span>
-            <span class="edge-row-val">${sm.price}c</span>
-            <span class="edge-row-vol-val">${sm.vol || '\u2014'}</span>
-            <span class="edge-row-val ${smSrcClass}">${smSrc}</span>
-            <span class="edge-row-val">${smPolyStr}</span>
-            <span class="edge-row-val">${smKalshiStr}</span>
-            <span class="edge-row-spread">\u2014</span>
-          </div>`;
-        }).join('');
-        if (e.subCount > 20) {
-          rowHtml += `<div class="edge-sub-row" style="justify-content:center;color:var(--dim);font-size:9px;">+ ${e.subCount - 20} more outcomes</div>`;
-        }
-        rowHtml += '</div>';
-        return rowHtml;
-      }
-
-      // Regular flat market row
-      const resolves = formatTimeToRes(e._endDate);
-      return `<div class="edge-row" onclick="openMarketDetail('${safeShort}');" style="cursor:pointer;">
-        <span class="edge-row-name">${esc(e.name)} <span class="edge-row-short">${esc(e.short)}</span></span>
-        <span class="edge-row-val">${displayPrice(e)}c</span>
-        <span class="edge-row-val edge-row-resolves">${resolves}</span>
-        <span class="edge-row-vol-val">${e.vol}</span>
-        <span class="edge-row-val ${sourceClass}">${sourceTag}</span>
-        <span class="edge-row-val">${polyStr}</span>
-        <span class="edge-row-val">${kalshiStr}</span>
-        <span class="edge-row-spread ${spread >= 2 ? 'notable' : ''}">${spreadStr}</span>
+      return `<div class="tv-wl-item${isActive}" onclick="openMarketDetail('${safeShort}')">
+        <div class="tv-wl-item-left">
+          <div style="display:flex;align-items:center;gap:4px;">
+            <span class="tv-wl-item-ticker">${esc(e.short)}</span>
+            ${srcBadge(e)}
+          </div>
+          <span class="tv-wl-item-name">${esc(e.name)}</span>
+        </div>
+        <div class="tv-wl-item-right">
+          <span class="tv-wl-item-price"><span class="tv-yn-sm">Y</span>${p}c <span class="tv-yn-sm tv-yn-no">N</span>${noP}c</span>
+          <span class="tv-wl-item-change ${changeClass}">${changeStr}</span>
+        </div>
       </div>`;
     }).join('');
   }
@@ -1197,9 +1183,9 @@ function renderArbTable() {
   const ts = document.getElementById('arbTimestamp');
   if (ts) ts.textContent = 'Updated just now';
 
-  body.innerHTML = research.arbData.map(a => {
-    const polyStr = a.polyPrice != null ? `${a.polyPrice}c` : '\u2014';
-    const kalshiStr = a.kalshiPrice != null ? `${a.kalshiPrice}c` : '\u2014';
+  body.innerHTML = charting.arbData.map(a => {
+    const polyStr = a.polyPrice != null ? `Y:${a.polyPrice}c N:${Math.round(100 - a.polyPrice)}c` : '\u2014';
+    const kalshiStr = a.kalshiPrice != null ? `Y:${a.kalshiPrice}c N:${Math.round(100 - a.kalshiPrice)}c` : '\u2014';
     const notable = a.spread >= 2;
     return `<div class="arb-row">
       <span class="arb-market">${a.name}</span>
@@ -1221,7 +1207,7 @@ function initCryptoTab() {
 }
 
 async function pollCryptoData() {
-  if (!research.isActive || typeof dataBridge === 'undefined') return;
+  if (!charting.isActive || typeof dataBridge === 'undefined') return;
 
   // Fetch everything in parallel
   const [priceData, dvolData, kalshiData, polyData] = await Promise.all([
@@ -1235,7 +1221,7 @@ async function pollCryptoData() {
   if (priceData) {
     const btc = priceData.binance || priceData.coinbase;
     if (btc) {
-      research.liveBTCPrice = btc;
+      charting.liveBTCPrice = btc;
       const el = document.getElementById('cryptoBTCPrice');
       if (el) el.textContent = '$' + Math.round(btc).toLocaleString();
     }
@@ -1243,7 +1229,7 @@ async function pollCryptoData() {
 
   // ── DVOL ──
   if (dvolData && dvolData.dvol != null) {
-    research.liveDVOL = dvolData.dvol;
+    charting.liveDVOL = dvolData.dvol;
     const el = document.getElementById('cryptoDVOL');
     if (el) {
       el.textContent = dvolData.dvol.toFixed(1) + '%';
@@ -1335,7 +1321,7 @@ function renderCryptoMarkets(containerId, markets, countId) {
 // ═══════════════════════════════════════════════════════════════
 
 function initMarketScanner() {
-  research.marketData = RESEARCH_MARKETS.map(m => ({
+  charting.marketData = CHARTING_MARKETS.map(m => ({
     name: m.name,
     short: m.short,
     price: m.price,
@@ -1349,8 +1335,8 @@ function initMarketScanner() {
   renderMarketTable();
 
   addTabInterval(() => {
-    if (research.liveMarkets) return; // Skip mock drift when live
-    research.marketData.forEach(m => {
+    if (charting.liveMarkets) return; // Skip mock drift when live
+    charting.marketData.forEach(m => {
       const shift = (Math.random() - 0.5) * 3;
       m.price = Math.max(1, Math.min(99, Math.round(m.price + shift)));
       m.change = ((Math.random() - 0.48) * 8).toFixed(1);
@@ -1373,7 +1359,7 @@ function renderMarketTable() {
 
   const sortEl = document.getElementById('marketScannerSort');
   const sortBy = sortEl ? sortEl.value : 'edge';
-  let sorted = [...research.marketData];
+  let sorted = [...charting.marketData];
 
   if (sortBy === 'edge') sorted.sort((a, b) => Math.abs(b.fair - b.price) - Math.abs(a.fair - a.price));
   else if (sortBy === 'volume') sorted.sort((a, b) => parseFloat(b.vol.replace(/[$M]/g, '')) - parseFloat(a.vol.replace(/[$M]/g, '')));
@@ -1546,13 +1532,13 @@ function initBiggestMovers() {
 function renderBiggestMovers() {
   const body = document.getElementById('biggestMoverBody');
   if (!body) return;
-  if (!research.edgeData || research.edgeData.length === 0) {
+  if (!charting.edgeData || charting.edgeData.length === 0) {
     body.innerHTML = '<div class="mover-empty">Waiting for market data...</div>';
     return;
   }
 
   // Sort by absolute change, take top movers
-  const sorted = [...research.edgeData]
+  const sorted = [...charting.edgeData]
     .filter(e => e.change !== '--' && e.change != null)
     .map(e => ({ ...e, absChange: Math.abs(parseFloat(e.change)) }))
     .sort((a, b) => b.absChange - a.absChange)
@@ -1585,6 +1571,472 @@ function renderBiggestMovers() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// TRENDING KEYWORDS (Bottom panel)
+// ═══════════════════════════════════════════════════════════════
+
+let _trendingData = [];
+let _trendingCat = 'all';
+
+function initTrending() {
+  _fetchTrending();
+  addChartingInterval(_fetchTrending, 60000); // Refresh every 60s
+
+  const catSelect = document.getElementById('trendingCatSelect');
+  if (catSelect) {
+    catSelect.addEventListener('change', () => {
+      _trendingCat = catSelect.value;
+      _renderTrending();
+    });
+  }
+}
+
+async function _fetchTrending() {
+  // Reuse Catalyst data if available (avoids double-fetching)
+  if (_catalystData && _catalystData.length > 0) {
+    _trendingData = _catalystData;
+    _renderTrending();
+    return;
+  }
+  // Otherwise try server endpoint
+  try {
+    const resp = await fetch('/api/trending');
+    if (!resp.ok) return;
+    const data = await resp.json();
+    if (data.keywords && data.keywords.length > 0) {
+      _trendingData = data.keywords;
+      _renderTrending();
+    }
+  } catch (e) {
+    console.warn('[Mercury] Trending fetch failed:', e.message);
+  }
+}
+
+function _renderTrending() {
+  const grid = document.getElementById('trendingGrid');
+  const countEl = document.getElementById('trendingCount');
+  if (!grid) return;
+
+  let filtered = _trendingData;
+  if (_trendingCat !== 'all') {
+    filtered = filtered.filter(k => k.category === _trendingCat);
+  }
+
+  if (countEl) countEl.textContent = filtered.length;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="trending-loading">No keywords detected yet&hellip;</div>';
+    return;
+  }
+
+  const maxCount = filtered[0].count || 1;
+
+  grid.innerHTML = filtered.map(k => {
+    const barWidth = Math.min(100, (k.count / maxCount) * 100);
+    const trendIcon = k.trend === 'up' ? '&#9650;' : k.trend === 'down' ? '&#9660;' : '&#8212;';
+    const trendClass = k.trend;
+    const spikeLabel = k.spikePct > 0 ? `+${k.spikePct}%` : `${k.spikePct}%`;
+    const showSpike = Math.abs(k.spikePct) > 25;
+    const safeKw = k.keyword.replace(/</g, '&lt;');
+
+    return `<div class="trending-row" data-cat="${k.category}">
+      <span class="trending-kw">${safeKw}</span>
+      <div class="trending-bar-wrap">
+        <div class="trending-fill trending-fill--${k.category}" style="width:${barWidth}%"></div>
+      </div>
+      <span class="trending-count-val">${k.count}</span>
+      <span class="trending-trend trending-trend--${trendClass}">${trendIcon}</span>
+      ${showSpike ? `<span class="trending-spike trending-spike--${trendClass}">${spikeLabel}</span>` : '<span class="trending-spike"></span>'}
+      <span class="trending-cat trending-cat--${k.category}">${k.category}</span>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CATALYST VIEW (Full-page keyword spike monitor)
+// ═══════════════════════════════════════════════════════════════
+
+let _catalystData = [];
+let _catalystCat = 'all';
+let _catalystSort = 'count';
+let _catalystInterval = null;
+let _catalystInited = false;
+let _catalystHeadlineTotal = 0;
+
+// --- Spike detection history ---
+// Each snapshot is { ts: Date.now(), counts: { keyword: count, ... } }
+let _catalystHistory = [];
+const _CATALYST_HISTORY_MAX = 30;     // Keep last 30 snapshots (30 min at 60s intervals)
+const _CATALYST_BASELINE_MIN = 3;     // Need at least 3 snapshots before computing spikes
+const _CATALYST_SPIKE_THRESHOLD = 75; // % above baseline to qualify as a spike alert
+let _catalystServerWarned = false;
+
+// Stop words for client-side keyword extraction
+const _CATALYST_STOP = new Set((
+  'the a an and or but in on at to for of is it that this with from by as be are was were ' +
+  'will can has have had not no do does did so if its he she they we you his her my your our ' +
+  'their than more most very also been about into over such what which who how when where all ' +
+  'each new after says said could would should may first one two will just get set still even ' +
+  'much many these those out up per day year time some other being between through during before ' +
+  'after against under here there why next back last own any us them make made like know take ' +
+  'help try use let big top need way well long full part great think come look good high going ' +
+  'want give find tell work call both few every keep same another while must show old again off ' +
+  'number since right change turn point small end move follow act began begin lead left late ' +
+  'might put run does plan state world week month today report according data key things people ' +
+  'news now man won loss amid over via near'
+).split(' '));
+
+// ── Spike computation from rolling history ──
+function _computeCatalystSpikes(currentCounts) {
+  _catalystHistory.push({ ts: Date.now(), counts: { ...currentCounts } });
+
+  // Trim to max size
+  if (_catalystHistory.length > _CATALYST_HISTORY_MAX) {
+    _catalystHistory = _catalystHistory.slice(-_CATALYST_HISTORY_MAX);
+  }
+
+  // Not enough history yet
+  if (_catalystHistory.length < _CATALYST_BASELINE_MIN) return {};
+
+  const result = {};
+  const prev = _catalystHistory[_catalystHistory.length - 2].counts;
+
+  // Compute baseline average from all snapshots except the latest
+  const baselineSnapshots = _catalystHistory.slice(0, -1);
+  const baselineTotals = {};
+  const baselineCounts = {};
+  for (const snap of baselineSnapshots) {
+    for (const [kw, count] of Object.entries(snap.counts)) {
+      baselineTotals[kw] = (baselineTotals[kw] || 0) + count;
+      baselineCounts[kw] = (baselineCounts[kw] || 0) + 1;
+    }
+  }
+  const baselineAvg = {};
+  for (const kw of Object.keys(baselineTotals)) {
+    baselineAvg[kw] = baselineTotals[kw] / baselineCounts[kw];
+  }
+
+  for (const [kw, count] of Object.entries(currentCounts)) {
+    const prevCount = prev[kw] || 0;
+    const avg = baselineAvg[kw] || 0;
+    const change = count - prevCount;
+
+    // Trend: 3-point lookback
+    let trend = 'flat';
+    if (_catalystHistory.length >= 3) {
+      const c3 = _catalystHistory[_catalystHistory.length - 3].counts[kw] || 0;
+      const c2 = prevCount;
+      const c1 = count;
+      if (c1 > c2 && c2 >= c3) trend = 'up';
+      else if (c1 < c2 && c2 <= c3) trend = 'down';
+      else if (c1 > c2) trend = 'up';
+      else if (c1 < c2) trend = 'down';
+    } else {
+      if (change > 0) trend = 'up';
+      else if (change < 0) trend = 'down';
+    }
+
+    // SpikePct: percentage above baseline average
+    let spikePct = 0;
+    if (avg > 0) {
+      spikePct = Math.round(((count - avg) / avg) * 100);
+    } else if (count > 0) {
+      spikePct = 100; // Brand new keyword
+    }
+
+    result[kw] = { change, trend, spikePct };
+  }
+
+  return result;
+}
+
+function initCatalystView() {
+  // Prevent duplicate listeners on re-init
+  if (_catalystInterval) clearInterval(_catalystInterval);
+
+  // Fetch immediately from both sources
+  _fetchCatalystFromNews();  // Client-side extraction — instant results
+  _fetchCatalystFromServer(); // Server spike data — overlays when ready
+  _catalystInterval = setInterval(() => {
+    _fetchCatalystFromNews();
+    _fetchCatalystFromServer();
+  }, 60000);
+
+  if (_catalystInited) return; // Only wire listeners once
+  _catalystInited = true;
+
+  // Category tabs
+  const catTabs = document.getElementById('catalystCatTabs');
+  if (catTabs) {
+    catTabs.addEventListener('click', e => {
+      const btn = e.target.closest('.catalyst-cat-btn');
+      if (!btn) return;
+      catTabs.querySelectorAll('.catalyst-cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      _catalystCat = btn.dataset.cat;
+      _renderCatalystView();
+    });
+  }
+
+  // Sort select
+  const sortSel = document.getElementById('catalystSortSelect');
+  if (sortSel) {
+    sortSel.addEventListener('change', () => {
+      _catalystSort = sortSel.value;
+      _renderCatalystView();
+    });
+  }
+}
+
+function teardownCatalystView() {
+  if (_catalystInterval) { clearInterval(_catalystInterval); _catalystInterval = null; }
+}
+
+// ── Client-side keyword extraction from live news ──
+async function _fetchCatalystFromNews() {
+  const LM = typeof MercuryLiveMarkets !== 'undefined' ? MercuryLiveMarkets : null;
+  if (!LM) {
+    const body = document.getElementById('catalystTableBody');
+    if (body && _catalystData.length === 0) body.innerHTML = '<div class="catalyst-empty">News data source unavailable &mdash; data-bridge.js may not be loaded</div>';
+    return;
+  }
+
+  try {
+    const [general, crypto, politics, ai, econ, geopolitics] = await Promise.all([
+      LM.fetchNews('prediction market polymarket kalshi').catch(() => []),
+      LM.fetchNews('bitcoin crypto ethereum solana').catch(() => []),
+      LM.fetchNews('elections politics congress federal reserve').catch(() => []),
+      LM.fetchNews('AI artificial intelligence technology nvidia openai').catch(() => []),
+      LM.fetchNews('economy inflation GDP jobs market stocks').catch(() => []),
+      LM.fetchNews('geopolitics war trade tariff sanctions').catch(() => []),
+    ]);
+
+    // Deduplicate headlines
+    const seen = new Set();
+    const headlines = [...general, ...crypto, ...politics, ...ai, ...econ, ...geopolitics]
+      .filter(a => {
+        if (!a.title || seen.has(a.title)) return false;
+        seen.add(a.title);
+        return true;
+      })
+      .map(a => a.title);
+
+    _catalystHeadlineTotal = headlines.length;
+    if (headlines.length === 0) {
+      const body = document.getElementById('catalystTableBody');
+      if (body && _catalystData.length === 0) body.innerHTML = '<div class="catalyst-empty">No news articles found &mdash; check proxy connection to Google News</div>';
+      _updateCatalystStats();
+      return;
+    }
+
+    // Extract keywords
+    const counts = {};
+    for (const h of headlines) {
+      const words = h.match(/[A-Za-z'\-]+/g) || [];
+      const cleaned = [];
+      for (const w of words) {
+        const wl = w.toLowerCase().replace(/^['\-]+|['\-]+$/g, '');
+        if (wl.length < 3 || _CATALYST_STOP.has(wl)) continue;
+        cleaned.push(wl);
+      }
+      // Unigrams
+      for (const w of cleaned) counts[w] = (counts[w] || 0) + 1;
+      // Bigrams
+      for (let i = 0; i < cleaned.length - 1; i++) {
+        const bg = cleaned[i] + ' ' + cleaned[i + 1];
+        counts[bg] = (counts[bg] || 0) + 1;
+      }
+    }
+
+    // Build raw count map for spike detection
+    const rawCounts = {};
+    for (const [kw, c] of Object.entries(counts)) {
+      if (c >= 3) rawCounts[kw] = c;
+    }
+
+    // Compute spike metrics from rolling history
+    const spikeData = _computeCatalystSpikes(rawCounts);
+
+    // Build keyword list — sort by count, take top 50
+    const keywords = Object.entries(rawCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 50)
+      .map(([kw, count]) => {
+        const spike = spikeData[kw] || { change: 0, trend: 'flat', spikePct: 0 };
+        return {
+          keyword: kw,
+          count,
+          change: spike.change,
+          trend: spike.trend,
+          spikePct: spike.spikePct,
+          category: _catalystCategorizKw(kw),
+        };
+      });
+
+    _catalystData = keywords;
+    _updateCatalystStats();
+    _renderCatalystView();
+  } catch (e) {
+    console.warn('[Catalyst] News extraction failed:', e.message);
+    if (_catalystData.length === 0) {
+      const body = document.getElementById('catalystTableBody');
+      if (body) body.innerHTML = '<div class="catalyst-empty">News fetch failed &mdash; ' + (e.message || 'unknown error').replace(/</g, '&lt;') + '</div>';
+    }
+  }
+}
+
+// ── Server-side spike data overlay (stub — /api/trending does not exist yet) ──
+async function _fetchCatalystFromServer() {
+  // All spike detection is now client-side via _computeCatalystSpikes().
+  // When a server /api/trending endpoint is built, this function can overlay
+  // server-computed spike data onto the client keyword list.
+  if (!_catalystServerWarned) {
+    console.log('[Catalyst] Server spike endpoint not available — using client-side detection only');
+    _catalystServerWarned = true;
+  }
+}
+
+function _updateCatalystStats(serverTs) {
+  const kwCount = document.getElementById('catalystKeywordCount');
+  const hlCount = document.getElementById('catalystHeadlineCount');
+  const lastUpd = document.getElementById('catalystLastUpdate');
+  if (kwCount) kwCount.textContent = _catalystData.length;
+  if (hlCount) hlCount.textContent = _catalystHeadlineTotal || _catalystData.reduce((s, k) => s + k.count, 0);
+  if (lastUpd) {
+    if (serverTs) {
+      const ago = Math.floor((Date.now() - serverTs) / 1000);
+      lastUpd.textContent = ago < 60 ? 'just now' : Math.floor(ago / 60) + 'm ago';
+    } else {
+      lastUpd.textContent = 'just now';
+    }
+  }
+}
+
+function _catalystCategorizKw(kw) {
+  const k = kw.toLowerCase();
+  if (/bitcoin|btc|crypto|ethereum|eth|coin|defi|blockchain/.test(k)) return 'crypto';
+  if (/trump|election|congress|senate|democrat|republican|politic|vote|biden|president|gop/.test(k)) return 'politics';
+  if (/fed\b|rate|inflation|cpi|gdp|recession|treasury|economy|tariff|trade war|jobs/.test(k)) return 'econ';
+  if (/nvidia|openai|gpt|claude|artificial|intelligence|ai\b/.test(k)) return 'ai';
+  if (/ukraine|china|taiwan|iran|nato|war|ceasefire|russia|missile|military/.test(k)) return 'geopolitics';
+  if (/nba|nfl|super bowl|world cup|sport|mlb|soccer|football/.test(k)) return 'sports';
+  return 'general';
+}
+
+function _renderCatalystView() {
+  _renderCatalystTable();
+  _renderCatalystSpikeAlerts();
+  _renderCatalystCategoryBreakdown();
+}
+
+function _renderCatalystTable() {
+  const body = document.getElementById('catalystTableBody');
+  if (!body) return;
+
+  let filtered = _catalystData;
+  if (_catalystCat !== 'all') {
+    filtered = filtered.filter(k => k.category === _catalystCat);
+  }
+
+  // Sort
+  filtered = [...filtered];
+  if (_catalystSort === 'spike') {
+    filtered.sort((a, b) => Math.abs(b.spikePct) - Math.abs(a.spikePct));
+  } else if (_catalystSort === 'change') {
+    filtered.sort((a, b) => Math.abs(b.change || 0) - Math.abs(a.change || 0));
+  } else if (_catalystSort === 'alpha') {
+    filtered.sort((a, b) => a.keyword.localeCompare(b.keyword));
+  }
+  // 'count' is already the default server sort
+
+  if (filtered.length === 0) {
+    body.innerHTML = '<div class="catalyst-empty">No keywords detected yet&hellip;</div>';
+    return;
+  }
+
+  const maxCount = Math.max(...filtered.map(k => k.count), 1);
+
+  body.innerHTML = filtered.map(k => {
+    const barWidth = Math.min(100, (k.count / maxCount) * 100);
+    const chg = k.change || 0;
+    const chgDir = chg > 0 ? 'up' : chg < 0 ? 'down' : 'flat';
+    const chgLabel = chg > 0 ? '+' + chg : chg < 0 ? String(chg) : '0';
+    const trendIcon = k.trend === 'up' ? '&#9650;' : k.trend === 'down' ? '&#9660;' : '&#8212;';
+    const spikeLabel = k.spikePct > 0 ? '+' + k.spikePct + '%' : k.spikePct + '%';
+    const showSpike = Math.abs(k.spikePct) > 25;
+    const isHot = k.trend === 'up' && k.spikePct > 100;
+    const safeKw = k.keyword.replace(/</g, '&lt;');
+
+    return `<div class="catalyst-row${isHot ? ' catalyst-row--hot' : ''}" data-cat="${k.category}">
+      <span class="catalyst-row-kw">${safeKw}</span>
+      <div class="catalyst-row-bar-wrap">
+        <div class="catalyst-row-fill catalyst-row-fill--${k.category}" style="width:${barWidth}%"></div>
+      </div>
+      <span class="catalyst-row-count">${k.count}</span>
+      <span class="catalyst-row-change catalyst-row-change--${chgDir}">${chgLabel}</span>
+      <span class="catalyst-row-trend catalyst-row-trend--${k.trend}">${trendIcon}</span>
+      <span class="catalyst-row-spike catalyst-row-spike--${k.trend}">${showSpike ? spikeLabel : ''}</span>
+      <span class="catalyst-row-cat catalyst-row-cat--${k.category}">${k.category}</span>
+    </div>`;
+  }).join('');
+}
+
+function _renderCatalystSpikeAlerts() {
+  const list = document.getElementById('catalystSpikeList');
+  const badge = document.getElementById('catalystSpikeCount');
+  if (!list) return;
+
+  const spikes = _catalystData.filter(k => k.trend === 'up' && k.spikePct > 75);
+  if (badge) badge.textContent = spikes.length;
+
+  if (spikes.length === 0) {
+    const hasBaseline = _catalystHistory.length >= _CATALYST_BASELINE_MIN;
+    list.innerHTML = hasBaseline
+      ? '<div class="catalyst-empty-sm">No significant spikes right now</div>'
+      : '<div class="catalyst-empty-sm">Building baseline&hellip; spikes appear after ~' + _CATALYST_BASELINE_MIN + ' min</div>';
+    return;
+  }
+
+  list.innerHTML = spikes.slice(0, 12).map(k => {
+    const safeKw = k.keyword.replace(/</g, '&lt;');
+    return `<div class="catalyst-spike-item">
+      <span class="catalyst-spike-kw">${safeKw}</span>
+      <span class="catalyst-spike-pct">+${k.spikePct}%</span>
+      <span class="catalyst-spike-cat catalyst-row-cat--${k.category}">${k.category}</span>
+    </div>`;
+  }).join('');
+}
+
+function _renderCatalystCategoryBreakdown() {
+  const container = document.getElementById('catalystCategoryBreakdown');
+  if (!container) return;
+
+  // Count keywords per category
+  const cats = {};
+  for (const k of _catalystData) {
+    cats[k.category] = (cats[k.category] || 0) + 1;
+  }
+  const total = _catalystData.length || 1;
+  const sorted = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+
+  if (sorted.length === 0) {
+    container.innerHTML = '<div class="catalyst-empty-sm">Waiting for data&hellip;</div>';
+    return;
+  }
+
+  container.innerHTML = sorted.map(([cat, count]) => {
+    const pct = Math.round((count / total) * 100);
+    return `<div class="catalyst-cat-row">
+      <span class="catalyst-cat-row-name catalyst-row-cat--${cat}">${cat}</span>
+      <div class="catalyst-cat-row-bar-wrap">
+        <div class="catalyst-row-fill catalyst-row-fill--${cat}" style="width:${pct}%"></div>
+      </div>
+      <span class="catalyst-cat-row-pct">${pct}%</span>
+      <span class="catalyst-cat-row-count">${count}</span>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
 // ORDER BOOK (Terminal tab)
 // ═══════════════════════════════════════════════════════════════
 
@@ -1598,7 +2050,7 @@ async function initOrderBook() {
   if (!usedLive) {
     // Fall back to mock orderbook
     const midPrice = 62;
-    research.orderBook = {
+    charting.orderBook = {
       bids: Array.from({ length: 10 }, (_, i) => ({ price: midPrice - i, size: 5000 + Math.random() * 20000 })),
       asks: Array.from({ length: 10 }, (_, i) => ({ price: midPrice + 1 + i, size: 5000 + Math.random() * 20000 })),
     };
@@ -1615,9 +2067,9 @@ async function initOrderBook() {
 
 function renderOrderBook() {
   const body = document.getElementById('orderbookBody');
-  if (!body || !research.orderBook) return;
+  if (!body || !charting.orderBook) return;
 
-  const ob = research.orderBook;
+  const ob = charting.orderBook;
   const maxSize = Math.max(...ob.bids.map(b => b.size), ...ob.asks.map(a => a.size));
   const bestBid = ob.bids[0].price;
   const bestAsk = ob.asks[0].price;
@@ -1652,8 +2104,8 @@ function renderOrderBook() {
 }
 
 function simulateOrderBookTick() {
-  if (!research.orderBook) return;
-  const ob = research.orderBook;
+  if (!charting.orderBook) return;
+  const ob = charting.orderBook;
   ob.bids.forEach(b => { b.size = Math.max(500, b.size + (Math.random() - 0.5) * b.size * 0.15); });
   ob.asks.forEach(a => { a.size = Math.max(500, a.size + (Math.random() - 0.5) * a.size * 0.15); });
   if (Math.random() > 0.9) {
@@ -1710,8 +2162,8 @@ function initVolumeChart() {
     dataLabels: { enabled: false },
   };
 
-  research.charts.volume = new ApexCharts(container, options);
-  research.charts.volume.render();
+  charting.charts.volume = new ApexCharts(container, options);
+  charting.charts.volume.render();
 
   addTabInterval(() => {
     buyData.shift(); sellData.shift(); categories.shift();
@@ -1719,9 +2171,9 @@ function initVolumeChart() {
     categories.push(t.getHours() + ':' + String(t.getMinutes()).padStart(2, '0'));
     buyData.push(Math.floor(Math.random() * 400 + 100));
     sellData.push(-Math.floor(Math.random() * 350 + 80));
-    if (research.charts.volume) {
-      research.charts.volume.updateOptions({ xaxis: { categories } });
-      research.charts.volume.updateSeries([{ data: buyData }, { data: sellData }]);
+    if (charting.charts.volume) {
+      charting.charts.volume.updateOptions({ xaxis: { categories } });
+      charting.charts.volume.updateSeries([{ data: buyData }, { data: sellData }]);
     }
   }, 5000);
 
@@ -1737,36 +2189,36 @@ function initVolumeChart() {
 // BOT PERFORMANCE LOGS (Terminal tab)
 // ═══════════════════════════════════════════════════════════════
 
-function initResearchLogs() {
-  const container = document.getElementById('researchLogs');
+function initChartingLogs() {
+  const container = document.getElementById('chartingLogs');
   if (!container) return;
 
   // Seed with mock logs
   for (let i = 0; i < 15; i++) {
-    appendResearchLog(container, false);
+    appendChartingLog(container, false);
   }
 
   // Mock log generation — fixed interval instead of recursive setTimeout chain
   addTabInterval(() => {
-    if (!research.isActive) return;
-    appendResearchLog(container, true);
+    if (!charting.isActive) return;
+    appendChartingLog(container, true);
   }, 2500);
 
   // Also poll live bot logs if bridge is up
-  if (research.liveConnected) {
+  if (charting.liveConnected) {
     addTabInterval(pollLiveBotLogs, 5000);
   }
 }
 
-function appendResearchLog(container, animate) {
-  if (!container) container = document.getElementById('researchLogs');
+function appendChartingLog(container, animate) {
+  if (!container) container = document.getElementById('chartingLogs');
   if (!container) return;
 
   const level = LOG_LEVELS[Math.random() < 0.5 ? 0 : Math.random() < 0.7 ? 1 : Math.random() < 0.9 ? 2 : 3];
   const templates = LOG_MESSAGES[level];
   let msg = templates[Math.floor(Math.random() * templates.length)];
-  const m = RESEARCH_MARKETS[Math.floor(Math.random() * RESEARCH_MARKETS.length)];
-  const m2 = RESEARCH_MARKETS[Math.floor(Math.random() * RESEARCH_MARKETS.length)];
+  const m = CHARTING_MARKETS[Math.floor(Math.random() * CHARTING_MARKETS.length)];
+  const m2 = CHARTING_MARKETS[Math.floor(Math.random() * CHARTING_MARKETS.length)];
   const bot = BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)];
 
   msg = msg.replace('{market}', m.short).replace('{m1}', m.short).replace('{m2}', m2.short)
@@ -1794,46 +2246,46 @@ function appendResearchLog(container, animate) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// RESEARCH CHAT (Terminal tab)
+// CHARTING CHAT (Terminal tab)
 // ═══════════════════════════════════════════════════════════════
 
-function initResearchChat() {
-  const input = document.getElementById('researchChatInput');
-  const sendBtn = document.getElementById('researchChatSend');
+function initChartingChat() {
+  const input = document.getElementById('chartingChatInput');
+  const sendBtn = document.getElementById('chartingChatSend');
   if (!input || !sendBtn) return;
 
-  sendBtn.addEventListener('click', handleResearchChatInput);
+  sendBtn.addEventListener('click', handleChartingChatInput);
   input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') handleResearchChatInput();
+    if (e.key === 'Enter') handleChartingChatInput();
   });
 }
 
-function handleResearchChatInput() {
-  const input = document.getElementById('researchChatInput');
+function handleChartingChatInput() {
+  const input = document.getElementById('chartingChatInput');
   if (!input) return;
   const text = input.value.trim();
   if (!text) return;
   input.value = '';
 
-  addResearchChatMessage(text, 'user');
+  addChartingChatMessage(text, 'user');
 
-  const welcome = document.querySelector('.research-chat-welcome');
+  const welcome = document.querySelector('.charting-chat-welcome');
   if (welcome) welcome.style.display = 'none';
 
-  setTimeout(() => simulateResearchResponse(text), 600 + Math.random() * 800);
+  setTimeout(() => simulateChartingResponse(text), 600 + Math.random() * 800);
 }
 
-function addResearchChatMessage(content, type) {
-  const container = document.getElementById('researchChatMessages');
+function addChartingChatMessage(content, type) {
+  const container = document.getElementById('chartingChatMessages');
   if (!container) return;
 
   const msg = document.createElement('div');
-  msg.className = `research-chat-msg ${type}`;
+  msg.className = `charting-chat-msg ${type}`;
 
   if (type === 'assistant') {
     const div = document.createElement('div');
     div.textContent = content;
-    msg.innerHTML = `<span class="msg-label">Mercury Research</span>${div.innerHTML.replace(/\n/g, '<br>')}`;
+    msg.innerHTML = `<span class="msg-label">Mercury Charting</span>${div.innerHTML.replace(/\n/g, '<br>')}`;
   } else {
     msg.textContent = content;
   }
@@ -1842,46 +2294,46 @@ function addResearchChatMessage(content, type) {
   container.scrollTop = container.scrollHeight;
 }
 
-function simulateResearchResponse(text) {
+function simulateChartingResponse(text) {
   const lower = text.toLowerCase();
   let response;
 
   if (lower.includes('btc') || lower.includes('bitcoin')) {
     // Inject live data if available
-    const btcLine = research.liveBTCPrice
-      ? `Live BTC Price: $${research.liveBTCPrice.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+    const btcLine = charting.liveBTCPrice
+      ? `Live BTC Price: $${charting.liveBTCPrice.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
       : 'BTC Price: fetching...';
-    const dvolLine = research.liveDVOL
-      ? `DVOL: ${research.liveDVOL.toFixed(1)}% implied vol`
+    const dvolLine = charting.liveDVOL
+      ? `DVOL: ${charting.liveDVOL.toFixed(1)}% implied vol`
       : '';
-    const divLine = research.liveDivergence != null
-      ? `Oracle Divergence: $${research.liveDivergence.toFixed(0)} (Binance - Coinbase)`
+    const divLine = charting.liveDivergence != null
+      ? `Oracle Divergence: $${charting.liveDivergence.toFixed(0)} (Binance - Coinbase)`
       : '';
-    const impliedLine = research.liveKalshiImplied
-      ? `Kalshi Implied: $${research.liveKalshiImplied.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+    const impliedLine = charting.liveKalshiImplied
+      ? `Kalshi Implied: $${charting.liveKalshiImplied.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
       : '';
     const liveBlock = [btcLine, dvolLine, divLine, impliedLine].filter(Boolean).join('\n');
 
     response = `BTC Overview:\n\n${liveBlock}\n\nKey data: Track ETF flows as a leading indicator. Compare Binance spot vs Kalshi implied price for spread opportunities.`;
   } else if (lower.includes('fed') || lower.includes('rate') || lower.includes('interest')) {
-    response = 'Fed Rate Cut:\n\nCurrent: 62c YES | Volume: $2.1M/24h\nCME FedWatch: 68% probability\nPoly: 62c | Kalshi: 64c (2c spread)\n\nKey data: Core PCE at 2.3%, FOMC minutes showing dovish lean, 3/7 governors signaling openness to cuts.\n\nResearch angle: Compare CME FedWatch vs prediction market prices for spread opportunities.';
+    response = 'Fed Rate Cut:\n\nCurrent: 62c YES | Volume: $2.1M/24h\nCME FedWatch: 68% probability\nPoly: 62c | Kalshi: 64c (2c spread)\n\nKey data: Core PCE at 2.3%, FOMC minutes showing dovish lean, 3/7 governors signaling openness to cuts.\n\nAnalysis angle: Compare CME FedWatch vs prediction market prices for spread opportunities.';
   } else if (lower.includes('edge') || lower.includes('opportunity') || lower.includes('volume')) {
-    const topVol = research.edgeData ? [...research.edgeData].sort((a, b) => parseFloat(b.vol.replace(/[$M]/g, '')) - parseFloat(a.vol.replace(/[$M]/g, ''))).slice(0, 4) : [];
+    const topVol = charting.edgeData ? [...charting.edgeData].sort((a, b) => parseFloat(b.vol.replace(/[$M]/g, '')) - parseFloat(a.vol.replace(/[$M]/g, ''))).slice(0, 4) : [];
     const volLines = topVol.map((m, i) => `${i + 1}. ${m.name}: ${m.vol} volume, ${m.price}c, Poly ${m.polyPrice}c / Kalshi ${m.kalshiPrice}c`).join('\n');
     response = `Top markets by volume:\n\n${volLines}\n\nLook for cross-platform spreads and volume spikes as potential opportunities.`;
   } else if (lower.includes('arb') || lower.includes('spread') || lower.includes('arbitrage')) {
     response = 'Cross-platform spread analysis:\n\nActive spreads between Polymarket and Kalshi:\n\nSpreads can indicate: fee structure differences, liquidity imbalances, different resolution criteria, or retail vs institutional user base mix.\n\nNote: Persistent gaps often reflect structural differences, not pure arbitrage. Always check resolution terms.';
   } else if (lower.includes('correlat')) {
-    response = 'Market correlations (estimated):\n\n+0.72: Fed Rate Cut / BTC > $100K\n+0.68: Fed Rate Cut Jun / ETH > $5K\n+0.61: AI Regulation / Nvidia > $200\n+0.58: S&P 6000 / US GDP > 3%\n-0.54: Recession 2027 / BTC > $100K\n-0.51: Oil > $100 / US EV Sales > 30%\n-0.48: US Debt Ceiling / SpaceX Mars\n+0.45: Trump 2028 / Recession 2027\n+0.42: Gold > $2500 / 10Y Treasury > 5%\n-0.39: Government Shutdown / S&P 6000\n\nTracking correlations across ' + (research.edgeData ? research.edgeData.length : RESEARCH_MARKETS.length) + ' markets. When correlated markets move out of sync, it may signal a trading opportunity.';
+    response = 'Market correlations (estimated):\n\n+0.72: Fed Rate Cut / BTC > $100K\n+0.68: Fed Rate Cut Jun / ETH > $5K\n+0.61: AI Regulation / Nvidia > $200\n+0.58: S&P 6000 / US GDP > 3%\n-0.54: Recession 2027 / BTC > $100K\n-0.51: Oil > $100 / US EV Sales > 30%\n-0.48: US Debt Ceiling / SpaceX Mars\n+0.45: Trump 2028 / Recession 2027\n+0.42: Gold > $2500 / 10Y Treasury > 5%\n-0.39: Government Shutdown / S&P 6000\n\nTracking correlations across ' + (charting.edgeData ? charting.edgeData.length : CHARTING_MARKETS.length) + ' markets. When correlated markets move out of sync, it may signal a trading opportunity.';
   } else {
-    const mktCount = research.edgeData ? research.edgeData.length : RESEARCH_MARKETS.length;
-    const totalVol = research.edgeData
-      ? research.edgeData.reduce((s, e) => s + (e._volNum || 0), 0)
-      : RESEARCH_MARKETS.reduce((s, m) => s + parseFloat(m.vol.replace(/[$M]/g, '')), 0);
+    const mktCount = charting.edgeData ? charting.edgeData.length : CHARTING_MARKETS.length;
+    const totalVol = charting.edgeData
+      ? charting.edgeData.reduce((s, e) => s + (e._volNum || 0), 0)
+      : CHARTING_MARKETS.reduce((s, m) => s + parseFloat(m.vol.replace(/[$M]/g, '')), 0);
     response = `Market overview:\n\n${mktCount} markets tracked | Combined volume: $${totalVol.toFixed(1)}M/24h\n\nAsk about specific markets (btc, fed, etc.), spreads, volume, correlations, or arbitrage.`;
   }
 
-  addResearchChatMessage(response, 'assistant');
+  addChartingChatMessage(response, 'assistant');
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1968,9 +2420,9 @@ function getCurrentSession(utcH, utcM) {
   return 'OFF-HOURS';
 }
 
-function startResearchClock() {
+function startChartingClock() {
   function tick() {
-    const el = document.getElementById('researchClock');
+    const el = document.getElementById('chartingClock');
     if (!el) return;
     const now = new Date();
     const h = now.getUTCHours();
@@ -1981,7 +2433,7 @@ function startResearchClock() {
     el.textContent = `${session} SESSION \u2014 ${time} UTC`;
   }
   tick();
-  addResearchInterval(tick, 1000);
+  addChartingInterval(tick, 1000);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1993,17 +2445,17 @@ async function initLiveDataConnection() {
 
   // Check bridge connection
   const bridgeUp = await dataBridge.checkConnection();
-  research.liveConnected = bridgeUp;
+  charting.liveConnected = bridgeUp;
 
   // Even if bridge is down, try direct data (Coinbase/Deribit fallbacks)
   const priceData = await dataBridge.getBTCPrice();
-  research.liveDataAvailable = bridgeUp || !!(priceData && (priceData.binance || priceData.coinbase));
+  charting.liveDataAvailable = bridgeUp || !!(priceData && (priceData.binance || priceData.coinbase));
   updateConnectionIndicator();
 
   // Poll connection status every 15s
-  addResearchInterval(async () => {
-    research.liveConnected = await dataBridge.checkConnection();
-    research.liveDataAvailable = research.liveConnected || research.liveBTCPrice != null || research.liveDVOL != null;
+  addChartingInterval(async () => {
+    charting.liveConnected = await dataBridge.checkConnection();
+    charting.liveDataAvailable = charting.liveConnected || charting.liveBTCPrice != null || charting.liveDVOL != null;
     updateConnectionIndicator();
   }, 15000);
 
@@ -2014,15 +2466,15 @@ async function initLiveDataConnection() {
 }
 
 function updateConnectionIndicator() {
-  const dot = document.querySelector('.research-live-dot');
-  const label = document.querySelector('.research-live-label');
+  const dot = document.querySelector('.charting-live-dot');
+  const label = document.querySelector('.charting-live-label');
   if (!dot && !label) return;
 
-  if (research.liveConnected) {
+  if (charting.liveConnected) {
     // Full bridge connection — all data available
     if (dot) dot.style.background = '#00c853';
     if (label) { label.textContent = 'LIVE'; label.style.color = '#00c853'; }
-  } else if (research.liveDataAvailable) {
+  } else if (charting.liveDataAvailable) {
     // Direct API data flowing (Coinbase/Deribit fallbacks, no bridge)
     if (dot) dot.style.background = '#ffab00';
     if (label) { label.textContent = 'DIRECT'; label.style.color = '#ffab00'; }
@@ -2037,26 +2489,26 @@ function updateConnectionIndicator() {
 
 function startLiveBTCPricePolling() {
   async function poll() {
-    if (!research.isActive) return;
+    if (!charting.isActive) return;
     const data = await dataBridge.getBTCPrice();
     if (!data) return;
 
     const price = data.binance || data.coinbase;
     if (price) {
-      research.liveBTCPrice = price;
+      charting.liveBTCPrice = price;
       updateTickerWithLivePrice(price);
       // Update data availability on first successful fetch
-      if (!research.liveDataAvailable) {
-        research.liveDataAvailable = true;
+      if (!charting.liveDataAvailable) {
+        charting.liveDataAvailable = true;
         updateConnectionIndicator();
       }
     }
     if (data.divergence != null) {
-      research.liveDivergence = data.divergence;
+      charting.liveDivergence = data.divergence;
     }
   }
   poll();
-  addResearchInterval(poll, 5000);
+  addChartingInterval(poll, 5000);
 }
 
 function updateTickerWithLivePrice(price) {
@@ -2094,13 +2546,13 @@ function updateTickerWithLivePrice(price) {
 
 function startLiveDVOLPolling() {
   async function poll() {
-    if (!research.isActive) return;
+    if (!charting.isActive) return;
     const data = await dataBridge.getDVOL();
     if (!data || data.dvol == null) return;
 
-    research.liveDVOL = data.dvol;
-    if (!research.liveDataAvailable) {
-      research.liveDataAvailable = true;
+    charting.liveDVOL = data.dvol;
+    if (!charting.liveDataAvailable) {
+      charting.liveDataAvailable = true;
       updateConnectionIndicator();
     }
 
@@ -2127,38 +2579,38 @@ function startLiveDVOLPolling() {
     }
   }
   poll();
-  addResearchInterval(poll, 60000);
+  addChartingInterval(poll, 60000);
 }
 
 // ─── Metrics Polling (Crypto tab cards) ──────────
 
 function startLiveMetricsPolling() {
   async function poll() {
-    if (!research.isActive) return;
+    if (!charting.isActive) return;
 
     // Update BTC price on crypto tab
-    if (research.liveBTCPrice) {
+    if (charting.liveBTCPrice) {
       const el = document.getElementById('cryptoBTCPrice');
-      if (el) el.textContent = '$' + Math.round(research.liveBTCPrice).toLocaleString();
+      if (el) el.textContent = '$' + Math.round(charting.liveBTCPrice).toLocaleString();
     }
 
     // Update DVOL on crypto tab
-    if (research.liveDVOL) {
+    if (charting.liveDVOL) {
       const el = document.getElementById('cryptoDVOL');
       if (el) {
-        el.textContent = research.liveDVOL.toFixed(1) + '%';
-        el.style.color = research.liveDVOL > 40 ? '#ff1744' : '#00c853';
+        el.textContent = charting.liveDVOL.toFixed(1) + '%';
+        el.style.color = charting.liveDVOL > 40 ? '#ff1744' : '#00c853';
       }
     }
   }
   poll();
-  addResearchInterval(poll, 6000);
+  addChartingInterval(poll, 6000);
 }
 
 // ─── Live Order Book (replaces mock when bridge is up) ──────
 
 async function loadLiveOrderBook() {
-  if (typeof dataBridge === 'undefined' || !research.liveConnected) return false;
+  if (typeof dataBridge === 'undefined' || !charting.liveConnected) return false;
 
   try {
     // Get Kalshi markets to find an active one
@@ -2185,7 +2637,7 @@ async function loadLiveOrderBook() {
     asks.sort((a, b) => a.price - b.price);
 
     if (bids.length > 0 || asks.length > 0) {
-      research.orderBook = { bids, asks };
+      charting.orderBook = { bids, asks };
       // Show which market we're displaying
       const selectorEl = document.getElementById('obMarketSelector');
       if (selectorEl) selectorEl.textContent = target.ticker;
@@ -2201,18 +2653,18 @@ async function loadLiveOrderBook() {
 // ─── Live Bot Logs ──────────────────────────────────────────
 
 async function pollLiveBotLogs() {
-  if (typeof dataBridge === 'undefined' || !research.liveConnected) return;
+  if (typeof dataBridge === 'undefined' || !charting.liveConnected) return;
 
   const data = await dataBridge.getBotLogs();
   if (!data || !data.lines || data.lines.length === 0) return;
 
-  const container = document.getElementById('researchLogs');
+  const container = document.getElementById('chartingLogs');
   if (!container) return;
 
   // Only append new lines
-  const newLines = data.lines.slice(research.lastLogLines);
+  const newLines = data.lines.slice(charting.lastLogLines);
   if (newLines.length === 0) return;
-  research.lastLogLines = data.lines.length;
+  charting.lastLogLines = data.lines.length;
 
   newLines.forEach(line => {
     const entry = document.createElement('div');
@@ -2238,108 +2690,291 @@ async function pollLiveBotLogs() {
 // BONDING ARB — Markets at >=97% resolution probability
 // ═══════════════════════════════════════════════════════════════
 
-function initBondingArb() {
-  renderBondingArb();
-  // Refresh every 30 seconds (global — bonding arb is now inline in overview tab)
-  addResearchInterval(renderBondingArb, 30000);
-}
+// ═══════════════════════════════════════════════════════════════
+// BONDING ARBITRAGE — Dedicated View (accessed from sidebar nav)
+// ═══════════════════════════════════════════════════════════════
 
-function renderBondingArb() {
+let _bondingArbInterval = null;
+
+window.teardownBondingArbView = function() {
+  if (_bondingArbInterval) { clearInterval(_bondingArbInterval); _bondingArbInterval = null; }
+};
+
+window.initBondingArbView = function() {
+  renderBondingArbView();
+  if (_bondingArbInterval) clearInterval(_bondingArbInterval);
+  _bondingArbInterval = setInterval(renderBondingArbView, 30000);
+
+  // Wire sort/filter/platform handlers (once)
+  const sortSel = document.getElementById('bondingViewSort');
+  const platTabs = document.getElementById('bondingViewPlatformTabs');
+  if (sortSel && !sortSel._wired) {
+    sortSel._wired = true;
+    sortSel.addEventListener('change', renderBondingArbView);
+  }
+  if (platTabs && !platTabs._wired) {
+    platTabs._wired = true;
+    platTabs.addEventListener('click', e => {
+      const btn = e.target.closest('.filter-tab');
+      if (!btn) return;
+      platTabs.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderBondingArbView();
+    });
+  }
+};
+
+function renderBondingArbView() {
   // Simulated near-resolution markets (replace with live API data)
+  // side: 'yes' = YES price near $1, buy YES and hold to resolution
+  // side: 'no'  = YES price near $0, buy NO (at 1 - yesPrice) and hold to resolution
   const bondingMarkets = [
-    { market: 'Will Biden be US President on Feb 28, 2026?', platform: 'polymarket', price: 0.99, days: 12, vol: 1240000 },
-    { market: 'Will BTC be above $50K on Mar 1, 2026?', platform: 'polymarket', price: 0.98, days: 13, vol: 890000 },
-    { market: 'Will the Fed hold rates in March 2026?', platform: 'kalshi', price: 0.97, days: 28, vol: 560000 },
-    { market: 'Will Super Bowl LX happen before March?', platform: 'polymarket', price: 0.99, days: 3, vol: 2100000 },
-    { market: 'Will ETH be above $2K on Feb 28?', platform: 'kalshi', price: 0.98, days: 12, vol: 340000 },
-    { market: 'Will S&P 500 close above 4000 in Feb?', platform: 'kalshi', price: 0.99, days: 12, vol: 420000 },
-    { market: 'Will gold be above $1800/oz in Feb?', platform: 'polymarket', price: 0.97, days: 12, vol: 180000 },
-    { market: 'Will Taylor Swift Eras Tour continue in 2026?', platform: 'polymarket', price: 0.98, days: 45, vol: 750000 },
+    // YES-side bonding (high YES price, near-certain YES resolution)
+    { market: 'Will Trump be US President on Feb 28, 2026?', platform: 'polymarket', yesPrice: 0.99, side: 'yes', days: 11, vol: 1240000 },
+    { market: 'Will BTC be above $50K on Mar 1, 2026?', platform: 'polymarket', yesPrice: 0.98, side: 'yes', days: 12, vol: 890000 },
+    { market: 'Will US GDP be positive in Q1 2026?', platform: 'kalshi', yesPrice: 0.97, side: 'yes', days: 42, vol: 560000 },
+    { market: 'Will the 2026 Oscars ceremony occur in March?', platform: 'polymarket', yesPrice: 0.99, side: 'yes', days: 12, vol: 2100000 },
+    { market: 'Will ETH be above $2K on Feb 28?', platform: 'kalshi', yesPrice: 0.98, side: 'yes', days: 11, vol: 340000 },
+    { market: 'Will S&P 500 close above 4000 in Feb?', platform: 'kalshi', yesPrice: 0.99, side: 'yes', days: 11, vol: 420000 },
+    { market: 'Will March Madness tip off in 2026?', platform: 'polymarket', yesPrice: 0.98, side: 'yes', days: 28, vol: 750000 },
+    { market: 'Will US unemployment stay below 4.5%?', platform: 'kalshi', yesPrice: 0.98, side: 'yes', days: 30, vol: 480000 },
+    // NO-side bonding (low YES price = high NO price, near-certain NO resolution)
+    { market: 'Will BTC hit $1M by March 2026?', platform: 'polymarket', yesPrice: 0.01, side: 'no', days: 12, vol: 980000 },
+    { market: 'Will US default on debt in Feb 2026?', platform: 'kalshi', yesPrice: 0.02, side: 'no', days: 11, vol: 520000 },
+    { market: 'Will ETH flip BTC market cap by March?', platform: 'polymarket', yesPrice: 0.01, side: 'no', days: 12, vol: 410000 },
+    { market: 'Will Fed cut rates to 0% in March?', platform: 'kalshi', yesPrice: 0.03, side: 'no', days: 28, vol: 330000 },
+    { market: 'Will gold drop below $1000/oz in Feb?', platform: 'polymarket', yesPrice: 0.02, side: 'no', days: 11, vol: 190000 },
+    { market: 'Will S&P 500 drop below 2000 in Feb?', platform: 'kalshi', yesPrice: 0.01, side: 'no', days: 11, vol: 370000 },
+    { market: 'Will NVIDIA go bankrupt by March?', platform: 'polymarket', yesPrice: 0.02, side: 'no', days: 12, vol: 580000 },
+    { market: 'Will US unemployment exceed 20%?', platform: 'kalshi', yesPrice: 0.02, side: 'no', days: 30, vol: 290000 },
+    { market: 'Will SOL surpass $10K by March?', platform: 'polymarket', yesPrice: 0.01, side: 'no', days: 12, vol: 440000 },
+    { market: 'Will oil drop below $10/barrel in Feb?', platform: 'kalshi', yesPrice: 0.03, side: 'no', days: 11, vol: 210000 },
   ];
 
   // Add jitter to simulate live data
-  const markets = bondingMarkets.map(m => ({
-    ...m,
-    price: Math.min(0.995, m.price + (Math.random() - 0.3) * 0.005),
-    vol: Math.round(m.vol * (0.9 + Math.random() * 0.2)),
-  }));
+  const markets = bondingMarkets.map(m => {
+    const jitter = (Math.random() - 0.3) * 0.005;
+    const yesPrice = m.side === 'yes'
+      ? Math.min(0.995, m.yesPrice + jitter)
+      : Math.max(0.005, m.yesPrice + Math.abs(jitter));
+    // Bond price = what you pay on the side you're buying
+    const bondPrice = m.side === 'yes' ? yesPrice : (1 - yesPrice);
+    return { ...m, yesPrice, bondPrice, vol: Math.round(m.vol * (0.9 + Math.random() * 0.2)) };
+  });
 
-  const sortSelect = document.getElementById('bondingSortSelect');
-  const platformSelect = document.getElementById('bondingPlatformSelect');
-  const sortBy = sortSelect ? sortSelect.value : 'yield';
-  const platformFilter = platformSelect ? platformSelect.value : 'all';
+  const sortSel = document.getElementById('bondingViewSort');
+  const activePlat = document.querySelector('#bondingViewPlatformTabs .filter-tab.active');
+  const sortBy = sortSel ? sortSel.value : 'yield';
+  const platformFilter = activePlat ? activePlat.dataset.plat : 'all';
 
   let filtered = markets;
   if (platformFilter !== 'all') {
     filtered = filtered.filter(m => m.platform === platformFilter);
   }
 
-  // Calculate yield: (1 - price) / price * (365 / days)
+  // Calculate yield based on the bonding side price
   filtered = filtered.map(m => {
-    const rawYield = (1 - m.price) / m.price;
+    const rawYield = (1 - m.bondPrice) / m.bondPrice;
     const annualized = m.days > 0 ? rawYield * (365 / m.days) : 0;
     return { ...m, rawYield, annualized };
   });
 
   // Sort
   if (sortBy === 'yield') filtered.sort((a, b) => b.annualized - a.annualized);
-  else if (sortBy === 'prob') filtered.sort((a, b) => b.price - a.price);
+  else if (sortBy === 'prob') filtered.sort((a, b) => b.bondPrice - a.bondPrice);
   else if (sortBy === 'volume') filtered.sort((a, b) => b.vol - a.vol);
   else if (sortBy === 'days') filtered.sort((a, b) => a.days - b.days);
 
+  // Compute metrics
+  const avgYield = filtered.length > 0 ? filtered.reduce((s, m) => s + m.annualized, 0) / filtered.length : 0;
+  const totalVol = filtered.reduce((s, m) => s + m.vol, 0);
+  const avgDays = filtered.length > 0 ? filtered.reduce((s, m) => s + m.days, 0) / filtered.length : 0;
+
   // Update metrics
-  const countEl = document.getElementById('bondingCount');
-  const yieldEl = document.getElementById('bondingAvgYield');
-  const liqEl = document.getElementById('bondingTotalLiq');
-  const daysEl = document.getElementById('bondingAvgDays');
+  const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setTxt('bondingViewOpps', filtered.length);
+  setTxt('bondingViewYield', (avgYield * 100).toFixed(1) + '%');
+  setTxt('bondingViewLiq', '$' + (totalVol / 1e6).toFixed(1) + 'M');
+  setTxt('bondingViewDays', Math.round(avgDays) + 'd');
+  setTxt('bondingViewCount', filtered.length + ' opportunities');
 
-  if (countEl) countEl.textContent = filtered.length;
-  if (yieldEl && filtered.length > 0) {
-    const avgYield = filtered.reduce((s, m) => s + m.annualized, 0) / filtered.length;
-    yieldEl.textContent = (avgYield * 100).toFixed(1) + '%';
-  }
-  if (liqEl) {
-    const totalVol = filtered.reduce((s, m) => s + m.vol, 0);
-    liqEl.textContent = '$' + (totalVol / 1e6).toFixed(1) + 'M';
-  }
-  if (daysEl && filtered.length > 0) {
-    const avgDays = filtered.reduce((s, m) => s + m.days, 0) / filtered.length;
-    daysEl.textContent = Math.round(avgDays) + 'd';
-  }
-
-  // Render table
-  const tbody = document.getElementById('bondingTableBody');
+  // Render full-width table rows
+  const tbody = document.getElementById('bondingViewBody');
   if (!tbody) return;
-
   tbody.innerHTML = filtered.map(m => {
-    const prob = (m.price * 100).toFixed(1) + '%';
+    const prob = (m.bondPrice * 100).toFixed(1) + '%';
     const yieldPct = (m.annualized * 100).toFixed(1) + '%';
     const volStr = m.vol >= 1e6 ? '$' + (m.vol / 1e6).toFixed(1) + 'M' : '$' + (m.vol / 1e3).toFixed(0) + 'K';
-    return `<div class="bonding-row">
-      <span class="bonding-col bonding-col--market">${m.market}</span>
-      <span class="bonding-col bonding-col--platform">${m.platform}</span>
-      <span class="bonding-col bonding-col--price">${m.price.toFixed(2)}c</span>
-      <span class="bonding-col bonding-col--prob">${prob}</span>
-      <span class="bonding-col bonding-col--yield">${yieldPct}</span>
-      <span class="bonding-col bonding-col--days">${m.days}d</span>
-      <span class="bonding-col bonding-col--vol">${volStr}</span>
-      <span class="bonding-col bonding-col--action"><button class="bonding-action-btn" onclick="showToast('Bonding arb — connect account to trade', 'info')">Buy YES</button></span>
+    const platClass = m.platform === 'polymarket' ? 'poly' : 'kalshi';
+    const platLabel = m.platform === 'polymarket' ? 'Polymarket' : 'Kalshi';
+    const sideClass = m.side === 'yes' ? 'bonding-side--yes' : 'bonding-side--no';
+    const sideLabel = m.side === 'yes' ? 'YES' : 'NO';
+    const btnLabel = m.side === 'yes' ? 'Buy YES' : 'Buy NO';
+    const btnClass = m.side === 'yes' ? 'bonding-view-btn' : 'bonding-view-btn bonding-view-btn--no';
+    return `<div class="bonding-vrow">
+      <span class="bonding-vcol bonding-vcol--market">${m.market}</span>
+      <span class="bonding-vcol bonding-vcol--platform bonding-vcol--${platClass}">${platLabel}</span>
+      <span class="bonding-vcol bonding-vcol--side ${sideClass}">${sideLabel}</span>
+      <span class="bonding-vcol bonding-vcol--price">${(m.bondPrice * 100).toFixed(1)}c</span>
+      <span class="bonding-vcol bonding-vcol--prob">${prob}</span>
+      <span class="bonding-vcol bonding-vcol--yield">${yieldPct}</span>
+      <span class="bonding-vcol bonding-vcol--days">${m.days}d</span>
+      <span class="bonding-vcol bonding-vcol--vol">${volStr}</span>
+      <span class="bonding-vcol bonding-vcol--action"><button class="${btnClass}" onclick="showToast('Bonding arb \u2014 connect account to trade', 'info')">${btnLabel}</button></span>
     </div>`;
   }).join('');
+}
 
-  // Wire sort/filter change handlers (once)
-  if (!research._bondingWired) {
-    research._bondingWired = true;
-    if (sortSelect) sortSelect.addEventListener('change', renderBondingArb);
-    if (platformSelect) platformSelect.addEventListener('change', renderBondingArb);
+// ═══════════════════════════════════════════════════════════════
+// PORTFOLIO — Dedicated View (accessed from sidebar nav)
+// ═══════════════════════════════════════════════════════════════
+
+let _portfolioInterval = null;
+
+window.teardownPortfolioView = function() {
+  if (_portfolioInterval) { clearInterval(_portfolioInterval); _portfolioInterval = null; }
+};
+
+window.initPortfolioView = function() {
+  renderPortfolioView();
+  if (_portfolioInterval) clearInterval(_portfolioInterval);
+  _portfolioInterval = setInterval(renderPortfolioView, 30000);
+
+  // Wire filter tabs (once)
+  const filterTabs = document.getElementById('portfolioFilterTabs');
+  const sortSel = document.getElementById('portfolioSort');
+  if (filterTabs && !filterTabs._wired) {
+    filterTabs._wired = true;
+    filterTabs.addEventListener('click', e => {
+      const btn = e.target.closest('.filter-tab');
+      if (!btn) return;
+      filterTabs.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderPortfolioView();
+    });
   }
+  if (sortSel && !sortSel._wired) {
+    sortSel._wired = true;
+    sortSel.addEventListener('change', renderPortfolioView);
+  }
+};
+
+function renderPortfolioView() {
+  const positions = [
+    { market: 'Will Vance win 2028 Republican primary?', platform: 'polymarket', side: 'yes', qty: 500, avgPrice: 0.62, currentPrice: 0.71, status: 'open' },
+    { market: 'Will BTC be above $100K on Jun 1, 2026?', platform: 'polymarket', side: 'yes', qty: 200, avgPrice: 0.45, currentPrice: 0.53, status: 'open' },
+    { market: 'Will Fed cut rates in June 2026?', platform: 'kalshi', side: 'no', qty: 300, avgPrice: 0.55, currentPrice: 0.61, status: 'open' },
+    { market: 'Will S&P 500 close above 5000 in Feb?', platform: 'kalshi', side: 'yes', qty: 150, avgPrice: 0.88, currentPrice: 0.95, status: 'open' },
+    { market: 'Will ETH be above $5K on Mar 1, 2026?', platform: 'polymarket', side: 'no', qty: 400, avgPrice: 0.72, currentPrice: 0.78, status: 'open' },
+    { market: 'Will Super Bowl LX happen before March?', platform: 'polymarket', side: 'yes', qty: 1000, avgPrice: 0.96, currentPrice: 1.00, status: 'settled' },
+    { market: 'Will US unemployment stay below 4.5%?', platform: 'kalshi', side: 'yes', qty: 250, avgPrice: 0.90, currentPrice: 1.00, status: 'settled' },
+    { market: 'Will Trump be US President on Jan 31, 2026?', platform: 'polymarket', side: 'yes', qty: 800, avgPrice: 0.97, currentPrice: 1.00, status: 'settled' },
+    { market: 'Will BTC hit $1M by Feb 2026?', platform: 'polymarket', side: 'no', qty: 600, avgPrice: 0.98, currentPrice: 1.00, status: 'settled' },
+    { market: 'Will NVIDIA go bankrupt by March?', platform: 'polymarket', side: 'no', qty: 350, avgPrice: 0.96, currentPrice: 0.98, status: 'open' },
+    { market: 'Will US default on debt in Jan 2026?', platform: 'kalshi', side: 'no', qty: 450, avgPrice: 0.95, currentPrice: 1.00, status: 'settled' },
+    { market: 'Will GTA 6 release in 2026?', platform: 'polymarket', side: 'yes', qty: 100, avgPrice: 0.65, currentPrice: 0.72, status: 'open' },
+  ];
+
+  // Add jitter to simulate live prices on open positions
+  const livePositions = positions.map(p => {
+    if (p.status === 'open') {
+      const jitter = (Math.random() - 0.5) * 0.02;
+      const currentPrice = Math.min(0.99, Math.max(0.01, p.currentPrice + jitter));
+      return { ...p, currentPrice };
+    }
+    return { ...p };
+  });
+
+  // Compute P&L for each position
+  const withPnl = livePositions.map(p => {
+    const value = p.qty * p.currentPrice;
+    const cost = p.qty * p.avgPrice;
+    const pnl = value - cost;
+    const pnlPct = cost > 0 ? (pnl / cost) * 100 : 0;
+    return { ...p, value, cost, pnl, pnlPct };
+  });
+
+  // Filtering
+  const activeFilter = document.querySelector('#portfolioFilterTabs .filter-tab.active');
+  const filter = activeFilter ? activeFilter.dataset.filter : 'all';
+  let filtered = withPnl;
+  if (filter === 'open') filtered = filtered.filter(p => p.status === 'open');
+  else if (filter === 'settled') filtered = filtered.filter(p => p.status === 'settled');
+
+  // Sorting
+  const sortSel = document.getElementById('portfolioSort');
+  const sortBy = sortSel ? sortSel.value : 'pnl';
+  if (sortBy === 'pnl') filtered.sort((a, b) => b.pnl - a.pnl);
+  else if (sortBy === 'value') filtered.sort((a, b) => b.value - a.value);
+  else if (sortBy === 'recent') filtered.sort((a, b) => (b.status === 'open' ? 1 : 0) - (a.status === 'open' ? 1 : 0));
+
+  // Compute summary metrics
+  const totalValue = withPnl.reduce((s, p) => s + p.value, 0);
+  const totalPnl = withPnl.reduce((s, p) => s + p.pnl, 0);
+  const openPositions = withPnl.filter(p => p.status === 'open');
+  const settledPositions = withPnl.filter(p => p.status === 'settled');
+  const wins = settledPositions.filter(p => p.pnl > 0).length;
+  const winRate = settledPositions.length > 0 ? (wins / settledPositions.length) * 100 : 0;
+  const avgReturn = settledPositions.length > 0
+    ? settledPositions.reduce((s, p) => s + p.pnlPct, 0) / settledPositions.length : 0;
+
+  // Update summary metrics
+  const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  const setHtml = (id, v) => { const el = document.getElementById(id); if (el) el.innerHTML = v; };
+  setTxt('portfolioTotalValue', '$' + totalValue.toFixed(2));
+  const pnlColor = totalPnl >= 0 ? 'portfolio-summary-value--green' : 'portfolio-summary-value--red';
+  const pnlSign = totalPnl >= 0 ? '+' : '';
+  setHtml('portfolioTotalPnl', `<span class="${pnlColor}">${pnlSign}$${totalPnl.toFixed(2)}</span>`);
+  setTxt('portfolioOpenCount', openPositions.length);
+  setTxt('portfolioWinRate', winRate.toFixed(0) + '%');
+  setTxt('portfolioSettledCount', settledPositions.length);
+  const avgRetColor = avgReturn >= 0 ? 'portfolio-summary-value--green' : 'portfolio-summary-value--red';
+  setHtml('portfolioAvgReturn', `<span class="${avgRetColor}">${avgReturn >= 0 ? '+' : ''}${avgReturn.toFixed(1)}%</span>`);
+  setTxt('portfolioPositionCount', filtered.length + ' positions');
+
+  // Render table
+  const tbody = document.getElementById('portfolioTableBody');
+  if (!tbody) return;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<div class="bonding-loading">No positions match filter\u2026</div>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(p => {
+    const platClass = p.platform === 'polymarket' ? 'poly' : 'kalshi';
+    const platLabel = p.platform === 'polymarket' ? 'Polymarket' : 'Kalshi';
+    const sideClass = p.side === 'yes' ? 'portfolio-side--yes' : 'portfolio-side--no';
+    const sideLabel = p.side.toUpperCase();
+    const avgStr = (p.avgPrice * 100).toFixed(1) + 'c';
+    const curStr = (p.currentPrice * 100).toFixed(1) + 'c';
+    const valueStr = '$' + p.value.toFixed(2);
+    const pnlVal = p.pnl;
+    const pnlClass = pnlVal >= 0 ? 'portfolio-pnl--pos' : 'portfolio-pnl--neg';
+    const pnlStr = (pnlVal >= 0 ? '+' : '') + '$' + pnlVal.toFixed(2);
+    const pnlPctStr = ' (' + (pnlVal >= 0 ? '+' : '') + p.pnlPct.toFixed(1) + '%)';
+    const statusClass = p.status === 'settled' ? 'portfolio-status--settled' : 'portfolio-status--open';
+    const statusLabel = p.status === 'settled' ? 'Settled' : 'Open';
+    return `<div class="portfolio-row">
+      <span class="portfolio-col portfolio-col--market">${p.market}</span>
+      <span class="portfolio-col portfolio-col--platform portfolio-col--${platClass}">${platLabel}</span>
+      <span class="portfolio-col portfolio-col--side ${sideClass}">${sideLabel}</span>
+      <span class="portfolio-col portfolio-col--qty">${p.qty}</span>
+      <span class="portfolio-col portfolio-col--avg">${avgStr}</span>
+      <span class="portfolio-col portfolio-col--current">${curStr}</span>
+      <span class="portfolio-col portfolio-col--value">${valueStr}</span>
+      <span class="portfolio-col portfolio-col--pnl ${pnlClass}">${pnlStr}<span class="portfolio-pnl-pct">${pnlPctStr}</span></span>
+      <span class="portfolio-col portfolio-col--status"><span class="portfolio-status-badge ${statusClass}">${statusLabel}</span></span>
+    </div>`;
+  }).join('');
 }
 
 // ═══════════════════════════════════════════════════════════════
 // MARKET DETAIL PANEL
 // ═══════════════════════════════════════════════════════════════
 
-function generatePriceHistory(currentPrice, points) {
+function generatePriceHistory(currentPrice, points, stepMs) {
+  const step = stepMs || 60000; // default 1 minute spacing
   const data = [];
   const now = Date.now();
   let price = currentPrice + (Math.random() - 0.5) * 20;
@@ -2348,68 +2983,121 @@ function generatePriceHistory(currentPrice, points) {
     const drift = (currentPrice - price) * 0.02;
     const noise = (Math.random() - 0.5) * 3;
     price = Math.max(1, Math.min(99, price + drift + noise));
-    data.push({ x: now - i * 3600000, y: Math.round(price * 10) / 10 });
+    data.push({ x: now - i * step, y: Math.round(price * 10) / 10 });
   }
   // Ensure last point matches current
   data[data.length - 1].y = currentPrice;
   return data;
 }
 
-function generateVolumeHistory(baseVol, points) {
+function generateVolumeHistory(baseVol, points, stepMs) {
+  const step = stepMs || 60000;
   const data = [];
   const now = Date.now();
   for (let i = points; i >= 0; i--) {
     const v = baseVol * (0.3 + Math.random() * 1.4);
-    data.push({ x: now - i * 3600000, y: Math.round(v) });
+    data.push({ x: now - i * step, y: Math.round(v) });
   }
   return data;
 }
 
+// Determine which platforms a market is available on
+function marketPlatforms(market) {
+  const hasPoly = market.polyPrice != null || market._clobTokenId;
+  const hasKalshi = market.kalshiPrice != null || market._kalshiTicker;
+  return { hasPoly, hasKalshi };
+}
+
 window.openMarketDetail = function(short) {
-  const market = research.edgeData.find(e => e.short === short);
+  const market = charting.edgeData.find(e => e.short === short);
   if (!market) return;
 
-  const modal = document.getElementById('marketDetailModal');
-  if (!modal) return;
-
-  // Determine default platform from market source
-  const defaultPlat = market.source === 'kalshi' ? 'kalshi' : 'polymarket';
+  // Auto-detect correct platform based on availability
+  const { hasPoly, hasKalshi } = marketPlatforms(market);
+  let defaultPlat;
+  if (hasPoly && hasKalshi) {
+    // Both available — prefer source platform
+    defaultPlat = market.source === 'kalshi' ? 'kalshi' : 'polymarket';
+  } else if (hasKalshi) {
+    defaultPlat = 'kalshi';
+  } else {
+    defaultPlat = 'polymarket';
+  }
 
   // Store current market for platform toggle re-renders
-  research._mdMarket = market;
-  research._mdPlatform = defaultPlat;
+  charting._mdMarket = market;
+  charting._mdPlatform = defaultPlat;
 
   renderMarketDetailForPlatform(market, defaultPlat);
 
-  // Wire platform toggle (once)
-  const platTabs = document.getElementById('mdPlatTabs');
+  // Wire platform toggle (once) — now uses tvPlatTabs
+  const platTabs = document.getElementById('tvPlatTabs');
   if (platTabs && !platTabs._wired) {
     platTabs._wired = true;
     platTabs.addEventListener('click', e => {
-      const btn = e.target.closest('.md-plat-btn');
+      const btn = e.target.closest('.tv-plat-btn');
       if (!btn) return;
-      platTabs.querySelectorAll('.md-plat-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
       const plat = btn.dataset.mdplat;
-      research._mdPlatform = plat;
-      if (research._mdMarket) {
-        renderMarketDetailForPlatform(research._mdMarket, plat);
+      const m = charting._mdMarket;
+      if (!m) return;
+
+      // Check if market is available on the requested platform
+      const avail = marketPlatforms(m);
+      if (plat === 'polymarket' && !avail.hasPoly) {
+        showPlatformUnavailable('Polymarket', 'Kalshi');
+        return;
       }
+      if (plat === 'kalshi' && !avail.hasKalshi) {
+        showPlatformUnavailable('Kalshi', 'Polymarket');
+        return;
+      }
+
+      platTabs.querySelectorAll('.tv-plat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      charting._mdPlatform = plat;
+      renderMarketDetailForPlatform(m, plat);
     });
   }
 
-  // Highlight the correct default platform tab
+  // Highlight the correct default platform tab and dim unavailable
   if (platTabs) {
-    platTabs.querySelectorAll('.md-plat-btn').forEach(b => b.classList.remove('active'));
+    platTabs.querySelectorAll('.tv-plat-btn').forEach(b => {
+      b.classList.remove('active', 'tv-plat-btn--unavail');
+    });
     const defBtn = platTabs.querySelector(`[data-mdplat="${defaultPlat}"]`);
     if (defBtn) defBtn.classList.add('active');
+    // Dim the button for unavailable platform
+    if (!hasPoly) {
+      const polyBtn = platTabs.querySelector('[data-mdplat="polymarket"]');
+      if (polyBtn) polyBtn.classList.add('tv-plat-btn--unavail');
+    }
+    if (!hasKalshi) {
+      const kalshiBtn = platTabs.querySelector('[data-mdplat="kalshi"]');
+      if (kalshiBtn) kalshiBtn.classList.add('tv-plat-btn--unavail');
+    }
   }
 
-  modal.classList.add('open');
+  // Highlight active item in watchlist
+  document.querySelectorAll('.tv-wl-item').forEach(el => {
+    el.classList.toggle('active', el.textContent.includes(short));
+  });
 };
 
+// Show message when user tries to switch to unavailable platform
+function showPlatformUnavailable(unavailName, availName) {
+  const chartEl = document.getElementById('tvMainChart');
+  if (!chartEl) return;
+  // Show overlay message briefly
+  const overlay = document.createElement('div');
+  overlay.className = 'tv-plat-unavail-msg';
+  overlay.innerHTML = `This contract is only available on <b>${availName}</b>`;
+  chartEl.style.position = 'relative';
+  chartEl.appendChild(overlay);
+  setTimeout(() => overlay.remove(), 2500);
+}
+
 function renderMarketDetailForPlatform(market, plat) {
-  // Determine price based on platform (no 'combined' — pick best available)
+  // Determine price based on platform
   let price, label, chartColor;
   if (plat === 'polymarket' && market.polyPrice != null) {
     price = market.polyPrice;
@@ -2429,92 +3117,116 @@ function renderMarketDetailForPlatform(market, plat) {
     chartColor = '#5b9cf6';
   }
 
-  // Header
-  document.getElementById('mdName').textContent = market.name;
-  document.getElementById('mdShort').textContent = market.short;
-  document.getElementById('mdPrice').textContent = price + 'c';
   const changeNum = parseFloat(market.change) || 0;
-  const changeEl = document.getElementById('mdChange');
-  changeEl.textContent = (changeNum >= 0 ? '+' : '') + changeNum.toFixed(1) + 'c';
-  changeEl.className = 'md-change ' + (changeNum >= 0 ? 'up' : 'down');
 
-  // Platform label
-  const platLabel = document.getElementById('mdPlatformLabel');
-  if (platLabel) platLabel.textContent = label;
+  // Symbol bar (TradingView inline header)
+  const tickerEl = document.getElementById('tvSymbolTicker');
+  const nameEl = document.getElementById('tvSymbolName');
+  const priceEl = document.getElementById('tvSymbolPrice');
+  const changeEl = document.getElementById('tvSymbolChange');
+  const sourceEl = document.getElementById('tvSymbolSource');
 
-  // Stats
-  document.getElementById('mdVol').textContent = market.vol;
-  document.getElementById('mdPoly').textContent = market.polyPrice != null ? market.polyPrice + 'c' : '\u2014';
-  document.getElementById('mdKalshi').textContent = market.kalshiPrice != null ? market.kalshiPrice + 'c' : '\u2014';
-  const spread = (market.polyPrice != null && market.kalshiPrice != null)
-    ? Math.abs(market.polyPrice - market.kalshiPrice) : null;
-  document.getElementById('mdSpread').textContent = spread != null ? spread + 'c' : '\u2014';
-  document.getElementById('mdImplied').textContent = price + '%';
-  document.getElementById('mdTimeframe').textContent = market.tf || '\u2014';
+  const noPrice = Math.round(100 - price);
 
-  // Time-to-resolution
-  const resolvesEl = document.getElementById('mdResolvesIn');
-  if (resolvesEl) {
-    const ttr = formatTimeToRes(market._endDate);
-    resolvesEl.textContent = ttr;
-    resolvesEl.style.color = ttr === 'Ended' ? 'var(--red)' : '';
+  if (tickerEl) tickerEl.textContent = market.short;
+  if (nameEl) nameEl.textContent = market.name;
+  if (priceEl) priceEl.innerHTML = `<span class="tv-yes-tag">YES</span> ${price}c <span class="tv-price-sep">/</span> <span class="tv-no-tag">NO</span> ${noPrice}c`;
+  if (changeEl) {
+    changeEl.textContent = (changeNum >= 0 ? '+' : '') + changeNum.toFixed(1) + 'c';
+    changeEl.className = 'tv-symbol-change ' + (changeNum >= 0 ? 'up' : 'down');
+  }
+  if (sourceEl) {
+    sourceEl.textContent = label;
+    sourceEl.setAttribute('data-src', plat);
   }
 
-  // Calculate extra analytics based on selected platform price
-  const noPrice = 100 - price;
-  document.getElementById('mdNoPrice').textContent = noPrice + 'c';
-  const ev = ((price / 100) * (100 - price) - (noPrice / 100) * price).toFixed(1);
-  document.getElementById('mdEV').textContent = (ev >= 0 ? '+' : '') + ev + 'c';
-  const kelly = price > 0 && price < 100
-    ? (((price / 100) * (100 / price - 1) - (1 - price / 100)) / ((100 / price) - 1) * 100).toFixed(1)
-    : '0.0';
-  document.getElementById('mdKelly').textContent = kelly + '%';
+  // Stats bar — show Yes/No for each platform
+  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
+  if (market.polyPrice != null) {
+    const polyNo = Math.round(100 - market.polyPrice);
+    setEl('tvStatPoly', `<span class="tv-yn">Y:</span>${market.polyPrice}c <span class="tv-yn">N:</span>${polyNo}c`);
+  } else {
+    setEl('tvStatPoly', '\u2014');
+  }
+  if (market.kalshiPrice != null) {
+    const kalshiNo = Math.round(100 - market.kalshiPrice);
+    setEl('tvStatKalshi', `<span class="tv-yn">Y:</span>${market.kalshiPrice}c <span class="tv-yn">N:</span>${kalshiNo}c`);
+  } else {
+    setEl('tvStatKalshi', '\u2014');
+  }
+  const spread = (market.polyPrice != null && market.kalshiPrice != null)
+    ? Math.abs(market.polyPrice - market.kalshiPrice) : null;
+  setEl('tvStatSpread', spread != null ? spread + 'c' : '\u2014');
+  setEl('tvStatVol', market.vol || '\u2014');
+  setEl('tvStatImplied', price + '%');
+  setEl('tvStatResolves', formatTimeToRes(market._endDate));
+  const ev = ((price / 100) * (100 - price) - ((100 - price) / 100) * price).toFixed(1);
+  setEl('tvStatEV', (ev >= 0 ? '+' : '') + ev + 'c');
 
-  // Fetch REAL historical price data, then render chart
-  const volNum = market._volNum || parseFloat(market.vol.replace(/[$MK]/g, '')) * 1e6;
+  // Remove placeholder text
+  const placeholder = document.querySelector('.tv-chart-placeholder');
+  if (placeholder) placeholder.style.display = 'none';
+
+  // Fetch and render chart
+  const volNum = market._volNum || parseFloat((market.vol || '0').replace(/[$MK]/g, '')) * 1e6;
   _fetchAndRenderPriceChart(market, plat, price, changeNum, chartColor, volNum);
-
 }
 
 // ─── Chart state for market detail ──────────────────────────
 let _mdChartType = 'candlestick'; // 'candlestick' or 'area'
-let _mdChartTf = '24h';    // '1h','6h','24h','7d','max'
+let _mdChartTf = '5m';     // '1m','5m','15m','30m','1h' (candle interval)
 let _mdCandleData = null;   // raw OHLC candles (if available)
 let _mdLineData = null;     // line series [{x,y}]
 let _mdVolumeData = null;   // volume series [{x,y}]
 let _mdChartMeta = null;    // {market, plat, price, changeNum, chartColor, volNum}
 
-// Wire up chart controls (called once from initResearchDashboard or on first open)
+// Wire up chart controls (TradingView toolbar IDs)
 let _mdControlsWired = false;
 function _wireChartControls() {
   if (_mdControlsWired) return;
   _mdControlsWired = true;
 
-  const ctToggle = document.getElementById('mdChartTypeToggle');
+  // Chart type toggle (candlestick / area)
+  const ctToggle = document.getElementById('tvChartTypeToggle');
   if (ctToggle) {
     ctToggle.addEventListener('click', e => {
-      const btn = e.target.closest('.md-ct-btn');
+      const btn = e.target.closest('.tv-ct-btn');
       if (!btn) return;
-      ctToggle.querySelectorAll('.md-ct-btn').forEach(b => b.classList.remove('active'));
+      ctToggle.querySelectorAll('.tv-ct-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       _mdChartType = btn.dataset.ct;
       _renderMdChart();
     });
   }
 
-  const tfToggle = document.getElementById('mdChartTfToggle');
+  // Timeframe toggle
+  const tfToggle = document.getElementById('tvChartTfToggle');
   if (tfToggle) {
     tfToggle.addEventListener('click', e => {
-      const btn = e.target.closest('.md-tf-btn');
+      const btn = e.target.closest('.tv-tf-btn');
       if (!btn) return;
-      tfToggle.querySelectorAll('.md-tf-btn').forEach(b => b.classList.remove('active'));
+      tfToggle.querySelectorAll('.tv-tf-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       _mdChartTf = btn.dataset.tf;
-      // Re-fetch with new timeframe
       if (_mdChartMeta) {
         const m = _mdChartMeta;
         _fetchAndRenderPriceChart(m.market, m.plat, m.price, m.changeNum, m.chartColor, m.volNum);
       }
+    });
+  }
+
+  // Bottom panel tabs
+  const bottomTabs = document.querySelector('.tv-bottom-tabs');
+  if (bottomTabs) {
+    bottomTabs.addEventListener('click', e => {
+      const btn = e.target.closest('.tv-bottom-tab');
+      if (!btn) return;
+      bottomTabs.querySelectorAll('.tv-bottom-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const panel = btn.dataset.bpanel;
+      document.querySelectorAll('.tv-bottom-pane').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById('tvBp' + panel.charAt(0).toUpperCase() + panel.slice(1));
+      if (target) target.classList.add('active');
     });
   }
 }
@@ -2525,34 +3237,38 @@ async function _fetchAndRenderPriceChart(market, plat, price, changeNum, chartCo
   _mdChartMeta = { market, plat, price, changeNum, chartColor, volNum };
 
   // Destroy previous charts
-  if (research.charts.marketDetail) {
-    research.charts.marketDetail.destroy();
-    research.charts.marketDetail = null;
+  if (charting.charts.marketDetail) {
+    charting.charts.marketDetail.destroy();
+    charting.charts.marketDetail = null;
   }
-  if (research.charts.marketDetailVol) {
-    research.charts.marketDetailVol.destroy();
-    research.charts.marketDetailVol = null;
+  if (charting.charts.marketDetailVol) {
+    charting.charts.marketDetailVol.destroy();
+    charting.charts.marketDetailVol = null;
   }
 
   // Show loading state
-  const chartEl = document.getElementById('mdPriceChart');
-  if (chartEl) chartEl.innerHTML = '<div style="color:#444;font-size:0.65rem;text-align:center;padding:40px 0;">Loading price history...</div>';
+  const chartEl = document.getElementById('tvMainChart');
+  if (chartEl) chartEl.innerHTML = '<div style="color:#555;font-size:11px;text-align:center;padding:60px 0;font-family:var(--mono)"><div style="display:inline-block;width:18px;height:18px;border:2px solid #222;border-top-color:#00c853;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:8px"></div><br>Loading chart\u2026</div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>';
 
   let priceHistory = [];
   let volumeHistory = [];
   let candleData = null; // raw OHLC for candlestick mode
   const LM = typeof MercuryLiveMarkets !== 'undefined' ? MercuryLiveMarkets : null;
 
-  // Map timeframe to CLOB fidelity (minutes) and Kalshi period (minutes)
+  // Candle interval config — each key is a candle period (1m, 5m, 15m, 30m, 1h)
+  // clobFidelity: CLOB API granularity (minutes), kalshiPeriod: Kalshi candle period (minutes)
+  // clobInterval: how much raw data to fetch from CLOB API (1d, 1w, etc.)
+  // lookbackMs: how far back to show (enough for ~100-150 candles)
+  // NOTE: CLOB prices-history only supports: 1d, 1w, 1m, 3m, 6m, 1y, max
   const tfMap = {
-    '1h':  { clobFidelity: 1,  kalshiPeriod: 1,  clobInterval: '1h',  cutoffMs: 3600000 },
-    '6h':  { clobFidelity: 5,  kalshiPeriod: 5,  clobInterval: '6h',  cutoffMs: 21600000 },
-    '24h': { clobFidelity: 60, kalshiPeriod: 60, clobInterval: '1d',  cutoffMs: 86400000 },
-    '7d':  { clobFidelity: 60, kalshiPeriod: 60, clobInterval: '1w',  cutoffMs: 604800000 },
-    'max': { clobFidelity: 60, kalshiPeriod: 60, clobInterval: 'max', cutoffMs: 0 },
+    '1m':  { clobFidelity: 1,  kalshiPeriod: 1,  clobInterval: '1d',  lookbackMs: 60000 * 120 },      // 2h of 1m candles
+    '5m':  { clobFidelity: 1,  kalshiPeriod: 5,  clobInterval: '1d',  lookbackMs: 60000 * 600 },      // 10h of 5m candles
+    '15m': { clobFidelity: 1,  kalshiPeriod: 15, clobInterval: '1d',  lookbackMs: 60000 * 1500 },     // 25h of 15m candles
+    '30m': { clobFidelity: 10, kalshiPeriod: 30, clobInterval: '1d',  lookbackMs: 60000 * 3600 },     // 2.5d of 30m candles
+    '1h':  { clobFidelity: 60, kalshiPeriod: 60, clobInterval: '1w',  lookbackMs: 60000 * 60 * 168 }, // 7d of 1h candles
   };
-  const tf = tfMap[_mdChartTf] || tfMap['24h'];
-  const cutoff = tf.cutoffMs > 0 ? Date.now() - tf.cutoffMs : 0;
+  const tf = tfMap[_mdChartTf] || tfMap['5m'];
+  const cutoff = Date.now() - tf.lookbackMs;
 
   // Generate OHLC candles from line data by bucketing into time intervals
   function lineToOHLC(points, bucketMs) {
@@ -2563,56 +3279,92 @@ async function _fetchAndRenderPriceChart(market, plat, price, changeNum, chartCo
       if (!buckets.has(key)) buckets.set(key, []);
       buckets.get(key).push(p.y);
     }
+    const sortedKeys = [...buckets.keys()].sort((a, b) => a - b);
+    if (sortedKeys.length < 2) return null;
+
     const candles = [];
-    for (const [t, prices] of [...buckets.entries()].sort((a, b) => a[0] - b[0])) {
-      candles.push({
-        t,
-        open: prices[0],
-        high: Math.max(...prices),
-        low: Math.min(...prices),
-        close: prices[prices.length - 1],
-        price: prices[prices.length - 1],
-        volume: 0,
-      });
-    }
-    return candles.length >= 3 ? candles : null;
-  }
+    let prevClose = null;
+    // Walk every bucket from first to last so there are no time gaps
+    const firstKey = sortedKeys[0];
+    const lastKey = sortedKeys[sortedKeys.length - 1];
+    for (let t = firstKey; t <= lastKey; t += bucketMs) {
+      const prices = buckets.get(t);
+      let open, close, high, low;
 
-  // Bucket size for OHLC generation from line data
-  const bucketMap = { '1h': 60000*5, '6h': 60000*15, '24h': 60000*60, '7d': 60000*240, 'max': 60000*360 };
-  const bucketMs = bucketMap[_mdChartTf] || 60000*60;
-
-  // Try real API data first
-  try {
-    if (plat === 'polymarket' && market._clobTokenId && LM) {
-      const hist = await LM.fetchPolyPriceHistory(market._clobTokenId, tf.clobInterval, tf.clobFidelity);
-      if (hist.length >= 5) {
-        const filtered = cutoff > 0 ? hist.filter(h => h.t >= cutoff) : hist;
-        priceHistory = filtered.map(h => ({ x: h.t, y: h.price }));
-        // Generate OHLC candles from line data for candlestick mode
-        candleData = lineToOHLC(priceHistory, bucketMs);
-      }
-    }
-    if (plat === 'kalshi' && market._kalshiTicker && LM) {
-      // Fetch candlesticks (gives native OHLC)
-      const candles = await LM.fetchKalshiCandlesticks(market._kalshiTicker, tf.kalshiPeriod);
-      if (candles.length >= 5) {
-        const filtered = cutoff > 0 ? candles.filter(c => c.t >= cutoff) : candles;
-        candleData = filtered;
-        priceHistory = filtered.map(c => ({ x: c.t, y: c.price }));
-        volumeHistory = filtered.filter(c => c.volume > 0).map(c => ({ x: c.t, y: c.volume }));
+      if (prices && prices.length > 0) {
+        open = prices[0];
+        close = prices[prices.length - 1];
+        high = Math.max(...prices);
+        low = Math.min(...prices);
+      } else if (prevClose != null) {
+        // Fill empty bucket with previous close (no gap)
+        open = close = high = low = prevClose;
       } else {
-        const trades = await LM.fetchKalshiTrades(market._kalshiTicker, 200);
-        if (trades.length >= 5) {
-          const all = trades.reverse().map(t => ({
-            x: new Date(t.time).getTime(),
-            y: t.price,
-          })).filter(p => p.x > 0 && p.y > 0);
-          priceHistory = cutoff > 0 ? all.filter(p => p.x >= cutoff) : all;
-          candleData = lineToOHLC(priceHistory, bucketMs);
+        continue;
+      }
+
+      // Ensure minimum body size so candles aren't invisible thin lines
+      if (Math.abs(close - open) < 0.5) {
+        const goingUp = prevClose != null ? close >= prevClose : close >= open;
+        if (goingUp) {
+          open = Math.round((close - 0.5) * 100) / 100;
+        } else {
+          open = Math.round((close + 0.5) * 100) / 100;
         }
       }
+      open = Math.round(open * 100) / 100;
+      close = Math.round(close * 100) / 100;
+      prevClose = close;
+      candles.push({ t, open, high: Math.max(high, open, close), low: Math.min(low, open, close), close, price: close, volume: 0 });
     }
+    return candles.length >= 2 ? candles : null;
+  }
+
+  // Bucket size = candle interval (the TF buttons now represent candle period)
+  const bucketMap = { '1m': 60000, '5m': 60000*5, '15m': 60000*15, '30m': 60000*30, '1h': 60000*60 };
+  const bucketMs = bucketMap[_mdChartTf] || 60000*5;
+
+  // Try real API data first (with 3s overall timeout to avoid blocking UI)
+  try {
+    const apiFetch = async () => {
+      if (plat === 'polymarket' && market._clobTokenId && LM) {
+        const hist = await LM.fetchPolyPriceHistory(market._clobTokenId, tf.clobInterval, tf.clobFidelity);
+        if (hist.length >= 3) {
+          const filtered = cutoff > 0 ? hist.filter(h => h.t >= cutoff) : hist;
+          if (filtered.length >= 2) {
+            priceHistory = filtered.map(h => ({ x: h.t, y: h.price }));
+            candleData = lineToOHLC(priceHistory, bucketMs);
+          }
+        }
+      }
+      if (plat === 'kalshi' && market._kalshiTicker && LM) {
+        const candles = await LM.fetchKalshiCandlesticks(market._kalshiTicker, tf.kalshiPeriod);
+        if (candles.length >= 3) {
+          const filtered = cutoff > 0 ? candles.filter(c => c.t >= cutoff) : candles;
+          if (filtered.length >= 2) {
+            candleData = filtered;
+            priceHistory = filtered.map(c => ({ x: c.t, y: c.price }));
+            volumeHistory = filtered.filter(c => c.volume > 0).map(c => ({ x: c.t, y: c.volume }));
+          }
+        }
+        if (priceHistory.length < 2) {
+          const trades = await LM.fetchKalshiTrades(market._kalshiTicker, 200);
+          if (trades.length >= 3) {
+            const all = trades.reverse().map(t => ({
+              x: new Date(t.time).getTime(),
+              y: t.price,
+            })).filter(p => p.x > 0 && p.y > 0);
+            const filteredTrades = cutoff > 0 ? all.filter(p => p.x >= cutoff) : all;
+            if (filteredTrades.length >= 2) {
+              priceHistory = filteredTrades;
+              candleData = lineToOHLC(priceHistory, bucketMs);
+            }
+          }
+        }
+      }
+    };
+    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('Chart data timeout')), 3000));
+    await Promise.race([apiFetch(), timeout]);
   } catch (e) {
     console.warn('[Mercury] Historical price fetch error:', e.message);
   }
@@ -2626,28 +3378,26 @@ async function _fetchAndRenderPriceChart(market, plat, price, changeNum, chartCo
     }
   }
 
-  // Last resort: generated data
+  // Last resort: generated data — space points at half the candle interval
+  const genStep = Math.max(30000, Math.floor(bucketMs / 2)); // at least 30s spacing
+  const genPoints = Math.max(120, Math.ceil(tf.lookbackMs / genStep));
   if (priceHistory.length < 3) {
-    priceHistory = generatePriceHistory(price, 72);
+    priceHistory = generatePriceHistory(price, genPoints, genStep);
     if (!candleData) candleData = lineToOHLC(priceHistory, bucketMs);
   }
   if (volumeHistory.length < 3) {
-    volumeHistory = generateVolumeHistory(volNum / 72, 72);
+    volumeHistory = generateVolumeHistory(volNum / genPoints, genPoints, genStep);
   }
-
-  // Bail if modal was closed while loading
-  if (!research._mdMarket) return;
 
   // Mark if real data
   const isReal = priceHistory.length >= 5 && priceHistory[0].x > 1e12;
-  const platLabel = document.getElementById('mdPlatformLabel');
-  if (platLabel) {
-    const base = plat === 'polymarket' ? 'Polymarket' : 'Kalshi';
-    platLabel.textContent = base + (isReal ? ' — LIVE DATA' : '');
+  const dataLabel = document.getElementById('tvDataLabel');
+  if (dataLabel) {
+    dataLabel.textContent = isReal ? 'LIVE DATA' : '';
   }
 
   // Enable/disable candlestick button based on OHLC availability
-  const candleBtn = document.querySelector('.md-ct-btn[data-ct="candlestick"]');
+  const candleBtn = document.querySelector('.tv-ct-btn[data-ct="candlestick"]');
   if (candleBtn) {
     candleBtn.disabled = !candleData;
     candleBtn.style.opacity = candleData ? '1' : '0.3';
@@ -2657,9 +3407,9 @@ async function _fetchAndRenderPriceChart(market, plat, price, changeNum, chartCo
   // If user requested candlestick but no OHLC, fall back to area
   if (_mdChartType === 'candlestick' && !candleData) {
     _mdChartType = 'area';
-    const areaBtn = document.querySelector('.md-ct-btn[data-ct="area"]');
+    const areaBtn = document.querySelector('.tv-ct-btn[data-ct="area"]');
     if (areaBtn) {
-      document.querySelectorAll('.md-ct-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tv-ct-btn').forEach(b => b.classList.remove('active'));
       areaBtn.classList.add('active');
     }
   }
@@ -2679,23 +3429,23 @@ function _renderMdChart() {
   const plat = _mdChartMeta.plat;
 
   // Destroy previous
-  if (research.charts.marketDetail) {
-    research.charts.marketDetail.destroy();
-    research.charts.marketDetail = null;
+  if (charting.charts.marketDetail) {
+    charting.charts.marketDetail.destroy();
+    charting.charts.marketDetail = null;
   }
-  if (research.charts.marketDetailVol) {
-    research.charts.marketDetailVol.destroy();
-    research.charts.marketDetailVol = null;
+  if (charting.charts.marketDetailVol) {
+    charting.charts.marketDetailVol.destroy();
+    charting.charts.marketDetailVol = null;
   }
 
-  const chartEl = document.getElementById('mdPriceChart');
+  const chartEl = document.getElementById('tvMainChart');
   if (!chartEl) return;
   chartEl.innerHTML = '';
 
   const lineColor = chartColor || (changeNum >= 0 ? '#00c853' : '#ff1744');
   const seriesName = plat === 'polymarket' ? 'Polymarket' : plat === 'kalshi' ? 'Kalshi' : 'Price';
 
-  const useCandlestick = _mdChartType === 'candlestick' && _mdCandleData && _mdCandleData.length >= 5;
+  const useCandlestick = _mdChartType === 'candlestick' && _mdCandleData && _mdCandleData.length >= 2;
 
   if (useCandlestick) {
     // ── Candlestick chart ──
@@ -2705,10 +3455,14 @@ function _renderMdChart() {
     }));
 
     const allPrices = _mdCandleData.flatMap(c => [c.open, c.high, c.low, c.close]).filter(p => p > 0);
+    const priceMin = Math.min(...allPrices);
+    const priceMax = Math.max(...allPrices);
+    const priceRange = priceMax - priceMin;
+    const pad = Math.max(2, priceRange * 0.15);
     const chartOpts = {
       chart: {
         type: 'candlestick',
-        height: 220,
+        height: '100%',
         background: 'transparent',
         toolbar: { show: false },
         zoom: { enabled: true, type: 'x' },
@@ -2716,51 +3470,82 @@ function _renderMdChart() {
       },
       series: [{ name: seriesName, data: ohlcSeries }],
       plotOptions: {
+        bar: { columnWidth: '92%' },
         candlestick: {
           colors: { upward: '#00c853', downward: '#ff1744' },
           wick: { useFillColor: true },
         },
       },
+      stroke: { width: 1 },
       xaxis: {
         type: 'datetime',
         labels: {
-          style: { colors: '#444', fontFamily: 'JetBrains Mono', fontSize: '8px' },
-          datetimeFormatter: { hour: 'HH:mm', day: 'MMM dd', month: "MMM 'yy" },
+          style: { colors: '#666', fontFamily: 'JetBrains Mono', fontSize: '9px' },
+          datetimeFormatter: {
+            minute: 'HH:mm',
+            hour: 'HH:mm',
+            day: _mdChartTf === '1h' ? 'MMM dd HH:mm' : 'HH:mm',
+            month: "MMM 'yy",
+          },
         },
-        axisBorder: { color: '#1a1a1a' },
+        axisBorder: { color: '#222' },
         axisTicks: { show: false },
       },
       yaxis: {
-        min: Math.max(0, Math.min(...allPrices) - 3),
-        max: Math.min(100, Math.max(...allPrices) + 3),
+        min: Math.max(0, priceMin - pad),
+        max: Math.min(100, priceMax + pad),
+        tickAmount: 6,
         labels: {
-          style: { colors: '#444', fontFamily: 'JetBrains Mono', fontSize: '8px' },
+          style: { colors: '#666', fontFamily: 'JetBrains Mono', fontSize: '9px' },
           formatter: v => v.toFixed(0) + 'c',
         },
       },
-      grid: { borderColor: '#1a1a1a', strokeDashArray: 3, padding: { left: 4, right: 4 } },
+      grid: { borderColor: '#1a1a1a', strokeDashArray: 3, padding: { left: 8, right: 8, top: 4, bottom: 4 } },
       tooltip: {
         theme: 'dark',
-        style: { fontFamily: 'JetBrains Mono', fontSize: '10px' },
+        style: { fontFamily: 'JetBrains Mono', fontSize: '11px' },
+        custom: function({ seriesIndex, dataPointIndex, w }) {
+          const o = w.globals.seriesCandleO[seriesIndex][dataPointIndex];
+          const h = w.globals.seriesCandleH[seriesIndex][dataPointIndex];
+          const l = w.globals.seriesCandleL[seriesIndex][dataPointIndex];
+          const c = w.globals.seriesCandleC[seriesIndex][dataPointIndex];
+          const up = c >= o;
+          const color = up ? '#00c853' : '#ff1744';
+          const ts = w.globals.seriesX[seriesIndex][dataPointIndex];
+          const date = new Date(ts);
+          const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' ' + date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+          return `<div style="padding:8px 12px;font-family:JetBrains Mono,monospace;font-size:11px;line-height:1.6">
+            <div style="color:#888;margin-bottom:4px">${dateStr}</div>
+            <div>O: <b>${o.toFixed(1)}c</b></div>
+            <div>H: <b>${h.toFixed(1)}c</b></div>
+            <div>L: <b>${l.toFixed(1)}c</b></div>
+            <div>C: <b style="color:${color}">${c.toFixed(1)}c</b></div>
+          </div>`;
+        },
       },
       dataLabels: { enabled: false },
     };
-    research.charts.marketDetail = new ApexCharts(chartEl, chartOpts);
-    research.charts.marketDetail.render();
+    charting.charts.marketDetail = new ApexCharts(chartEl, chartOpts);
+    charting.charts.marketDetail.render();
   } else {
     // ── Area/line chart ──
     const priceHistory = _mdLineData || [];
+    const pVals = priceHistory.map(p => p.y);
+    const pMin = Math.min(...pVals);
+    const pMax = Math.max(...pVals);
+    const pRange = pMax - pMin;
+    const pPad = Math.max(3, pRange * 0.12);
     const chartOpts = {
       chart: {
         type: 'area',
-        height: 220,
+        height: '100%',
         background: 'transparent',
         toolbar: { show: false },
         zoom: { enabled: true, type: 'x' },
         animations: { enabled: true, speed: 600 },
       },
       series: [{ name: seriesName, data: priceHistory }],
-      stroke: { curve: 'smooth', width: 2 },
+      stroke: { curve: 'smooth', width: 2.5 },
       colors: [lineColor],
       fill: {
         type: 'gradient',
@@ -2769,46 +3554,47 @@ function _renderMdChart() {
       xaxis: {
         type: 'datetime',
         labels: {
-          style: { colors: '#444', fontFamily: 'JetBrains Mono', fontSize: '8px' },
-          datetimeFormatter: { hour: 'HH:mm', day: 'MMM dd', month: "MMM 'yy" },
+          style: { colors: '#666', fontFamily: 'JetBrains Mono', fontSize: '9px' },
+          datetimeFormatter: { minute: 'HH:mm', hour: 'HH:mm', day: _mdChartTf === '1h' ? 'MMM dd HH:mm' : 'HH:mm', month: "MMM 'yy" },
         },
-        axisBorder: { color: '#1a1a1a' },
+        axisBorder: { color: '#222' },
         axisTicks: { show: false },
       },
       yaxis: {
-        min: Math.max(0, Math.min(...priceHistory.map(p => p.y)) - 5),
-        max: Math.min(100, Math.max(...priceHistory.map(p => p.y)) + 5),
+        min: Math.max(0, pMin - pPad),
+        max: Math.min(100, pMax + pPad),
+        tickAmount: 6,
         labels: {
-          style: { colors: '#444', fontFamily: 'JetBrains Mono', fontSize: '8px' },
+          style: { colors: '#666', fontFamily: 'JetBrains Mono', fontSize: '9px' },
           formatter: v => v.toFixed(0) + 'c',
         },
       },
-      grid: { borderColor: '#1a1a1a', strokeDashArray: 3, padding: { left: 4, right: 4 } },
+      grid: { borderColor: '#1a1a1a', strokeDashArray: 3, padding: { left: 8, right: 8, top: 4, bottom: 4 } },
       tooltip: {
         theme: 'dark',
         x: { format: 'MMM dd HH:mm' },
         y: { formatter: v => v.toFixed(1) + 'c' },
-        style: { fontFamily: 'JetBrains Mono', fontSize: '10px' },
+        style: { fontFamily: 'JetBrains Mono', fontSize: '11px' },
       },
       dataLabels: { enabled: false },
     };
-    research.charts.marketDetail = new ApexCharts(chartEl, chartOpts);
-    research.charts.marketDetail.render();
+    charting.charts.marketDetail = new ApexCharts(chartEl, chartOpts);
+    charting.charts.marketDetail.render();
   }
 
   // Volume mini-chart
-  const volChartEl = document.getElementById('mdVolChart');
+  const volChartEl = document.getElementById('tvVolChart');
   const volumeHistory = _mdVolumeData || [];
   if (volChartEl && volumeHistory.length > 0) {
     volChartEl.innerHTML = '';
     const volOpts = {
       chart: {
-        type: 'bar', height: 80, background: 'transparent',
+        type: 'bar', height: 56, background: 'transparent',
         toolbar: { show: false }, sparkline: { enabled: true },
         animations: { enabled: true, speed: 400 },
       },
       series: [{ name: 'Volume', data: volumeHistory }],
-      plotOptions: { bar: { columnWidth: '70%' } },
+      plotOptions: { bar: { columnWidth: '90%' } },
       colors: ['rgba(255,255,255,0.12)'],
       xaxis: { type: 'datetime', labels: { show: false }, axisBorder: { show: false } },
       yaxis: { labels: { show: false } },
@@ -2816,22 +3602,22 @@ function _renderMdChart() {
       tooltip: { enabled: false },
       dataLabels: { enabled: false },
     };
-    research.charts.marketDetailVol = new ApexCharts(volChartEl, volOpts);
-    research.charts.marketDetailVol.render();
+    charting.charts.marketDetailVol = new ApexCharts(volChartEl, volOpts);
+    charting.charts.marketDetailVol.render();
   }
 }
 
 window.closeMarketDetail = function() {
-  const modal = document.getElementById('marketDetailModal');
-  if (modal) modal.classList.remove('open');
-  research._mdMarket = null;
-  if (research.charts.marketDetail) {
-    research.charts.marketDetail.destroy();
-    research.charts.marketDetail = null;
+  // No modal to close — chart is inline. Just clear selection.
+  charting._mdMarket = null;
+  document.querySelectorAll('.tv-wl-item').forEach(el => el.classList.remove('active'));
+  if (charting.charts.marketDetail) {
+    charting.charts.marketDetail.destroy();
+    charting.charts.marketDetail = null;
   }
-  if (research.charts.marketDetailVol) {
-    research.charts.marketDetailVol.destroy();
-    research.charts.marketDetailVol = null;
+  if (charting.charts.marketDetailVol) {
+    charting.charts.marketDetailVol.destroy();
+    charting.charts.marketDetailVol = null;
   }
 };
 

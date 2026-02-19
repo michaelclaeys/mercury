@@ -1,3 +1,6 @@
 node_modules/
 hedgeiq-frontend/
 hedgeiq-package/
+__pycache__/
+.env
+.DS_Store

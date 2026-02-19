@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Build a Prediction Market Arbitrage Bot — Mercury</title>
+  <meta name="description" content="Build cross-platform arbitrage bots for Polymarket and Kalshi. Exploit pricing gaps automatically with Mercury's visual builder and agentic AI. Step-by-step guide with risk management.">
+  <link rel="canonical" href="https://mercurysuite.io/guides/prediction-market-arbitrage-bot.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Mercury">
+  <meta property="og:url" content="https://mercurysuite.io/guides/prediction-market-arbitrage-bot.html">
+  <meta property="og:title" content="How to Build a Prediction Market Arbitrage Bot — Mercury">
+  <meta property="og:description" content="Build cross-platform arbitrage bots for Polymarket and Kalshi. Exploit pricing gaps automatically with Mercury's visual builder and agentic AI.">
+  <meta property="og:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="How to Build a Prediction Market Arbitrage Bot — Mercury">
+  <meta name="twitter:description" content="Build cross-platform arbitrage bots for Polymarket and Kalshi. Exploit pricing gaps automatically with Mercury's visual builder and agentic AI.">
+  <meta name="twitter:image" content="https://mercurysuite.io/images/og-default.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <link rel="stylesheet" href="../styles/pages.css">
+  <link rel="stylesheet" href="../styles/guides.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is prediction market arbitrage risk-free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Not entirely. Resolution divergence, execution risk, and fees create residual risk even in seemingly guaranteed arbitrage trades. Polymarket uses UMA's optimistic oracle while Kalshi settles through CFTC-regulated mechanisms, meaning the 'same' event can theoretically resolve differently on each platform. Mercury's risk management nodes — stop-loss, max exposure, and kill switch — help manage these risks automatically."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much capital do I need for prediction market arbitrage?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Start with paper trading on Mercury's free tier to validate your strategy at zero cost. Live arbitrage works best with $500 or more to overcome minimum fees on both platforms and make thin spreads worthwhile. Mercury Funding provides up to $5,000 in trading capital for proven strategies — you keep 80-85% of the profits."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I arbitrage Polymarket and Kalshi with Mercury?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Mercury connects to both Polymarket and Kalshi with sub-12ms and sub-18ms execution latency respectively. The visual builder supports parallel Execution nodes that fire both legs of a cross-platform arbitrage simultaneously, and the agentic AI can generate a complete arbitrage bot from a plain English description."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need to code to build an arbitrage bot?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Mercury's agentic AI generates complete arbitrage bots from plain English descriptions like 'monitor all Polymarket and Kalshi markets for cross-platform arbitrage over 2% after fees and execute both legs simultaneously.' The visual builder also supports arbitrage with parallel execution paths. Advanced users can access Mercury's REST and WebSocket APIs for programmatic control."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How fast do prediction market arbitrage opportunities close?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Most cross-platform arbitrage windows between Polymarket and Kalshi close within seconds, especially on high-volume markets. Manual trading is too slow for consistent arbitrage profits. Mercury's automated execution with sub-20ms latency to both platforms ensures your bot can capture opportunities before they disappear."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <!-- ─── NAVBAR ──────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="navbar-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="3"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+        </svg>
+        Mercury
+      </a>
+      <ul class="navbar-links">
+        <li><a href="../index.html">Suite</a></li>
+        <li><a href="../architect.html">Architect</a></li>
+        <li><a href="../architect-app.html#charting">Charting</a></li>
+        <li><a href="#">Backtest</a></li>
+        <li><a href="../architect.html#pricing">Pricing</a></li>
+      </ul>
+      <div class="navbar-actions">
+        <a href="#" class="btn" id="navProfile">Profile</a>
+        <a href="#" class="btn" onclick="window.signOut && window.signOut()">Logout</a>
+      </div>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="../index.html">Suite</a>
+    <a href="../architect.html">Architect</a>
+    <a href="../architect-app.html#charting">Charting</a>
+    <a href="#">Backtest</a>
+    <a href="../architect.html#pricing">Pricing</a>
+    <a href="#" onclick="window.signOut && window.signOut()">Logout</a>
+  </div>
+
+  <!-- ─── PAGE HERO ─────────────────────────────────────── -->
+  <section class="page-hero">
+    <div class="container">
+      <div class="section-label">Guide</div>
+      <h1 class="page-title">How to Build a Prediction Market Arbitrage Bot</h1>
+      <p class="page-subtitle">Exploit cross-platform pricing gaps between Polymarket and Kalshi automatically. Mercury's visual builder and agentic AI let you design, test, and deploy arbitrage bots that capture guaranteed spreads with sub-20ms execution — no coding required.</p>
+    </div>
+  </section>
+
+  <!-- ─── WHAT IS PREDICTION MARKET ARBITRAGE? ────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">What is prediction market arbitrage?</h2>
+          <p>Arbitrage is the practice of exploiting pricing inconsistencies across markets to lock in a guaranteed profit regardless of the outcome. In prediction markets, every contract resolves to either $1.00 (the event happens) or $0.00 (it does not). When the prices available across platforms do not properly reflect these binary outcomes, an arbitrage opportunity exists — and traders who move fast enough can capture risk-free or near-risk-free returns.</p>
+          <p>There are two fundamental types of prediction market arbitrage:</p>
+          <ul class="legal-list">
+            <li><strong>Intra-platform arbitrage</strong> — on a single platform, the price of YES shares plus the price of NO shares should always sum to $1.00. But they do not always. Order book dynamics, delayed quote updates, and low-liquidity contracts can create gaps. For example, if YES is trading at $0.55 and NO is trading at $0.42 on the same contract, you can buy both for $0.97. One of them will resolve to $1.00, guaranteeing a $0.03 profit per share pair. That is a 3.1% return on a trade that takes seconds to execute.</li>
+            <li><strong>Cross-platform arbitrage</strong> — the same real-world event is listed on both Polymarket and Kalshi, but the two platforms price it differently. Different user bases, different fee structures, and different liquidity profiles create persistent pricing gaps. If Polymarket prices YES at $0.52 and Kalshi prices NO at $0.45 on the same event, buying both costs $0.97 and guarantees a $1.00 payout — a locked-in $0.03 spread before fees. (For a deep dive on platform differences, see our <a href="polymarket-vs-kalshi.html">Polymarket vs Kalshi comparison</a>.)</li>
+          </ul>
+          <p>The scale of this opportunity is substantial. Between April 2024 and April 2025, over $40 million in arbitrage profits were extracted from Polymarket alone, according to on-chain analysis of CLOB settlement data. Cross-platform arbitrage between Polymarket and Kalshi adds another layer of opportunity that is harder to track publicly because Kalshi settles off-chain through its CFTC-regulated clearinghouse.</p>
+          <p>The catch: these windows are fleeting. Most arbitrage opportunities on high-volume markets close within seconds as automated traders converge on the spread. Manual trading is simply too slow to compete. That is why a prediction market arbitrage bot — one that monitors both platforms simultaneously, calculates net spreads after fees, and executes both legs of the trade in parallel — is not just useful but essential for anyone serious about capturing these profits.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── WHY DO OPPORTUNITIES EXIST? ─────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Why do arbitrage opportunities exist in prediction markets?</h2>
+          <p>In efficient financial markets, arbitrage opportunities are supposed to be eliminated almost instantly. Prediction markets are not yet that efficient. Several structural factors create persistent pricing gaps between Polymarket and Kalshi that a well-built bot can exploit.</p>
+          <ul class="legal-list">
+            <li><strong>Different user bases</strong> — Polymarket attracts a predominantly crypto-native trading population. These traders often have strong opinions shaped by crypto Twitter, DeFi governance culture, and blockchain-native information channels. Kalshi's user base skews toward traditional finance participants operating under CFTC regulation. These two populations process the same news differently, weigh different signals, and arrive at different probability estimates — which means different prices on the same event.</li>
+            <li><strong>Different fee structures</strong> — Polymarket charges approximately 2% on net profits at settlement, while Kalshi charges fees on expected earnings at the time of the trade. These different fee mechanics mean that the "true cost" of a position differs by platform, which in turn shifts where market makers and traders are willing to post prices. A contract that appears identically priced on both platforms may actually have different effective costs.</li>
+            <li><strong>Different liquidity profiles</strong> — Polymarket often has deeper liquidity on politically charged or crypto-adjacent markets, while Kalshi may have more competitive spreads on economic data, weather, and regulatory-focused contracts. When one platform has thin liquidity on a contract, its price can lag behind the more liquid venue, creating a temporary spread.</li>
+            <li><strong>Different resolution mechanisms</strong> — Polymarket resolves contracts through UMA's optimistic oracle, a decentralized dispute resolution system where token holders vote on outcomes. Kalshi resolves through its internal CFTC-regulated settlement process using official data sources. This creates a subtle but important difference: the two platforms can disagree on edge cases, ambiguous outcomes, or events where the resolution criteria are interpreted differently.</li>
+            <li><strong>Information asymmetry during fast-moving events</strong> — when breaking news hits, one platform's traders often react faster than the other's. A Supreme Court decision announced at 10:00 AM ET might move Kalshi prices within 2 seconds as US-based institutional traders react, while Polymarket may take 5-10 seconds longer as the information propagates through its global crypto-native audience. That 3-8 second window is an eternity for an arbitrage bot operating at millisecond speed.</li>
+            <li><strong>Market microstructure differences</strong> — Polymarket operates a central limit order book (CLOB) on Polygon with on-chain settlement, while Kalshi runs a traditional matching engine with off-chain settlement. These different architectures have different latency characteristics, different order types, and different rules around order cancellation — all of which contribute to price divergence.</li>
+          </ul>
+          <p>These structural factors are not bugs that will be patched. They are inherent to the architecture of two fundamentally different platforms serving different regulatory environments and user populations. As long as Polymarket and Kalshi coexist, cross-platform arbitrage opportunities will continue to appear.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── STEP-BY-STEP EXAMPLE ────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">How does cross-platform arbitrage work step by step?</h2>
+          <p>Here is a concrete walkthrough of a cross-platform prediction market arbitrage trade between Polymarket and Kalshi, with real numbers at each stage.</p>
+          <ul class="legal-list">
+            <li><strong>Step 1 — Find the opportunity</strong> — your bot monitors a shared event across both platforms. The market: "Will the Federal Reserve cut rates in June?" Polymarket is pricing YES at $0.55. Kalshi is pricing NO at $0.42 on the same question. Your bot detects that $0.55 + $0.42 = $0.97, which is less than the guaranteed $1.00 payout. This is a $0.03 raw spread — a potential arbitrage opportunity.</li>
+            <li><strong>Step 2 — Calculate net spread after fees</strong> — raw spread is not profit. You need to account for trading fees on both platforms. Polymarket charges approximately 2% on your net profit at settlement. Kalshi charges on expected earnings at the time of the trade. For this example, assume Polymarket's fee on the winning leg is about $0.009 and Kalshi's fee is about $0.006. Total fees: approximately $0.015. Net spread after fees: $0.03 - $0.015 = $0.015, or roughly 1.5% return on capital deployed. Your bot's Condition node checks whether this net spread exceeds your configured threshold — say, 1% after fees — and approves the trade.</li>
+            <li><strong>Step 3 — Execute both legs simultaneously</strong> — this is the critical step, and the reason a bot is essential. Your bot places two orders at the same time: buy YES at $0.55 on Polymarket and buy NO at $0.42 on Kalshi. Both orders must fill for the arbitrage to work. If only one leg fills and the other does not, you are no longer arbitraging — you are directionally exposed. Mercury's parallel Execution nodes fire both orders within the same evaluation cycle, with sub-12ms latency to Polymarket and sub-18ms to Kalshi. The near-simultaneous execution minimizes the risk of one leg filling while the other side's price moves away.</li>
+            <li><strong>Step 4 — Wait for resolution</strong> — once both legs are filled, you hold both positions until the event resolves. If the Fed cuts rates in June, your Polymarket YES shares resolve to $1.00 and your Kalshi NO shares resolve to $0.00. If the Fed does not cut, your Polymarket YES goes to $0.00 and your Kalshi NO resolves to $1.00. Either way, you receive exactly $1.00 from one of the two positions.</li>
+            <li><strong>Step 5 — Collect profit</strong> — your total cost was $0.97 ($0.55 + $0.42). Your total payout is $1.00. After fees of approximately $0.015, your net profit is roughly $0.015 per share pair. On a $970 position (1,000 share pairs), that is $15 in profit for what is effectively a locked-in return. Scale this across dozens of simultaneous opportunities running 24/7, and the compounding effect becomes significant.</li>
+          </ul>
+          <p>The entire process — from detection to execution — takes less than one second when automated with Mercury. A manual trader would need to open two browser tabs, check prices on both platforms, calculate the spread, mentally account for fees, and then race to place both orders before the window closes. By the time a human completes step one, the opportunity is usually gone.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── BUILD WITH MERCURY ──────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">How do I build a prediction market arbitrage bot with Mercury?</h2>
+          <p>Mercury gives you two paths to building a cross-platform arbitrage bot: the agentic AI approach (describe what you want in plain English) and the visual builder approach (assemble nodes manually in <a href="../architect.html">Architect</a>). Both produce the same production-grade bot running on Mercury's infrastructure with sub-20ms execution to both platforms.</p>
+          <p><strong>The AI approach:</strong> Open Mercury Architect and type a natural language description of your strategy into the AI prompt. For example:</p>
+          <p><em>"Monitor all Polymarket and Kalshi markets for cross-platform arbitrage opportunities over 2% after fees and execute both legs simultaneously. Set maximum exposure at $2,000 per market. Kill switch if total portfolio drawdown exceeds 15%."</em></p>
+          <p>Mercury's agentic AI parses this description and generates a complete node graph: dual data source connections for Polymarket and Kalshi price feeds, a matching algorithm that pairs identical events across platforms, a Condition node that calculates net spread after platform-specific fees, parallel Execution nodes that fire both legs of the trade within the same evaluation cycle, and Risk nodes enforcing the $2,000 per-market cap and the 15% drawdown kill switch. The entire bot is assembled in seconds and ready for paper trading immediately.</p>
+          <p><strong>The visual builder approach:</strong> For traders who want granular control over every parameter, Architect's drag-and-drop canvas lets you build the arbitrage bot node by node.</p>
+          <ul class="legal-list">
+            <li><strong>Dual Trigger nodes</strong> — place two Trigger nodes on the canvas, one monitoring Polymarket contract prices and the other monitoring Kalshi contract prices for the same event category. Configure each to stream real-time price updates. Mercury's built-in market matching maps Polymarket event slugs to their Kalshi equivalents automatically.</li>
+            <li><strong>Condition node for spread calculation</strong> — connect both Trigger outputs into a single Condition node. Configure it to calculate the combined cost of YES on one platform and NO on the other (and vice versa), subtract estimated fees for each platform, and only pass through when the net spread exceeds your minimum threshold. Most arbitrageurs set this between 1% and 3% depending on their risk tolerance and capital base.</li>
+            <li><strong>Parallel Execution nodes</strong> — the Condition node's output fans out to two Execution nodes running in parallel. One places the buy-YES order on Polymarket; the other places the buy-NO order on Kalshi. Parallel execution is critical — both orders fire within the same cycle, with Mercury's infrastructure delivering sub-12ms latency to Polymarket and sub-18ms latency to Kalshi. You configure order type (market or limit), position size (fixed amount or proportional to spread size), and slippage tolerance for each leg independently.</li>
+            <li><strong>Risk node for portfolio protection</strong> — downstream of both Execution nodes, a Risk node enforces guardrails: maximum exposure per market, maximum total portfolio exposure, trailing stop-loss in case one leg fails to fill and you need to exit the remaining directional position, and a kill switch that halts all bot activity if drawdown exceeds your defined threshold. Mercury's risk engine runs independently of the strategy engine, ensuring protection even if the trigger logic encounters an error.</li>
+          </ul>
+          <p>Whether you use the AI approach or the visual builder, the deployed bot runs on Mercury's production infrastructure 24/7 with 99.98% uptime. Telegram alerts notify you of every executed trade, every risk event, and every kill-switch activation. The live dashboard displays all open arbitrage positions, cumulative P&L, and real-time spread monitoring across both platforms. For details on building single-platform bots, see our guides on <a href="build-polymarket-bot.html">building a Polymarket bot</a> and <a href="build-kalshi-bot.html">building a Kalshi bot</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── MID-ARTICLE CTA ─────────────────────────────── -->
+  <section class="final-cta">
+    <div class="container">
+      <h2 class="final-headline">Paper trade your arbitrage strategy free.</h2>
+      <p class="final-sub">Mercury's free tier includes real-time data from both Polymarket and Kalshi. Test your arbitrage bot against live spreads before risking capital.</p>
+      <div class="final-ctas">
+        <a href="../signup.html" class="btn btn-primary">Start Paper Trading</a>
+        <a href="../architect.html#pricing" class="btn">See Pricing</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── RISKS ───────────────────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">What are the risks of prediction market arbitrage?</h2>
+          <p>Prediction market arbitrage is often described as "risk-free." It is not. While the theoretical structure of buying complementary positions across platforms guarantees a payout, several real-world factors introduce residual risk that every arbitrageur must understand and manage.</p>
+          <ul class="legal-list">
+            <li><strong>Resolution divergence</strong> — this is the most serious risk in cross-platform arbitrage. Polymarket and Kalshi use different resolution mechanisms. Polymarket resolves through UMA's optimistic oracle, where token holders vote on outcomes. Kalshi resolves through its CFTC-regulated internal process using predefined official data sources. In most cases, both platforms agree on the outcome. But in edge cases — ambiguous events, disputed results, or situations where resolution criteria are interpreted differently — the two platforms can resolve the same event in opposite directions. If that happens, both legs of your arbitrage lose. This has occurred in practice, particularly on political and legal markets with nuanced resolution language.</li>
+            <li><strong>Execution risk (leg risk)</strong> — arbitrage requires both legs to fill at or near your target prices. If you buy YES on Polymarket at $0.55 but the Kalshi NO price moves from $0.42 to $0.48 before your second order fills, the combined cost becomes $1.03 — you have turned a guaranteed profit into a guaranteed loss. Even with sub-20ms latency, fast-moving markets can shift between your two executions. Mercury's parallel Execution nodes minimize this gap, but they cannot eliminate it entirely. The Risk node's trailing stop-loss on unfilled legs provides a safety net.</li>
+            <li><strong>Fee compression</strong> — many apparent arbitrage opportunities disappear once you account for fees on both platforms. A raw spread of 3 cents might shrink to 1 cent or less after Polymarket's settlement fee and Kalshi's trading fee. Your bot's Condition node must calculate the net spread after all fees, not the raw spread, to avoid executing trades that are profitable on paper but unprofitable in practice. Mercury's fee calculation engine models each platform's fee structure precisely.</li>
+            <li><strong>Slippage on large orders</strong> — prediction market order books are thinner than traditional financial markets. A $50 arbitrage trade might fill at the quoted price, but a $5,000 trade will walk the order book and receive progressively worse fills. The effective spread narrows or vanishes entirely when your order size exceeds the available liquidity at the target price. Mercury's Execution nodes support configurable slippage tolerance and can split large orders across multiple price levels.</li>
+            <li><strong>Market matching errors</strong> — Polymarket and Kalshi sometimes frame identical real-world events with subtly different resolution criteria. "Will Biden win the 2024 election?" and "Will the Democratic candidate win the 2024 presidency?" seem equivalent but are not — if Biden withdraws and another Democrat wins, the two contracts resolve differently. Incorrect market matching is one of the most common and costly errors in cross-platform arbitrage. Mercury's AI-powered matching algorithm flags potential discrepancies, but manual verification of resolution criteria remains essential for every new market pair.</li>
+            <li><strong>Speed competition</strong> — you are not the only trader looking for arbitrage. Institutional market makers like Jump Trading and proprietary trading firms deploy sophisticated infrastructure to capture these same spreads. As more capital chases arbitrage, windows close faster and spreads compress. The edge goes to the fastest, most reliable execution infrastructure. Mercury's sub-12ms Polymarket latency and sub-18ms Kalshi latency are competitive, but the arms race is ongoing.</li>
+          </ul>
+          <p>Mercury's risk management architecture addresses each of these risks. The kill switch provides portfolio-level protection. The trailing stop-loss on unfilled legs limits exposure from execution failures. The fee-aware Condition node prevents unprofitable trades from executing. And paper trading lets you stress-test your arbitrage strategy against real market data before committing capital. For a comprehensive view of Mercury's risk tooling, see the <a href="prediction-market-bot-builder.html">bot builder guide</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── EXPECTED RETURNS ────────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">What returns can you expect from prediction market arbitrage?</h2>
+          <p>Honest expectations are critical. Prediction market arbitrage is not a get-rich-quick strategy. It is a volume-driven, low-margin operation that compounds small edges across many trades over time. Here is what the numbers actually look like.</p>
+          <ul class="legal-list">
+            <li><strong>Individual spread size</strong> — typical cross-platform arbitrage spreads between Polymarket and Kalshi range from 0.5% to 3% after fees. Larger spreads appear during fast-moving news events, new market launches, and periods of high volatility, but they close quickly. The average opportunity that a well-tuned bot can consistently capture sits around 1-2% per trade.</li>
+            <li><strong>Profitability comes from frequency, not magnitude</strong> — a single 1.5% return is unimpressive. But executing 20-50 arbitrage trades per day across hundreds of monitored market pairs, running 24 hours a day, 7 days a week, adds up. A bot that averages $5 in profit per trade and executes 30 trades per day generates $150/day or roughly $4,500/month. The key variables are the number of monitored markets, the speed of execution, and the accuracy of fee calculations.</li>
+            <li><strong>Institutional capital is compressing spreads</strong> — firms like Jump Trading now provide liquidity on both Polymarket and Kalshi, and their market-making algorithms actively close pricing gaps. This institutional presence has compressed average arbitrage spreads compared to 2023-2024 levels. The opportunities still exist, but they require faster execution, more precise fee modeling, and more market pairs to maintain the same absolute returns.</li>
+            <li><strong>24/7 compounding across thousands of markets</strong> — prediction markets never close. New events are listed daily across politics, economics, weather, sports, entertainment, and technology. A bot monitoring 500+ market pairs across both platforms has a dramatically larger opportunity set than one watching 20 markets. Mercury's infrastructure supports unlimited market monitoring with no additional cost on the Pro plan.</li>
+            <li><strong>Paper trading validates before capital deployment</strong> — Mercury's free tier includes full paper trading with real-time data from both platforms. Run your arbitrage bot in simulation mode for days or weeks to measure actual fill rates, effective spreads after slippage, and fee-adjusted profitability before committing a single dollar. The Pro plan adds backtesting against historical cross-platform data for more statistically significant validation.</li>
+          </ul>
+          <p>Traders who demonstrate consistent profitability through paper trading or live results can apply for <a href="../funding.html">Mercury Funding</a>, where Mercury provides up to $5,000 in trading capital. You keep 80-85% of the profits. This lets you scale your arbitrage operation without putting your own capital at risk.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FAQ ───────────────────────────────────────────── -->
+  <section class="faq-section" id="faq">
+    <div class="container">
+      <div class="section-label">FAQ</div>
+      <h2 class="faq-headline">Frequently Asked Questions</h2>
+
+      <div class="faq-grid">
+        <details class="faq-item" open>
+          <summary class="faq-question">Is prediction market arbitrage risk-free?</summary>
+          <div class="faq-answer">Not entirely. Resolution divergence, execution risk, and fees create residual risk even in seemingly guaranteed arbitrage trades. Polymarket uses UMA's optimistic oracle while Kalshi settles through CFTC-regulated mechanisms, meaning the "same" event can theoretically resolve differently on each platform. Mercury's risk management nodes — stop-loss, max exposure, and kill switch — help manage these risks automatically.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">How much capital do I need for prediction market arbitrage?</summary>
+          <div class="faq-answer">Start with paper trading on Mercury's free tier to validate your strategy at zero cost. Live arbitrage works best with $500 or more to overcome minimum fees on both platforms and make thin spreads worthwhile. Mercury Funding provides up to $5,000 in trading capital for proven strategies — you keep 80-85% of the profits.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">Can I arbitrage Polymarket and Kalshi with Mercury?</summary>
+          <div class="faq-answer">Yes. Mercury connects to both Polymarket and Kalshi with sub-12ms and sub-18ms execution latency respectively. The visual builder supports parallel Execution nodes that fire both legs of a cross-platform arbitrage simultaneously, and the agentic AI can generate a complete arbitrage bot from a plain English description.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">Do I need to code to build an arbitrage bot?</summary>
+          <div class="faq-answer">No. Mercury's agentic AI generates complete arbitrage bots from plain English descriptions like "monitor all Polymarket and Kalshi markets for cross-platform arbitrage over 2% after fees and execute both legs simultaneously." The visual builder also supports arbitrage with parallel execution paths. Advanced users can access Mercury's REST and WebSocket APIs for programmatic control.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">How fast do prediction market arbitrage opportunities close?</summary>
+          <div class="faq-answer">Most cross-platform arbitrage windows between Polymarket and Kalshi close within seconds, especially on high-volume markets. Manual trading is too slow for consistent arbitrage profits. Mercury's automated execution with sub-20ms latency to both platforms ensures your bot can capture opportunities before they disappear.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FINAL CTA ─────────────────────────────────────── -->
+  <section class="final-cta">
+    <div class="container">
+      <h2 class="final-headline">Start capturing arbitrage spreads today.</h2>
+      <p class="final-sub">Free paper trading. Cross-platform execution. Sub-20ms latency. No code required.</p>
+      <div class="final-ctas">
+        <a href="../signup.html" class="btn btn-primary">Get Started Free</a>
+        <a href="../architect.html" class="btn">Open Architect</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ──────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">Mercury</div>
+          <p class="footer-desc">Liquid intelligence &amp; infrastructure for the next generation of traders.</p>
+        </div>
+        <div>
+          <div class="footer-col-title">Product</div>
+          <ul class="footer-links">
+            <li><a href="../index.html#analytics">Analytics</a></li>
+            <li><a href="../architect.html">Architect</a></li>
+            <li><a href="../architect.html#pricing">Pricing</a></li>
+            <li><a href="../api.html">API</a></li>
+            <li><a href="../signup.html">Sign Up Free</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../careers.html">Careers</a></li>
+            <li><a href="../blog.html">Blog</a></li>
+            <li><a href="../contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <ul class="footer-links">
+            <li><a href="../privacy.html">Privacy</a></li>
+            <li><a href="../terms.html">Terms</a></li>
+            <li><a href="../disclaimer.html">Disclaimer</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Mercury — Hg 80. All rights reserved.</span>
+        <div class="footer-socials">
+          <a href="#">Twitter</a>
+          <a href="#">Discord</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../scripts/auth.js"></script>
+  <script src="../scripts/nav-auth.js"></script>
+  <script src="../scripts/page-transition.js"></script>
+  <script>
+    document.getElementById('hamburgerBtn')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('open');
+    });
+  </script>
+  <script src="../scripts/ambient.js"></script>
+</body>
+</html>

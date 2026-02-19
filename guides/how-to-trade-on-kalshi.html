@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Trade on Kalshi: Beginner's Guide (2026) — Mercury</title>
+  <meta name="description" content="Complete beginner guide to trading on Kalshi. Learn what Kalshi is, how event contracts work, how to place your first trade, and strategies for CFTC-regulated prediction markets.">
+  <link rel="canonical" href="https://mercurysuite.io/guides/how-to-trade-on-kalshi.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Mercury">
+  <meta property="og:url" content="https://mercurysuite.io/guides/how-to-trade-on-kalshi.html">
+  <meta property="og:title" content="How to Trade on Kalshi: Beginner's Guide (2026) — Mercury">
+  <meta property="og:description" content="Complete beginner guide to trading on Kalshi. Learn what Kalshi is, how event contracts work, how to place your first trade, and strategies for CFTC-regulated prediction markets.">
+  <meta property="og:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="How to Trade on Kalshi: Beginner's Guide (2026) — Mercury">
+  <meta name="twitter:description" content="Complete beginner guide to trading on Kalshi. Learn what Kalshi is, how event contracts work, how to place your first trade, and strategies for CFTC-regulated prediction markets.">
+  <meta name="twitter:image" content="https://mercurysuite.io/images/og-default.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <link rel="stylesheet" href="../styles/pages.css">
+  <link rel="stylesheet" href="../styles/guides.css">
+
+  <!-- FAQPage JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is Kalshi legal?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Kalshi is the first CFTC-regulated prediction market exchange in the United States. It operates as a Designated Contract Market (DCM) under the Commodity Exchange Act. US residents in all 50 states can legally trade event contracts on Kalshi, with funds held in segregated accounts under federal oversight."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much money do I need to start on Kalshi?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You can start trading on Kalshi with as little as $10. Contracts are priced between $0.01 and $0.99, so even a small deposit lets you take multiple positions. ACH transfers are free but take 3-5 business days. Debit card deposits are instant but carry a 2% fee. You can also deposit via USDC."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I lose more than I invest on Kalshi?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Kalshi event contracts have a defined maximum loss equal to your purchase price. If you buy a YES contract at $0.40, the most you can lose is $0.40 per contract. There is no margin, no leverage, and no possibility of negative balance. Your risk is always known before you enter a trade."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What are Kalshi fees?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Kalshi fees are typically under 2% per contract. The exchange uses a maker-taker fee structure where limit orders (maker) pay lower fees than market orders (taker). There are no account maintenance fees, no withdrawal fees for ACH, and no monthly subscription required to trade."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I automate my Kalshi trading?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Kalshi provides full API access for automated trading. Mercury Architect is a visual bot builder that connects to Kalshi with sub-18ms execution latency. You can describe a strategy in plain English and Mercury's agentic AI builds the complete bot — no coding required. Paper trading is free, and live trading is available with a Pro subscription."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <!-- ─── NAVBAR ──────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="navbar-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="3"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+        </svg>
+        Mercury
+      </a>
+      <ul class="navbar-links">
+        <li><a href="../index.html">Suite</a></li>
+        <li><a href="../architect.html">Architect</a></li>
+        <li><a href="../architect-app.html#charting">Charting</a></li>
+        <li><a href="#">Backtest</a></li>
+        <li><a href="../architect.html#pricing">Pricing</a></li>
+      </ul>
+      <div class="navbar-actions">
+        <a href="#" class="btn" id="navProfile">Profile</a>
+        <a href="#" class="btn" onclick="window.signOut && window.signOut()">Logout</a>
+      </div>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="../index.html">Suite</a>
+    <a href="../architect.html">Architect</a>
+    <a href="../architect-app.html#charting">Charting</a>
+    <a href="#">Backtest</a>
+    <a href="../architect.html#pricing">Pricing</a>
+    <a href="#" onclick="window.signOut && window.signOut()">Logout</a>
+  </div>
+
+  <!-- ─── PAGE HERO ───────────────────────────────────── -->
+  <section class="page-hero">
+    <div class="container">
+      <div class="section-label">Beginner Guide</div>
+      <h1 class="page-title">How to Trade on Kalshi: Complete Beginner's Guide (2026)</h1>
+      <p class="page-subtitle">Everything you need to start trading event contracts on the first CFTC-regulated prediction market. What Kalshi is, how to fund your account, how to place your first trade, and strategies to build an edge.</p>
+    </div>
+  </section>
+
+  <!-- ─── WHAT IS KALSHI? ─────────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">What Is Kalshi and How Do Event Contracts Work?</h2>
+          <p>Kalshi is the first federally regulated prediction market exchange in the United States. Founded by MIT alumni and regulated by the Commodity Futures Trading Commission (CFTC), Kalshi lets you trade on the outcomes of real-world events &mdash; from tomorrow's inflation report to whether it will rain in Chicago at 3 PM. If you have been looking for a Kalshi tutorial or wondering what Kalshi actually is, the simplest explanation is this: it is a stock exchange for events instead of companies.</p>
+          <p>The instrument you trade on Kalshi is called an <strong>event contract</strong>. Every event contract is a binary YES or NO proposition. "Will CPI come in above 3.5% this month?" "Will the temperature in Dallas exceed 95 degrees between 2 PM and 3 PM?" You buy YES if you think the event will happen, or NO if you think it will not. Each contract is priced between <strong>$0.01 and $0.99</strong>, and that price represents the market's implied probability of the event occurring. A contract priced at $0.65 means the market believes there is roughly a 65% chance the event happens.</p>
+          <p>When the event resolves, every contract settles to either <strong>$1.00</strong> (if the event happened) or <strong>$0.00</strong> (if it did not). If you bought YES at $0.35 and the event occurs, you receive $1.00 &mdash; a profit of $0.65 per contract. If the event does not occur, you lose your $0.35. That is the entire mechanic. Your maximum loss is always the price you paid, and your maximum gain is always the difference between your purchase price and $1.00.</p>
+          <p>What makes Kalshi different from offshore betting sites is regulation. As a CFTC-regulated Designated Contract Market, Kalshi holds customer funds in <strong>segregated accounts</strong>, operates under federal oversight, and provides legal protections that no unregulated platform can offer. Event contracts are a legally recognized asset class in the United States, not a gray-area gamble. This regulatory standing is why institutional traders, quantitative firms, and serious individual traders use Kalshi as their primary prediction market venue.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── HOW TO GET STARTED ──────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="section-label">Getting Started</div>
+      <div class="page-prose">
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">How Do You Get Started on Kalshi?</h2>
+          <p>Setting up your Kalshi account and placing your first trade takes less than 15 minutes. Here is the step-by-step process for beginners.</p>
+
+          <p><strong>1. Create your account and complete verification.</strong> Kalshi requires KYC (Know Your Customer) verification because it is a federally regulated exchange. You will need your full legal name, date of birth, Social Security number, and a US residential address. Verification is typically instant, though some accounts may take up to 24 hours. You must be at least 18 years old and a US resident or citizen.</p>
+
+          <p><strong>2. Fund your account.</strong> Kalshi offers three deposit methods. <strong>ACH bank transfer</strong> is free but takes 3-5 business days to clear. <strong>Debit card</strong> deposits are instant but carry a 2% processing fee &mdash; worth it if you want to start trading immediately. You can also deposit <strong>USDC</strong> (a dollar-pegged stablecoin) for near-instant settlement without the debit card fee. The minimum deposit is approximately <strong>$10</strong>, making Kalshi accessible for beginners who want to learn with small amounts. One feature worth noting: idle USD in your Kalshi account <strong>earns interest</strong>, so your uninvested cash is not sitting dead while you wait for the right trade.</p>
+
+          <p><strong>3. Explore market categories.</strong> Before placing a trade, spend time browsing what is available. Kalshi organizes markets into several major categories:</p>
+          <ul class="legal-list">
+            <li><strong>Economics</strong> &mdash; CPI, GDP, jobs reports, Federal Reserve interest rate decisions</li>
+            <li><strong>Weather</strong> &mdash; Hourly temperature, rainfall, and wind speed contracts across major US cities</li>
+            <li><strong>Politics</strong> &mdash; Election outcomes, policy decisions, congressional votes</li>
+            <li><strong>Sports</strong> &mdash; Game outcomes, player performance, season totals</li>
+            <li><strong>Crypto</strong> &mdash; Bitcoin and Ethereum price milestones, regulatory decisions</li>
+            <li><strong>Entertainment</strong> &mdash; Award shows, box office performance, cultural events</li>
+          </ul>
+          <p>Each category has different trading dynamics. Weather contracts resolve every hour and move fast. Political contracts may not resolve for months. Understanding the time horizon and volatility of each market type helps you choose where to focus as a beginner.</p>
+
+          <p><strong>4. Place your first trade.</strong> Select a contract that interests you and decide whether you believe the outcome is more or less likely than the current market price suggests. If the market prices a YES contract at $0.40 but you believe the true probability is closer to 60%, buying YES gives you an expected edge. When placing your order, you will choose between a <strong>market order</strong> (fills immediately at the best available price) and a <strong>limit order</strong> (fills only at the price you specify or better). Limit orders are almost always preferable because they let you control your entry price and typically pay lower fees. Kalshi uses a <strong>maker-taker fee structure</strong> &mdash; limit orders that add liquidity to the order book (maker orders) pay lower fees than market orders that remove liquidity (taker orders).</p>
+
+          <p><strong>5. Manage and exit your positions.</strong> After entering a trade, you have three options. You can <strong>hold to resolution</strong> and let the contract settle at $1.00 or $0.00. You can <strong>sell before resolution</strong> by placing a sell order on the order book if the price has moved in your favor and you want to lock in profit. Or you can <strong>cut your loss</strong> by selling at a lower price if the market moves against you. Active position management is what separates profitable Kalshi traders from those who simply buy and hope.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── WHAT MAKES KALSHI UNIQUE ────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">What Makes Kalshi Different from Other Platforms?</h2>
+          <p>Kalshi is not a sportsbook, a crypto exchange, or an offshore betting site. Understanding what sets it apart helps you trade it more effectively.</p>
+
+          <p><strong>CFTC regulation provides real legal protections.</strong> Kalshi operates as a Designated Contract Market under the Commodity Exchange Act. Your funds are held in segregated accounts, meaning they are legally separated from Kalshi's operating capital. If the company were to face financial difficulty, your deposits are protected. No unregulated prediction market or offshore sportsbook offers this level of security. For a full comparison of how Kalshi stacks up against other platforms, see our <a href="polymarket-vs-kalshi.html">Polymarket vs Kalshi guide</a>.</p>
+
+          <p><strong>Hourly weather contracts are unique to Kalshi.</strong> No other prediction market offers contracts that resolve every 60 minutes. Temperature, rainfall, and wind speed contracts across dozens of US cities create hundreds of tradable events per day. These markets are driven by quantifiable data &mdash; weather forecasts, historical patterns, real-time sensor readings &mdash; which means your edge comes from analysis, not opinion. Weather markets are where many systematic Kalshi traders build their strategies.</p>
+
+          <p><strong>Economic indicator markets let you trade the data.</strong> CPI, nonfarm payrolls, GDP, and Federal Reserve rate decisions all have corresponding Kalshi contracts. These are markets where understanding macroeconomic data gives you a direct trading advantage. Unlike equity markets, where an inflation surprise affects stock prices indirectly, Kalshi lets you trade the inflation number itself.</p>
+
+          <p><strong>Your idle cash earns interest.</strong> Uninvested dollars in your Kalshi account generate interest automatically. This means you are not penalized for keeping dry powder available while you wait for high-conviction setups. It is a small feature, but it matters for traders who maintain larger account balances and trade selectively.</p>
+
+          <p><strong>You trade against other traders, not the house.</strong> Kalshi is an exchange, not a bookmaker. Every contract you buy is sold by another trader, and vice versa. There is no house edge, no implied vig beyond the exchange fee, and no incentive for the platform to see you lose. The exchange makes money from transaction fees regardless of which side wins. This peer-to-peer structure means the market price reflects genuine collective intelligence, not a bookmaker's risk model designed to ensure the house profits.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TRADING STRATEGIES ──────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="section-label">Strategies</div>
+      <div class="page-prose">
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">What Are the Best Kalshi Trading Strategies for Beginners?</h2>
+          <p>Every profitable Kalshi trader has a defined approach. Here are six beginner-friendly strategies that exploit the unique characteristics of Kalshi's markets.</p>
+        </div>
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Weather Contract Scalping</h2>
+          <p>Kalshi's hourly weather markets create a high-frequency trading environment that rewards systematic analysis. The strategy is straightforward: compare professional weather forecast models (HRRR, GFS, NAM) against the market price. When a temperature contract is priced at $0.45 but HRRR forecasts indicate a 70% probability the threshold will be exceeded, you buy YES and capture the gap. The edge comes from ingesting forecast data faster and more accurately than the average market participant. Because weather contracts resolve every hour, you get rapid feedback on whether your model is working &mdash; and dozens of opportunities to apply it each day.</p>
+        </div>
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Economic Data Release Trading</h2>
+          <p>Scheduled economic releases &mdash; CPI, jobs numbers, GDP &mdash; create predictable volatility windows on Kalshi. Before the release, contracts trade based on market consensus forecasts. At the moment of release, prices snap to reflect the actual data. The strategy is to position before the release when you have an informed view that differs from consensus, or to trade the immediate post-release price action when the market overreacts or underreacts. Knowing the release schedule (BLS, BEA, and Fed calendars are all public) gives you a structural timing advantage that casual traders ignore.</p>
+        </div>
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Political Market Positioning</h2>
+          <p>Political markets on Kalshi tend to move slowly and then violently. Polling data, debate performances, and policy announcements shift probabilities in ways that are often predictable if you follow political analysis closely. The beginner approach is to identify contracts where polling aggregates and prediction models diverge from the Kalshi market price, then take a position and hold through the catalyst. These are longer-duration trades with higher conviction and larger potential payoffs per contract.</p>
+        </div>
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Resolution Sniping</h2>
+          <p>As a contract approaches its resolution time, the outcome often becomes knowable from real-time data before the contract price fully reflects it. A temperature contract with 10 minutes remaining might still trade at $0.88 when live sensor data makes it nearly certain to resolve YES. Buying at $0.88 for a $1.00 payout is only a $0.12 profit per contract, but with win rates above 95%, the expected value compounds quickly. This strategy demands fast data access and rapid execution &mdash; a strong argument for automation.</p>
+        </div>
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Mean Reversion on Overreactions</h2>
+          <p>Kalshi markets, especially hourly weather contracts with thinner liquidity, frequently overshoot on large individual orders. A single aggressive seller can push a contract from $0.55 to $0.35 without any change in the underlying forecast. Mean reversion traders buy these dislocations and sell when the price recovers to fair value. The key is confirming that the price movement was caused by liquidity imbalance rather than new information. Checking external data sources before buying the dip separates informed mean reversion from blindly catching a falling knife.</p>
+        </div>
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Diversification Across Market Categories</h2>
+          <p>Concentrating all your capital in one contract type magnifies both gains and losses. A balanced beginner approach spreads positions across uncorrelated market categories. A weather contract, an economics contract, and a political contract held simultaneously have almost zero correlation with each other. When your weather thesis is wrong, your economics position might offset the loss. This is basic portfolio theory applied to event contracts, and it is the simplest risk management strategy any Kalshi beginner can implement immediately.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── COMMON MISTAKES ─────────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">What Mistakes Do Kalshi Beginners Make?</h2>
+          <p>Most beginners lose money on Kalshi for avoidable reasons. Recognizing these pitfalls before they cost you capital is the fastest way to improve.</p>
+
+          <p><strong>Not reading the resolution rules.</strong> Every Kalshi contract has specific resolution criteria. A temperature contract might specify "official NWS airport station reading" rather than your backyard thermometer. A CPI contract resolves on the initial BLS release, not the revised figure published weeks later. Misunderstanding resolution rules means your trade thesis can be correct and you still lose. Read the rules before entering every trade. This is the single most common mistake Kalshi beginners make.</p>
+
+          <p><strong>Overleveraging on a single contract.</strong> Putting 50% of your account into one YES contract at $0.60 means you lose 30% of your total balance if the event does not happen. Event contracts are binary &mdash; there is no middle ground. A single loss on an oversized position can wipe out weeks of careful gains. Most experienced Kalshi traders limit individual positions to 2-5% of their account.</p>
+
+          <p><strong>Ignoring liquidity and wide spreads.</strong> Not every Kalshi contract has deep liquidity. A contract with a $0.30 bid and a $0.50 ask has a 20-cent spread, which means you are giving up significant edge just by entering. Before placing a trade, check the order book depth. If the spread is wider than a few cents, consider placing a limit order in the middle and waiting for a fill rather than crossing the spread with a market order.</p>
+
+          <p><strong>Emotional trading after losses.</strong> Losing three contracts in a row and then doubling your position size to "make it back" is the fastest path to blowing up a prediction market account. Each trade should be evaluated independently based on its expected value. If your analysis says a contract at $0.40 has a 55% true probability, the math does not change based on whether your last five trades won or lost. Separate your decision process from your emotional state.</p>
+
+          <p><strong>Not using limit orders.</strong> Market orders on Kalshi fill instantly but pay higher taker fees and often cross wide spreads. Limit orders let you set your entry price, pay lower maker fees, and avoid overpaying in thin markets. The few seconds of patience required to place and wait for a limit order fill can save you hundreds of dollars in fees and slippage over time. Make limit orders your default unless you need an immediate fill for a time-sensitive strategy.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── AUTOMATE YOUR TRADING ───────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="section-label">Automation</div>
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">How Can You Automate Your Kalshi Trading?</h2>
+          <p>Manual trading on Kalshi works for political markets and single economic events. But for high-frequency categories like hourly weather &mdash; where hundreds of contracts resolve every day across dozens of cities &mdash; human attention becomes the bottleneck. You cannot watch 200 weather contracts simultaneously, compare each one against forecast models, and execute limit orders on every mispricing. That is where automation changes the game.</p>
+
+          <p><strong>Mercury Architect</strong> is a visual bot builder with agentic AI designed specifically for prediction market trading. Instead of writing code or configuring API connections manually, you build strategies by describing what you want in plain English. Tell the AI, "Buy YES on Kalshi hourly temperature contracts when the HRRR forecast diverges from the market-implied probability by more than 15 percentage points, with $20 max per position and a 10% trailing stop," and the agentic AI generates the complete bot: trigger nodes, condition filters, execution logic, and risk management &mdash; all wired together and ready to test.</p>
+
+          <p>The visual node graph lets you inspect, modify, and fine-tune every component before going live. You can <strong>paper trade for free</strong> against live Kalshi market data to validate your edge without risking capital. When you are ready, <a href="../architect.html#pricing">Pro accounts ($99/mo)</a> unlock live execution with <strong>sub-18ms latency</strong> to Kalshi's matching engine and <strong>99.98% uptime</strong>. Your bots run on Mercury's server infrastructure 24/7 &mdash; no need to keep your computer running or manage a cloud server.</p>
+
+          <p>Whether you are scalping weather contracts, trading economic releases, or sniping resolutions, automation lets you capture opportunities that manual traders physically cannot reach. Ready to build your first bot? Read the <a href="build-kalshi-bot.html">complete Kalshi bot builder guide</a> for the full step-by-step walkthrough. You can also explore how Kalshi compares to other platforms in our <a href="how-to-trade-on-polymarket.html">Polymarket trading guide</a>.</p>
+
+          <div style="margin-top: 2rem;">
+            <a href="../signup.html" class="btn btn-primary">Get Started Free</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FAQ ─────────────────────────────────────────── -->
+  <section class="faq-section" id="faq">
+    <div class="container">
+      <div class="section-label">// FAQ</div>
+      <h2 class="faq-headline">Frequently Asked Questions</h2>
+      <div class="faq-grid">
+
+        <details class="faq-item" open>
+          <summary class="faq-question">Is Kalshi legal?</summary>
+          <div class="faq-answer">
+            <p>Yes. Kalshi is the first CFTC-regulated prediction market exchange in the United States. It operates as a Designated Contract Market (DCM) under the Commodity Exchange Act. US residents in all 50 states can legally trade event contracts on Kalshi, with funds held in segregated accounts under federal oversight. This makes Kalshi the only prediction market with full federal regulatory approval for US traders.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">How much money do I need to start on Kalshi?</summary>
+          <div class="faq-answer">
+            <p>You can start trading on Kalshi with as little as $10. Contracts are priced between $0.01 and $0.99, so even a small deposit lets you take multiple positions across different markets. ACH transfers are free but take 3-5 business days. Debit card deposits are instant but carry a 2% fee. You can also deposit via USDC for near-instant settlement without the card fee.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">Can I lose more than I invest on Kalshi?</summary>
+          <div class="faq-answer">
+            <p>No. Kalshi event contracts have a defined maximum loss equal to your purchase price. If you buy a YES contract at $0.40, the most you can lose is $0.40 per contract. There is no margin, no leverage, and no possibility of a negative balance. Your risk is always known before you enter a trade, making event contracts one of the most transparent instruments available.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">What are Kalshi fees?</summary>
+          <div class="faq-answer">
+            <p>Kalshi fees are typically under 2% per contract. The exchange uses a maker-taker fee structure: limit orders that add liquidity to the order book (maker orders) pay lower fees than market orders that remove liquidity (taker orders). There are no account maintenance fees, no withdrawal fees for ACH, and no monthly subscription required to trade. Using limit orders is the simplest way to minimize your fee costs.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">Can I automate my Kalshi trading?</summary>
+          <div class="faq-answer">
+            <p>Yes. Kalshi provides full API access for automated trading. <a href="../architect.html">Mercury Architect</a> is a visual bot builder that connects to Kalshi with sub-18ms execution latency. You can describe a strategy in plain English and Mercury's agentic AI builds the complete bot &mdash; no coding required. Paper trading is free, and live trading is available with a <a href="../architect.html#pricing">Pro subscription ($99/mo)</a>. Read the <a href="build-kalshi-bot.html">full bot builder guide</a> for a detailed walkthrough.</p>
+          </div>
+        </details>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FINAL CTA ───────────────────────────────────── -->
+  <section class="final-cta">
+    <div class="container">
+      <h2 class="final-headline">Start trading smarter.</h2>
+      <p class="final-sub">Visual bot builder. Sub-18ms Kalshi execution. Paper trade free, go live when you are ready. Mercury handles the infrastructure &mdash; you define the strategy.</p>
+      <div class="final-ctas">
+        <a href="../signup.html" class="btn btn-primary">Get Started Free</a>
+        <a href="../architect.html" class="btn">Explore Architect</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ──────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">Mercury</div>
+          <p class="footer-desc">Liquid intelligence &amp; infrastructure for the next generation of traders.</p>
+        </div>
+        <div>
+          <div class="footer-col-title">Product</div>
+          <ul class="footer-links">
+            <li><a href="../index.html#analytics">Analytics</a></li>
+            <li><a href="../architect.html">Architect</a></li>
+            <li><a href="../architect.html#pricing">Pricing</a></li>
+            <li><a href="../api.html">API</a></li>
+            <li><a href="../signup.html">Sign Up Free</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../careers.html">Careers</a></li>
+            <li><a href="../blog.html">Blog</a></li>
+            <li><a href="../contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <ul class="footer-links">
+            <li><a href="../privacy.html">Privacy</a></li>
+            <li><a href="../terms.html">Terms</a></li>
+            <li><a href="../disclaimer.html">Disclaimer</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Mercury — Hg 80. All rights reserved.</span>
+        <div class="footer-socials">
+          <a href="#">Twitter</a>
+          <a href="#">Discord</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../scripts/auth.js"></script>
+  <script src="../scripts/nav-auth.js"></script>
+  <script src="../scripts/page-transition.js"></script>
+  <script>
+    document.getElementById('hamburgerBtn')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('open');
+    });
+  </script>
+  <script src="../scripts/ambient.js"></script>
+</body>
+</html>

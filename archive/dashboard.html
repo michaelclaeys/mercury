@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Dashboard — Mercury</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/dashboard.css">
+</head>
+<body>
+  <!-- Mobile Menu Button -->
+  <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <svg class="logo-orbit" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="3"/>
+        <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
+        <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+      </svg>
+      <div class="logo-text-group">
+        <span class="logo-name">Mercury</span>
+        <span class="logo-sub">ANALYTICS</span>
+      </div>
+    </a>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="nav-item nav-item--home" onclick="closeSidebarOnMobile()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        Suite Home
+      </a>
+      <a href="#overview" class="nav-item active" onclick="closeSidebarOnMobile()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        Dashboard
+      </a>
+      <a href="#" class="nav-item" onclick="closeSidebarOnMobile()" id="profileNavItem">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        Profile
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-details">
+          <span class="user-name" id="userName">Loading...</span>
+          <span class="user-plan" id="userPlan">Free Plan</span>
+        </div>
+      </div>
+      <button class="sign-out-btn" onclick="window.signOut()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- BTC Price Summary Bar -->
+    <div class="summary-bar" id="summaryBar">
+      <div class="summary-price-group">
+        <span class="summary-asset-icon">&#x20BF;</span>
+        <div class="summary-price-info">
+          <span class="summary-price" id="summaryPrice">--</span>
+          <span class="summary-change" id="summaryChange">--</span>
+        </div>
+      </div>
+      <div class="summary-divider"></div>
+      <div class="summary-level">
+        <span class="summary-level-label">Max Pain</span>
+        <span class="summary-level-value" id="summaryMaxPain">--</span>
+      </div>
+      <div class="summary-level">
+        <span class="summary-level-label">Flip</span>
+        <span class="summary-level-value" id="summaryFlip">--</span>
+      </div>
+      <div class="summary-divider"></div>
+      <div class="summary-regime" id="summaryRegime">
+        <span class="summary-regime-dot"></span>
+        <span class="summary-regime-text">--</span>
+      </div>
+    </div>
+
+    <!-- ========== OVERVIEW SECTION ========== -->
+    <section id="overview" class="dashboard-section">
+      <div class="overview-card">
+        <div class="overview-card-header">
+          <div class="card-header-left">
+            <div class="asset-selector">
+              <button class="asset-btn active" data-asset="BTC">BTC</button>
+              <button class="asset-btn" data-asset="ETH" onclick="alert('ETH coming soon')">ETH</button>
+            </div>
+            <span class="session-label" id="sessionLabel">SESSION</span>
+            <div class="mode-toggle">
+              <span class="mode-label">Raw</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="advancedModeToggle">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="card-header-right">
+            <span class="card-meta" id="lastUpdated">Loading...</span>
+            <button class="replay-toggle-btn" id="replayToggleBtn" title="Replay mode">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5,3 19,12 5,21" fill="none"/>
+                <line x1="2" y1="2" x2="2" y2="22"/>
+              </svg>
+            </button>
+            <button class="refresh-btn" id="refreshBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="overview-body">
+          <div class="chart-wrapper">
+            <div class="skeleton-rect" id="priceChartSkeleton"></div>
+            <div id="priceView" class="chart-view skeleton-hidden block active-view">
+              <div id="priceChart" style="width:100%;height:100%;"></div>
+            </div>
+            <div id="dealerGexView" class="chart-view" style="display:none;"><div id="dealerGexChart"></div></div>
+            <div id="gammaView" class="chart-view" style="display:none;"><div id="gammaProfileChart"></div></div>
+            <div id="vannaView" class="chart-view" style="display:none;"><div id="vannaHeatmap"></div></div>
+            <div id="charmView" class="chart-view" style="display:none;"><div id="charmCurveChart"></div></div>
+            <div id="spotVolView" class="chart-view" style="display:none;"><div id="spotVolChart"></div></div>
+            <div class="gamma-field-inline" id="gammaFieldBar"></div>
+            <div class="replay-bar" id="replayBar" style="display:none;">
+              <button class="replay-btn" id="replayPlayBtn" title="Play / Pause">
+                <svg id="replayIconPlay" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                <svg id="replayIconPause" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
+              </button>
+              <input type="range" class="replay-slider" id="replaySlider" min="0" max="100" value="100">
+              <span class="replay-time" id="replayTime"></span>
+              <button class="replay-btn replay-close" id="replayCloseBtn" title="Exit replay">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="key-levels-panel">
+            <div class="panel-section chart-views">
+              <div class="view-tabs">
+                <button class="view-tab active" data-view="price">Price</button>
+                <button class="view-tab" data-view="dealerGex">GEX</button>
+                <button class="view-tab" data-view="vanna">Vanna</button>
+                <button class="view-tab" data-view="charm">Charm</button>
+                <button class="view-tab" data-view="spotVol">Vol</button>
+              </div>
+            </div>
+            <div class="panel-section panel-snapshot">
+              <div class="panel-row">
+                <span class="panel-label">SPOT</span>
+                <span class="panel-val cyan" id="panelSpot">--</span>
+              </div>
+              <div class="panel-row">
+                <span class="panel-label">0&#947;</span>
+                <span class="panel-val" id="panelZeroGamma">--</span>
+              </div>
+              <div class="panel-row">
+                <span class="panel-label">MAX PAIN</span>
+                <span class="panel-val" id="panelMaxPain">--</span>
+              </div>
+              <div class="panel-row">
+                <span class="panel-label">NET GEX</span>
+                <span class="panel-val" id="panelNetGex">--</span>
+              </div>
+              <div class="panel-row">
+                <span class="panel-label">VANNA</span>
+                <span class="panel-val" id="panelNetVanna">--</span>
+              </div>
+              <div class="panel-row">
+                <span class="panel-label">CHARM</span>
+                <span class="panel-val" id="panelNetCharm">--</span>
+              </div>
+            </div>
+            <div class="panel-section panel-ladder-section">
+              <div class="panel-title">STRIKE LADDER</div>
+              <div class="panel-ladder" id="panelStrikeLadder">
+                <div class="panel-row"><span class="panel-label">--</span></div>
+              </div>
+            </div>
+            <div class="panel-footer">
+              <span class="panel-status" id="panelStatus">loading</span>
+              <span class="panel-date" id="panelFooterDate">--</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="levels-table-wrap advanced" id="advancedModeSection" style="display: none;">
+          <div class="table-header advanced">
+            <span>Strike</span>
+            <span>Type</span>
+            <span>GEX</span>
+            <span>Vanna ($M)</span>
+            <span>Charm ($M)</span>
+            <span>OI</span>
+            <span>Score</span>
+          </div>
+          <div class="table-body" id="advancedTableBody">
+            <div class="loading-row">
+              <span class="loading-spinner"></span>
+              <span>Loading data...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay hidden" id="loadingOverlay">
+    <div class="loading-content">
+      <div class="loading-spinner large"></div>
+      <span>Updating...</span>
+    </div>
+  </div>
+
+  <!-- Error Toast -->
+  <div class="toast error" id="errorToast">
+    <span class="toast-message"></span>
+    <button class="toast-close">&times;</button>
+  </div>
+
+  <!-- Scripts -->
+  <script src="./scripts/page-transition.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.1/dist/apexcharts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./scripts/auth.js"></script>
+  <script src="./scripts/dashboard.js"></script>
+  
+  <script>
+    // Mobile sidebar toggle
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('open');
+    }
+
+    function closeSidebarOnMobile() {
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('open');
+      }
+    }
+
+    // Nav active state on scroll
+    document.addEventListener('DOMContentLoaded', () => {
+      const sections = document.querySelectorAll('.dashboard-section');
+      const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+      
+      function updateActiveNav() {
+        let current = '';
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          if (window.pageYOffset >= sectionTop - 100) {
+            current = section.getAttribute('id');
+          }
+        });
+        
+        navItems.forEach(item => {
+          item.classList.remove('active');
+          if (item.getAttribute('href') === '#' + current) {
+            item.classList.add('active');
+          }
+        });
+      }
+      
+      window.addEventListener('scroll', updateActiveNav);
+      
+    });
+  </script>
+</body>
+</html>

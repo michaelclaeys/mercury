@@ -45,9 +45,15 @@ async function initAuth() {
   }
 }
 
-// Funding sidebar link handler — everyone can read about funding
-function handleArchitectFunding() {
-  window.location.href = 'funding.html';
+// Funding sidebar link — now uses data-view="funding" (handled by switchView)
+
+// ═══════════════════════════════════════════════════════════════
+// ENGINE BASE URL
+// ═══════════════════════════════════════════════════════════════
+function getEngineBase() {
+  if (window.MERCURY_CONFIG && window.MERCURY_CONFIG.engineBase) return window.MERCURY_CONFIG.engineBase;
+  if (window.location.protocol === 'file:') return 'http://localhost:8778';
+  return '';  // same-origin when served from engine
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -186,61 +192,6 @@ const NODE_TYPES = {
       { key: 'poll_interval', type: 'number', label: 'Poll Interval (sec)', default: 60, min: 5, max: 3600 },
     ],
   },
-  'spread-detector': {
-    category: 'trigger', label: 'Spread Detector', color: '#00c853',
-    inputs: [{ id: 'in', label: 'Input' }],
-    outputs: [{ id: 'out', label: 'Signal' }],
-    properties: [
-      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
-      { key: 'platform_a', type: 'select', label: 'Platform A', options: ['Polymarket', 'Kalshi'], default: 'Polymarket' },
-      { key: 'platform_b', type: 'select', label: 'Platform B', options: ['Polymarket', 'Kalshi'], default: 'Kalshi' },
-      { key: 'minSpread', type: 'number', label: 'Min Spread (cents)', default: 3, min: 1, max: 50 },
-    ],
-  },
-  'whale-alert': {
-    category: 'trigger', label: 'Whale Alert', color: '#00c853',
-    inputs: [{ id: 'in', label: 'Input' }],
-    outputs: [{ id: 'out', label: 'Signal' }],
-    properties: [
-      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
-      { key: 'minSize', type: 'number', label: 'Min Order Size ($)', default: 5000, min: 100 },
-      { key: 'side', type: 'select', label: 'Side', options: ['Any', 'Buy', 'Sell'], default: 'Any' },
-      { key: 'market', type: 'select', label: 'Market', options: ['Any', 'Polymarket', 'Kalshi'], default: 'Any' },
-    ],
-  },
-  'resolution-countdown': {
-    category: 'trigger', label: 'Resolution Countdown', color: '#00c853',
-    inputs: [{ id: 'in', label: 'Input' }],
-    outputs: [{ id: 'out', label: 'Signal' }],
-    properties: [
-      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
-      { key: 'timeLeft', type: 'select', label: 'Time Remaining', options: ['1hr', '6hr', '12hr', '24hr', '48hr', '7d'], default: '24hr' },
-      { key: 'probDirection', type: 'select', label: 'Prob Trending', options: ['Any', 'Toward YES', 'Toward NO'], default: 'Any' },
-    ],
-  },
-  'sentiment': {
-    category: 'trigger', label: 'Sentiment', color: '#00c853',
-    inputs: [{ id: 'in', label: 'Input' }],
-    outputs: [{ id: 'out', label: 'Signal' }],
-    properties: [
-      { key: 'source', type: 'select', label: 'Source', options: ['Twitter/X', 'News Headlines', 'Reddit', 'Combined'], default: 'Combined' },
-      { key: 'keyword', type: 'text', label: 'Keyword/Topic', default: '' },
-      { key: 'sentiment', type: 'select', label: 'Fire When', options: ['Bullish', 'Bearish', 'Extreme Bullish', 'Extreme Bearish', 'Sentiment Shift'], default: 'Bullish' },
-      { key: 'minScore', type: 'number', label: 'Min Confidence (%)', default: 70, min: 0, max: 100 },
-    ],
-  },
-  'social-buzz': {
-    category: 'trigger', label: 'Social Buzz', color: '#00c853',
-    inputs: [{ id: 'in', label: 'Input' }],
-    outputs: [{ id: 'out', label: 'Signal' }],
-    properties: [
-      { key: 'preset', type: 'select', label: 'Preset', options: ['Custom', 'Crypto Twitter', 'Political', 'Disaster/Weather', 'Meme Stocks'], default: 'Custom' },
-      { key: 'keyword', type: 'text', label: 'Keyword/Topic', default: '', placeholder: 'hurricane, #btc, trump...' },
-      { key: 'spike_pct', type: 'number', label: 'Spike Threshold (%)', default: 200, min: 50, max: 1000 },
-      { key: 'min_mentions', type: 'number', label: 'Min Mentions', default: 50, min: 1 },
-      { key: 'poll_interval', type: 'number', label: 'Poll Interval (sec)', default: 60, min: 30, max: 3600 },
-    ],
-  },
   'news-alert': {
     category: 'trigger', label: 'News Alert', color: '#00c853',
     inputs: [{ id: 'in', label: 'Input' }],
@@ -253,28 +204,6 @@ const NODE_TYPES = {
       { key: 'keyword', type: 'text', label: 'Keyword Filter', default: '', placeholder: 'hurricane, tornado...' },
       { key: 'region', type: 'text', label: 'Region Filter', default: '', placeholder: 'Florida, California...' },
       { key: 'poll_interval', type: 'number', label: 'Poll Interval (sec)', default: 120, min: 30, max: 3600 },
-    ],
-  },
-  'multi-market': {
-    category: 'trigger', label: 'Multi-Market', color: '#00c853',
-    inputs: [{ id: 'in', label: 'Input' }],
-    outputs: [{ id: 'out', label: 'Signal' }],
-    properties: [
-      { key: 'contracts', type: 'text', label: 'Contracts (comma-sep)', default: '' },
-      { key: 'condition', type: 'select', label: 'Condition', options: ['Any Moves', 'All Move Same Dir', 'Divergence Detected', 'Avg Crosses Level'], default: 'Any Moves' },
-      { key: 'threshold', type: 'number', label: 'Threshold (cents)', default: 5, min: 1, max: 50 },
-    ],
-  },
-  'order-flow': {
-    category: 'trigger', label: 'Order Flow', color: '#00c853',
-    inputs: [{ id: 'in', label: 'Input' }],
-    outputs: [{ id: 'out', label: 'Signal' }],
-    properties: [
-      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
-      { key: 'metric', type: 'select', label: 'Metric', options: ['Buy/Sell Ratio', 'Net Flow ($)', 'Order Count Spike', 'Bid Wall Detected', 'Ask Wall Detected'], default: 'Buy/Sell Ratio' },
-      { key: 'operator', type: 'select', label: 'Operator', options: ['>', '<', 'Crosses Above', 'Crosses Below'], default: '>' },
-      { key: 'threshold', type: 'number', label: 'Threshold', default: 2, min: 0 },
-      { key: 'window', type: 'select', label: 'Window', options: ['5min', '15min', '1hr', '4hr'], default: '1hr' },
     ],
   },
 
@@ -704,9 +633,7 @@ function cacheElements() {
   // Agent panel (replaces old AI terminal)
   el.agentPanel = document.getElementById('agentPanel');
   el.agentTabContent = document.getElementById('agentTabContent');
-  el.researchTabContent = document.getElementById('researchTabContent');
   el.tabAgent = document.getElementById('tabAgent');
-  el.tabResearch = document.getElementById('tabResearch');
   el.agentMessages = document.getElementById('agentMessages');
   el.agentInput = document.getElementById('agentInput');
   el.agentSend = document.getElementById('agentSend');
@@ -739,10 +666,13 @@ document.addEventListener('DOMContentLoaded', () => {
     try { setupEventListeners(); }
     catch (e) { console.error('[Mercury] setupEventListeners failed:', e); }
 
-    // Check for #research hash to deep-link into research view
+    // Check for #charting hash to deep-link into charting view
     const hashView = window.location.hash.replace('#', '');
     try {
-      if (hashView === 'research') { switchView('research'); }
+      if (hashView === 'charting') { switchView('charting'); }
+      else if (hashView === 'catalyst') { switchView('catalyst'); }
+      else if (hashView === 'bonding-arb') { switchView('bonding-arb'); }
+      else if (hashView === 'funding') { switchView('funding'); }
       else { switchView('builder'); }
     } catch (e) { console.error('[Mercury] switchView failed:', e); }
 
@@ -807,20 +737,23 @@ document.addEventListener('DOMContentLoaded', () => {
 // VIEW SWITCHING
 // ═══════════════════════════════════════════════════════════════
 function switchView(viewName, params) {
-  // ── Tier gating ──
-  if (viewName === 'backtest' && window.MercuryTiers && !window.MercuryTiers.tierCan(userTier, 'backtest')) {
-    if (typeof showUpgradeModal === 'function') showUpgradeModal('backtest');
-    return;
-  }
 
   if (logInterval) { clearInterval(logInterval); logInterval = null; }
   stopEngineLogPolling();
 
-  // Teardown research dashboard when leaving
-  if (typeof teardownResearchDashboard === 'function') teardownResearchDashboard();
+  // Teardown charting dashboard when leaving
+  if (typeof teardownChartingDashboard === 'function') teardownChartingDashboard();
+  // Teardown catalyst view when leaving
+  if (typeof teardownCatalystView === 'function') teardownCatalystView();
+  // Teardown bonding arb view when leaving
+  if (typeof teardownBondingArbView === 'function') teardownBondingArbView();
+  // Teardown portfolio view when leaving
+  if (typeof teardownPortfolioView === 'function') teardownPortfolioView();
+  // Teardown funding view when leaving
+  if (typeof teardownFundingView === 'function') teardownFundingView();
 
   // Play transition scoped to main content area (not sub-navigation like bot-detail)
-  const transitionViews = ['builder', 'my-bots', 'backtest', 'templates', 'research'];
+  const transitionViews = ['builder', 'my-bots', 'backtest', 'templates', 'charting', 'portfolio', 'bonding-arb', 'catalyst', 'funding'];
   if (transitionViews.includes(viewName) && viewName !== currentView && typeof playMercuryTransition === 'function') {
     const mainContent = document.querySelector('.main-content');
     playMercuryTransition({ container: mainContent });
@@ -846,7 +779,8 @@ function switchView(viewName, params) {
   // Update logo sub-text based on current view
   const logoSub = document.querySelector('.logo-sub');
   if (logoSub) {
-    logoSub.textContent = viewName === 'research' ? 'Research' : 'Architect';
+    const subTexts = { charting: 'Charting', portfolio: 'Portfolio', 'bonding-arb': 'Bonding Arb', catalyst: 'Catalyst', funding: 'Funding' };
+    logoSub.textContent = subTexts[viewName] || 'Architect';
   }
 
   // Clean up when leaving bot detail view
@@ -875,15 +809,20 @@ function switchView(viewName, params) {
     case 'templates':
       renderTemplates();
       break;
-    case 'research':
-      // Ensure sidebar Agent/Research tabs reflect Research as active
-      if (el.tabAgent) el.tabAgent.classList.remove('active');
-      if (el.tabResearch) el.tabResearch.classList.add('active');
-      if (el.agentTabContent) {
-        el.agentTabContent.style.display = 'none';
-        el.agentTabContent.classList.remove('active');
-      }
-      if (typeof initResearchDashboard === 'function') initResearchDashboard();
+    case 'charting':
+      // Charting is locked — show Coming Soon overlay, don't init dashboard
+      break;
+    case 'portfolio':
+      if (typeof initPortfolioView === 'function') initPortfolioView();
+      break;
+    case 'bonding-arb':
+      if (typeof initBondingArbView === 'function') initBondingArbView();
+      break;
+    case 'catalyst':
+      if (typeof initCatalystView === 'function') initCatalystView();
+      break;
+    case 'funding':
+      if (typeof initFundingView === 'function') initFundingView();
       break;
   }
 }
@@ -904,6 +843,27 @@ function setupEventListeners() {
   // Mobile menu
   document.getElementById('mobileMenuBtn').addEventListener('click', toggleSidebar);
   el.sidebarOverlay.addEventListener('click', toggleSidebar);
+
+  // Charting waitlist form
+  const waitlistForm = document.getElementById('chartingWaitlistForm');
+  if (waitlistForm) {
+    waitlistForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const emailInput = document.getElementById('chartingWaitlistEmail');
+      const msg = document.getElementById('chartingWaitlistMsg');
+      const btn = waitlistForm.querySelector('.charting-lock-btn');
+      if (emailInput && emailInput.value) {
+        btn.disabled = true;
+        btn.textContent = 'Joining...';
+        // Simulate API call — replace with real endpoint
+        setTimeout(() => {
+          emailInput.style.display = 'none';
+          btn.style.display = 'none';
+          if (msg) msg.textContent = "You're on the list — we'll notify you at launch.";
+        }, 800);
+      }
+    });
+  }
 
   // Palette group toggles
   document.querySelectorAll('.palette-group-header').forEach(header => {
@@ -991,6 +951,22 @@ function setupEventListeners() {
   if (btnExport) btnExport.addEventListener('click', exportStrategy);
   if (btnImport) btnImport.addEventListener('click', importStrategy);
 
+  // Script overlay buttons
+  const btnCopyScript = document.getElementById('btnCopyScript');
+  const btnSwitchToNodes = document.getElementById('btnSwitchToNodes');
+  if (btnCopyScript) btnCopyScript.addEventListener('click', () => {
+    if (activeScript) {
+      navigator.clipboard.writeText(activeScript).then(() => showToast('Script copied to clipboard'));
+    }
+  });
+  if (btnSwitchToNodes) btnSwitchToNodes.addEventListener('click', () => {
+    hideScriptOverlay();
+    if (nodes.length === 0) loadDefaultStrategy();
+    updateMercuryScript();
+    autoSaveStrategy();
+    showToast('Switched to node editor');
+  });
+
   // Inspector
   document.getElementById('inspectorClose').addEventListener('click', deselectNode);
   document.getElementById('btnDeleteNode').addEventListener('click', () => {
@@ -1004,9 +980,8 @@ function setupEventListeners() {
     if (e.key === 'Enter') handleAgentInput();
   });
 
-  // Agent panel tabs
+  // Agent panel tab
   if (el.tabAgent) el.tabAgent.addEventListener('click', () => switchAgentTab('agent'));
-  if (el.tabResearch) el.tabResearch.addEventListener('click', () => switchAgentTab('research'));
 
   // Floating palette
   if (el.btnPaletteToggle) el.btnPaletteToggle.addEventListener('click', () => toggleFloatingPalette(true));
@@ -1801,6 +1776,15 @@ function updatePortDots() {
 function updateMercuryScript() {
   if (!el.mercuryScriptCode) return;
 
+  // If a script strategy is active, show that instead of node pseudocode
+  if (activeScript) {
+    el.mercuryScriptCode.innerHTML =
+      '<span class="ms-comment"># AI-generated strategy script</span>\n' +
+      '<span class="ms-comment"># ' + escapeHtml(activeScriptName || 'AI Strategy') + '</span>\n\n' +
+      escapeHtml(activeScript);
+    return;
+  }
+
   if (nodes.length === 0) {
     el.mercuryScriptCode.innerHTML = '<span class="ms-comment"># No nodes yet — drag nodes or ask AI to build a strategy</span>';
     return;
@@ -1932,6 +1916,30 @@ function compileStrategy() {
   const errors = [];
   const stratName = (el.strategyName ? el.strategyName.value : '') || 'untitled_strategy';
 
+  // Script-based strategy (AI agent) — bypass node compilation
+  if (activeScript) {
+    const assetConfig = activeScriptAsset || window._agentAssetConfig || {
+      asset_type: 'prediction_market', symbol: '', platform: 'Auto',
+    };
+    const strategy = {
+      version: 1,
+      name: stratName,
+      compiled_at: new Date().toISOString(),
+      node_count: 0,
+      connection_count: 0,
+      pipeline: { triggers: [], conditions: [], executions: [], risk: [] },
+      layout: { nodes: [], connections: [] },
+      config: {
+        platform: assetConfig.platform || 'Auto',
+        capital: 10000,
+        mode: 'paper',
+        asset: assetConfig,
+      },
+      script: activeScript,
+    };
+    return { strategy, errors: [] };
+  }
+
   if (nodes.length === 0) {
     errors.push('Canvas is empty — add nodes to build a strategy');
     return { strategy: null, errors };
@@ -2028,6 +2036,9 @@ function compileStrategy() {
     risk: riskNodes.map(n => serializeNode(n)),
   };
 
+  // Extract asset config from node parameters
+  const assetConfig = extractAssetConfig(nodes);
+
   // Build full strategy object
   const strategy = {
     version: 1,
@@ -2048,10 +2059,77 @@ function compileStrategy() {
       platform: 'Auto',
       capital: 10000,
       mode: 'paper',
+      asset: assetConfig,
     },
   };
 
   return { strategy, errors };
+}
+
+/**
+ * Scan canvas nodes to infer what asset/market this strategy targets.
+ * Returns an AssetConfig object matching the backend model.
+ */
+function extractAssetConfig(nodeList) {
+  const config = {
+    asset_type: 'prediction_market',
+    symbol: '',
+    platform: 'Auto',
+    market_id: null,
+    token_id: null,
+    kalshi_ticker: null,
+  };
+
+  // 1. Check contract-picker nodes for prediction market IDs
+  for (const n of nodeList) {
+    const contract = n.properties && n.properties.contract;
+    if (contract && typeof contract === 'object') {
+      if (contract.market_id) config.market_id = contract.market_id;
+      if (contract.token_id) config.token_id = contract.token_id;
+      if (contract.kalshi_ticker) {
+        config.kalshi_ticker = contract.kalshi_ticker;
+        config.platform = 'Kalshi';
+      }
+      if (config.market_id && !config.kalshi_ticker) config.platform = 'Polymarket';
+      return config; // Prediction market takes priority
+    }
+  }
+
+  // 2. Check api-data nodes for asset presets
+  const PRESET_MAP = {
+    'BTC Price (USD)':  { asset_type: 'crypto', symbol: 'BTC' },
+    'ETH Price (USD)':  { asset_type: 'crypto', symbol: 'ETH' },
+    'Gold Price (USD/oz)': { asset_type: 'stocks', symbol: 'GOLD' },
+  };
+  for (const n of nodeList) {
+    if (n.type === 'api-data') {
+      const preset = n.properties && n.properties.preset;
+      if (preset && PRESET_MAP[preset]) {
+        Object.assign(config, PRESET_MAP[preset]);
+        return config;
+      }
+    }
+  }
+
+  // 3. Check news-alert nodes for weather presets
+  for (const n of nodeList) {
+    if (n.type === 'news-alert') {
+      const preset = n.properties && n.properties.preset;
+      if (preset === 'NWS Weather Alerts') {
+        config.asset_type = 'weather';
+        config.symbol = 'NYC_TEMP'; // Default city
+        return config;
+      }
+    }
+  }
+
+  // 4. Fallback: check if AI agent set an asset config
+  if (window._agentAssetConfig && window._agentAssetConfig.symbol) {
+    Object.assign(config, window._agentAssetConfig);
+    return config;
+  }
+
+  return config;
 }
 
 /**
@@ -2118,13 +2196,32 @@ function importStrategy() {
  * Load a strategy JSON onto the canvas, rebuilding all nodes and connections.
  */
 function loadStrategyFromJSON(strategy) {
-  if (!strategy || !strategy.layout) {
-    showToast('Invalid strategy format — missing layout data', 'error');
+  if (!strategy) {
+    showToast('Invalid strategy file', 'error');
     return;
   }
 
   pushUndo();
 
+  // Script-based strategy
+  if (strategy.script) {
+    clearCanvas();
+    if (strategy.config && strategy.config.asset) {
+      activeScriptAsset = strategy.config.asset;
+      window._agentAssetConfig = strategy.config.asset;
+    }
+    showScriptOverlay(strategy.script, strategy.name || 'Imported Script');
+    if (strategy.config) window._lastImportedConfig = strategy.config;
+    return;
+  }
+
+  // Node-based strategy
+  if (!strategy.layout) {
+    showToast('Invalid strategy format — missing layout data', 'error');
+    return;
+  }
+
+  hideScriptOverlay();
   _suppressAutoSave = true;
   clearCanvas();
 
@@ -2172,7 +2269,7 @@ const AUTOSAVE_VERSION = 4; // Bump to invalidate old autosaves
 
 function autoSaveStrategy() {
   if (_suppressAutoSave) return;
-  if (nodes.length === 0) {
+  if (nodes.length === 0 && !activeScript) {
     localStorage.removeItem('mercury_autosave');
     return;
   }
@@ -2188,6 +2285,10 @@ function autoSaveStrategy() {
     nextNodeId,
     nextConnId,
     savedAt: Date.now(),
+    // Script strategy state
+    script: activeScript || null,
+    scriptName: activeScriptName || null,
+    scriptAsset: activeScriptAsset || null,
   };
 
   localStorage.setItem('mercury_autosave', JSON.stringify(state));
@@ -2203,13 +2304,22 @@ function restoreAutoSave() {
 
   try {
     const state = JSON.parse(saved);
-    if (!state.nodes || state.nodes.length === 0) return false;
 
     // Discard autosaves from older versions
     if ((state.v || 0) < AUTOSAVE_VERSION) {
       localStorage.removeItem('mercury_autosave');
       return false;
     }
+
+    // Restore script-based strategy
+    if (state.script) {
+      activeScriptAsset = state.scriptAsset || null;
+      if (activeScriptAsset) window._agentAssetConfig = activeScriptAsset;
+      showScriptOverlay(state.script, state.scriptName || state.name || 'AI Strategy');
+      return true;
+    }
+
+    if (!state.nodes || state.nodes.length === 0) return false;
 
     // Verify all saved node types are still valid
     const allValid = state.nodes.every(ns => NODE_TYPES[ns.type]);
@@ -2622,9 +2732,6 @@ function renderInspector(nodeId) {
       html += `<div class="api-hint">Using <strong>${esc(node.properties.preset)}</strong> — real-time data from a free public API. No API key required.</div>`;
     }
   }
-  if (node.type === 'social-buzz') {
-    html += `<div class="api-hint">Monitors social media mention volume for your keyword. Fires when mentions spike above your threshold. Uses simulated data in paper mode.</div>`;
-  }
 
   const isApiPresetActive = node.type === 'api-data' && node.properties.preset && node.properties.preset !== 'Custom URL';
   const isNewsPresetActive = node.type === 'news-alert' && node.properties.preset && node.properties.preset !== 'Custom URL';
@@ -2806,6 +2913,54 @@ let _contractPickerKey = null;
 let _contractPickerMarkets = [];   // currently displayed
 let _contractPickerAllMarkets = []; // full cached list for local filtering
 
+// ── Market category classification ─────────────────────────
+// Tags every market with a category for the picker filter tabs
+const MARKET_CATEGORIES = {
+  'crypto-short': { label: '5m/15m/1hr', icon: '', patterns: [
+    /\b(btc|bitcoin|eth|ethereum|sol|solana|xrp|doge|dogecoin|bnb|ada|avax|matic|sui|apt|pepe)\b.*\b(up|down|above|below|higher|lower)\b/i,
+    /\b(up|down|above|below|higher|lower)\b.*\b(btc|bitcoin|eth|ethereum|sol|solana|xrp|doge|dogecoin)\b/i,
+    /\b(5[- ]?min|15[- ]?min|1[- ]?hour|hourly|30[- ]?min|5m|15m|1h|30m)\b.*\b(btc|bitcoin|eth|ethereum|sol|crypto|price)\b/i,
+    /\b(btc|bitcoin|eth|ethereum|sol|crypto|price)\b.*\b(5[- ]?min|15[- ]?min|1[- ]?hour|hourly|30[- ]?min|5m|15m|1h|30m)\b/i,
+    /\bprice.*\b(up|down)\b.*\b(5|15|30|60)\b/i,
+    /\bBTC.*\b(next|this)\b/i,
+  ]},
+  'crypto': { label: 'Crypto', icon: '', patterns: [
+    /\b(btc|bitcoin|eth|ethereum|sol|solana|xrp|doge|dogecoin|bnb|cardano|ada|crypto|token|defi|nft|altcoin|stablecoin|usdc|usdt|cbdc|avax|matic|pepe|sui|apt|meme\s*coin)\b/i,
+    /\b(coinbase|binance|kraken|uniswap|opensea|chain|blockchain|halving|hash\s*rate)\b/i,
+    /\b\$\d+[KkMm]?\b.*\b(btc|bitcoin|eth|ethereum|sol|solana|crypto)\b/i,
+  ]},
+  'economics': { label: 'Economics', icon: '', patterns: [
+    /\b(cpi|inflation|fed|federal reserve|interest rate|gdp|unemployment|jobs report|non-?farm|payroll|recession|tariff|trade deficit|treasury|yield|bond|fiscal|monetary|fomc|rate cut|rate hike|basis points|bps|pce|core inflation)\b/i,
+    /\b(s&p|s&p\s*500|nasdaq|dow|djia|stock market|russell|vix|qqq|spy)\b/i,
+    /\b(oil price|crude|wti|brent|gold price|silver price|commodity|natural gas)\b/i,
+  ]},
+  'weather': { label: 'Weather', icon: '', patterns: [
+    /\b(weather|hurricane|tornado|earthquake|flood|wildfire|storm|typhoon|cyclone|blizzard|heat\s*wave|drought|temperature|rainfall|snowfall|wind\s*speed|tsunami|climate|el\s*ni[ñn]o|la\s*ni[ñn]a|noaa|nws)\b/i,
+    /\b(high\s*of|low\s*of|degrees|fahrenheit|celsius)\b.*\b(city|york|angeles|chicago|miami|dallas|phoenix|denver|seattle|boston|atlanta)\b/i,
+  ]},
+  'politics': { label: 'Politics', icon: '', patterns: [
+    /\b(president|presidential|election|congress|senate|house|governor|democrat|republican|gop|vote|ballot|poll|approval rating|impeach|veto|executive order|cabinet|scotus|supreme court|primary|caucus|electoral|midterm)\b/i,
+    /\b(trump|biden|harris|desantis|newsom|pence|obama|pelosi|schumer|mcconnell)\b/i,
+  ]},
+  'sports': { label: 'Sports', icon: '', patterns: [
+    /\b(nfl|nba|mlb|nhl|mls|ncaa|super bowl|world series|playoffs|championship|mvp|draft|touchdown|home run|goal|slam dunk|ufc|mma|boxing|tennis|golf|formula 1|f1|olympics|world cup|premier league|champions league)\b/i,
+  ]},
+  'world': { label: 'World', icon: '', patterns: [
+    /\b(war|conflict|ceasefire|peace|sanctions|nato|united nations|un\b|eu\b|china|russia|ukraine|israel|gaza|iran|north korea|taiwan|india|trade war|embargo|missile|nuclear|refugee|border|immigration)\b/i,
+  ]},
+};
+
+function _classifyMarket(question) {
+  if (!question) return 'other';
+  // Check crypto-short first (more specific), then general categories
+  for (const [cat, def] of Object.entries(MARKET_CATEGORIES)) {
+    for (const rx of def.patterns) {
+      if (rx.test(question)) return cat;
+    }
+  }
+  return 'other';
+}
+
 function parseOutcomePrice(outcomePrices, index) {
   if (!outcomePrices) return null;
   try {
@@ -2840,6 +2995,16 @@ window.openContractPicker = async function(nodeId, propKey) {
       <input type="text" class="contract-picker-search" placeholder="Search markets..." autofocus>
       <button class="contract-picker-close" onclick="closeContractPicker()">&times;</button>
     </div>
+    <div class="contract-picker-categories">
+      <button class="cp-cat active" data-cat="all">All</button>
+      <button class="cp-cat" data-cat="crypto-short">5m/15m/1hr</button>
+      <button class="cp-cat" data-cat="crypto">Crypto</button>
+      <button class="cp-cat" data-cat="economics">Economics</button>
+      <button class="cp-cat" data-cat="weather">Weather</button>
+      <button class="cp-cat" data-cat="politics">Politics</button>
+      <button class="cp-cat" data-cat="sports">Sports</button>
+      <button class="cp-cat" data-cat="world">World</button>
+    </div>
     <div class="contract-picker-filters">
       <button class="cp-filter active" data-filter="all">All</button>
       <button class="cp-filter" data-filter="polymarket">Poly</button>
@@ -2861,6 +3026,7 @@ window.openContractPicker = async function(nodeId, propKey) {
   }
 
   let _cpFilter = 'all';
+  let _cpCategory = 'all';
 
   // Fetch markets — try MercuryLiveMarkets first (both platforms), fall back to engine
   try {
@@ -2869,6 +3035,7 @@ window.openContractPicker = async function(nodeId, propKey) {
       const combined = await MercuryLiveMarkets.fetchAllMarkets();
       // Flatten: top-level markets + sub-markets from events
       for (const m of combined) {
+        const cat = _classifyMarket(m.name);
         allMarkets.push({
           id: m._polyId || m._kalshiTicker || m.short,
           question: m.name,
@@ -2879,13 +3046,15 @@ window.openContractPicker = async function(nodeId, propKey) {
           _kalshiTicker: m._kalshiTicker || null,
           _conditionId: m._conditionId || null,
           isEvent: m.isEvent,
+          _category: cat,
         });
         // Also add sub-markets as selectable entries
         if (m.isEvent && m.subMarkets && m.subMarkets.length > 1) {
           for (const sm of m.subMarkets) {
+            const smCat = _classifyMarket(sm.name || sm.groupTitle) || cat;
             allMarkets.push({
               id: sm._conditionId || sm.ticker || sm.name,
-              question: sm.name,
+              question: sm.name || sm.groupTitle,
               price: sm.price || sm.kalshiPrice || 0,
               volume_24h: sm._volNum || 0,
               source: sm.source || m.source,
@@ -2894,6 +3063,7 @@ window.openContractPicker = async function(nodeId, propKey) {
               _conditionId: sm._conditionId || null,
               _parentEvent: m.name,
               isEvent: false,
+              _category: smCat,
             });
           }
         }
@@ -2914,6 +3084,7 @@ window.openContractPicker = async function(nodeId, propKey) {
         _kalshiTicker: null,
         _conditionId: null,
         isEvent: false,
+        _category: _classifyMarket(m.question),
       }));
     }
 
@@ -2925,7 +3096,17 @@ window.openContractPicker = async function(nodeId, propKey) {
     if (listEl) listEl.innerHTML = '<div class="contract-picker-loading">Could not load markets</div>';
   }
 
-  // Filter buttons
+  // Category buttons
+  panel.querySelectorAll('.cp-cat').forEach(btn => {
+    btn.addEventListener('click', () => {
+      panel.querySelectorAll('.cp-cat').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      _cpCategory = btn.dataset.cat;
+      applyPickerFilter();
+    });
+  });
+
+  // Platform filter buttons
   panel.querySelectorAll('.cp-filter').forEach(btn => {
     btn.addEventListener('click', () => {
       panel.querySelectorAll('.cp-filter').forEach(b => b.classList.remove('active'));
@@ -2938,17 +3119,23 @@ window.openContractPicker = async function(nodeId, propKey) {
   function applyPickerFilter() {
     const query = (panel.querySelector('.contract-picker-search')?.value || '').trim().toLowerCase();
     let filtered = _contractPickerAllMarkets;
+    // Category filter
+    if (_cpCategory !== 'all') {
+      filtered = filtered.filter(m => m._category === _cpCategory);
+    }
+    // Platform filter
     if (_cpFilter !== 'all') {
       filtered = filtered.filter(m => m.source === _cpFilter);
     }
+    // Text search
     if (query.length > 0) {
       const terms = query.split(/\s+/);
       filtered = filtered.filter(m => {
-        const text = (m.question || '').toLowerCase();
+        const text = ((m.question || '') + ' ' + (m._parentEvent || '')).toLowerCase();
         return terms.every(t => text.includes(t));
       });
     }
-    _contractPickerMarkets = filtered.slice(0, 60);
+    _contractPickerMarkets = filtered.slice(0, 80);
     renderContractList(_contractPickerMarkets);
   }
 
@@ -3024,11 +3211,15 @@ function renderContractList(markets) {
       kalshi_ticker: kalshiTicker,
     }).replace(/'/g, '&#39;');
 
+    const catLabel = MARKET_CATEGORIES[m._category]?.label || '';
+    const catTag = catLabel ? `<span class="cp-cat-tag">${catLabel}</span>` : '';
+
     html += `<div class="contract-picker-item" onclick="selectContract('${escapeAttr(m.id || '')}','${escapeAttr(tokenId)}',this)" data-market='${data}'>
       <div class="contract-picker-question">${srcBadge} ${esc(truncQ)}</div>
       ${parentHint}
       <div class="contract-picker-meta">
         <span class="contract-picker-price-tag">${priceStr}</span>
+        ${catTag}
         <span class="contract-picker-vol">${vol} 24h</span>
       </div>
     </div>`;
@@ -3227,8 +3418,14 @@ let commitHistory = [
 function openCommitModal() {
   // Update diff display
   const diffEl = document.getElementById('commitDiff');
-  diffEl.innerHTML = `<div class="commit-diff-line added">+ ${nodes.length} node${nodes.length !== 1 ? 's' : ''}</div>` +
-    `<div class="commit-diff-line added">+ ${connections.length} connection${connections.length !== 1 ? 's' : ''}</div>`;
+  if (activeScript) {
+    const lineCount = activeScript.split('\n').filter(l => l.trim()).length;
+    diffEl.innerHTML = `<div class="commit-diff-line added">+ Script strategy (${lineCount} lines)</div>` +
+      `<div class="commit-diff-line added">+ ${escapeHtml(activeScriptName || 'AI Strategy')}</div>`;
+  } else {
+    diffEl.innerHTML = `<div class="commit-diff-line added">+ ${nodes.length} node${nodes.length !== 1 ? 's' : ''}</div>` +
+      `<div class="commit-diff-line added">+ ${connections.length} connection${connections.length !== 1 ? 's' : ''}</div>`;
+  }
 
   // Update history
   const historyEl = document.getElementById('commitHistory');
@@ -3270,18 +3467,87 @@ function confirmCommit() {
 }
 
 function openDeployModal() {
-  // Validate strategy before opening deploy modal
-  const errors = validateStrategy();
-  if (errors.length > 0) {
-    showToast(errors[0], 'error');
-    console.warn('[Mercury Compiler] Validation errors:', errors);
-    return;
+  // Script strategies skip node validation
+  if (!activeScript) {
+    const errors = validateStrategy();
+    if (errors.length > 0) {
+      showToast(errors[0], 'error');
+      console.warn('[Mercury Compiler] Validation errors:', errors);
+      return;
+    }
   }
 
   const name = el.strategyName.value || 'untitled_strategy';
   document.getElementById('deployBotName').value = name;
   applyTierToDeployModal();
+  updateDeployModeUI();
   document.getElementById('deployModal').classList.add('open');
+
+  // Listen for mode changes
+  const modeSelect = document.getElementById('deployMode');
+  modeSelect.removeEventListener('change', updateDeployModeUI);
+  modeSelect.addEventListener('change', updateDeployModeUI);
+}
+
+function updateDeployModeUI() {
+  const mode = document.getElementById('deployMode').value;
+  const statusEl = document.getElementById('deployExchangeStatus');
+  const warningEl = document.getElementById('deployLiveWarning');
+  const confirmBtn = document.getElementById('deployConfirm');
+
+  if (mode === 'live') {
+    if (statusEl) statusEl.style.display = '';
+    if (warningEl) warningEl.style.display = '';
+    if (confirmBtn) { confirmBtn.textContent = 'Deploy Live'; confirmBtn.classList.add('deploy-live-btn'); }
+    // Fetch exchange status
+    checkDeployExchangeStatus();
+  } else {
+    if (statusEl) statusEl.style.display = 'none';
+    if (warningEl) warningEl.style.display = 'none';
+    if (confirmBtn) { confirmBtn.textContent = 'Deploy Bot'; confirmBtn.classList.remove('deploy-live-btn'); }
+  }
+}
+
+async function checkDeployExchangeStatus() {
+  try {
+    const resp = await fetch(`${getEngineBase()}/api/health`);
+    if (!resp.ok) return;
+    const data = await resp.json();
+
+    const polyDot = document.getElementById('deployPolyDot');
+    const polyLabel = document.getElementById('deployPolyLabel');
+    const kalshiDot = document.getElementById('deployKalshiDot');
+    const kalshiLabel = document.getElementById('deployKalshiLabel');
+
+    if (data.wallet_manager === 'ready') {
+      // Check if wallet exists
+      try {
+        const wr = await fetch(`${getEngineBase()}/api/wallet/polymarket`);
+        if (wr.ok) {
+          if (polyDot) { polyDot.classList.remove('disconnected'); polyDot.classList.add('connected'); }
+          if (polyLabel) polyLabel.textContent = 'Wallet Ready';
+        } else {
+          if (polyDot) { polyDot.classList.add('disconnected'); polyDot.classList.remove('connected'); }
+          if (polyLabel) polyLabel.textContent = 'No Wallet — Create in Funding';
+        }
+      } catch (e) {
+        if (polyLabel) polyLabel.textContent = 'No Wallet';
+      }
+    } else {
+      if (polyDot) { polyDot.classList.add('disconnected'); polyDot.classList.remove('connected'); }
+      if (polyLabel) polyLabel.textContent = 'Not Configured';
+    }
+
+    if (data.kalshi === 'connected') {
+      if (kalshiDot) { kalshiDot.classList.remove('disconnected'); kalshiDot.classList.add('connected'); }
+      if (kalshiLabel) kalshiLabel.textContent = 'Connected';
+    } else {
+      if (kalshiDot) { kalshiDot.classList.add('disconnected'); kalshiDot.classList.remove('connected'); }
+      if (kalshiLabel) kalshiLabel.textContent = 'Not Configured';
+    }
+  } catch (e) {
+    console.warn('[Deploy] Engine health check failed:', e);
+  }
 }
 
 function applyTierToDeployModal() {
@@ -3313,6 +3579,18 @@ function confirmDeploy() {
   const capital = document.getElementById('deployCapital').value;
   const mode = document.getElementById('deployMode').value;
 
+  // ── Live mode confirmation ──
+  if (mode === 'live' && !confirmDeploy._confirmed) {
+    const ok = confirm(
+      `Deploy "${botName}" in LIVE mode on ${platform}?\n\n` +
+      `Capital: $${parseFloat(capital).toLocaleString()}\n\n` +
+      `This will execute real trades with real money.`
+    );
+    if (!ok) return;
+    confirmDeploy._confirmed = true;
+  }
+  confirmDeploy._confirmed = false;
+
   // ── Tier gating: live mode ──
   if (mode === 'live' && window.MercuryTiers && !window.MercuryTiers.tierCan(userTier, 'live')) {
     closeDeployModal();
@@ -3340,11 +3618,12 @@ function confirmDeploy() {
     return;
   }
 
-  // Attach deploy config from modal
+  // Attach deploy config from modal (preserve embedded asset config)
   strategy.config = {
     platform,
     capital: parseFloat(capital) || 10000,
     mode: mode || 'paper',
+    asset: strategy.config.asset || { asset_type: 'prediction_market', symbol: '', platform: 'Auto' },
   };
 
   console.log('[Mercury Compiler] Strategy compiled successfully:');
@@ -3428,41 +3707,46 @@ function runCompilerAnimation(botName, platform, mode, onComplete) {
 let connectedAccounts = { polymarket: false, kalshi: false };
 let connectingPlatform = null;
 
-window.openConnectModal = async function(platform) {
+window.openConnectModal = function(platform) {
   connectingPlatform = platform;
   document.getElementById('connectModalTitle').textContent = 'Connect ' + platform.charAt(0).toUpperCase() + platform.slice(1);
   document.getElementById('connectPlatformBadge').textContent = platform.toUpperCase();
-  document.getElementById('connectApiKey').value = '';
-  document.getElementById('connectApiSecret').value = '';
-  const passphraseField = document.getElementById('connectPassphraseField');
-  const passphraseInput = document.getElementById('connectPassphrase');
-  if (passphraseInput) passphraseInput.value = '';
 
-  // Show wallet section + passphrase only for Polymarket
+  // Show wallet section only for Polymarket, hide API section for Polymarket
   const walletSection = document.getElementById('connectWalletSection');
+  const apiSection = document.getElementById('connectApiSection');
+  const connectFooter = document.querySelector('#connectAccountModal .modal-footer');
   if (walletSection) {
     walletSection.style.display = platform === 'polymarket' ? 'block' : 'none';
   }
-  if (passphraseField) {
-    passphraseField.style.display = platform === 'polymarket' ? 'block' : 'none';
+  if (apiSection) {
+    apiSection.style.display = platform === 'polymarket' ? 'none' : 'block';
   }
-  // Update API section label
-  const apiLabel = document.getElementById('connectApiLabel');
-  if (apiLabel) {
-    apiLabel.textContent = platform === 'polymarket' ? 'Or Connect via API Key' : 'API Key Connection';
-  }
-
-  // Check if user already has a managed wallet
-  if (platform === 'polymarket' && window.walletService) {
-    try {
-      const wallet = await window.walletService.getWallet();
-      updateWalletUI(wallet);
-    } catch (e) {
-      updateWalletUI(null);
-    }
+  if (connectFooter) {
+    // Hide Connect/Cancel footer for Polymarket (wallet has its own buttons)
+    connectFooter.style.display = platform === 'polymarket' ? 'none' : 'flex';
   }
 
+  // For Kalshi, clear API fields
+  if (platform !== 'polymarket') {
+    document.getElementById('connectApiKey').value = '';
+    document.getElementById('connectApiSecret').value = '';
+    const passphraseInput = document.getElementById('connectPassphrase');
+    if (passphraseInput) passphraseInput.value = '';
+  }
+
+  // Show modal immediately — no blocking
   document.getElementById('connectAccountModal').classList.add('open');
+
+  // Load wallet state async (non-blocking)
+  if (platform === 'polymarket' && window.walletService) {
+    updateWalletUI(null); // show create state immediately
+    window.walletService.getWallet().then(wallet => {
+      updateWalletUI(wallet);
+    }).catch(() => {
+      updateWalletUI(null);
+    });
+  }
 };
 
 function updateWalletUI(wallet) {
@@ -3758,6 +4042,97 @@ window.useQuickPrompt = function(text) {
 // ═══════════════════════════════════════════════════════════════
 let agentHistory = [];
 
+// ── Active script state (for AI-generated script strategies) ──
+let activeScript = null;       // The Python script string
+let activeScriptName = null;   // Strategy name from agent
+let activeScriptAsset = null;  // Asset config { asset_type, symbol, platform }
+
+/**
+ * Show a Python script on the canvas overlay.
+ * Hides the node viewport and displays syntax-highlighted code.
+ */
+function showScriptOverlay(script, name) {
+  const overlay = document.getElementById('scriptOverlay');
+  const codeEl = document.getElementById('scriptOverlayCode');
+  const viewport = document.getElementById('canvasViewport');
+  if (!overlay || !codeEl) return;
+
+  activeScript = script;
+  activeScriptName = name || 'AI Strategy';
+
+  // Update strategy name input
+  if (el.strategyName) el.strategyName.value = activeScriptName;
+
+  // Syntax-highlight the Python code
+  codeEl.innerHTML = highlightPython(script);
+
+  // Show overlay, hide canvas viewport
+  overlay.style.display = 'flex';
+  if (viewport) viewport.style.display = 'none';
+
+  // Hide node palette + agent tip
+  const palette = document.getElementById('floatingPalette');
+  const paletteBtn = document.getElementById('btnPaletteToggle');
+  const agentTip = document.getElementById('canvasAgentTip');
+  if (palette) palette.style.display = 'none';
+  if (paletteBtn) paletteBtn.style.display = 'none';
+  if (agentTip) agentTip.style.display = 'none';
+
+  // Update MercuryScript panel to show the script too
+  if (el.mercuryScriptCode) {
+    el.mercuryScriptCode.innerHTML =
+      '<span class="ms-comment"># AI-generated strategy script</span>\n' +
+      '<span class="ms-comment"># ' + escapeHtml(activeScriptName) + '</span>\n\n' +
+      escapeHtml(script);
+  }
+
+  autoSaveStrategy();
+}
+
+/**
+ * Hide the script overlay and restore the node editor canvas.
+ */
+function hideScriptOverlay() {
+  const overlay = document.getElementById('scriptOverlay');
+  const viewport = document.getElementById('canvasViewport');
+  if (overlay) overlay.style.display = 'none';
+  if (viewport) viewport.style.display = '';
+
+  // Restore palette button
+  const paletteBtn = document.getElementById('btnPaletteToggle');
+  if (paletteBtn) paletteBtn.style.display = '';
+
+  activeScript = null;
+  activeScriptName = null;
+  activeScriptAsset = null;
+}
+
+/**
+ * Simple Python syntax highlighter — produces HTML with span classes.
+ */
+function highlightPython(code) {
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const lines = code.split('\n');
+  return lines.map(line => {
+    let out = esc(line);
+    // Comments
+    out = out.replace(/(#.*)$/, '<span class="py-comment">$1</span>');
+    // Strings (double and single quoted)
+    out = out.replace(/((?:f)?&quot;[^&]*?&quot;|(?:f)?&#x27;[^&]*?&#x27;)/g, '<span class="py-string">$1</span>');
+    out = out.replace(/((?:f)?"[^"]*?"|(?:f)?'[^']*?')/g, '<span class="py-string">$1</span>');
+    // Keywords
+    out = out.replace(/\b(async|await|def|if|elif|else|for|while|return|import|from|not|and|or|in|is|True|False)\b/g,
+      '<span class="py-keyword">$1</span>');
+    // None
+    out = out.replace(/\b(None)\b/g, '<span class="py-none">$1</span>');
+    // Numbers
+    out = out.replace(/\b(\d+\.?\d*)\b/g, '<span class="py-number">$1</span>');
+    // ctx. references
+    out = out.replace(/\b(ctx)\./g, '<span class="py-ctx">$1</span>.');
+    return out;
+  }).join('\n');
+}
+
 async function handleAgentInput() {
   const text = (el.agentInput ? el.agentInput.value : '').trim();
   if (!text) return;
@@ -3795,20 +4170,56 @@ async function handleAgentInput() {
     // Update usage indicator
     if (response.usage) updateAgentUsageIndicator(response.usage);
 
-    // Build strategy on canvas if returned
-    if (response.strategy) {
-      const s = response.strategy;
+    // Script-based strategy from agent (new path)
+    if (response.script) {
       pushUndo();
       clearCanvas();
 
-      // Create nodes and track their IDs
+      const scriptName = response.strategy_name || 'AI Strategy';
+
+      // Store asset config from agent
+      if (response.asset) {
+        activeScriptAsset = {
+          asset_type: response.asset.asset_type || 'prediction_market',
+          symbol: response.asset.symbol || '',
+          platform: response.asset.platform || 'Auto',
+        };
+        window._agentAssetConfig = activeScriptAsset;
+      }
+
+      showScriptOverlay(response.script, scriptName);
+
+      // Show strategy card in chat
+      const lineCount = response.script.split('\n').filter(l => l.trim()).length;
+      addStrategyCard({
+        name: scriptName,
+        nodes: lineCount + ' lines',
+        market: (activeScriptAsset && activeScriptAsset.symbol) || 'Auto',
+        edge: '',
+        script: '',
+      });
+    }
+
+    // Node-based strategy (legacy path — kept for backwards compatibility)
+    if (response.strategy && !response.script) {
+      const s = response.strategy;
+      pushUndo();
+      clearCanvas();
+      hideScriptOverlay();
+
+      if (s.asset) {
+        window._agentAssetConfig = {
+          asset_type: s.asset.asset_type || 'prediction_market',
+          symbol: s.asset.symbol || '',
+          platform: s.asset.platform || 'Auto',
+        };
+      }
+
       const nodeIds = [];
       for (const node of s.nodes) {
         const created = createNode(node.type, node.x || 100, node.y || 150, node.properties || {});
         nodeIds.push(created.id);
       }
-
-      // Create connections
       for (const conn of (s.connections || [])) {
         const fromId = nodeIds[conn.fromIndex];
         const toId = nodeIds[conn.toIndex];
@@ -3816,10 +4227,8 @@ async function handleAgentInput() {
           addConnection(fromId, conn.fromPort || 'out', toId, conn.toPort || 'in');
         }
       }
-
       updateMercuryScript();
 
-      // Show strategy card
       addStrategyCard({
         name: s.name || 'AI Strategy',
         nodes: s.nodes.length,
@@ -3901,12 +4310,13 @@ function updateAgentUsageIndicator(usage) {
 function addStrategyCard(data) {
   if (!el.agentMessages) return;
   // data = { name, nodes, market, edge, script }
+  const isScript = !!activeScript;
   const card = document.createElement('div');
   card.className = 'agent-strategy-card';
   card.innerHTML = `
     <div class="strategy-card-header">
       <span class="strategy-card-name">${escapeHtml(data.name)}</span>
-      <span class="strategy-card-meta">${data.nodes} nodes</span>
+      <span class="strategy-card-meta">${escapeHtml(String(data.nodes))}</span>
     </div>
     <div class="strategy-card-body">
       <div class="strategy-card-stats">
@@ -3915,16 +4325,14 @@ function addStrategyCard(data) {
           <span class="strategy-card-stat-value">${escapeHtml(data.market)}</span>
         </div>
         <div class="strategy-card-stat">
-          <span class="strategy-card-stat-label">Est. Edge</span>
-          <span class="strategy-card-stat-value positive">${data.edge}</span>
+          <span class="strategy-card-stat-label">Type</span>
+          <span class="strategy-card-stat-value">${isScript ? 'Script' : 'Node Graph'}</span>
         </div>
       </div>
-      <div class="strategy-card-script">${data.script}</div>
     </div>
     <div class="strategy-card-actions">
-      <button class="strategy-card-btn primary" onclick="deployFromCard()">Deploy</button>
-      <button class="strategy-card-btn" onclick="backtestFromCard()">Backtest</button>
-      <button class="strategy-card-btn" onclick="editFromCard()">Edit Nodes</button>
+      <button class="strategy-card-btn primary" onclick="openDeployModal()">Deploy</button>
+      <button class="strategy-card-btn" onclick="exportStrategy()">Export</button>
     </div>
   `;
   el.agentMessages.appendChild(card);
@@ -4064,26 +4472,24 @@ function simulateAgentResponse(userText) {
       });
     }, 1200);
   } else if (lower.includes('social') || lower.includes('buzz') || lower.includes('twitter') || lower.includes('mention') || lower.includes('trending') || lower.includes('viral')) {
-    addAgentMessage('Building a social media spike detection strategy. This monitors mention volume and triggers when buzz around your keyword exceeds the spike threshold. Combined with a sentiment filter to confirm the direction.', 'assistant');
+    addAgentMessage('Building a social media spike detection strategy. This uses the API Data node to monitor a custom social data source and triggers when your threshold is exceeded. You can point the API Data node at any social analytics API.', 'assistant');
     setTimeout(() => {
       pushUndo();
       clearCanvas();
-      const n1 = createNode('social-buzz', 100, 150, { preset: 'Crypto Twitter', keyword: 'bitcoin', spike_pct: 300, min_mentions: 100, poll_interval: 60 });
-      const n2 = createNode('sentiment', 380, 80, { source: 'Twitter/X', keyword: 'bitcoin', sentiment: 'Bullish', minScore: 65 });
-      const n3 = createNode('probability-band', 380, 260, { min: 20, max: 70 });
-      const n4 = createNode('market-order', 660, 100, { side: 'Buy YES', amount: 100, platform: 'Auto' });
-      const n5 = createNode('stop-loss', 660, 300, { type: 'Percentage', value: 15 });
+      const n1 = createNode('api-data', 100, 150, { preset: 'Custom URL', url: '', json_path: '', operator: '>', threshold: 100, poll_interval: 60 });
+      const n2 = createNode('probability-band', 380, 150, { min: 20, max: 70 });
+      const n3 = createNode('market-order', 660, 100, { side: 'Buy YES', amount: 100, platform: 'Auto' });
+      const n4 = createNode('stop-loss', 660, 300, { type: 'Percentage', value: 15 });
       addConnection(n1.id, 'out', n2.id, 'in');
-      addConnection(n2.id, 'out', n3.id, 'in');
-      addConnection(n3.id, 'pass', n4.id, 'in');
-      addConnection(n4.id, 'out', n5.id, 'in');
+      addConnection(n2.id, 'pass', n3.id, 'in');
+      addConnection(n3.id, 'out', n4.id, 'in');
       updateMercuryScript();
       addStrategyCard({
-        name: 'Social Buzz Detector',
-        nodes: 5,
+        name: 'Social Data Trigger',
+        nodes: 4,
         market: 'Auto',
         edge: '+14.6%',
-        script: 'when social_buzz("bitcoin", spike > 300%) {\n  if sentiment("twitter", bullish > 65%) {\n    if prob_band(20, 70) {\n      execute market_buy(100)\n      guard stop_loss(15%)\n    }\n  }\n}',
+        script: 'when api_data("custom_social_url") > threshold {\n  if prob_band(20, 70) {\n    execute market_buy(100)\n    guard stop_loss(15%)\n  }\n}',
       });
     }, 1200);
   } else if (lower.includes('hurricane') || lower.includes('weather') || lower.includes('earthquake') || lower.includes('disaster') || lower.includes('nws') || lower.includes('usgs') || lower.includes('seismic') || lower.includes('tornado') || lower.includes('tsunami')) {
@@ -4092,7 +4498,7 @@ function simulateAgentResponse(userText) {
       pushUndo();
       clearCanvas();
       const n1 = createNode('news-alert', 100, 100, { preset: 'NWS Weather Alerts', min_severity: 'Warning', keyword: 'hurricane', region: '', poll_interval: 120 });
-      const n2 = createNode('social-buzz', 100, 320, { preset: 'Disaster/Weather', keyword: 'hurricane', spike_pct: 200, min_mentions: 50, poll_interval: 60 });
+      const n2 = createNode('api-data', 100, 320, { preset: 'Custom URL', url: '', json_path: '', operator: '>', threshold: 50, poll_interval: 120 });
       const n3 = createNode('probability-band', 400, 200, { min: 15, max: 60 });
       const n4 = createNode('market-order', 680, 130, { side: 'Buy YES', amount: 200, platform: 'Auto' });
       const n5 = createNode('stop-loss', 680, 330, { type: 'Percentage', value: 20 });
@@ -4184,20 +4590,10 @@ function toggleFloatingPalette(open) {
 // AGENT TAB SWITCHING
 // ═══════════════════════════════════════════════════════════════
 function switchAgentTab(tabName) {
-  // Redirect Research tab to the full dashboard view
-  if (tabName === 'research') {
-    switchView('research');
-    return;
-  }
   if (el.tabAgent) el.tabAgent.classList.toggle('active', tabName === 'agent');
-  if (el.tabResearch) el.tabResearch.classList.toggle('active', tabName === 'research');
   if (el.agentTabContent) {
     el.agentTabContent.style.display = tabName === 'agent' ? 'flex' : 'none';
     el.agentTabContent.classList.toggle('active', tabName === 'agent');
-  }
-  if (el.researchTabContent) {
-    el.researchTabContent.style.display = tabName === 'research' ? 'flex' : 'none';
-    el.researchTabContent.classList.toggle('active', tabName === 'research');
   }
 }
 
@@ -4259,6 +4655,7 @@ function clearCanvas() {
     tempConnectionLine = null;
   }
   deselectNode();
+  // Don't clear script state here — showScriptOverlay/hideScriptOverlay handle that
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -4404,7 +4801,10 @@ async function renderBots() {
           <div class="bot-card-type">${esc(bot.strategyType || 'Custom')}</div>
           <div class="bot-card-market">${esc(bot.market || bot.platform || '')}</div>
         </div>
-        <span class="status-badge ${bot.status}">${bot.status}${bot._local ? ' (local)' : ''}</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="bot-mode-badge bot-mode-badge--${bot.mode || 'paper'}">${bot.mode === 'live' ? 'LIVE' : 'PAPER'}</span>
+          <span class="status-badge ${bot.status}">${bot.status}${bot._local ? ' (local)' : ''}</span>
+        </div>
       </div>
       <div class="bot-card-metrics">
         <div class="bot-metric">
@@ -4527,6 +4927,14 @@ async function renderBotDetail(botId) {
   const statusEl = document.getElementById('detailStatus');
   statusEl.textContent = bot.status + (isEngine ? '' : ' (local)');
   statusEl.className = 'status-badge ' + bot.status;
+
+  // Mode badge (remove old one first to avoid duplicates)
+  const existingBadge = statusEl.parentElement.querySelector('.bot-mode-badge');
+  if (existingBadge) existingBadge.remove();
+  const modeTag = bot.mode === 'live'
+    ? '<span class="bot-mode-badge bot-mode-badge--live">LIVE</span>'
+    : '<span class="bot-mode-badge bot-mode-badge--paper">PAPER</span>';
+  statusEl.insertAdjacentHTML('beforebegin', modeTag);
 
   // Metrics
   const m = bot.metrics || {};
@@ -4933,126 +5341,433 @@ function populateBacktestStrategies() {
   });
 }
 
-function runBacktest() {
-  // Compile strategy first to validate
-  const { strategy, errors } = compileStrategy();
+// ── Backtest Panel — Strategy Picker + Market Browser ───────────
+
+let _btMarkets = [];
+let _btLiveLoaded = false;
+let _btActiveFilter = 'all';
+let _btUploadedStrategy = null;
+
+async function loadBacktestMarkets() {
+  const listEl = document.getElementById('btMarketList');
+  if (!listEl) return;
+  const base = getEngineBase();
+  try {
+    const controller = new AbortController();
+    const tid = setTimeout(() => controller.abort(), 25000);
+    const resp = await fetch(`${base}/api/markets/browse`, { signal: controller.signal });
+    clearTimeout(tid);
+    if (resp.ok) {
+      const data = await resp.json();
+      const live = (data.markets || []).filter(m => m && m.name);
+      for (const m of live) {
+        if (m.source === 'kalshi') {
+          _btMarkets.push({
+            name: m.name,
+            value: '',
+            source: m.category || 'kalshi',
+            price: m.price,
+            recurring: true,
+            meta: { platform: 'Kalshi', kalshi_ticker: m.ticker, series_ticker: m.series_ticker || '', underlying_asset: m.underlying_asset || '' },
+          });
+        } else if (m.source === 'polymarket') {
+          _btMarkets.push({
+            name: m.name,
+            value: '',
+            source: m.category || 'polymarket',
+            price: m.price,
+            recurring: true,
+            meta: { platform: 'Polymarket', market_id: m.market_id, token_id: m.token_id, condition_id: m.condition_id, underlying_asset: m.underlying_asset || '' },
+          });
+        } else if (m.asset) {
+          // Data feed markets (crypto, stocks, weather, economic)
+          _btMarkets.push({
+            name: m.name,
+            value: m.asset,
+            source: m.source,
+            meta: {},
+          });
+        }
+      }
+      _btLiveLoaded = true;
+      console.log(`[Backtest] Loaded ${live.length} live markets (total: ${_btMarkets.length})`);
+    }
+  } catch (e) {
+    console.warn('[Backtest] Failed to load live markets:', e.message || e);
+  }
+  renderMarketList();
+}
+
+function renderMarketList() {
+  const listEl = document.getElementById('btMarketList');
+  if (!listEl) return;
+  const searchEl = document.getElementById('btMarketSearch');
+  const q = (searchEl ? searchEl.value : '').toLowerCase().trim();
+  const filter = _btActiveFilter;
+
+  const filtered = _btMarkets.filter(m => {
+    if (filter !== 'all') {
+      // 'kalshi'/'polymarket' filters match by platform, others by category
+      if (filter === 'kalshi' || filter === 'polymarket') {
+        const plat = (m.meta && m.meta.platform || '').toLowerCase();
+        if (plat !== filter) return false;
+      } else if (m.source !== filter) {
+        return false;
+      }
+    }
+    if (q && !m.name.toLowerCase().includes(q) && !(m.value && m.value.toLowerCase().includes(q))) return false;
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    listEl.innerHTML = '<div class="bt-market-loading">No markets found</div>';
+    return;
+  }
+
+  // Group by source — Kalshi recurring shown first in Kalshi group
+  const groups = {};
+  const groupOrder = ['kalshi', 'polymarket', 'crypto', 'stocks', 'economic', 'weather'];
+  const groupLabels = {
+    kalshi: 'Kalshi',
+    polymarket: 'Polymarket',
+    crypto: 'Crypto',
+    stocks: 'Stocks & Indices',
+    economic: 'Economic',
+    weather: 'Weather',
+  };
+  for (const m of filtered) {
+    const g = m.source || 'other';
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(m);
+  }
+  // Sort each group: recurring prediction markets first, then data feeds, then by name
+  for (const g of groupOrder) {
+    if (groups[g]) {
+      groups[g].sort((a, b) => {
+        if (a.recurring && !b.recurring) return -1;
+        if (!a.recurring && b.recurring) return 1;
+        return (a.name || '').localeCompare(b.name || '');
+      });
+    }
+  }
+
+  let html = '';
+  for (const g of groupOrder) {
+    if (!groups[g] || groups[g].length === 0) continue;
+    html += `<div class="bt-market-group">${esc(groupLabels[g] || g)} (${groups[g].length})</div>`;
+    for (const m of groups[g]) {
+      const metaStr = JSON.stringify(m.meta || {});
+      const priceStr = typeof m.price === 'number' && m.price > 0 ? m.price.toFixed(0) + 'c' : '';
+      const recurTag = m.recurring ? ' recurring' : '';
+      const platformTag = m.meta && m.meta.platform ? m.meta.platform : m.source;
+      html += `<div class="bt-market-row${recurTag}" data-value="${esc(m.value || '')}" data-meta="${esc(metaStr)}" data-source="${esc(m.source)}" onclick="selectBacktestMarket(this)">
+        <span class="bt-market-name">${esc(m.name)}</span>
+        ${priceStr ? `<span class="bt-market-price">${priceStr}</span>` : ''}
+        <span class="bt-market-tag ${esc(platformTag.toLowerCase())}">${esc(platformTag)}</span>
+      </div>`;
+    }
+  }
+
+  listEl.innerHTML = html;
+  if (!_btLiveLoaded) {
+    listEl.insertAdjacentHTML('beforeend', '<div class="bt-market-loading" style="padding:12px;">Loading Kalshi & Polymarket contracts...</div>');
+  }
+}
+
+window.selectBacktestMarket = function(el) {
+  // Remove old selection
+  const listEl = document.getElementById('btMarketList');
+  if (listEl) listEl.querySelectorAll('.bt-market-row.selected').forEach(r => r.classList.remove('selected'));
+  el.classList.add('selected');
+
+  // Set hidden inputs
+  const hidden = document.getElementById('btAsset');
+  const metaHidden = document.getElementById('btAssetMeta');
+  if (hidden) hidden.value = el.dataset.value || '';
+  if (metaHidden) metaHidden.value = el.dataset.meta || '{}';
+
+  // Show selected market
+  const selEl = document.getElementById('btSelectedMarket');
+  if (selEl) {
+    const name = el.querySelector('.bt-market-name')?.textContent || '';
+    selEl.innerHTML = `<span class="bt-sel-label">Selected Market</span>${esc(name)}`;
+    selEl.classList.add('visible');
+  }
+};
+
+function initBacktestPanel() {
+  // Strategy picker
+  const picker = document.getElementById('btStrategyPicker');
+  const fileInput = document.getElementById('btFileUpload');
+  if (picker) {
+    // Populate with saved strategies
+    const saved = typeof getStrategiesList === 'function' ? getStrategiesList() : [];
+    for (const s of saved) {
+      const opt = document.createElement('option');
+      opt.value = 'saved_' + s.id;
+      opt.textContent = s.name || 'Untitled';
+      picker.insertBefore(opt, picker.querySelector('option[value="upload"]'));
+    }
+
+    picker.addEventListener('change', () => {
+      if (picker.value === 'upload' && fileInput) {
+        fileInput.click();
+        picker.value = _btUploadedStrategy ? 'uploaded' : 'current';
+      } else {
+        _btUploadedStrategy = null;
+        updateStrategyInfo();
+      }
+    });
+  }
+
+  if (fileInput) {
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (!data.pipeline) { showToast('Invalid strategy file — missing pipeline', 'error'); return; }
+          _btUploadedStrategy = data;
+          // Add "Uploaded" option if not exists
+          if (!picker.querySelector('option[value="uploaded"]')) {
+            const opt = document.createElement('option');
+            opt.value = 'uploaded';
+            opt.textContent = (data.name || file.name) + ' (uploaded)';
+            picker.insertBefore(opt, picker.querySelector('option[value="upload"]'));
+          } else {
+            picker.querySelector('option[value="uploaded"]').textContent = (data.name || file.name) + ' (uploaded)';
+          }
+          picker.value = 'uploaded';
+          updateStrategyInfo();
+          showToast(`Strategy loaded: ${data.name || file.name}`, 'success');
+        } catch (err) {
+          showToast('Invalid JSON: ' + err.message, 'error');
+        }
+      };
+      reader.readAsText(file);
+      fileInput.value = '';
+    });
+  }
+
+  // Filter tabs
+  const filterContainer = document.getElementById('btMarketFilters');
+  if (filterContainer) {
+    filterContainer.addEventListener('click', (e) => {
+      const tab = e.target.closest('.bt-filter-tab');
+      if (!tab) return;
+      filterContainer.querySelectorAll('.bt-filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      _btActiveFilter = tab.dataset.filter || 'all';
+      renderMarketList();
+    });
+  }
+
+  // Search
+  const searchEl = document.getElementById('btMarketSearch');
+  if (searchEl) {
+    searchEl.addEventListener('input', () => renderMarketList());
+  }
+
+  // Initial render with static markets, then fetch live
+  renderMarketList();
+  loadBacktestMarkets();
+  updateStrategyInfo();
+}
+
+function updateStrategyInfo() {
+  const infoEl = document.getElementById('btStrategyInfo');
+  if (!infoEl) return;
+  const picker = document.getElementById('btStrategyPicker');
+  const val = picker ? picker.value : 'current';
+
+  if (val === 'uploaded' && _btUploadedStrategy) {
+    const s = _btUploadedStrategy;
+    infoEl.textContent = `${s.node_count || '?'} nodes | ${s.name || 'Unnamed'}`;
+  } else if (val === 'current') {
+    infoEl.textContent = `${nodes.length} nodes on canvas`;
+  } else if (val.startsWith('saved_')) {
+    const saved = typeof getStrategiesList === 'function' ? getStrategiesList() : [];
+    const id = val.replace('saved_', '');
+    const found = saved.find(s => s.id === id);
+    if (found && found.data) {
+      infoEl.textContent = `${(found.data.nodes || []).length} nodes | ${found.name || 'Unnamed'}`;
+    }
+  } else {
+    infoEl.textContent = '';
+  }
+}
+
+// Initialize when page loads
+setTimeout(initBacktestPanel, 200);
+
+function getBacktestStrategy() {
+  const picker = document.getElementById('btStrategyPicker');
+  const val = picker ? picker.value : 'current';
+
+  if (val === 'uploaded' && _btUploadedStrategy) {
+    return { strategy: _btUploadedStrategy, errors: [] };
+  }
+
+  if (val.startsWith('saved_')) {
+    const saved = typeof getStrategiesList === 'function' ? getStrategiesList() : [];
+    const id = val.replace('saved_', '');
+    const found = saved.find(s => s.id === id);
+    if (found && found.data) {
+      // Load strategy data onto canvas temporarily for compilation
+      const prevNodes = [...nodes];
+      const prevConns = [...connections];
+      nodes = found.data.nodes || [];
+      connections = found.data.connections || [];
+      const result = compileStrategy();
+      nodes = prevNodes;
+      connections = prevConns;
+      return result;
+    }
+    return { strategy: null, errors: ['Saved strategy not found'] };
+  }
+
+  // Default: current canvas
+  return compileStrategy();
+}
+
+async function runBacktest() {
+  const { strategy, errors } = getBacktestStrategy();
   if (!strategy) {
     showToast(errors[0] || 'Build a strategy first — add at least a trigger and execution node', 'error');
     return;
   }
 
+  const overlay = document.getElementById('btResultsOverlay');
   const running = document.getElementById('backtestRunning');
   const results = document.getElementById('backtestResults');
+  // Show the results overlay (hides setup panel)
+  overlay.style.display = 'flex';
   running.style.display = 'flex';
   results.style.display = 'none';
 
-  setTimeout(() => {
-    running.style.display = 'none';
-    renderBacktestResults(strategy);
-    results.style.display = 'block';
-  }, 2200);
-}
-
-function renderBacktestResults(strategy) {
   const capital = parseFloat(document.getElementById('btCapital').value) || 10000;
   const days = parseInt(document.getElementById('btPeriod').value) || 90;
+  const interval = document.getElementById('btInterval')?.value || 'auto';
 
-  // Derive simulation parameters from strategy structure
-  const pipeline = strategy.pipeline || {};
-  const triggerNodes = pipeline.triggers || [];
-  const conditionNodes = pipeline.conditions || [];
-  const executionNodes = pipeline.executions || [];
-  const riskNodes = pipeline.risk || [];
+  // Read selected market from hidden inputs
+  let asset = document.getElementById('btAsset')?.value || null;
+  let platform = 'Auto';
+  let marketId = null;
+  let tokenId = null;
+  let kalshiTicker = null;
 
-  // More conditions = higher selectivity = higher win rate but fewer trades
-  const conditionBonus = conditionNodes.length * 4;
-  // Risk nodes reduce drawdown
-  const riskBonus = riskNodes.length * 3;
-  // Multiple triggers = more signals = more trades
-  const triggerMultiplier = Math.max(1, triggerNodes.length);
+  const metaEl = document.getElementById('btAssetMeta');
+  if (metaEl && metaEl.value && metaEl.value !== '{}') {
+    try {
+      const meta = JSON.parse(metaEl.value);
+      if (meta.platform) platform = meta.platform;
+      if (meta.market_id) marketId = meta.market_id;
+      if (meta.token_id) tokenId = meta.token_id;
+      if (meta.kalshi_ticker) kalshiTicker = meta.kalshi_ticker;
+      // For Kalshi recurring series, use the underlying asset for price data
+      if (meta.underlying_asset) asset = meta.underlying_asset;
+    } catch (_) {}
+  }
 
-  // Extract strategy-specific params
-  let stopLossLevel = 15;
-  let orderAmount = 200;
-  let contractName = 'Market Contract';
-  riskNodes.forEach(n => {
-    if (n.type === 'stop-loss' && n.params?.value) stopLossLevel = n.params.value;
-  });
-  executionNodes.forEach(n => {
-    if (n.params?.amount) orderAmount = n.params.amount;
-    if (n.params?.platform) contractName = n.params.platform + ' Contract';
-  });
-  triggerNodes.forEach(n => {
-    if (n.params?.contract) contractName = n.params.contract;
-  });
-
-  // Seeded pseudo-random from strategy name for consistent results
-  let seed = 0;
-  const name = strategy.name || 'unnamed';
-  for (let i = 0; i < name.length; i++) seed = ((seed << 5) - seed + name.charCodeAt(i)) | 0;
-  const seededRand = () => { seed = (seed * 16807 + 0) % 2147483647; return (seed & 0x7fffffff) / 2147483647; };
-
-  // Simulated results based on strategy composition
-  const baseWinRate = 48 + conditionBonus + (riskBonus > 0 ? 5 : 0);
-  const winRate = Math.min(85, baseWinRate + seededRand() * 8);
-  const tradesPerDay = (0.5 + seededRand() * 1.5) * triggerMultiplier;
-  const totalTrades = Math.floor(days * tradesPerDay);
-  const avgWin = orderAmount * (0.08 + seededRand() * 0.12);
-  const avgLoss = orderAmount * (stopLossLevel / 100) * (0.6 + seededRand() * 0.4);
-  const expectedPnl = totalTrades * ((winRate / 100) * avgWin - ((100 - winRate) / 100) * avgLoss);
-  const totalReturn = (expectedPnl / capital) * 100;
-  const volatility = Math.max(0.005, (100 - winRate) / 100 * 0.03);
-  const dailyReturn = totalReturn / 100 / days;
-  const dailyVol = volatility;
-  const sharpe = dailyVol > 0 ? (dailyReturn / dailyVol) * Math.sqrt(252) : 0;
-  const maxDD = -(stopLossLevel * 0.5 + (100 - winRate) * 0.15 + seededRand() * 5);
-  const avgTrade = totalTrades > 0 ? expectedPnl / totalTrades : 0;
-
-  // Equity curve using strategy-aware simulation
-  const equityData = [];
-  let equity = capital;
-  let maxEquity = capital;
-  for (let i = 0; i < days; i++) {
-    const dailyTrades = Math.max(0, Math.floor(tradesPerDay + (seededRand() - 0.5)));
-    for (let t = 0; t < dailyTrades; t++) {
-      const isWin = seededRand() < winRate / 100;
-      equity += isWin ? avgWin * (0.5 + seededRand()) : -avgLoss * (0.5 + seededRand());
+  // Also check strategy nodes for contract info
+  if (!marketId && !tokenId && !kalshiTicker) {
+    const allNodes = [...(strategy.pipeline.triggers || []), ...(strategy.pipeline.executions || [])];
+    for (const n of allNodes) {
+      const c = n.params?.contract;
+      if (c && typeof c === 'object') {
+        tokenId = c.token_id || tokenId;
+        marketId = c.market_id || marketId;
+        kalshiTicker = c.kalshi_ticker || kalshiTicker;
+        break;
+      }
     }
-    equity = Math.max(equity, capital * 0.5); // floor at 50% of starting capital
-    maxEquity = Math.max(maxEquity, equity);
-    equityData.push({
-      x: Date.now() - (days - i) * 86400000,
-      y: Math.round(equity * 100) / 100,
-    });
   }
 
-  // Generate trades using strategy parameters
-  const sides = executionNodes.map(n => {
-    const s = (n.params?.side || 'Buy YES').toUpperCase();
-    return s.includes('BUY') ? 'BUY' : 'SELL';
-  });
-  const defaultSide = sides[0] || 'BUY';
-
-  const trades = [];
-  for (let i = 0; i < Math.min(totalTrades, 40); i++) {
-    const isWin = seededRand() < winRate / 100;
-    const pnl = isWin ? avgWin * (0.5 + seededRand()) : -avgLoss * (0.5 + seededRand());
-    trades.push({
-      timestamp: new Date(Date.now() - seededRand() * days * 86400000).toISOString(),
-      side: sides[Math.floor(seededRand() * sides.length)] || defaultSide,
-      contract: contractName,
-      price: Math.floor(30 + seededRand() * 50),
-      amount: Math.floor(orderAmount * (0.8 + seededRand() * 0.4)),
-      pnl,
+  const base = getEngineBase();
+  try {
+    const resp = await fetch(`${base}/api/backtest/run`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        strategy,
+        period_days: days,
+        capital,
+        market_id: marketId,
+        token_id: tokenId,
+        kalshi_ticker: kalshiTicker,
+        platform,
+        asset,
+        interval,
+      }),
     });
+
+    running.style.display = 'none';
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ detail: resp.statusText }));
+      showToast(`Backtest failed: ${err.detail || resp.statusText}`, 'error');
+      overlay.style.display = 'none';
+      return;
+    }
+
+    const data = await resp.json();
+    renderBacktestResults(data, strategy, capital);
+    results.style.display = 'block';
+  } catch (e) {
+    running.style.display = 'none';
+    overlay.style.display = 'none';
+    showToast(`Engine unreachable — start Mercury Engine on port 8778`, 'error');
+    console.error('Backtest error:', e);
   }
-  trades.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+}
+
+window.showBacktestSetup = function() {
+  const overlay = document.getElementById('btResultsOverlay');
+  if (overlay) overlay.style.display = 'none';
+};
+
+function renderBacktestResults(data, strategy, capital) {
+  const totalReturn = data.total_return_pct || 0;
+  const sharpe = data.sharpe_ratio || 0;
+  const winRate = data.win_rate || 0;
+  const maxDD = data.max_drawdown || 0;
+  const avgTrade = data.avg_trade || 0;
+  const totalTrades = data.total_trades || 0;
+  const equityData = data.equity_curve || [];
+  const trades = (data.trades || []).slice(0, 50);
+  const dataSource = data.data_source || 'Unknown';
+  const dataPoints = data.data_points || 0;
 
   const container = document.getElementById('backtestResults');
-  const nodeCount = (triggerNodes.length + conditionNodes.length + executionNodes.length + riskNodes.length);
+  const nodeCount = strategy.node_count || 0;
+
+  // Detect data quality
+  const srcLower = dataSource.toLowerCase();
+  const isSynthetic = srcLower.includes('synthetic');
+  const isLimited = dataPoints > 0 && dataPoints < 50;
+  const hasNoData = dataPoints === 0 && totalTrades === 0;
+
+  let dataWarning = '';
+  if (isSynthetic) {
+    dataWarning = `<div style="margin-bottom:10px;padding:8px 12px;background:rgba(244,67,54,0.1);border:1px solid rgba(244,67,54,0.25);border-radius:6px;font-size:11px;color:#ef5350;">
+      <strong>Warning:</strong> No real historical data available for this market. Results are based on synthetic price data derived from BTC movements and may not reflect actual market behavior.
+    </div>`;
+  } else if (hasNoData) {
+    dataWarning = `<div style="margin-bottom:10px;padding:8px 12px;background:rgba(244,67,54,0.1);border:1px solid rgba(244,67,54,0.25);border-radius:6px;font-size:11px;color:#ef5350;">
+      <strong>Warning:</strong> No data points were returned for this market. The strategy may not have matched any signals, or historical data may be unavailable.
+    </div>`;
+  } else if (isLimited) {
+    dataWarning = `<div style="margin-bottom:10px;padding:8px 12px;background:rgba(255,152,0,0.1);border:1px solid rgba(255,152,0,0.25);border-radius:6px;font-size:11px;color:#ffa726;">
+      <strong>Limited data:</strong> Only ${dataPoints} data points available. This market may not have enough history for a reliable backtest.
+    </div>`;
+  }
+
   container.innerHTML = `
+    ${dataWarning}
     <div style="margin-bottom:12px;padding:8px 12px;background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.15);border-radius:6px;font-size:11px;color:#888;">
-      Simulated backtest for <strong style="color:#ccc">${esc(strategy.name || 'Unnamed')}</strong> &middot; ${nodeCount} nodes &middot; No historical data — results are modeled from strategy structure
+      Backtest for <strong style="color:#ccc">${esc(strategy.name || 'Unnamed')}</strong> &middot; ${nodeCount} nodes &middot; ${esc(dataSource)} &middot; ${dataPoints} data points
     </div>
     <div class="backtest-stats">
       <div class="backtest-stat-card">
@@ -5083,7 +5798,7 @@ function renderBacktestResults(strategy) {
     <div class="detail-chart-card">
       <div class="card-header">
         <span class="card-title">Equity Curve</span>
-        <span class="card-meta">$${capital.toLocaleString()} initial</span>
+        <span class="card-meta">$${capital.toLocaleString()} initial &rarr; $${(data.final_equity || capital).toLocaleString()}</span>
       </div>
       <div class="card-body">
         <div id="backtestChart" style="width:100%;height:280px;"></div>
@@ -5092,7 +5807,7 @@ function renderBacktestResults(strategy) {
     <div class="detail-card">
       <div class="card-header">
         <span class="card-title">Trades</span>
-        <span class="card-meta">${trades.length} shown</span>
+        <span class="card-meta">${trades.length}${trades.length < totalTrades ? ' of ' + totalTrades : ''} shown</span>
       </div>
       <div class="card-body">
         <div class="data-table-header trades-header">
@@ -5103,20 +5818,25 @@ function renderBacktestResults(strategy) {
           <span>Amount</span>
           <span>P&L</span>
         </div>
-        ${trades.map(t => `<div class="data-table-row trades-row">
+        ${trades.length === 0 ? '<div style="padding:16px;text-align:center;color:#555;font-size:12px;">No trades executed during backtest period</div>' : ''}
+        ${trades.map(t => {
+          const side = (t.side || '').toUpperCase();
+          return `<div class="data-table-row trades-row">
           <span class="data-table-cell muted">${formatTime(t.timestamp)}</span>
-          <span class="data-table-cell ${t.side === 'BUY' ? 'positive' : 'negative'}">${esc(t.side)}</span>
-          <span class="data-table-cell bright">${esc(t.contract)}</span>
-          <span class="data-table-cell">${t.price}c</span>
-          <span class="data-table-cell">$${t.amount}</span>
-          <span class="data-table-cell ${t.pnl >= 0 ? 'positive' : 'negative'}">${t.pnl >= 0 ? '+' : ''}$${t.pnl.toFixed(2)}</span>
-        </div>`).join('')}
+          <span class="data-table-cell ${side.includes('BUY') ? 'positive' : 'negative'}">${esc(side)}</span>
+          <span class="data-table-cell bright">${esc(t.contract || '-')}</span>
+          <span class="data-table-cell">${typeof t.price === 'number' ? t.price.toFixed(1) + 'c' : t.price}</span>
+          <span class="data-table-cell">$${typeof t.amount === 'number' ? t.amount.toFixed(2) : t.amount}</span>
+          <span class="data-table-cell ${(t.pnl || 0) >= 0 ? 'positive' : 'negative'}">${(t.pnl || 0) >= 0 ? '+' : ''}$${(t.pnl || 0).toFixed(2)}</span>
+        </div>`;
+        }).join('')}
       </div>
     </div>`;
 
   // Render equity chart
   setTimeout(() => {
     if (charts.backtestEquity) { charts.backtestEquity.destroy(); }
+    const chartColor = totalReturn >= 0 ? '#00c853' : '#ff1744';
     charts.backtestEquity = new ApexCharts(document.getElementById('backtestChart'), {
       chart: {
         type: 'area', height: 280,
@@ -5130,7 +5850,7 @@ function renderBacktestResults(strategy) {
         type: 'gradient',
         gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0, stops: [0, 100] },
       },
-      colors: ['#00c853'],
+      colors: [chartColor],
       xaxis: {
         type: 'datetime',
         labels: { style: { colors: '#444', fontFamily: 'JetBrains Mono', fontSize: '9px' } },
@@ -5280,7 +6000,7 @@ function showToast(message, type) {
 // ═══════════════════════════════════════════════════════════════
 function esc(s) {
   if (!s) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 function formatTime(iso) {
@@ -5454,7 +6174,7 @@ async function initMockData() {
       description: 'Buys near-certain outcomes (>90c) close to resolution for guaranteed yield. Like buying a bond that matures on resolution day. Low risk, steady returns.',
       difficulty: 'Beginner', winRate: 96, avgReturn: 6.8, nodeCount: 6,
       nodes: [
-        { type: 'resolution-countdown', x: 80, y: 150, properties: { timeLeft: '48hr', probDirection: 'Toward YES' } },
+        { type: 'time-based', x: 80, y: 150, properties: { schedule: 'Every 4hr' } },
         { type: 'probability-band', x: 340, y: 80, properties: { min: 90, max: 99 } },
         { type: 'liquidity-check', x: 340, y: 250, properties: { minLiquidity: 10000, depth: '1% Depth' } },
         { type: 'limit-order', x: 620, y: 80, properties: { side: 'Buy YES', limitPrice: 95, amount: 500 } },
@@ -5472,10 +6192,10 @@ async function initMockData() {
     },
     {
       id: 'tmpl-10', name: 'Whale Follower', category: 'momentum',
-      description: 'Detects large orders from whales and follows their direction. Momentum filter ensures the move has legs. Trailing stop locks in profits.',
+      description: 'Detects abnormal volume spikes and follows the momentum. Volume filter ensures the move has legs.',
       difficulty: 'Intermediate', winRate: 61, avgReturn: 19.3, nodeCount: 5,
       nodes: [
-        { type: 'whale-alert', x: 80, y: 150, properties: { minSize: 10000, side: 'Any' } },
+        { type: 'volume-spike', x: 80, y: 150, properties: { multiplier: 5 } },
         { type: 'momentum', x: 340, y: 150, properties: { direction: 'Any Strong Move', period: '1hr', minChange: 3 } },
         { type: 'market-order', x: 600, y: 80, properties: { side: 'Buy YES', amount: 200 } },
         { type: 'trailing-stop', x: 600, y: 250, properties: { type: 'Percentage', value: 8, activation: 5 } },
@@ -5490,10 +6210,10 @@ async function initMockData() {
     },
     {
       id: 'tmpl-11', name: 'Sentiment Contrarian', category: 'mean-reversion',
-      description: 'Goes against extreme crowd sentiment. When everyone is bearish, buy. When everyone is bullish, sell. Volatility filter avoids choppy markets.',
+      description: 'Goes against extreme fear. When Fear & Greed drops below 25, buy. Combined with volatility and price range filters.',
       difficulty: 'Intermediate', winRate: 59, avgReturn: 21.2, nodeCount: 5,
       nodes: [
-        { type: 'sentiment', x: 80, y: 150, properties: { source: 'Combined', sentiment: 'Extreme Bearish', minScore: 80 } },
+        { type: 'api-data', x: 80, y: 150, properties: { preset: 'Fear & Greed Index', operator: '<', threshold: 25 } },
         { type: 'volatility', x: 340, y: 80, properties: { range: 'High', period: '24hr', action: 'Above Range' } },
         { type: 'price-range', x: 340, y: 250, properties: { min: 15, max: 45, action: 'Inside Range' } },
         { type: 'scaled-entry', x: 620, y: 150, properties: { totalAmount: 500, tranches: 5, priceRange: 10 } },
@@ -5509,10 +6229,10 @@ async function initMockData() {
     },
     {
       id: 'tmpl-12', name: 'Spread Arbitrage', category: 'arbitrage',
-      description: 'Monitors cross-platform spreads between Polymarket and Kalshi. When spread widens, buys cheap side and sells expensive side simultaneously.',
+      description: 'Monitors cross-platform spreads using custom API data. When spread widens past threshold, buys cheap side. Connect your own spread-tracking API.',
       difficulty: 'Advanced', winRate: 88, avgReturn: 7.5, nodeCount: 5,
       nodes: [
-        { type: 'spread-detector', x: 80, y: 150, properties: { platform_a: 'Polymarket', platform_b: 'Kalshi', minSpread: 4 } },
+        { type: 'api-data', x: 80, y: 150, properties: { preset: 'Custom URL', url: '', json_path: '', operator: '>', threshold: 4 } },
         { type: 'spread-check', x: 340, y: 150, properties: { maxSpread: 2 } },
         { type: 'market-order', x: 620, y: 80, properties: { side: 'Buy YES', platform: 'Polymarket', amount: 300 } },
         { type: 'market-order', x: 620, y: 250, properties: { side: 'Buy NO', platform: 'Kalshi', amount: 300 } },
@@ -5527,10 +6247,10 @@ async function initMockData() {
     },
     {
       id: 'tmpl-13', name: 'Order Flow Scalper', category: 'momentum',
-      description: 'Watches real-time order flow for buy/sell imbalances. Enters with TWAP to minimize slippage. Time exit forces close if trade stalls.',
+      description: 'Watches for volume spikes indicating order flow imbalance. Enters with TWAP to minimize slippage. Time exit forces close if trade stalls.',
       difficulty: 'Advanced', winRate: 56, avgReturn: 25.8, nodeCount: 5,
       nodes: [
-        { type: 'order-flow', x: 80, y: 150, properties: { metric: 'Buy/Sell Ratio', operator: '>', threshold: 3, window: '15min' } },
+        { type: 'volume-spike', x: 80, y: 150, properties: { multiplier: 4 } },
         { type: 'volume-filter', x: 340, y: 150, properties: { minVolume: 50000, maxVolume: 0 } },
         { type: 'twap', x: 600, y: 80, properties: { side: 'Buy YES', totalAmount: 500, duration: '15min', slices: 5 } },
         { type: 'take-profit', x: 600, y: 250, properties: { type: 'Percentage', value: 10 } },
@@ -5569,7 +6289,7 @@ async function initMockData() {
       description: 'Ultra-safe bonding strategy. Only buys contracts above 95c with 7+ days to resolution. Kelly-sized positions with strict portfolio cap.',
       difficulty: 'Beginner', winRate: 99, avgReturn: 4.2, nodeCount: 5,
       nodes: [
-        { type: 'resolution-countdown', x: 80, y: 150, properties: { timeLeft: '7d', probDirection: 'Any' } },
+        { type: 'time-based', x: 80, y: 150, properties: { schedule: 'Every 12hr' } },
         { type: 'probability-band', x: 340, y: 150, properties: { min: 95, max: 99 } },
         { type: 'size-scaler', x: 600, y: 80, properties: { method: 'Kelly Criterion', riskPct: 1, maxSize: 1000 } },
         { type: 'limit-order', x: 600, y: 250, properties: { side: 'Buy YES', limitPrice: 97, amount: 1000 } },
@@ -5584,10 +6304,10 @@ async function initMockData() {
     },
     {
       id: 'tmpl-16', name: 'Multi-Market Hedge', category: 'event-driven',
-      description: 'Monitors correlated markets for divergence. When detected, hedges across both sides. Logic gate ensures both conditions are met before entry.',
+      description: 'Monitors correlated markets via custom API for divergence. When detected, hedges across both sides. Logic gate ensures both conditions are met before entry.',
       difficulty: 'Advanced', winRate: 70, avgReturn: 13.5, nodeCount: 6,
       nodes: [
-        { type: 'multi-market', x: 80, y: 150, properties: { condition: 'Divergence Detected', threshold: 5 } },
+        { type: 'api-data', x: 80, y: 150, properties: { preset: 'Custom URL', url: '', json_path: '', operator: '>', threshold: 5 } },
         { type: 'logic-gate', x: 340, y: 80, properties: { mode: 'AND (both)' } },
         { type: 'liquidity-check', x: 340, y: 250, properties: { minLiquidity: 25000 } },
         { type: 'hedge', x: 620, y: 80, properties: { strategy: 'Buy Opposite Side', ratio: 100 } },
@@ -5604,12 +6324,12 @@ async function initMockData() {
       ],
     },
     {
-      id: 'tmpl-17', name: 'Social Buzz Scalper', category: 'event-driven',
-      description: 'Detects social media mention spikes and buys prediction contracts before the market fully prices in the event. Sentiment filter confirms the direction before entry.',
+      id: 'tmpl-17', name: 'Custom Data Scalper', category: 'event-driven',
+      description: 'Monitors custom API data for spikes and buys prediction contracts before the market fully prices in the event. Probability filter confirms the opportunity.',
       difficulty: 'Intermediate', winRate: 58, avgReturn: 16.8, nodeCount: 5,
       nodes: [
-        { type: 'social-buzz', x: 80, y: 150, properties: { preset: 'Crypto Twitter', keyword: '', spike_pct: 250, min_mentions: 75, poll_interval: 60 } },
-        { type: 'sentiment', x: 340, y: 80, properties: { source: 'Combined', sentiment: 'Bullish', minScore: 65 } },
+        { type: 'api-data', x: 80, y: 150, properties: { preset: 'Custom URL', url: '', json_path: '', operator: '>', threshold: 100 } },
+        { type: 'probability-band', x: 340, y: 80, properties: { min: 30, max: 70 } },
         { type: 'probability-band', x: 340, y: 250, properties: { min: 20, max: 65 } },
         { type: 'market-order', x: 620, y: 150, properties: { side: 'Buy YES', amount: 150, platform: 'Auto' } },
         { type: 'stop-loss', x: 900, y: 150, properties: { type: 'Percentage', value: 15 } },
@@ -5623,11 +6343,11 @@ async function initMockData() {
     },
     {
       id: 'tmpl-18', name: 'Disaster Event Alpha', category: 'event-driven',
-      description: 'Monitors NWS weather alerts and social media simultaneously. When a real alert fires AND social mentions spike, buys disaster-related contracts before the crowd.',
+      description: 'Monitors NWS weather alerts and custom API data simultaneously. When a real alert fires AND your custom data confirms, buys disaster-related contracts before the crowd.',
       difficulty: 'Advanced', winRate: 55, avgReturn: 22.1, nodeCount: 5,
       nodes: [
         { type: 'news-alert', x: 80, y: 100, properties: { preset: 'NWS Weather Alerts', min_severity: 'Warning', keyword: 'hurricane', poll_interval: 120 } },
-        { type: 'social-buzz', x: 80, y: 320, properties: { preset: 'Disaster/Weather', keyword: 'hurricane', spike_pct: 200, min_mentions: 50, poll_interval: 60 } },
+        { type: 'api-data', x: 80, y: 320, properties: { preset: 'Custom URL', url: '', json_path: '', operator: '>', threshold: 50 } },
         { type: 'probability-band', x: 380, y: 200, properties: { min: 10, max: 55 } },
         { type: 'market-order', x: 660, y: 150, properties: { side: 'Buy YES', amount: 250, platform: 'Auto' } },
         { type: 'trailing-stop', x: 660, y: 350, properties: { type: 'Percentage', value: 12, activation: 5 } },
@@ -5759,7 +6479,7 @@ function maybeStartArchitectTour(force) {
         {
           selector: '.sidebar-nav',
           title: 'Navigation',
-          text: 'Switch between views here — Agent, My Bots, Backtest, Templates, and Research. Each one gives you a different tool for building and managing strategies.',
+          text: 'Switch between views here — Agent, My Bots, Backtest, Templates, and Charting. Each one gives you a different tool for building and managing strategies.',
           position: 'right',
           padding: 6,
         },
@@ -5780,14 +6500,14 @@ function maybeStartArchitectTour(force) {
         {
           selector: '.agent-input-area',
           title: 'Mercury Agent',
-          text: 'Describe what you want in plain English and the AI builds the entire strategy for you. Try "buy YES on any market where polls cross 60% and sentiment is bullish".',
+          text: 'Describe what you want in plain English and the AI builds the entire strategy for you. Try "buy YES on any market where probability crosses 60% and Fear & Greed is above 50".',
           position: 'top',
           padding: 6,
         },
         {
-          selector: '.nav-item[data-view="research"]',
-          title: 'Research',
-          text: 'Live market feeds, order books, cross-platform divergence scanner, and sentiment analysis across Polymarket and Kalshi — all the data you need to find edge before you build.',
+          selector: '.nav-item[data-view="charting"]',
+          title: 'Charting',
+          text: 'Live market feeds, order books, cross-platform data, and custom API integration across Polymarket and Kalshi — all the data you need to find edge before you build.',
           position: 'right',
           padding: 4,
         },
@@ -5858,7 +6578,7 @@ window.wizardGoToStep = function(step) {
   if (page) page.classList.add('active');
 };
 
-// Step 4 actions — how to start building
+// Step 6 actions — how to start building
 window.tutStartBlank = function() {
   const overlay = document.getElementById('wizardOverlay');
   if (overlay) overlay.classList.remove('active');

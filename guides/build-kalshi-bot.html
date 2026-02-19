@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Build a Kalshi Trading Bot in 2026 — Mercury</title>
+  <meta name="description" content="Step-by-step guide to building automated Kalshi trading bots with Mercury. Event contracts, hourly markets, CFTC-regulated execution. Visual builder, no coding required.">
+  <link rel="canonical" href="https://mercurysuite.io/guides/build-kalshi-bot.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Mercury">
+  <meta property="og:url" content="https://mercurysuite.io/guides/build-kalshi-bot.html">
+  <meta property="og:title" content="How to Build a Kalshi Trading Bot in 2026 — Mercury">
+  <meta property="og:description" content="Step-by-step guide to building automated Kalshi trading bots with Mercury. Event contracts, hourly markets, CFTC-regulated execution. Visual builder, no coding required.">
+  <meta property="og:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="How to Build a Kalshi Trading Bot in 2026 — Mercury">
+  <meta name="twitter:description" content="Step-by-step guide to building automated Kalshi trading bots with Mercury. Event contracts, hourly markets, CFTC-regulated execution. Visual builder, no coding required.">
+  <meta name="twitter:image" content="https://mercurysuite.io/images/og-default.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <link rel="stylesheet" href="../styles/pages.css">
+  <link rel="stylesheet" href="../styles/guides.css">
+</head>
+<body>
+
+  <!-- ─── NAVBAR ──────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="navbar-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="3"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+        </svg>
+        Mercury
+      </a>
+      <ul class="navbar-links">
+        <li><a href="../index.html">Suite</a></li>
+        <li><a href="../architect.html">Architect</a></li>
+        <li><a href="../architect-app.html#charting">Charting</a></li>
+        <li><a href="#">Backtest</a></li>
+        <li><a href="../architect.html#pricing">Pricing</a></li>
+      </ul>
+      <div class="navbar-actions">
+        <a href="#" class="btn" id="navProfile">Profile</a>
+        <a href="#" class="btn" onclick="window.signOut && window.signOut()">Logout</a>
+      </div>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="../index.html">Suite</a>
+    <a href="../architect.html">Architect</a>
+    <a href="../architect-app.html#charting">Charting</a>
+    <a href="#">Backtest</a>
+    <a href="../architect.html#pricing">Pricing</a>
+    <a href="#" onclick="window.signOut && window.signOut()">Logout</a>
+  </div>
+
+  <!-- ─── PAGE HERO ───────────────────────────────────── -->
+  <section class="page-hero">
+    <div class="container">
+      <div class="section-label">Guide</div>
+      <h1 class="page-title">How to Build a Kalshi Trading Bot in 2026</h1>
+      <p class="page-subtitle">Automate CFTC-regulated event contracts across weather, economics, and politics markets. Mercury's visual bot builder handles the infrastructure so you can focus on strategy.</p>
+    </div>
+  </section>
+
+  <!-- ─── INTRODUCTION ────────────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">What Is Kalshi and Why Automate It?</h2>
+          <p>Kalshi is the first CFTC-regulated exchange dedicated to event contracts in the United States. Unlike offshore prediction markets, every Kalshi trade clears through a federally regulated infrastructure with full legal protections for US-based traders. That regulatory clarity is precisely what makes it worth building a Kalshi trading bot for. (New to Kalshi? Start with our <a href="how-to-trade-on-kalshi.html">beginner's guide to trading on Kalshi</a>.)</p>
+          <p>The exchange offers event contracts across economics (GDP, inflation, jobs reports), weather (hourly temperature, rainfall, wind speed), politics (elections, policy decisions), and dozens of other categories. Contracts resolve to binary outcomes &mdash; YES or NO &mdash; priced between $0.01 and $0.99, representing the market's implied probability of an event occurring. When you buy a YES contract at $0.35, you're paying $0.35 for a potential $1.00 payout if the event happens.</p>
+          <p>What makes Kalshi uniquely suited for automation is its market structure. Hourly weather markets create hundreds of tradable events per day. Economic indicator markets move on precise, scheduled data releases. These are environments where speed and systematic execution beat manual trading every time. A well-built Kalshi API bot can monitor dozens of markets simultaneously, execute on sub-second price movements, and maintain position discipline that's impossible to replicate by hand.</p>
+          <p>With Mercury's agentic AI, you don't even need to manually assemble your bot. Describe your strategy in plain English — "Buy YES on Kalshi hourly temperature contracts when the HRRR weather model forecast diverges from the contract strike by more than 3 degrees, with a $25 max position and 15% trailing stop" — and the AI agent generates the complete node graph: trigger, conditions, execution, and risk management, all wired together and ready to paper trade.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── STEP-BY-STEP GUIDE ──────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="section-label">Step-by-Step</div>
+      <div class="page-prose">
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Step 1: Which Kalshi Market Should You Trade?</h2>
+          <p>Your market selection determines everything about your bot's design. Kalshi's three primary market categories each demand different automation strategies, and understanding these differences is the first decision you need to make.</p>
+          <p><strong>Hourly weather markets</strong> are Kalshi's highest-frequency opportunity. Temperature, rainfall, and wind speed contracts resolve every hour across major US cities. These markets generate hundreds of tradable events daily, making them ideal for systematic strategies that exploit mean reversion and forecast model convergence. A Kalshi trading bot targeting weather markets needs fast data ingestion and rapid order placement &mdash; exactly the kind of problem Mercury's <a href="../architect.html">Architect</a> visual builder was designed to solve.</p>
+          <p><strong>Daily economics markets</strong> trade around scheduled data releases: CPI, jobs reports, GDP prints, Fed decisions. These contracts often see dramatic probability shifts in the minutes surrounding a release. Bots here need to ingest external data feeds and react faster than manual traders can process a headline.</p>
+          <p><strong>Long-term politics and policy markets</strong> have wider spreads and longer time horizons. Automation for these markets focuses less on speed and more on systematic rebalancing, portfolio-level risk management, and cross-market correlation tracking.</p>
+          <p>In Mercury's bot builder, you select your target market category during setup. The platform pulls live Kalshi order books and surfaces every active contract within your chosen category, so you can define your universe before writing a single rule. You can also tell the AI agent which market type you want to trade and it will configure the trigger nodes, suggest conditions based on the market's characteristics, and wire the full strategy for you.</p>
+        </div>
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Step 2: What Should Trigger Your Kalshi Bot?</h2>
+          <p>Triggers are the conditions that tell your bot when to act. Mercury supports four trigger types that cover the full range of Kalshi trading strategies.</p>
+          <p><strong>Price threshold triggers</strong> fire when a contract's bid or ask crosses a level you define. Set a trigger at $0.15 on a weather contract, and your bot will watch the order book until that price appears. This is the simplest and most common trigger for building a Kalshi bot.</p>
+          <p><strong>Probability cross triggers</strong> activate when implied probability moves through a boundary. If you believe a YES contract is mispriced below 40%, set a probability cross trigger at 0.40 and let the bot handle surveillance across every relevant contract.</p>
+          <p><strong>Time-based triggers</strong> execute at specific intervals or at set times relative to market resolution. A bot that buys weather contracts exactly 45 minutes before hourly resolution &mdash; when liquidity typically thins and mispricings appear &mdash; uses time-based triggers.</p>
+          <p><strong>External API data triggers</strong> connect your bot to outside data sources: NOAA weather feeds, BLS economic data, real-time news APIs, or custom model outputs. When the external signal matches your criteria, the bot executes on Kalshi. Mercury handles the API polling, data parsing, and signal-to-execution pipeline with sub-18ms latency to the Kalshi matching engine.</p>
+        </div>
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Step 3: How Do You Add Conditions to Filter Trades?</h2>
+          <p>Conditions narrow your triggers so the bot only fires on high-quality setups. Raw triggers without conditions will overtrade. Mercury's condition layer prevents that.</p>
+          <p><strong>Probability band conditions</strong> restrict execution to a specific probability range. You might only want to buy YES contracts when implied probability is between 20% and 40% &mdash; the range where you've identified consistent mispricing. Contracts outside that band are ignored regardless of what your trigger does.</p>
+          <p><strong>Volume filters</strong> ensure you're trading contracts with sufficient liquidity. Illiquid Kalshi markets can have wide spreads that eat your edge. A volume filter requiring at least $500 in trailing-hour volume prevents your bot from taking positions it can't exit efficiently.</p>
+          <p><strong>Time window conditions</strong> limit trading to specific hours or periods relative to contract resolution. Weather market scalpers often restrict activity to the 2-hour window before resolution, when price convergence toward the true outcome begins and mispricings become actionable.</p>
+          <p>Conditions stack. A well-configured Kalshi API bot might combine all three: probability between 25-45%, volume above $1,000, and execution only within 90 minutes of resolution. This multi-condition setup is what separates profitable automation from noise.</p>
+        </div>
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Step 4: How Should Your Bot Execute on Kalshi?</h2>
+          <p>Execution configuration determines what your bot actually does when triggers and conditions align. Every parameter matters.</p>
+          <p><strong>Direction</strong> is straightforward: buy YES or buy NO. Your thesis about an event determines direction. Some strategies alternate &mdash; buying YES when probability drops below a threshold and buying NO when it rises above another. Mercury supports conditional direction logic within a single bot.</p>
+          <p><strong>Order types</strong> include market orders for immediate fills and limit orders for price-controlled entries. On Kalshi, limit orders are almost always preferable. The spreads on event contracts can be wide enough that market orders give up significant edge. Your bot should place limit orders at your target price and manage them as the book moves.</p>
+          <p><strong>Position sizing</strong> defines how much capital each trade deploys. Fixed dollar amounts ($10 per trade), percentage of account (2% per position), or Kelly criterion-based sizing are all available in Mercury's configuration panel. For hourly weather markets where you might take 20+ positions per day, conservative sizing &mdash; typically 1-3% of account per trade &mdash; prevents any single resolution from materially impacting your portfolio.</p>
+        </div>
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Step 5: What Risk Management Does a Kalshi Bot Need?</h2>
+          <p>Risk management is not optional. Automated Kalshi trading without proper safeguards will eventually produce a catastrophic drawdown. Mercury enforces risk controls at the bot level and the account level.</p>
+          <p><strong>Stop-loss rules</strong> exit positions when a contract moves against you by a defined amount. If you buy YES at $0.40 and set a $0.10 stop, the bot sells if the price drops to $0.30. On Kalshi, where contracts can move rapidly on new information, automated stops are essential.</p>
+          <p><strong>Take-profit rules</strong> lock in gains at predefined levels. Buy at $0.35, take profit at $0.60 &mdash; the bot captures a $0.25 gain per contract without waiting to see if the market reverses before resolution.</p>
+          <p><strong>Maximum exposure limits</strong> cap your total capital at risk across all open positions. Set a $500 max exposure and your bot will stop opening new positions once your aggregate risk hits that ceiling, even if triggers and conditions are still firing.</p>
+          <p><strong>Kill switch</strong> is Mercury's emergency stop. One click halts all bot activity, cancels open orders, and optionally closes all positions at market. Every automated Kalshi trading setup needs a kill switch. Mercury's is accessible from the dashboard, the mobile interface, and via API call. When you build a Kalshi bot, this is the feature you hope never to use &mdash; and the one you'll be grateful exists if markets move against you in ways your model didn't anticipate.</p>
+        </div>
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Step 6: How Do You Paper Trade Before Going Live?</h2>
+          <p>Mercury's paper trading environment simulates Kalshi execution against live order book data without risking real capital. Every trigger fires, every condition evaluates, every order "executes" against real prices &mdash; but no money moves.</p>
+          <p>Paper trading is where you validate your strategy's edge. Run your bot for at least 48 hours on weather markets or through two full data release cycles on economics markets before deploying live capital. Watch for overfitting: a bot that performs perfectly on three days of weather data but hasn't seen a cold front or an anomalous temperature reading hasn't been properly stress-tested.</p>
+          <p>Mercury tracks paper trading performance with the same analytics as live trading: P&L curves, win rates, average hold times, max drawdowns, and Sharpe ratios. If your paper metrics don't demonstrate a clear edge, the bot isn't ready. Iterate on your triggers, conditions, and sizing until the numbers hold up.</p>
+        </div>
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Step 7: How Do You Deploy a Live Kalshi Bot?</h2>
+          <p>Deploying live is a single toggle in Mercury's <a href="../architect.html">Architect dashboard</a>. Whether you built the strategy manually with the visual editor or had the agentic AI generate it from a natural language prompt, deployment works the same way. Your bot connects to Kalshi's production API through Mercury's infrastructure, which maintains sub-18ms execution latency and 99.98% uptime across all supported exchanges.</p>
+          <p>On deployment, Mercury runs a pre-flight check: API credentials, account balance, risk limits, and order routing configuration are all validated before the first live order fires. The system also checks for conflicting bots &mdash; two bots targeting the same market with opposing directions, for example &mdash; and flags potential issues before they cost you money.</p>
+          <p>Once live, your bot runs on Mercury's server infrastructure, not on your local machine. You don't need to keep a laptop open or maintain a VPS. The bot executes 24/7 for as long as your target markets are active, with real-time monitoring and alerting available through the Mercury dashboard. <a href="../architect.html#pricing">Pro accounts ($99/mo)</a> include unlimited live bots, priority execution, and advanced analytics.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── KALSHI-SPECIFIC STRATEGIES ──────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="section-label">Strategies</div>
+      <div class="page-prose">
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">What Are the Best Strategies for a Kalshi Trading Bot?</h2>
+          <p>Kalshi's unique market structure enables strategies that don't exist on traditional exchanges or even other prediction markets. Here are four approaches that Mercury traders use to automate Kalshi profitably.</p>
+        </div>
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Weather Market Scalping</h2>
+          <p>Hourly weather contracts exhibit predictable price convergence patterns as resolution approaches. Temperature markets, for instance, begin each hour with wide probability distributions that narrow as real-time sensor data accumulates. A scalping bot buys underpriced contracts early in the hour when uncertainty is high and sells as the probability converges toward the likely outcome. The edge comes from ingesting NOAA and NWS data faster than the market prices it in. Mercury's external API trigger system is purpose-built for this: connect your weather data feed, set probability-based entry rules, and let the bot trade every hour across every city Kalshi covers.</p>
+        </div>
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Economic Indicator Trading</h2>
+          <p>CPI, nonfarm payrolls, GDP, and Fed rate decisions all have corresponding Kalshi markets. These contracts move violently in the seconds surrounding scheduled data releases. An automated Kalshi bot pre-positions based on consensus forecasts, then manages the position through the release. The strategy requires external data triggers connected to economic data APIs and sub-second order management. Mercury's infrastructure delivers execution latency that keeps up with these fast-moving markets.</p>
+        </div>
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Hourly Market Mean Reversion</h2>
+          <p>Kalshi's hourly markets frequently overshoot on thin liquidity. A temperature contract might drop from $0.55 to $0.30 on a single large sell order, even though the underlying forecast hasn't changed. Mean reversion bots detect these dislocations by comparing the current price to a rolling average or to an external fair-value model. When the gap exceeds your threshold, the bot buys the dislocation and sells as the price reverts. This strategy works best with tight risk management and conservative sizing, since not every dislocation reverts before resolution.</p>
+        </div>
+
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Resolution Sniping</h2>
+          <p>In the final minutes before an hourly contract resolves, the outcome is often knowable from real-time data but not yet fully reflected in the contract price. A resolution sniping bot monitors external data sources &mdash; live temperature readings, real-time rainfall gauges &mdash; and buys contracts that are near-certain to resolve YES but still trading below $0.90. The margin per trade is thin, but the win rate approaches 95%+ when the data feed is reliable. Mercury's sub-18ms execution ensures your orders reach Kalshi before the final seconds of trading.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── KALSHI VS POLYMARKET ────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="page-prose">
+        <div class="page-prose-block">
+          <h2 class="page-prose-heading">Should You Build a Kalshi Bot or a Polymarket Bot?</h2>
+          <p>Both exchanges offer event-based contracts, but they serve different trading needs. Kalshi is CFTC-regulated, US-legal, and offers unique market types like hourly weather contracts that don't exist elsewhere. Polymarket runs on-chain, supports larger position sizes on political markets, and has deeper liquidity on long-duration events.</p>
+          <p>Mercury supports both. You can build a Kalshi bot and a <a href="build-polymarket-bot.html">Polymarket bot</a> from the same dashboard, using the same trigger and condition logic. Many Mercury traders run bots on both platforms simultaneously &mdash; capturing weather market edges on Kalshi while trading political and crypto markets on Polymarket. For a detailed breakdown of how the two platforms compare for automated trading, see our <a href="kalshi-vs-polymarket.html">Kalshi vs Polymarket comparison</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FAQ ─────────────────────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="section-label">FAQ</div>
+      <div class="page-prose" style="max-width:800px;">
+
+        <details class="faq-item">
+          <summary class="faq-question">Is Kalshi legal in the US?</summary>
+          <div class="faq-answer">
+            <p>Yes. Kalshi is the first and only CFTC-regulated event contract exchange in the United States. It operates as a Designated Contract Market (DCM) under the Commodity Exchange Act, which means every trade clears through federally regulated infrastructure. US residents in all 50 states can legally trade on Kalshi. This regulatory standing is what distinguishes Kalshi from offshore prediction markets and makes it a reliable foundation for automated trading strategies.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">How fast is Mercury's Kalshi execution?</summary>
+          <div class="faq-answer">
+            <p>Mercury maintains sub-18ms order-to-acknowledgment latency on Kalshi. Orders route from Mercury's infrastructure directly to Kalshi's matching engine through a dedicated, optimized connection. Combined with 99.98% uptime, this means your bot can react to market movements and external data signals faster than any manual trader and most competing automation platforms.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">Can I trade both Kalshi and Polymarket from one bot?</summary>
+          <div class="faq-answer">
+            <p>Mercury supports cross-platform bot strategies. You can build bots that monitor Kalshi and Polymarket simultaneously, execute on one platform based on signals from the other, or run independent strategies across both exchanges from a single dashboard. Cross-platform arbitrage &mdash; exploiting price differences between Kalshi and Polymarket on the same event &mdash; is one of the most popular multi-exchange strategies Mercury traders deploy. See our full <a href="prediction-market-arbitrage-bot.html">prediction market arbitrage bot guide</a> for a step-by-step walkthrough with real numbers and fee calculations.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-question">What data can I use to trigger Kalshi trades?</summary>
+          <div class="faq-answer">
+            <p>Mercury's trigger system supports any data source accessible via API. Common feeds for Kalshi bots include NOAA weather data (temperature, precipitation, wind speed), BLS economic releases (CPI, jobs reports), Federal Reserve announcements, real-time news APIs, custom quantitative models, and Kalshi's own order book data. You configure the data source, define your signal conditions, and Mercury handles the polling, parsing, and execution pipeline.</p>
+          </div>
+        </details>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FAQ SCHEMA ──────────────────────────────────── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is Kalshi legal in the US?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Kalshi is the first and only CFTC-regulated event contract exchange in the United States. It operates as a Designated Contract Market (DCM) under the Commodity Exchange Act, which means every trade clears through federally regulated infrastructure. US residents in all 50 states can legally trade on Kalshi."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How fast is Mercury's Kalshi execution?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Mercury maintains sub-18ms order-to-acknowledgment latency on Kalshi. Orders route from Mercury's infrastructure directly to Kalshi's matching engine through a dedicated, optimized connection. Combined with 99.98% uptime, this means your bot can react to market movements and external data signals faster than any manual trader."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I trade both Kalshi and Polymarket from one bot?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Mercury supports cross-platform bot strategies. You can build bots that monitor Kalshi and Polymarket simultaneously, execute on one platform based on signals from the other, or run independent strategies across both exchanges from a single dashboard."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What data can I use to trigger Kalshi trades?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Mercury's trigger system supports any data source accessible via API. Common feeds for Kalshi bots include NOAA weather data, BLS economic releases, Federal Reserve announcements, real-time news APIs, custom quantitative models, and Kalshi's own order book data."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- ─── FINAL CTA ───────────────────────────────────── -->
+  <section class="final-cta">
+    <div class="container">
+      <h2 class="final-headline">Build your first Kalshi bot today.</h2>
+      <p class="final-sub">Visual builder. Sub-18ms execution. No code required. Mercury handles the infrastructure &mdash; you define the strategy.</p>
+      <div class="final-ctas">
+        <a href="../signup.html" class="btn btn-primary">Get Started Free</a>
+        <a href="../architect.html#pricing" class="btn">View Pricing</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ──────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">Mercury</div>
+          <p class="footer-desc">Liquid intelligence &amp; infrastructure for the next generation of traders.</p>
+        </div>
+        <div>
+          <div class="footer-col-title">Product</div>
+          <ul class="footer-links">
+            <li><a href="../index.html#analytics">Analytics</a></li>
+            <li><a href="../architect.html">Architect</a></li>
+            <li><a href="../architect.html#pricing">Pricing</a></li>
+            <li><a href="../api.html">API</a></li>
+            <li><a href="../signup.html">Sign Up Free</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../careers.html">Careers</a></li>
+            <li><a href="../blog.html">Blog</a></li>
+            <li><a href="../contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <ul class="footer-links">
+            <li><a href="../privacy.html">Privacy</a></li>
+            <li><a href="../terms.html">Terms</a></li>
+            <li><a href="../disclaimer.html">Disclaimer</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Mercury — Hg 80. All rights reserved.</span>
+        <div class="footer-socials">
+          <a href="#">Twitter</a>
+          <a href="#">Discord</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../scripts/auth.js"></script>
+  <script src="../scripts/nav-auth.js"></script>
+  <script src="../scripts/page-transition.js"></script>
+  <script>
+    document.getElementById('hamburgerBtn')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('open');
+    });
+  </script>
+  <script src="../scripts/ambient.js"></script>
+</body>
+</html>

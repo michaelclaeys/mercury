@@ -1,5 +1,5 @@
 /* ================================================================
-   MERCURY DATA BRIDGE — Connects Research dashboard to real data
+   MERCURY DATA BRIDGE — Connects Charting dashboard to real data
 
    Data sources:
    - Mercury Bridge API (localhost:8777) for authenticated exchange data
@@ -213,7 +213,7 @@ class MercuryDataBridge {
   }
 }
 
-// Global instance — condor bot bridge (research dashboard)
+// Global instance — condor bot bridge (charting dashboard)
 const dataBridge = new MercuryDataBridge();
 
 
@@ -529,7 +529,31 @@ const MercuryLiveMarkets = {
   // ═══════════════════════════════════════════
 
   async fetchAllMarkets() {
-    // Fetch events (grouped, paginated) + individual markets from both platforms
+    // Fast path: use server-side cached /api/markets if available
+    try {
+      const resp = await fetch('/api/markets', { signal: AbortSignal.timeout(5000) });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.markets && data.markets.length > 0) {
+          console.log(`[LiveMarkets] Server cache: ${data.markets.length} markets (${data.status})`);
+          // Record price snapshots for history
+          const now = Date.now();
+          for (const m of data.markets) {
+            if (!m.short) m.short = this._shortName(m.name);
+            const key = m.short;
+            if (!this._priceHistory.has(key)) this._priceHistory.set(key, []);
+            const hist = this._priceHistory.get(key);
+            if (hist.length === 0 || now - hist[hist.length - 1].t > 60000) {
+              hist.push({ t: now, price: m.price });
+              if (hist.length > 200) hist.shift();
+            }
+          }
+          return data.markets;
+        }
+      }
+    } catch (_) { /* server cache unavailable, fall back to client-side */ }
+
+    // Fallback: fetch from APIs directly (client-side merge)
     const [polyEvents, kalshiEvents, polyMarkets, kalshiMarkets] = await Promise.all([
       this.fetchPolymarketEvents(200, 2).catch(() => []),
       this.fetchKalshiEvents(200, 2).catch(() => []),
@@ -754,7 +778,7 @@ const MercuryLiveMarkets = {
 
     try {
       const qs = `prices-history?market=${encodeURIComponent(clobTokenId)}&interval=${interval}&fidelity=${fidelity}`;
-      const resp = await this._fetchWithFallback(`${this._clobBase}${qs}`, `${this._clobDirect}${qs}`);
+      const resp = await this._fetchWithFallback(`${this._clobBase}${qs}`, `${this._clobDirect}${qs}`, { timeout: 3000 });
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const json = await resp.json();
       // CLOB returns { history: [{ t: unix_seconds, p: float_0_to_1 }] }
@@ -779,7 +803,7 @@ const MercuryLiveMarkets = {
 
     try {
       const qs = `markets/${encodeURIComponent(ticker)}/candlesticks?period_interval=${periodInterval}`;
-      const resp = await this._fetchWithFallback(`${this._kalshiBase}${qs}`, `${this._kalshiDirect}${qs}`);
+      const resp = await this._fetchWithFallback(`${this._kalshiBase}${qs}`, `${this._kalshiDirect}${qs}`, { timeout: 3000 });
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const json = await resp.json();
       // Kalshi returns { candlesticks: [{ end_period_ts, yes_price: {open,high,low,close}, volume, ... }] }
@@ -886,11 +910,10 @@ const MercuryLiveMarkets = {
 
 /* ================================================================
    MERCURY ENGINE BRIDGE — Connects Architect to the strategy engine
-   (localhost:8778 — the new mercury-engine backend)
    ================================================================ */
 
 class MercuryEngineBridge {
-  constructor(apiBase = 'http://localhost:8778') {
+  constructor(apiBase = (window.MERCURY_CONFIG && window.MERCURY_CONFIG.engineBase) || 'http://localhost:8778') {
     this.apiBase = apiBase;
     this.connected = false;
     this._polls = new Map();
@@ -898,7 +921,8 @@ class MercuryEngineBridge {
 
   async _fetch(path, options = {}) {
     try {
-      const resp = await fetch(`${this.apiBase}${path}`, {
+      const _fetch = typeof window.fetchWithAuth === 'function' ? window.fetchWithAuth : fetch;
+      const resp = await _fetch(`${this.apiBase}${path}`, {
         signal: AbortSignal.timeout(8000),
         headers: { 'Content-Type': 'application/json', ...options.headers },
         ...options,

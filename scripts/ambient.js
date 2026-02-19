@@ -5,6 +5,9 @@
    ================================================================ */
 
 (function () {
+  // Skip expensive ambient canvas on mobile — too much overlap + saves battery
+  if (window.__mercury_mobile) return;
+
   const canvas = document.createElement('canvas');
   canvas.id = 'ambientCanvas';
   canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:40;';
@@ -179,6 +182,29 @@
     addSideCluster('right', 8, { bwMin: 0.008, bwRange: 0.022, bhMin: 0.08, bhRange: 0.22, alphaMin: 0.12, alphaRange: 0.10, layer: 1 });
 
     skyBuildings.sort((a, b) => a.layer - b.layer);
+
+    // Pre-compute window visibility (avoids Math.random() flickering in render loop)
+    for (const b of skyBuildings) {
+      b._windows = [];
+      if (b.windowRows > 0 && b.windowCols > 0) {
+        const padXF = 0.18, padYF = 0.10;
+        const spacingXF = (1 - padXF * 2) / b.windowCols;
+        const spacingYF = (1 - padYF * 2) / b.windowRows;
+        const winWF = 0.45 / b.windowCols;
+        const winHF = 0.35 / b.windowRows;
+        for (let r = 0; r < b.windowRows; r++) {
+          for (let c = 0; c < b.windowCols; c++) {
+            if (Math.random() > 0.45) continue;
+            b._windows.push({
+              rx: padXF + c * spacingXF,
+              ry: padYF + r * spacingYF,
+              wf: winWF, hf: winHF,
+              a: 0.4 + Math.random() * 0.5,
+            });
+          }
+        }
+      }
+    }
   }
 
   generateSkyline();
@@ -400,22 +426,13 @@
         ctx.fillRect(midX - 1, gY - bh - aH - 1, 2, 2);
       }
 
-      // Windows
-      if (b.windowRows > 0 && b.windowCols > 0) {
-        const winW = bw * 0.45 / b.windowCols;
-        const winH = bh * 0.35 / b.windowRows;
-        const padX = bw * 0.18;
-        const padY = bh * 0.10;
-        const spacingX = (bw - padX * 2) / b.windowCols;
-        const spacingY = (bh - padY * 2) / b.windowRows;
-        for (let r = 0; r < b.windowRows; r++) {
-          for (let c = 0; c < b.windowCols; c++) {
-            if (Math.random() > 0.45) continue;
-            const wx = bx + padX + c * spacingX;
-            const wy = gY - bh + padY + r * spacingY;
-            ctx.fillStyle = `rgba(255,255,255,${a * (0.4 + Math.random() * 0.5)})`;
-            ctx.fillRect(wx, wy, winW, winH);
-          }
+      // Windows (pre-computed positions — no flickering)
+      if (b._windows && b._windows.length > 0) {
+        for (const win of b._windows) {
+          const wx = bx + win.rx * bw;
+          const wy = gY - bh + win.ry * bh;
+          ctx.fillStyle = `rgba(255,255,255,${a * win.a})`;
+          ctx.fillRect(wx, wy, win.wf * bw, win.hf * bh);
         }
       }
     }

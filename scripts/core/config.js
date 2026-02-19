@@ -20,6 +20,29 @@ export const API = {
     : 'https://mercury-backend.onrender.com/api',
 };
 
+// Mercury Engine API (bot engine, wallets, trading)
+// Override via window.MERCURY_ENGINE_BASE before script load for custom deployments
+export const ENGINE = {
+  base: window.MERCURY_ENGINE_BASE || (ENV.isLocal
+    ? 'http://localhost:8778'
+    : `${window.location.origin}/engine`),
+};
+
+// Mobile detection
+export const DEVICE = {
+  isMobile: /Android|iPhone|iPad|iPod|webOS|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent)
+    || (window.innerWidth <= 768),
+  isTouch: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
+};
+
+// Also expose on window for non-module scripts (funding.js, wallet-service.js, etc.)
+window.MERCURY_CONFIG = {
+  engineBase: ENGINE.base,
+  isLocal: ENV.isLocal,
+  isMobile: DEVICE.isMobile,
+  isTouch: DEVICE.isTouch,
+};
+
 export const STORAGE_KEYS = {
   visited: 'mercury_visited',
 };

@@ -35,7 +35,7 @@
               <ul class="upgrade-list">
                 <li class="upgrade-has">1 paper-only bot</li>
                 <li class="upgrade-has">Polymarket + Kalshi</li>
-                <li class="upgrade-has">Full research access</li>
+                <li class="upgrade-has">Full charting access</li>
                 <li class="upgrade-has">AI agent access</li>
                 <li class="upgrade-has">All node types</li>
                 <li class="upgrade-no">Live trading</li>
@@ -48,7 +48,7 @@
               <ul class="upgrade-list">
                 <li class="upgrade-has">Unlimited bots</li>
                 <li class="upgrade-has">Polymarket + Kalshi</li>
-                <li class="upgrade-has">Full research access</li>
+                <li class="upgrade-has">Full charting access</li>
                 <li class="upgrade-has">AI agent access</li>
                 <li class="upgrade-has">All node types</li>
                 <li class="upgrade-has">Live trading</li>

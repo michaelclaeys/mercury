@@ -3,8 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mercury</title>
-  <meta name="description" content="Mercury — infrastructure for prediction market traders. Architect your bots, research your edge.">
+  <title>Mercury — Build Prediction Market Bots for Polymarket & Kalshi</title>
+  <meta name="description" content="Build and deploy automated trading bots for Polymarket, Kalshi, and prediction markets. Visual strategy builder, real-time data, paper trading, and live execution. Start free.">
+  <link rel="canonical" href="https://mercurysuite.io/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Mercury">
+  <meta property="og:url" content="https://mercurysuite.io/">
+  <meta property="og:title" content="Build Prediction Market Bots for Polymarket & Kalshi">
+  <meta property="og:description" content="Build and deploy automated trading bots for Polymarket, Kalshi, and prediction markets. Visual strategy builder, real-time data, paper trading, and live execution. Start free.">
+  <meta property="og:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Build Prediction Market Bots for Polymarket & Kalshi">
+  <meta name="twitter:description" content="Build and deploy automated trading bots for Polymarket, Kalshi, and prediction markets. Visual strategy builder, real-time data, paper trading, and live execution. Start free.">
+  <meta name="twitter:image" content="https://mercurysuite.io/images/og-default.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.json">
+  <script>
+    // Mobile detection — runs before CSS paint
+    (function(){
+      var m = /Android|iPhone|iPad|iPod|webOS|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent) || window.innerWidth <= 768;
+      if(m) document.documentElement.classList.add('is-mobile');
+      window.__mercury_mobile = m;
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -558,25 +579,129 @@
       .hub-status-badges { display: none; }
     }
     @media (max-width: 768px) {
+      /* ── Fix: allow hub to scroll so all panels are visible ── */
+      .hub {
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        align-items: flex-start;
+        justify-content: flex-start;
+      }
+      .hub-grid-bg { display: none; }
+      .hub-content {
+        padding-top: 1.25rem;
+        padding-bottom: 2.5rem;
+        width: 100%;
+      }
+      /* Hide expensive skyline canvas on mobile (fixes glitch + saves battery) */
+      #hubBgCanvas { display: none; }
+      /* Hide decorative elements that don't work well scrollable */
+      .hub-watermark { display: none; }
+      .hub-brand-text { display: none; }
+      .hub-logo {
+        margin-bottom: 0.5rem;
+      }
+      .hub-logo svg { width: 40px; height: 40px; }
+      .hub-logo-text {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+      }
+      .hub-motto {
+        font-size: 0.6rem;
+        margin-bottom: 0.75rem;
+      }
+      .hub-sub {
+        font-size: 0.65rem;
+        margin-bottom: 1rem;
+      }
       .hub-panels {
         grid-template-columns: 1fr;
+        gap: 1px;
+        max-width: 100%;
+        padding: 0 8px;
       }
       .hub-panel {
-        padding: 2rem 1.5rem;
+        padding: 1rem;
+      }
+      .hub-panel-num {
+        margin-bottom: 0.5rem;
+      }
+      .hub-panel-title {
+        font-size: 1.05rem;
+        margin-bottom: 0.4rem;
+      }
+      .hub-panel-desc {
+        font-size: 0.62rem;
+        line-height: 1.45;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+      }
+      .hub-panel-arrow {
+        font-size: 0.6rem;
       }
       .hub-funding-content {
-        flex-direction: column;
+        flex-direction: row;
         gap: 1rem;
+        align-items: center;
       }
+      .hub-funding-amount {
+        border-left: 1px solid rgba(255,215,0,0.1);
+        border-top: none;
+        padding: 0 0 0 1rem;
+        flex-shrink: 0;
+      }
+      .hub-funding-number {
+        font-size: 1.2rem;
+      }
+      .hub-terminal { display: none; }
+      .hub-coords { display: none; }
+      .hub-footer {
+        position: relative;
+        padding: 0.75rem 1rem;
+        font-size: 0.55rem;
+      }
+      .hub-footer a { margin-left: 0.75rem; }
+    }
+
+    @media (max-width: 480px) {
+      .hub-content { padding-top: 1rem; }
+      .hub-panels { padding: 0 4px; }
+      .hub-panel {
+        padding: 0.85rem 0.75rem;
+      }
+      .hub-panel-num { font-size: 0.6rem; margin-bottom: 0.3rem; }
+      .hub-panel-title { font-size: 0.95rem; margin-bottom: 0.3rem; }
+      .hub-panel-desc { font-size: 0.6rem; }
+      .hub-funding-content { flex-direction: column; gap: 0.5rem; }
       .hub-funding-amount {
         border-left: none;
         border-top: 1px solid rgba(255,215,0,0.1);
-        padding: 1rem 0 0;
+        padding: 0.5rem 0 0;
       }
-      .hub-watermark { width: 300px; height: 300px; }
-      .hub-brand-text { font-size: 3rem; }
-      .hub-terminal { display: none; }
-      .hub-coords { display: none; }
+      .hub-funding-number { font-size: 1rem; }
+      /* Touch-friendly gate toast */
+      #liveGateToast,
+      #fundingGateToast {
+        width: 90vw !important;
+        max-width: 90vw !important;
+        padding: 24px 20px !important;
+      }
+    }
+
+    /* ── Mobile performance ── */
+    @media (max-width: 768px) {
+      /* Reduce galaxy canvas impact */
+      #galaxyCanvas { opacity: 0.5; }
+      /* Smaller intro elements */
+      .intro-textline { font-size: 1.2rem; }
+      .intro-word { min-width: 160px; }
+      .intro-logo { width: 100px; height: 100px; }
+      .intro-brand { font-size: 1.1rem; }
+      body { overflow-x: hidden; }
     }
 
     /* ─── Footer (minimal) ──────────────────────────────── */
@@ -604,6 +729,21 @@
       color: var(--silver);
     }
   </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Mercury",
+    "url": "https://mercurysuite.io",
+    "logo": "https://mercurysuite.io/favicon.svg",
+    "description": "Infrastructure for prediction market traders. Build and deploy automated bots for Polymarket, Kalshi, and event markets.",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "hello@mercurysuite.io",
+      "contactType": "customer service"
+    }
+  }
+  </script>
 </head>
 <body class="intro-active">
 
@@ -630,6 +770,7 @@
 
   <!-- ─── SUITE ("Where to?") ───────────────────────────── -->
   <section class="hub" id="hub">
+    <h1 class="sr-only">Mercury — Prediction Market Bot Builder for Polymarket & Kalshi</h1>
     <canvas id="hubBgCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
     <div class="hub-grid-bg"></div>
 
@@ -651,7 +792,7 @@
     <div class="hub-terminal" id="hubTerminal">
       <div class="hub-term-line" data-delay="0">> mercury.init()</div>
       <div class="hub-term-line" data-delay="200">> loading architect_engine <span class="t-dots">..........</span> <span class="t-ok">OK</span></div>
-      <div class="hub-term-line" data-delay="400">> loading research_feeds <span class="t-dots">............</span> <span class="t-ok">OK</span></div>
+      <div class="hub-term-line" data-delay="400">> loading charting_feeds <span class="t-dots">............</span> <span class="t-ok">OK</span></div>
       <div class="hub-term-line" data-delay="600">> loading market_scanner <span class="t-dots">..........</span> <span class="t-ok">OK</span></div>
       <div class="hub-term-line" data-delay="800">> loading bot_deployer <span class="t-dots">............</span> <span class="t-ok">OK</span></div>
       <div class="hub-term-line" data-delay="1000">> loading news_indexer <span class="t-dots">............</span> <span class="t-ok">OK</span></div>
@@ -706,7 +847,7 @@
     <!-- Side words (left) -->
     <div class="hub-side-words" id="hubSideWords">
       <span class="hub-side-word">Architect</span>
-      <span class="hub-side-word">Research</span>
+      <span class="hub-side-word">Charting</span>
       <span class="hub-side-word">Deploy</span>
       <span class="hub-side-word">Execute</span>
       <span class="hub-side-word">Monitor</span>
@@ -763,23 +904,23 @@
           <div class="hub-panel-desc">Your strategy, our infrastructure. Real-time Twitter sentiment, breaking news triggers, social buzz detection, earthquake and weather alerts, and 50+ pre-built nodes. Build event-driven bots that react to the world in real-time. Paper trade free, go live when ready.</div>
           <div class="hub-panel-arrow">> Start Building ———</div>
         </a>
-        <a class="hub-panel" href="architect-app.html#research" id="researchPanel">
+        <a class="hub-panel" href="architect.html#catalyst" id="catalystPanel">
           <div class="hub-panel-num">02</div>
-          <span class="hub-panel-status hub-panel-status--locked">Account Required <span class="status-pulse"></span></span>
-          <div class="hub-panel-title">Research</div>
-          <div class="hub-panel-desc">Live market feeds, order books, cross-platform arbitrage scanner, and bot telemetry. Real-time data from Kalshi, Polymarket, and crypto exchanges streamed to your terminal.</div>
-          <div class="hub-panel-arrow">> Enter ———</div>
+          <span class="hub-panel-status hub-panel-status--locked">Free Account Required <span class="status-pulse"></span></span>
+          <div class="hub-panel-title">Catalyst</div>
+          <div class="hub-panel-desc">Real-time keyword spike detection across Google News. Tracks 7 feeds, flags statistically significant surges using a 24-hour rolling baseline, and auto-categorizes keywords so you spot narrative shifts before they move markets.</div>
+          <div class="hub-panel-arrow">> Open Catalyst ———</div>
         </a>
         <a class="hub-panel" href="#" id="backtestPanel" onclick="event.preventDefault(); showLiveGate();">
           <div class="hub-panel-num">03</div>
-          <span class="hub-panel-status hub-panel-status--locked">Account Required <span class="status-pulse"></span></span>
+          <span class="hub-panel-status hub-panel-status--locked">Free Account Required <span class="status-pulse"></span></span>
           <div class="hub-panel-title">Backtest</div>
           <div class="hub-panel-desc">Replay any strategy against historical market data. Kalshi, Polymarket, and custom feeds — test edge hypotheses before risking real capital. Full PnL, drawdown, and Brier score reporting.</div>
           <div class="hub-panel-arrow">> Enter ———</div>
         </a>
         <a class="hub-panel" href="#" id="liveManagementPanel" onclick="event.preventDefault(); showLiveGate();">
           <div class="hub-panel-num">04</div>
-          <span class="hub-panel-status hub-panel-status--locked">Account Required <span class="status-pulse"></span></span>
+          <span class="hub-panel-status hub-panel-status--locked">Free Account Required <span class="status-pulse"></span></span>
           <div class="hub-panel-title">Live Management</div>
           <div class="hub-panel-desc">Monitor bots, positions, and risk in real-time. 99.98% uptime infrastructure keeps your bots running 24/7 — no server restarts, no crashed scripts, no 3am wake-up calls.</div>
           <div class="hub-panel-arrow">> Enter ———</div>
@@ -911,5 +1052,12 @@
   <script src="scripts/hub-tour.js?v=25"></script>
   <script src="scripts/landing.js"></script>
   <script src="scripts/ambient.js"></script>
+<noscript>
+  <div style="padding:4rem 2rem;text-align:center;color:#e0e0e0;font-family:monospace;">
+    <h1>Mercury — Prediction Market Bot Builder</h1>
+    <p>Build and deploy automated trading bots for Polymarket, Kalshi, and prediction markets. Visual strategy builder, real-time data feeds, paper trading, and live execution infrastructure.</p>
+    <p><a href="signup.html" style="color:#00c853;">Sign up free</a> | <a href="architect.html" style="color:#00c853;">Learn more</a></p>
+  </div>
+</noscript>
 </body>
 </html>

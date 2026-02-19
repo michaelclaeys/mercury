@@ -1,0 +1,461 @@
+/* ─── GUIDE PAGE STYLES ─────────────────────────────── */
+/* Shared styles for all /guides/ pages                  */
+
+/* ─── GUIDE BODY TYPOGRAPHY ────────────────────────── */
+
+.guide-body {
+  max-width: 780px;
+  padding-bottom: var(--gap-section);
+}
+
+.guide-body h2 {
+  font-size: 1.15rem;
+  color: var(--pure);
+  font-weight: 700;
+  margin-top: 3.5rem;
+  margin-bottom: var(--gap-md);
+  line-height: 1.35;
+}
+
+.guide-body h2::before {
+  content: '> ';
+  color: var(--dim);
+}
+
+.guide-body h3 {
+  font-size: 0.9rem;
+  color: var(--white);
+  font-weight: 600;
+  margin-top: var(--gap-xl);
+  margin-bottom: var(--gap-sm);
+}
+
+.guide-body p {
+  font-size: 0.78rem;
+  color: var(--silver);
+  line-height: 1.85;
+  margin-bottom: var(--gap-md);
+}
+
+.guide-body strong {
+  color: var(--bright);
+  font-weight: 600;
+}
+
+.guide-body a {
+  color: var(--bright);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.12s;
+}
+
+.guide-body a:hover {
+  color: var(--pure);
+}
+
+.guide-body ul,
+.guide-body ol {
+  list-style: none;
+  margin: 0 0 var(--gap-md) 0;
+  padding: 0;
+}
+
+.guide-body ul li,
+.guide-body ol li {
+  font-size: 0.78rem;
+  color: var(--silver);
+  line-height: 1.85;
+  padding-left: 1.2rem;
+  position: relative;
+  margin-bottom: 0.35rem;
+}
+
+.guide-body ul li::before {
+  content: '+';
+  position: absolute;
+  left: 0;
+  color: var(--dim);
+  font-weight: 600;
+}
+
+.guide-body ol {
+  counter-reset: guide-counter;
+}
+
+.guide-body ol li {
+  counter-increment: guide-counter;
+}
+
+.guide-body ol li::before {
+  content: counter(guide-counter) '.';
+  position: absolute;
+  left: 0;
+  color: var(--dim);
+  font-weight: 600;
+  font-size: 0.7rem;
+}
+
+/* ─── COMPARISON TABLE (GRID) ──────────────────────── */
+
+.guide-compare {
+  border: 1px solid var(--border);
+  margin: var(--gap-md) 0 var(--gap-lg);
+  overflow-x: auto;
+}
+
+.guide-compare-row {
+  display: grid;
+  grid-template-columns: 130px repeat(3, 1fr);
+  font-size: 0.72rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.guide-compare-row:last-child {
+  border-bottom: none;
+}
+
+.guide-compare-row span {
+  padding: var(--gap-sm) var(--gap-md);
+  color: var(--silver);
+  border-right: 1px solid var(--border);
+}
+
+.guide-compare-row span:last-child {
+  border-right: none;
+}
+
+.guide-compare-header {
+  background: var(--surface);
+}
+
+.guide-compare-header span {
+  color: var(--dim);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+.guide-compare-label {
+  color: var(--white) !important;
+  font-weight: 600;
+}
+
+/* ─── COMPARISON TABLE (HTML TABLE) ────────────────── */
+
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  font-size: 0.8rem;
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.comparison-table th {
+  color: var(--silver);
+  font-weight: 500;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.comparison-table td:first-child {
+  color: var(--white);
+  font-weight: 500;
+}
+
+.comparison-table td {
+  color: var(--dim);
+}
+
+.comparison-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ─── NODE GRID ────────────────────────────────────── */
+
+.node-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  border: 1px solid var(--border);
+  margin: var(--gap-md) 0 var(--gap-lg);
+}
+
+.node-card {
+  padding: var(--gap-lg);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.node-card:nth-child(2n) {
+  border-right: none;
+}
+
+.node-card:nth-last-child(-n+2) {
+  border-bottom: none;
+}
+
+.node-card-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  color: var(--dim);
+  margin-bottom: var(--gap-xs);
+  text-transform: uppercase;
+}
+
+.node-card-title {
+  font-size: 0.85rem;
+  color: var(--white);
+  font-weight: 600;
+  margin-bottom: var(--gap-sm);
+}
+
+.node-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.node-card li {
+  font-size: 0.72rem;
+  color: var(--silver);
+  line-height: 1.75;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.node-card li::before {
+  content: '+';
+  position: absolute;
+  left: 0;
+  color: var(--dim);
+}
+
+/* ─── STEPS ────────────────────────────────────────── */
+
+.guide-steps {
+  border: 1px solid var(--border);
+  margin: var(--gap-md) 0 var(--gap-lg);
+}
+
+.guide-step {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: var(--gap-md);
+  padding: var(--gap-md) var(--gap-lg);
+  border-bottom: 1px solid var(--border);
+  align-items: start;
+}
+
+.guide-step:last-child {
+  border-bottom: none;
+}
+
+.guide-step-num {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--dim);
+  letter-spacing: 0.15em;
+  padding-top: 2px;
+}
+
+.guide-step-text {
+  font-size: 0.78rem;
+  color: var(--silver);
+  line-height: 1.75;
+}
+
+.guide-step-text strong {
+  color: var(--white);
+}
+
+/* ─── TABLE OF CONTENTS ────────────────────────────── */
+
+.guide-toc {
+  border: 1px solid var(--border);
+  padding: var(--gap-lg);
+  margin-bottom: var(--gap-xl);
+  background: var(--surface);
+}
+
+.guide-toc-title {
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  color: var(--dim);
+  margin-bottom: var(--gap-sm);
+  text-transform: uppercase;
+}
+
+.guide-toc ol {
+  list-style: none;
+  counter-reset: toc;
+  padding: 0;
+  margin: 0;
+}
+
+.guide-toc li {
+  counter-increment: toc;
+  font-size: 0.72rem;
+  line-height: 2;
+}
+
+.guide-toc li::before {
+  content: counter(toc, decimal-leading-zero) ' ';
+  color: var(--dim);
+  font-size: 0.65rem;
+}
+
+.guide-toc a {
+  color: var(--silver);
+  text-decoration: none;
+  transition: color 0.12s;
+}
+
+.guide-toc a:hover {
+  color: var(--pure);
+}
+
+/* ─── FAQ (GUIDE PAGES) ───────────────────────────── */
+
+.faq-section {
+  padding: var(--gap-section) 0;
+  position: relative;
+}
+
+.faq-headline {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  margin-bottom: 40px;
+}
+
+.faq-grid {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  padding: 0;
+}
+
+.faq-item:first-child {
+  border-top: 1px solid var(--border);
+}
+
+.faq-question {
+  padding: 20px 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--white);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  letter-spacing: 0.01em;
+}
+
+.faq-question::-webkit-details-marker {
+  display: none;
+}
+
+.faq-question::after {
+  content: '+';
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--dim);
+  margin-left: 16px;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.faq-item[open] .faq-question::after {
+  content: '\2212';
+}
+
+.faq-answer {
+  padding: 0 0 20px;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--dim);
+  max-width: 640px;
+}
+
+.faq-answer a {
+  color: var(--bright);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.faq-section .section-label {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── RESPONSIVE ───────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .guide-compare-row {
+    grid-template-columns: 90px repeat(3, 1fr);
+    font-size: 0.65rem;
+  }
+
+  .node-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .node-card {
+    border-right: none;
+  }
+
+  .node-card:nth-last-child(-n+2) {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .node-card:last-child {
+    border-bottom: none;
+  }
+
+  .guide-step {
+    grid-template-columns: 36px 1fr;
+  }
+
+  .comparison-table {
+    font-size: 0.72rem;
+  }
+
+  .comparison-table th,
+  .comparison-table td {
+    padding: 8px 10px;
+  }
+
+  .faq-section {
+    padding: 60px 0;
+  }
+
+  .faq-question {
+    font-size: 0.8rem;
+    padding: 16px 0;
+  }
+
+  .faq-answer {
+    font-size: 0.75rem;
+  }
+}

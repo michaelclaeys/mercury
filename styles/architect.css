@@ -1065,6 +1065,94 @@
   }
 }
 
+/* ─── FAQ Section ────────────────────────────────────── */
+.faq-section {
+  padding: var(--gap-section) 0;
+  position: relative;
+}
+
+.faq-headline {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  margin-bottom: 40px;
+}
+
+.faq-grid {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  padding: 0;
+}
+
+.faq-item:first-child {
+  border-top: 1px solid var(--border);
+}
+
+.faq-question {
+  padding: 20px 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--white);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  letter-spacing: 0.01em;
+}
+
+.faq-question::-webkit-details-marker {
+  display: none;
+}
+
+.faq-question::after {
+  content: '+';
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--dim);
+  margin-left: 16px;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.faq-item[open] .faq-question::after {
+  content: '\2212';
+}
+
+.faq-answer {
+  padding: 0 0 20px;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--dim);
+  max-width: 640px;
+}
+
+.faq-section .section-label {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .faq-section {
+    padding: 60px 0;
+  }
+  .faq-question {
+    font-size: 0.8rem;
+    padding: 16px 0;
+  }
+  .faq-answer {
+    font-size: 0.75rem;
+  }
+}
+
 /* ─── Telegram Bot Management ────────────────────────── */
 
 .arch-funding-section {

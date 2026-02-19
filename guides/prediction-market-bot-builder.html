@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Complete Guide to Prediction Market Bot Building — Mercury</title>
+  <meta name="description" content="Everything you need to know about building automated prediction market trading bots. Strategies, tools, platforms, and step-by-step instructions for Polymarket and Kalshi.">
+  <link rel="canonical" href="https://mercurysuite.io/guides/prediction-market-bot-builder.html">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Mercury">
+  <meta property="og:url" content="https://mercurysuite.io/guides/prediction-market-bot-builder.html">
+  <meta property="og:title" content="The Complete Guide to Prediction Market Bot Building — Mercury">
+  <meta property="og:description" content="Everything you need to know about building automated prediction market trading bots. Strategies, tools, platforms, and step-by-step instructions for Polymarket and Kalshi.">
+  <meta property="og:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Complete Guide to Prediction Market Bot Building — Mercury">
+  <meta name="twitter:description" content="Everything you need to know about building automated prediction market trading bots. Strategies, tools, platforms, and step-by-step instructions for Polymarket and Kalshi.">
+  <meta name="twitter:image" content="https://mercurysuite.io/images/og-default.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/main.css">
+  <link rel="stylesheet" href="../styles/pages.css">
+  <link rel="stylesheet" href="../styles/guides.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the best tool for building prediction market bots?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Mercury Architect is the most comprehensive prediction market bot builder available. It provides a visual drag-and-drop interface with 8 trigger node types, AI-assisted strategy design, sub-20ms execution, and native support for both Polymarket and Kalshi. Unlike coding your own bot from scratch, Mercury gives you production-grade infrastructure with 99.98% uptime out of the box."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I build a prediction market bot without coding?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Mercury Architect is a fully no-code prediction market bot builder. You construct strategies by connecting visual nodes — triggers, conditions, execution rules, and risk management — on a drag-and-drop canvas. You can also describe a strategy in plain English and let Mercury's AI generate the node graph for you."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which prediction markets can I trade with bots?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Mercury supports automated trading on Polymarket (decentralized, crypto-settled, CLOB-based) and Kalshi (CFTC-regulated, USD-settled). These are the two largest prediction market platforms by volume. Mercury also ingests data from supplementary sources including crypto exchanges, stock feeds, news APIs, weather services, and custom endpoints."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much money do I need to start bot trading on prediction markets?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You can start paper trading prediction markets for free with Mercury's Free tier — no deposit required. Kalshi allows live trading with as little as $1 per contract. Polymarket requires USDC on the Polygon network, with most contracts starting around $0.01 per share. Mercury's funded trader program also provides up to $5,000 in trading capital for qualified strategies."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is prediction market bot trading legal?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Automated trading on prediction markets is legal in jurisdictions where the platforms themselves operate legally. Kalshi is regulated by the CFTC (Commodity Futures Trading Commission) and explicitly permits API-based and automated trading. Polymarket operates as a decentralized protocol. Users are responsible for complying with local regulations. Mercury provides the tooling — users assume responsibility for their trading activity."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <!-- ─── NAVBAR ──────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="../index.html" class="navbar-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="3"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)"/>
+        </svg>
+        Mercury
+      </a>
+      <ul class="navbar-links">
+        <li><a href="../index.html">Suite</a></li>
+        <li><a href="../architect.html">Architect</a></li>
+        <li><a href="../architect-app.html#charting">Charting</a></li>
+        <li><a href="#">Backtest</a></li>
+        <li><a href="../architect.html#pricing">Pricing</a></li>
+      </ul>
+      <div class="navbar-actions">
+        <a href="#" class="btn" id="navProfile">Profile</a>
+        <a href="#" class="btn" onclick="window.signOut && window.signOut()">Logout</a>
+      </div>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="../index.html">Suite</a>
+    <a href="../architect.html">Architect</a>
+    <a href="../architect-app.html#charting">Charting</a>
+    <a href="#">Backtest</a>
+    <a href="../architect.html#pricing">Pricing</a>
+    <a href="#" onclick="window.signOut && window.signOut()">Logout</a>
+  </div>
+
+  <!-- ─── HERO ────────────────────────────────────────── -->
+  <section class="page-hero">
+    <div class="container">
+      <div class="section-label">Pillar Guide</div>
+      <h1 class="page-title">The Complete Guide to<br>Prediction Market Bot Building</h1>
+      <p class="page-subtitle">Strategies, tools, platforms, and step-by-step instructions for building automated prediction market trading bots on Polymarket and Kalshi. Updated for 2026.</p>
+      <div class="page-status-row">
+        <span class="page-status page-status--live">DEFINITIVE GUIDE</span>
+        <span class="page-status-note">~15 min read &middot; Last updated Feb 2026</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── GUIDE CONTENT ──────────────────────────────── -->
+  <section class="page-section">
+    <div class="container">
+      <div class="guide-body">
+
+        <!-- Table of Contents -->
+        <nav class="guide-toc" aria-label="Table of Contents">
+          <div class="guide-toc-title">Contents</div>
+          <ol>
+            <li><a href="#what-are-prediction-markets">What are prediction markets?</a></li>
+            <li><a href="#why-bots-outperform">Why do bots outperform manual trading?</a></li>
+            <li><a href="#trading-strategies">Types of prediction market trading strategies</a></li>
+            <li><a href="#visual-bot-builder">How Mercury's visual bot builder works</a></li>
+            <li><a href="#mercury-vs-alternatives">Mercury vs coding your own bot vs copy-trading</a></li>
+            <li><a href="#supported-platforms">Supported platforms and data sources</a></li>
+            <li><a href="#getting-started">Getting started in 5 minutes</a></li>
+            <li><a href="#faq">Frequently asked questions</a></li>
+          </ol>
+        </nav>
+
+        <!-- Section 1 -->
+        <h2 id="what-are-prediction-markets">What are prediction markets?</h2>
+
+        <p>Prediction markets are financial exchanges where traders buy and sell contracts tied to real-world events. Each contract resolves to either $1.00 (the event happened) or $0.00 (it did not). The price of a contract at any given moment represents the market's collective probability estimate for that outcome.</p>
+
+        <p>If a contract for "Will the Fed cut rates in March?" trades at $0.72, the market believes there is a 72% probability of a rate cut. If you disagree — if your research says the probability is actually 85% — you buy that contract at $0.72 and profit $0.28 per share when it resolves to $1.00. That gap between market price and true probability is your edge.</p>
+
+        <p>Two platforms dominate the prediction market landscape in 2026:</p>
+
+        <ul>
+          <li><strong>Polymarket</strong> — The largest decentralized prediction market. Built on Polygon, settled in USDC, operating a fully on-chain central limit order book (CLOB). Polymarket offers contracts on politics, crypto, sports, culture, and global events. No KYC required for non-US users. Billions in cumulative volume.</li>
+          <li><strong>Kalshi</strong> — The first CFTC-regulated prediction market exchange in the United States. USD-settled, with event contracts covering economics, weather, finance, geopolitics, and more. Kalshi offers hourly weather contracts, making it uniquely suited to high-frequency strategies. Full API access for automated trading.</li>
+        </ul>
+
+        <p>Both platforms support API-driven trading, which makes them ideal targets for <strong>automated prediction market trading</strong> bots. The combination of binary pricing, event-driven resolution, and programmatic access creates an environment where algorithmic strategies can consistently outperform manual traders.</p>
+
+        <!-- Section 2 -->
+        <h2 id="why-bots-outperform">Why do bots outperform manual trading in prediction markets?</h2>
+
+        <p>Manual prediction market trading has a ceiling. Human reaction time, emotional bias, and limited attention degrade performance. Automated prediction market trading removes these constraints entirely.</p>
+
+        <ul>
+          <li><strong>Speed advantage</strong> — A prediction market bot builder like Mercury Architect executes trades in under 20 milliseconds. When a news event breaks that affects contract pricing, your bot reacts before manual traders finish reading the headline. In markets where prices move 10-30 cents in seconds, latency is profit.</li>
+          <li><strong>24/7 operation</strong> — Prediction markets never close. Polymarket runs on blockchain infrastructure around the clock. Kalshi weather contracts resolve hourly, including at 3 AM. A bot trades every hour of every day without fatigue, missed alarms, or time zone issues.</li>
+          <li><strong>Emotion elimination</strong> — Fear, greed, and confirmation bias destroy manual traders. When a contract drops from $0.80 to $0.60 on noise, human traders panic sell. A bot evaluates the probability model, determines the drop is irrational, and buys the dip. Consistent rules produce consistent returns.</li>
+          <li><strong>Multi-market monitoring</strong> — A single Mercury bot can monitor 50+ markets simultaneously, scanning for volume spikes, probability crossovers, arbitrage gaps, and news triggers. A human can watch 3-5 markets before attention degrades. Coverage is alpha.</li>
+          <li><strong>Consistent execution</strong> — No fat fingers. No slippage from hesitation. No "I meant to set a limit order." Bots execute the exact strategy you define, every time, with position sizing calculated to the cent. Over thousands of trades, consistency compounds.</li>
+        </ul>
+
+        <p>The traders making the most money in prediction markets right now run automated strategies. The question is not whether to use a bot — it is which <strong>prediction market bot builder</strong> gives you the fastest path from idea to live execution. Mercury Architect answers this with two paths: a visual drag-and-drop node editor for hands-on builders, and an agentic AI that converts plain English descriptions into complete, deployable trading bots in seconds.</p>
+
+        <!-- Section 3 -->
+        <h2 id="trading-strategies">What types of prediction market trading strategies can you automate?</h2>
+
+        <p>Prediction markets support a broader range of automated strategies than most traders realize. Binary pricing, event-driven resolution, and cross-platform fragmentation create unique opportunities absent from equity or crypto markets.</p>
+
+        <h3>Momentum trading</h3>
+        <p>Apply technical indicators like RSI, MACD, and Bollinger Bands to prediction market price feeds. When a contract's price begins trending — often driven by accumulating evidence, polling data, or shifting sentiment — momentum strategies ride the trend until indicators signal exhaustion. Mercury's trigger nodes support 12+ technical indicators applied directly to contract probability data.</p>
+
+        <h3>Mean reversion</h3>
+        <p>Identify stable-probability markets where the true likelihood has not changed, but short-term noise has pushed the price away from fair value. Buy contracts that dip below their 24-hour moving average in markets with low fundamental volatility. Weather contracts and recurring economic indicators are prime targets. Set a probability band condition (e.g., buy below $0.65, sell above $0.75) and let the bot execute the range.</p>
+
+        <h3>News-driven trading</h3>
+        <p>Monitor external data sources — RSS feeds, Twitter/X firehose, government data releases, earnings calendars — and execute trades before manual traders process the information. Mercury's news alert trigger nodes ingest real-time feeds and match keywords or sentiment scores against your market watchlist. When the CPI number drops and it differs from consensus, your bot is already buying or selling the relevant Kalshi economics contracts.</p>
+
+        <h3>Cross-platform arbitrage</h3>
+        <p>Polymarket and Kalshi frequently price the same event differently. A presidential election contract might trade at $0.54 on Polymarket and $0.58 on Kalshi. Buy the cheap side, sell the expensive side, and lock in risk-free profit on resolution. Mercury's cross-platform data bridge identifies these gaps in real time. Even 2-3 cent spreads compound when executed thousands of times. Over $40 million in arbitrage profits were extracted from Polymarket alone between April 2024 and April 2025. For a complete walkthrough with real numbers, fee calculations, and bot-building instructions, see our <a href="prediction-market-arbitrage-bot.html">prediction market arbitrage bot guide</a>.</p>
+
+        <h3>Resolution sniping and bonding arbitrage</h3>
+        <p>As contracts approach resolution, their prices converge toward $0.00 or $1.00. A contract trading at $0.96 with 2 hours until resolution offers a 4% return in 2 hours — annualized, that is extraordinary yield. Bots monitor contracts in the final hours before resolution, buying high-probability outcomes at slight discounts. The risk is a last-minute reversal; the reward is consistent, compounding micro-profits. This strategy is especially effective on Kalshi's hourly weather contracts. For advanced traders, <a href="prediction-market-bonding.html">bonding curve markets</a> offer additional arbitrage opportunities where algorithmic pricing creates exploitable mispricings against order book markets.</p>
+
+        <h3>Weather market scalping</h3>
+        <p>Kalshi offers hourly temperature, precipitation, and wind contracts for major US cities. These markets resolve frequently, provide tight feedback loops, and respond to publicly available weather model data (GFS, ECMWF, HRRR). A bot that ingests weather API data and compares forecast temperatures against Kalshi contract strikes can scalp 5-15% returns per contract on mispriced hourly weather outcomes. Mercury supports custom API data triggers, making weather model integration straightforward.</p>
+
+        <p>For a detailed comparison of how these strategies perform across platforms, see our <a href="polymarket-vs-kalshi.html">Polymarket vs Kalshi comparison</a>.</p>
+
+        <!-- Section 4 -->
+        <h2 id="visual-bot-builder">How does Mercury's visual bot builder work?</h2>
+
+        <p><a href="../architect.html">Mercury Architect</a> is a no-code prediction market bot builder with two ways to create strategies. The visual editor lets you drag nodes onto a canvas and connect them with wires — each node performs a specific function like monitoring a market, evaluating a condition, executing a trade, or managing risk. Alternatively, Mercury's agentic AI lets you describe a strategy in natural language and generates the entire node graph automatically. Tell it "Buy YES on any Polymarket contract where probability drops below 10 cents and 24-hour volume exceeds $50K, with a $100 max position and 20% stop-loss" — and the AI assembles triggers, conditions, execution rules, and risk nodes, wired together and ready to test.</p>
+
+        <p>Whether you build manually or let the AI generate your strategy, the underlying system uses four node categories, each containing multiple specialized types:</p>
+
+        <div class="node-grid">
+          <div class="node-card">
+            <div class="node-card-label">Category 01</div>
+            <div class="node-card-title">Trigger Nodes</div>
+            <ul>
+              <li>Market trigger — fires when a specific market opens, closes, or updates</li>
+              <li>Price threshold — fires when a contract crosses a target price</li>
+              <li>Probability cross — fires when probability crosses a moving average</li>
+              <li>Volume spike — fires on unusual volume relative to baseline</li>
+              <li>Time-based — fires on schedule (cron, interval, or specific datetime)</li>
+              <li>News alert — fires on keyword/sentiment match in real-time feeds</li>
+              <li>API data — fires when an external API returns a matching value</li>
+              <li>Technical indicators — fires on RSI, MACD, Bollinger, or custom signals</li>
+            </ul>
+          </div>
+          <div class="node-card">
+            <div class="node-card-label">Category 02</div>
+            <div class="node-card-title">Condition Nodes</div>
+            <ul>
+              <li>Probability band — passes signal only if price is within a defined range</li>
+              <li>Volume filter — gates execution on minimum/maximum volume thresholds</li>
+              <li>Time window — restricts trading to specific hours, days, or market phases</li>
+              <li>Comparison — evaluates two values (greater than, less than, equals, delta)</li>
+              <li>Compound logic — combines multiple conditions with AND, OR, NOT operators</li>
+            </ul>
+          </div>
+          <div class="node-card">
+            <div class="node-card-label">Category 03</div>
+            <div class="node-card-title">Execution Nodes</div>
+            <ul>
+              <li>Buy / Sell — market orders with optional slippage tolerance</li>
+              <li>Limit order — place resting orders at a specific price level</li>
+              <li>Position sizing — calculate order size from Kelly criterion, fixed %, or flat amount</li>
+              <li>Multi-leg — execute correlated orders across multiple markets simultaneously</li>
+            </ul>
+          </div>
+          <div class="node-card">
+            <div class="node-card-label">Category 04</div>
+            <div class="node-card-title">Risk Management Nodes</div>
+            <ul>
+              <li>Stop-loss — exit position if contract price moves against you past threshold</li>
+              <li>Take-profit — lock in gains by selling when target price is reached</li>
+              <li>Max exposure — cap total capital deployed across all active positions</li>
+              <li>Kill switch — halt all bot activity instantly on drawdown or error trigger</li>
+              <li>Trailing stop — dynamic stop-loss that follows price in your favor</li>
+            </ul>
+          </div>
+        </div>
+
+        <p>You can also describe a strategy in plain English — "Buy Kalshi weather contracts when the HRRR forecast diverges from the contract strike by more than 3 degrees, with a $50 max position and 10% trailing stop" — and Mercury's AI assistant generates the full node graph for you. Edit any node, rewire the connections, and deploy.</p>
+
+        <p>Every bot runs on Mercury's infrastructure: sub-20ms execution latency, 99.98% uptime, encrypted API key storage, and automatic failover. You focus on strategy. Mercury handles operations.</p>
+
+        <!-- Section 5 -->
+        <h2 id="mercury-vs-alternatives">Mercury vs coding your own bot vs copy-trading: which approach is best?</h2>
+
+        <p>There are three realistic paths to automated prediction market trading, each with distinct trade-offs in control, speed to market, and maintenance.</p>
+
+        <div class="guide-compare">
+          <div class="guide-compare-row guide-compare-header">
+            <span>FACTOR</span>
+            <span>DIY (PYTHON/JS)</span>
+            <span>MERCURY</span>
+            <span>COPY-TRADING</span>
+          </div>
+          <div class="guide-compare-row">
+            <span class="guide-compare-label">Setup time</span>
+            <span>2-6 weeks</span>
+            <span>5 minutes</span>
+            <span>1 minute</span>
+          </div>
+          <div class="guide-compare-row">
+            <span class="guide-compare-label">Coding required</span>
+            <span>Python, JS, APIs</span>
+            <span>None (visual + AI)</span>
+            <span>None</span>
+          </div>
+          <div class="guide-compare-row">
+            <span class="guide-compare-label">Strategy control</span>
+            <span>Full</span>
+            <span>Full</span>
+            <span>None</span>
+          </div>
+          <div class="guide-compare-row">
+            <span class="guide-compare-label">Execution speed</span>
+            <span>50-500ms (varies)</span>
+            <span>&lt;20ms</span>
+            <span>Varies (leader)</span>
+          </div>
+          <div class="guide-compare-row">
+            <span class="guide-compare-label">Uptime</span>
+            <span>Self-managed</span>
+            <span>99.98%</span>
+            <span>Platform-dependent</span>
+          </div>
+          <div class="guide-compare-row">
+            <span class="guide-compare-label">Risk management</span>
+            <span>Build from scratch</span>
+            <span>Built-in nodes</span>
+            <span>Limited/none</span>
+          </div>
+          <div class="guide-compare-row">
+            <span class="guide-compare-label">Backtesting</span>
+            <span>Build from scratch</span>
+            <span>Built-in</span>
+            <span>None</span>
+          </div>
+          <div class="guide-compare-row">
+            <span class="guide-compare-label">Multi-platform</span>
+            <span>Manual integration</span>
+            <span>Native</span>
+            <span>Single platform</span>
+          </div>
+          <div class="guide-compare-row">
+            <span class="guide-compare-label">Cost</span>
+            <span>Server + API fees</span>
+            <span>Free tier / $99 Pro</span>
+            <span>% of profits</span>
+          </div>
+          <div class="guide-compare-row">
+            <span class="guide-compare-label">Maintenance</span>
+            <span>Ongoing dev work</span>
+            <span>Managed infra</span>
+            <span>None (no control)</span>
+          </div>
+        </div>
+
+        <p><strong>DIY (coding your own bot):</strong> Maximum flexibility, but you build everything — API wrappers, order management, risk controls, error handling, monitoring, and hosting. API changes break your bot at 2 AM. Hosting costs add up. If you are a developer who wants total control and does not mind weeks of infrastructure work before trading a single contract, this path works. For everyone else, the opportunity cost is too high.</p>
+
+        <p><strong>Mercury Architect:</strong> Full strategic control without writing code. Two creation paths: a visual drag-and-drop node editor and an agentic AI that builds complete bots from natural language descriptions. Describe a strategy in one sentence and the AI generates triggers, conditions, execution logic, and risk management — assembled, wired, and ready to paper trade. Mercury handles infrastructure, uptime, API connectivity, and data feeds. Free tier for paper trading, $99/month Pro for live execution. <a href="../architect.html">Explore Architect</a>.</p>
+
+        <p><strong>Copy-trading:</strong> The easiest entry point, but the weakest long-term approach. You mirror someone else's strategy with zero customization and zero risk management control. When the leader's strategy stops working — and all strategies eventually rotate — you have no way to adapt. Fine for learning market dynamics, not a path to sustainable prediction market automation.</p>
+
+        <!-- Section 6 -->
+        <h2 id="supported-platforms">What platforms and data sources does Mercury support?</h2>
+
+        <p>Mercury connects to the two dominant prediction market exchanges and a broad set of external data sources for data-driven strategies.</p>
+
+        <h3>Trading platforms</h3>
+        <ul>
+          <li><strong>Polymarket</strong> — Decentralized prediction market on Polygon. Mercury connects directly to Polymarket's CLOB (central limit order book) via API. Crypto-settled in USDC. Supports market orders, limit orders, and position management. Best for political markets, crypto events, and high-liquidity global contracts. New to Polymarket? Read the <a href="how-to-trade-on-polymarket.html">beginner's guide</a>. Ready for automation? Read the <a href="build-polymarket-bot.html">Polymarket bot building guide</a>.</li>
+          <li><strong>Kalshi</strong> — CFTC-regulated exchange based in the United States. USD settlement via ACH or wire. Mercury integrates with Kalshi's REST and WebSocket APIs for real-time order management. Best for weather markets, economic indicators, and US-regulated event contracts. New to Kalshi? Read the <a href="how-to-trade-on-kalshi.html">beginner's guide</a>. Ready for automation? Read the <a href="build-kalshi-bot.html">Kalshi bot building guide</a>.</li>
+        </ul>
+
+        <h3>Data sources</h3>
+        <ul>
+          <li><strong>Market data</strong> — Real-time prices, volumes, order book depth, and trade history from Polymarket and Kalshi. Historical data for backtesting.</li>
+          <li><strong>Crypto prices</strong> — BTC, ETH, SOL, and 100+ token prices via aggregated exchange feeds. Trigger on crypto movements for crypto-adjacent prediction contracts.</li>
+          <li><strong>Stock and macro data</strong> — S&P 500, equities, Treasury yields, VIX, and economic indicators. Cross-reference traditional finance signals with prediction market pricing.</li>
+          <li><strong>News and social feeds</strong> — Real-time RSS, Twitter/X, Reddit, and wire service monitoring with keyword matching and sentiment scoring.</li>
+          <li><strong>Weather data</strong> — NOAA, GFS, ECMWF, and HRRR model outputs. Temperature, precipitation, wind speed, and severe weather alerts for Kalshi weather strategies.</li>
+          <li><strong>Earthquake and disaster data</strong> — USGS earthquake feeds, FEMA alerts, and wildfire tracking for catastrophe-related markets.</li>
+          <li><strong>Custom APIs</strong> — Connect any REST or WebSocket endpoint. Poll intervals from 1 second to 24 hours. JSON path extraction for specific data fields.</li>
+        </ul>
+
+        <p>All data sources wire directly into trigger and condition nodes on the Architect canvas. No coding required.</p>
+
+        <!-- Section 7 -->
+        <h2 id="getting-started">How do you get started with prediction market bot building?</h2>
+
+        <p>Mercury gets you from zero to a running bot in under 5 minutes. Here is the exact process:</p>
+
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="guide-step-num">01</div>
+            <div class="guide-step-text"><strong>Sign up free.</strong> Create a Mercury account at <a href="../signup.html">mercurysuite.io/signup</a>. No credit card required. The Free tier gives you access to the full visual builder, real-time market data, and 1 paper trading bot.</div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">02</div>
+            <div class="guide-step-text"><strong>Open Mercury Architect.</strong> Navigate to <a href="../architect.html">Architect</a> from the dashboard. You will see the visual canvas — a blank workspace where you build your strategy by dragging nodes from the sidebar and connecting them with wires.</div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">03</div>
+            <div class="guide-step-text"><strong>Choose a template or build from scratch.</strong> Mercury includes pre-built templates for common strategies: mean reversion, momentum, arbitrage, weather scalping, and resolution sniping. Select a template to start with a working strategy, or start with a blank canvas and describe your idea to the AI assistant.</div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">04</div>
+            <div class="guide-step-text"><strong>Paper trade with real data.</strong> Deploy your bot in paper trading mode. It executes against live market data with simulated capital — no risk, real signals. Monitor performance, review trade logs, and refine your strategy based on actual market behavior.</div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">05</div>
+            <div class="guide-step-text"><strong>Deploy live when ready.</strong> When your paper trading results confirm your edge, connect your Polymarket wallet or Kalshi account and switch the bot to live execution. Mercury's Pro tier ($99/month) unlocks unlimited live bots, backtesting, Telegram alerts, and priority execution. If you need capital, explore the <a href="../funding.html">Mercury funded trader program</a> for up to $5,000 in trading capital.</div>
+          </div>
+        </div>
+
+        <p>The entire process takes under 5 minutes. No command line. No API documentation. No server configuration.</p>
+
+        <!-- Section 8 — FAQ -->
+        <h2 id="faq">Frequently asked questions</h2>
+
+        <div>
+          <details class="faq-item">
+            <summary class="faq-question">What is the best tool for building prediction market bots?</summary>
+            <div class="faq-answer">
+              <a href="../architect.html">Mercury Architect</a> is the most comprehensive prediction market bot builder available. It provides a visual drag-and-drop interface with 8 trigger node types, AI-assisted strategy design, sub-20ms execution, and native support for both Polymarket and Kalshi. Unlike coding your own bot from scratch, Mercury gives you production-grade infrastructure with 99.98% uptime out of the box. The Free tier includes paper trading with real market data, and the Pro tier ($99/month) unlocks live execution with unlimited bots.
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-question">Can I build a prediction market bot without coding?</summary>
+            <div class="faq-answer">
+              Yes. Mercury Architect is a fully no-code prediction market bot builder. You construct strategies by connecting visual nodes — triggers, conditions, execution rules, and risk management — on a drag-and-drop canvas. You can also describe a strategy in plain English and let Mercury's AI generate the node graph for you. No Python, no JavaScript, no API wrappers. If you can draw a flowchart, you can build a bot.
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-question">Which prediction markets can I trade with bots?</summary>
+            <div class="faq-answer">
+              Mercury supports automated trading on <strong>Polymarket</strong> (decentralized, crypto-settled, CLOB-based) and <strong>Kalshi</strong> (CFTC-regulated, USD-settled). These are the two largest prediction market platforms by volume. Mercury also ingests data from supplementary sources including crypto exchanges, stock feeds, news APIs, weather services, and custom endpoints to inform your strategies. See our <a href="polymarket-vs-kalshi.html">Polymarket vs Kalshi comparison</a> for platform differences.
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-question">How much money do I need to start bot trading on prediction markets?</summary>
+            <div class="faq-answer">
+              You can start paper trading prediction markets for free with Mercury's Free tier — no deposit required. For live trading, Kalshi allows positions with as little as $1 per contract. Polymarket requires USDC on the Polygon network, with most contract shares starting around $0.01. Mercury's <a href="../funding.html">funded trader program</a> also provides up to $5,000 in trading capital for strategies that demonstrate an edge during paper trading.
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-question">Is prediction market bot trading legal?</summary>
+            <div class="faq-answer">
+              Automated trading on prediction markets is legal in jurisdictions where the platforms themselves operate legally. Kalshi is regulated by the CFTC (Commodity Futures Trading Commission) and explicitly permits API-based and automated trading. Polymarket operates as a decentralized protocol accessible globally. Users are responsible for complying with their local regulations regarding prediction market participation. Mercury provides the tooling and infrastructure — users assume responsibility for their trading activity and applicable compliance.
+            </div>
+          </details>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FINAL CTA ───────────────────────────────────── -->
+  <section class="final-cta">
+    <div class="container">
+      <h2 class="final-headline">Build your first bot.</h2>
+      <p class="final-sub">Mercury Architect: no-code prediction market automation with sub-20ms execution. Paper trade free, deploy live when you are ready.</p>
+      <div class="final-ctas">
+        <a href="../signup.html" class="btn btn-primary">Get Started Free</a>
+        <a href="../architect.html" class="btn">Explore Architect</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ──────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">Mercury</div>
+          <p class="footer-desc">Liquid intelligence &amp; infrastructure for the next generation of traders.</p>
+        </div>
+        <div>
+          <div class="footer-col-title">Product</div>
+          <ul class="footer-links">
+            <li><a href="../index.html#analytics">Analytics</a></li>
+            <li><a href="../architect.html">Architect</a></li>
+            <li><a href="../architect.html#pricing">Pricing</a></li>
+            <li><a href="../api.html">API</a></li>
+            <li><a href="../signup.html">Sign Up Free</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="../about.html">About</a></li>
+            <li><a href="../careers.html">Careers</a></li>
+            <li><a href="../blog.html">Blog</a></li>
+            <li><a href="../contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <ul class="footer-links">
+            <li><a href="../privacy.html">Privacy</a></li>
+            <li><a href="../terms.html">Terms</a></li>
+            <li><a href="../disclaimer.html">Disclaimer</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Mercury — Hg 80. All rights reserved.</span>
+        <div class="footer-socials">
+          <a href="#">Twitter</a>
+          <a href="#">Discord</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../scripts/auth.js"></script>
+  <script src="../scripts/nav-auth.js"></script>
+  <script src="../scripts/page-transition.js"></script>
+  <script>
+    document.getElementById('hamburgerBtn')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('open');
+    });
+  </script>
+  <script src="../scripts/ambient.js"></script>
+</body>
+</html>

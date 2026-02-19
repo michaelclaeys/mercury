@@ -378,6 +378,8 @@ document.addEventListener('DOMContentLoaded', () => {
      ═══════════════════════════════════════════════════════════════ */
 
   function initHubBackground() {
+    // Skip expensive skyline canvas on mobile (hidden via CSS, save CPU/GPU)
+    if (window.__mercury_mobile) return;
     const hubCanvas = document.getElementById('hubBgCanvas');
     if (!hubCanvas) return;
 
@@ -512,6 +514,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     skyBuildings.sort((a, b) => a.layer - b.layer);
+
+    // Pre-compute window positions for each building (avoids per-frame nested loops + Math.random)
+    for (const b of skyBuildings) {
+      b._windows = [];
+      if (b.windowRows > 0 && b.windowCols > 0) {
+        const padXF = 0.15, padYF = 0.08;
+        const spacingXF = (1 - padXF * 2) / b.windowCols;
+        const spacingYF = (1 - padYF * 2) / b.windowRows;
+        const winWF = 0.5 / b.windowCols;
+        const winHF = 0.4 / b.windowRows;
+        for (let r = 0; r < b.windowRows; r++) {
+          for (let c = 0; c < b.windowCols; c++) {
+            if (Math.random() > 0.55) continue; // decide once at init
+            b._windows.push({
+              rx: padXF + c * spacingXF, // relative x within building (0-1 of bw)
+              ry: padYF + r * spacingYF, // relative y within building (0-1 of bh)
+              wf: winWF, hf: winHF,
+              a: 0.3 + Math.random() * 0.5, // brightness, fixed per window
+            });
+          }
+        }
+      }
+    }
 
     // ── Convergence lines ──
     const convergenceCount = 12;
@@ -788,21 +813,12 @@ document.addEventListener('DOMContentLoaded', () => {
           hCtx.fillRect(midX - 1, gY - bh - aH - 1, 2, 2);
         }
 
-        if (b.windowRows > 0 && b.windowCols > 0) {
-          const winW = bw * 0.5 / b.windowCols;
-          const winH = bh * 0.4 / b.windowRows;
-          const padX = bw * 0.15;
-          const padY = bh * 0.08;
-          const spacingX = (bw - padX * 2) / b.windowCols;
-          const spacingY = (bh - padY * 2) / b.windowRows;
-          for (let r = 0; r < b.windowRows; r++) {
-            for (let c = 0; c < b.windowCols; c++) {
-              if (Math.random() > 0.55) continue;
-              const wx = bx + padX + c * spacingX;
-              const wy = gY - bh + padY + r * spacingY;
-              hCtx.fillStyle = `rgba(255,255,255,${a * (0.3 + Math.random() * 0.5)})`;
-              hCtx.fillRect(wx, wy, winW, winH);
-            }
+        if (b._windows && b._windows.length > 0) {
+          for (const win of b._windows) {
+            const wx = bx + win.rx * bw;
+            const wy = gY - bh + win.ry * bh;
+            hCtx.fillStyle = `rgba(255,255,255,${a * win.a})`;
+            hCtx.fillRect(wx, wy, win.wf * bw, win.hf * bh);
           }
         }
       });

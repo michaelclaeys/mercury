@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://mercurysuite.io/</loc><priority>1.0</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://mercurysuite.io/architect.html</loc><priority>0.9</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://mercurysuite.io/guides/build-polymarket-bot.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://mercurysuite.io/guides/build-kalshi-bot.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://mercurysuite.io/guides/prediction-market-bot-builder.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://mercurysuite.io/guides/polymarket-vs-kalshi.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://mercurysuite.io/guides/how-to-trade-on-polymarket.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://mercurysuite.io/guides/how-to-trade-on-kalshi.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://mercurysuite.io/guides/prediction-market-arbitrage-bot.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://mercurysuite.io/guides/prediction-market-bonding.html</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://mercurysuite.io/funding.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://mercurysuite.io/blog.html</loc><priority>0.8</priority><changefreq>weekly</changefreq></url>
+  <url><loc>https://mercurysuite.io/about.html</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://mercurysuite.io/api.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://mercurysuite.io/careers.html</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://mercurysuite.io/contact.html</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://mercurysuite.io/signup.html</loc><priority>0.4</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://mercurysuite.io/login.html</loc><priority>0.4</priority><changefreq>monthly</changefreq></url>
+  <url><loc>https://mercurysuite.io/terms.html</loc><priority>0.3</priority><changefreq>yearly</changefreq></url>
+  <url><loc>https://mercurysuite.io/privacy.html</loc><priority>0.3</priority><changefreq>yearly</changefreq></url>
+  <url><loc>https://mercurysuite.io/disclaimer.html</loc><priority>0.3</priority><changefreq>yearly</changefreq></url>
+</urlset>

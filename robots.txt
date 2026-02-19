@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Block non-content pages
+Disallow: /checkout-success.html
+Disallow: /checkout-cancel.html
+Disallow: /compare.html
+Disallow: /archive/
+
+Sitemap: https://mercurysuite.io/sitemap.xml
