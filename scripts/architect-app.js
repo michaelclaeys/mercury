@@ -3552,16 +3552,16 @@ async function checkDeployExchangeStatus() {
     if (data.wallet_manager === 'ready') {
       // Check if wallet exists
       try {
-        const wr = await fetch(`${getEngineBase()}/api/wallet/polymarket`);
+        const wr = await (window.fetchWithAuth || fetch)(`${getEngineBase()}/api/wallet/polymarket`);
         if (wr.ok) {
           if (polyDot) { polyDot.classList.remove('disconnected'); polyDot.classList.add('connected'); }
-          if (polyLabel) polyLabel.textContent = 'Wallet Ready';
+          if (polyLabel) polyLabel.textContent = 'Connected';
         } else {
           if (polyDot) { polyDot.classList.add('disconnected'); polyDot.classList.remove('connected'); }
-          if (polyLabel) polyLabel.textContent = 'No Wallet — Create in Funding';
+          if (polyLabel) polyLabel.textContent = 'Not Connected — Use sidebar';
         }
       } catch (e) {
-        if (polyLabel) polyLabel.textContent = 'No Wallet';
+        if (polyLabel) polyLabel.textContent = 'Not Connected';
       }
     } else {
       if (polyDot) { polyDot.classList.add('disconnected'); polyDot.classList.remove('connected'); }
@@ -3610,7 +3610,7 @@ function confirmDeploy() {
   // Compile strategy first (need it for both paper and live)
   const { strategy, errors } = compileStrategy();
 
-  if (!strategy) {
+  if (!strategy || errors.length > 0) {
     closeDeployModal();
     showToast(errors[0] || 'Compilation failed', 'error');
     return;
@@ -3812,14 +3812,8 @@ function _executeDeploy(strategy, botName, platform, capital, mode, termsAccepte
       switchView('my-bots');
     } catch (e) {
       console.error('[Mercury Engine] Deploy failed:', e);
-      const newBot = createMockBot(botName, 'Custom', 'live', platform, parseFloat(capital));
-      newBot.compiledStrategy = strategy;
-      newBot._local = true;
-      bots.unshift(newBot);
-      updateStatusBar();
       autoSaveStrategy();
-      showToast('Engine offline — bot created locally (no live trading)', 'warn');
-      switchView('my-bots');
+      showToast('Deploy failed — ' + (e.message || 'engine offline'), 'error');
     }
   });
 }
@@ -3880,7 +3874,7 @@ window.openConnectModal = function(platform) {
   document.getElementById('connectModalTitle').textContent = 'Connect ' + platform.charAt(0).toUpperCase() + platform.slice(1);
   document.getElementById('connectPlatformBadge').textContent = platform.toUpperCase();
 
-  // Show wallet section only for Polymarket, hide API section for Polymarket
+  // Show wallet section only for Polymarket, API section for Kalshi
   const walletSection = document.getElementById('connectWalletSection');
   const apiSection = document.getElementById('connectApiSection');
   const connectFooter = document.querySelector('#connectAccountModal .modal-footer');
@@ -3902,12 +3896,12 @@ window.openConnectModal = function(platform) {
     if (pemEl) pemEl.value = '';
   }
 
-  // Show modal immediately — no blocking
+  // Show modal immediately
   document.getElementById('connectAccountModal').classList.add('open');
 
   // Load wallet state async (non-blocking)
   if (platform === 'polymarket' && window.walletService) {
-    updateWalletUI(null); // show create state immediately
+    updateWalletUI(null); // show connect state immediately
     window.walletService.getWallet().then(wallet => {
       updateWalletUI(wallet);
     }).catch(() => {
@@ -3949,32 +3943,129 @@ async function refreshWalletBalance() {
   }
 }
 
-window.createManagedWallet = async function() {
-  const btn = document.getElementById('createWalletBtn');
-  if (btn) {
-    btn.disabled = true;
-    btn.innerHTML = 'Creating wallet...';
+// Combined MetaMask connect: creates Turnkey wallet + deposits USDC in one flow
+window.connectWithMetaMask = async function() {
+  const POLYGON_CHAIN_ID = '0x89';
+  const USDC_CONTRACT = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359';
+
+  if (!window.ethereum) {
+    showToast('MetaMask not detected. Install MetaMask to continue.', 'error');
+    return;
   }
+
+  const btn = document.getElementById('createWalletBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Connecting MetaMask...'; }
+
   try {
+    // 1. Connect MetaMask
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const fromAddress = accounts[0];
+
+    // 2. Switch to Polygon
+    if (btn) btn.textContent = 'Switching to Polygon...';
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: POLYGON_CHAIN_ID }],
+      });
+    } catch (switchError) {
+      if (switchError.code === 4902) {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: POLYGON_CHAIN_ID,
+            chainName: 'Polygon',
+            nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
+            rpcUrls: ['https://polygon-rpc.com'],
+            blockExplorerUrls: ['https://polygonscan.com'],
+          }],
+        });
+      } else { throw switchError; }
+    }
+
+    // 3. Create Turnkey trading wallet (behind the scenes)
+    if (btn) btn.textContent = 'Setting up trading wallet...';
     const wallet = await window.walletService.getOrCreateWallet();
     updateWalletUI(wallet);
 
-    // Mark Polymarket as connected in sidebar
+    // Mark connected in sidebar
     connectedAccounts.polymarket = true;
     const row = document.getElementById('accountPolymarket');
     if (row) {
       const dot = row.querySelector('.account-dot');
       if (dot) { dot.classList.remove('disconnected'); dot.classList.add('connected'); }
       const abtn = row.querySelector('.account-btn');
-      if (abtn) { abtn.textContent = 'Wallet Active'; abtn.classList.add('connected'); }
+      if (abtn) { abtn.textContent = 'Connected'; abtn.classList.add('connected'); }
     }
     updateStatusBar();
-    showToast('Trading wallet created — deposit USDC to start');
+
+    // 4. Prompt for deposit amount
+    const amount = prompt('How much USDC would you like to deposit? (min $5)');
+    if (!amount || parseFloat(amount) < 5) {
+      showToast('Wallet connected! Deposit USDC anytime from the Deposit button.');
+      return;
+    }
+
+    // 5. Send USDC via MetaMask
+    const amountRaw = BigInt(Math.round(parseFloat(amount) * 1e6));
+    const recipientPadded = wallet.address.slice(2).toLowerCase().padStart(64, '0');
+    const amountPadded = amountRaw.toString(16).padStart(64, '0');
+    const data = '0xa9059cbb' + recipientPadded + amountPadded;
+
+    if (btn) btn.textContent = 'Confirm deposit in MetaMask...';
+    const txHash = await window.ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [{
+        from: fromAddress,
+        to: USDC_CONTRACT,
+        data: data,
+        value: '0x0',
+      }],
+    });
+
+    showToast('Connected & deposit submitted! TX: ' + txHash.slice(0, 14) + '...');
+    setTimeout(() => refreshWalletBalance(), 15000);
+    setTimeout(() => refreshWalletBalance(), 45000);
+
   } catch (e) {
-    showToast('Failed to create wallet: ' + e.message, 'error');
+    if (e.code === 4001) {
+      showToast('Cancelled by user', 'info');
+    } else {
+      showToast('Connection failed: ' + (e.message || e), 'error');
+    }
     if (btn) {
       btn.disabled = false;
-      btn.innerHTML = 'Create Trading Wallet';
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><path d="M18 12a2 2 0 100 4 2 2 0 000-4z"/></svg> Connect with MetaMask';
+    }
+  }
+};
+
+// Fallback: create wallet without MetaMask (manual deposit later)
+window.createManagedWallet = async function() {
+  const btn = document.getElementById('createWalletBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = 'Setting up wallet...';
+  }
+  try {
+    const wallet = await window.walletService.getOrCreateWallet();
+    updateWalletUI(wallet);
+
+    connectedAccounts.polymarket = true;
+    const row = document.getElementById('accountPolymarket');
+    if (row) {
+      const dot = row.querySelector('.account-dot');
+      if (dot) { dot.classList.remove('disconnected'); dot.classList.add('connected'); }
+      const abtn = row.querySelector('.account-btn');
+      if (abtn) { abtn.textContent = 'Connected'; abtn.classList.add('connected'); }
+    }
+    updateStatusBar();
+    showToast('Wallet connected — deposit USDC to start trading');
+  } catch (e) {
+    showToast('Failed to connect wallet: ' + e.message, 'error');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = 'Set up without MetaMask';
     }
   }
 };
@@ -4003,6 +4094,96 @@ window.openDepositInfo = function() {
 
 window.closeDepositInfo = function() {
   document.getElementById('depositInfoModal').classList.remove('open');
+};
+
+window.depositWithMetaMask = async function() {
+  const POLYGON_CHAIN_ID = '0x89'; // 137
+  const USDC_CONTRACT = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359';
+  const walletAddress = window.walletService?.walletAddress;
+
+  if (!walletAddress) {
+    showToast('No trading wallet found. Create one first.', 'error');
+    return;
+  }
+  if (!window.ethereum) {
+    showToast('MetaMask not detected. Install MetaMask or copy the address manually.', 'error');
+    return;
+  }
+
+  const amount = parseFloat(document.getElementById('depositAmount').value);
+  if (!amount || amount < 5) {
+    showToast('Minimum deposit is $5.00 USDC', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('metamaskDepositBtn');
+  btn.disabled = true;
+  btn.textContent = 'Connecting MetaMask...';
+
+  try {
+    // 1. Connect MetaMask
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const from = accounts[0];
+
+    // 2. Switch to Polygon
+    btn.textContent = 'Switching to Polygon...';
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: POLYGON_CHAIN_ID }],
+      });
+    } catch (switchError) {
+      if (switchError.code === 4902) {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: POLYGON_CHAIN_ID,
+            chainName: 'Polygon',
+            nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
+            rpcUrls: ['https://polygon-rpc.com'],
+            blockExplorerUrls: ['https://polygonscan.com'],
+          }],
+        });
+      } else {
+        throw switchError;
+      }
+    }
+
+    // 3. Encode USDC transfer(address, uint256)
+    const amountRaw = BigInt(Math.round(amount * 1e6)); // USDC = 6 decimals
+    const recipientPadded = walletAddress.slice(2).toLowerCase().padStart(64, '0');
+    const amountPadded = amountRaw.toString(16).padStart(64, '0');
+    const data = '0xa9059cbb' + recipientPadded + amountPadded;
+
+    // 4. Send transaction
+    btn.textContent = 'Confirm in MetaMask...';
+    const txHash = await window.ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [{
+        from: from,
+        to: USDC_CONTRACT,
+        data: data,
+        value: '0x0',
+      }],
+    });
+
+    showToast('Deposit submitted! TX: ' + txHash.slice(0, 14) + '...');
+    closeDepositInfo();
+
+    // Poll for balance update
+    setTimeout(() => refreshWalletBalance(), 15000);
+    setTimeout(() => refreshWalletBalance(), 45000);
+
+  } catch (e) {
+    if (e.code === 4001) {
+      showToast('Transaction cancelled', 'info');
+    } else {
+      showToast('Deposit failed: ' + (e.message || e), 'error');
+    }
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><path d="M18 12a2 2 0 100 4 2 2 0 000-4z"/></svg> Deposit with MetaMask';
+  }
 };
 
 window.openWithdrawModal = async function() {
@@ -4235,6 +4416,7 @@ async function checkKalshiConnectionStatus() {
   } catch (_) { /* engine offline — ignore */ }
 }
 
+
 // ═══════════════════════════════════════════════════════════════
 // QUICK PROMPTS (replaces old useSuggestion)
 // ═══════════════════════════════════════════════════════════════
@@ -4458,9 +4640,9 @@ async function handleAgentInput() {
       }
       if (err.usage) updateAgentUsageIndicator(err.usage);
     } else {
-      console.warn('Agent API unavailable, falling back to simulation:', err.message);
-      simulateAgentResponse(text);
-      agentHistory.push({ role: 'assistant', content: '(simulated response)' });
+      console.error('Agent API error:', err.message, err);
+      addAgentMessage(`Something went wrong — ${err.message || 'connection error'}. Try again in a moment.`, 'assistant');
+      agentHistory.push({ role: 'assistant', content: '(error)' });
     }
   }
 }
@@ -6320,6 +6502,12 @@ window.loadTemplate = function(templateId) {
   pushUndo();
   clearCanvas();
 
+  // Clear any active AI script so compileStrategy() uses nodes, not the stale script
+  activeScript = null;
+  activeScriptName = null;
+  activeScriptAsset = null;
+  hideScriptOverlay();
+
   const nodeMap = {};
   template.nodes.forEach((nd, idx) => {
     const node = createNode(nd.type, nd.x, nd.y, nd.properties);
@@ -6401,14 +6589,6 @@ async function initMockData() {
   } catch {
     console.warn('[Mercury Engine] Offline — features limited to local mode');
     updateEngineStatus(false);
-    // Populate demo bots so the UI isn't empty when engine is off
-    bots = [
-      createMockBot('Rate Cut Momentum', 'Momentum', 'live', 'Polymarket', 10000),
-      createMockBot('Election Arbitrage', 'Arbitrage', 'live', 'Multi-Platform', 25000),
-      createMockBot('Reversion Scanner', 'Mean Reversion', 'paused', 'Kalshi', 5000),
-      createMockBot('Event Catalyst', 'Event-Driven', 'live', 'Polymarket', 8000),
-    ];
-    bots.forEach(b => b._local = true);
   }
 
   templates = [
@@ -6458,6 +6638,7 @@ async function initMockData() {
       ],
       connections: [
         { from: 0, fromPort: 'out', to: 2, toPort: 'in' },
+        { from: 1, fromPort: 'out', to: 2, toPort: 'in' },
         { from: 2, fromPort: 'pass', to: 3, toPort: 'in' },
         { from: 3, fromPort: 'out', to: 4, toPort: 'in' },
       ],

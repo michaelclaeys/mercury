@@ -1663,18 +1663,24 @@
                 <span class="funding-balance-value" id="polyTotalBalance">--</span>
               </div>
               <div class="funding-address-row" id="polyAddressRow" style="display:none;">
-                <span class="funding-address-label">Deposit Address</span>
+                <button class="funding-btn funding-btn--primary" id="polyMetamaskDepositBtn" onclick="fundingDepositWithMetaMask()" style="width:100%;margin-bottom:8px;">
+                  Deposit with MetaMask
+                </button>
+                <div style="display:flex;align-items:center;gap:6px;margin:6px 0;">
+                  <div style="flex:1;height:1px;background:var(--border);"></div>
+                  <span style="font-size:9px;color:var(--dim);">OR SEND MANUALLY</span>
+                  <div style="flex:1;height:1px;background:var(--border);"></div>
+                </div>
                 <div class="funding-address-copy">
                   <code class="funding-address" id="polyAddress">0x...</code>
                   <button class="funding-copy-btn" onclick="copyPolyAddress()">Copy</button>
                 </div>
-                <div class="funding-address-note">Send USDC.e on Polygon only</div>
+                <div class="funding-address-note">Send USDC on Polygon only</div>
               </div>
-              <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:8px;">Withdrawals coming soon — funds accessible via Turnkey independently.</div>
             </div>
             <div class="funding-card-actions">
-              <button class="funding-btn funding-btn--primary" id="polyConnectBtn" onclick="initPolymarketWallet()">
-                Create Wallet
+              <button class="funding-btn funding-btn--primary" id="polyConnectBtn" onclick="window.connectWithMetaMask ? connectWithMetaMask() : initPolymarketWallet()">
+                Connect with MetaMask
               </button>
               <button class="funding-btn funding-btn--outline" id="polyRefreshBtn" onclick="refreshPolyBalance()" style="display:none;">
                 Refresh
@@ -2019,26 +2025,29 @@
       <div class="modal-body">
         <div class="connect-platform-badge" id="connectPlatformBadge">POLYMARKET</div>
 
-        <!-- Polymarket: Managed wallet (recommended) -->
+        <!-- Polymarket: Managed wallet via Turnkey HSM -->
         <div id="connectWalletSection">
-          <div class="connect-method-label">Mercury Trading Wallet (Recommended)</div>
+          <div class="connect-method-label">Polymarket Trading Account</div>
           <div class="connect-wallet-info" style="margin-bottom:12px;">
-            Mercury creates a dedicated Polygon wallet for your bots. Deposit USDC, and your bots trade automatically. Withdraw anytime.
+            Connect your MetaMask wallet to set up autonomous trading. Mercury creates a secure trading wallet backed by hardware key management — your bots trade 24/7 without needing MetaMask approval for each order.
           </div>
 
           <!-- State: No wallet yet -->
           <div id="walletStateCreate">
-            <button class="connect-wallet-btn" id="createWalletBtn" onclick="createManagedWallet()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="0"/><path d="M16 14a2 2 0 100-4 2 2 0 000 4z"/><path d="M2 10h20"/></svg>
-              Create Trading Wallet
+            <button class="connect-wallet-btn" id="createWalletBtn" onclick="connectWithMetaMask()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><path d="M18 12a2 2 0 100 4 2 2 0 000-4z"/></svg>
+              Connect with MetaMask
             </button>
+            <div style="font-size:10px;color:var(--dim);margin-top:8px;text-align:center;">
+              Don't have MetaMask? <a href="#" onclick="createManagedWallet();return false;" style="color:var(--accent);">Set up without MetaMask</a>
+            </div>
           </div>
 
           <!-- State: Wallet exists -->
           <div id="walletStateActive" style="display:none;">
             <div class="wallet-info-card">
               <div class="wallet-info-row">
-                <span class="wallet-info-label">Deposit Address (Polygon)</span>
+                <span class="wallet-info-label">Wallet Address (Polygon)</span>
                 <div class="wallet-address-row">
                   <code class="wallet-address" id="walletAddress">—</code>
                   <button class="wallet-copy-btn" onclick="copyWalletAddress()" title="Copy address">
@@ -2072,7 +2081,9 @@
             </div>
             <div class="wallet-security-note">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              <span>12-block confirmation on deposits. 24h cooldown on first withdrawal. Institutional-grade custody.</span>
+              <span>Non-custodial wallet secured by Turnkey HSM. Your keys never leave hardware — Mercury cannot access them.
+                <a href="#" onclick="document.getElementById('depositSecurityExplainer').style.display = 'block'; openDepositInfo(); return false;" style="color:var(--accent);margin-left:4px;">Learn more</a>
+              </span>
             </div>
           </div>
         </div>
@@ -2113,8 +2124,30 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           <span>Only send USDC on Polygon network. Sending other tokens or using other networks will result in permanent loss of funds.</span>
         </div>
+
+        <!-- MetaMask Deposit (primary) -->
+        <div class="deposit-metamask-section" style="margin:16px 0;">
+          <div class="inspector-field" style="margin-bottom:12px;">
+            <label class="field-label">Amount (USDC)</label>
+            <input class="field-input" id="depositAmount" type="number" placeholder="50.00" min="5" step="1" />
+          </div>
+          <button class="connect-wallet-btn" id="metamaskDepositBtn" onclick="depositWithMetaMask()" style="width:100%;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><path d="M18 12a2 2 0 100 4 2 2 0 000-4z"/></svg>
+            Deposit with MetaMask
+          </button>
+          <div style="font-size:10px;color:var(--dim);margin-top:6px;text-align:center;">
+            Sends USDC from your MetaMask wallet to your trading wallet on Polygon
+          </div>
+        </div>
+
+        <!-- Manual address copy (fallback) -->
+        <div style="display:flex;align-items:center;gap:8px;margin:12px 0 8px;">
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+          <span style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;">or send manually</span>
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+        </div>
         <div class="deposit-address-section">
-          <div class="field-label">Your Deposit Address (Polygon)</div>
+          <div class="field-label">Your Wallet Address (Polygon)</div>
           <div class="deposit-address-display">
             <code id="depositAddress">—</code>
             <button class="wallet-copy-btn" onclick="copyWalletAddress()" title="Copy">
@@ -2132,12 +2165,29 @@
             <span>USDC (0x3c499c...)</span>
           </div>
           <div class="deposit-detail-row">
-            <span>Confirmations</span>
-            <span>12 blocks (~24 seconds)</span>
-          </div>
-          <div class="deposit-detail-row">
             <span>Min Deposit</span>
             <span>$5.00 USDC</span>
+          </div>
+        </div>
+
+        <!-- Security explainer -->
+        <div style="margin-top:14px;text-align:center;">
+          <a href="#" onclick="document.getElementById('depositSecurityExplainer').style.display = document.getElementById('depositSecurityExplainer').style.display === 'none' ? 'block' : 'none'; return false;" style="font-size:11px;color:var(--accent);">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>How are my funds protected?
+          </a>
+        </div>
+        <div id="depositSecurityExplainer" style="display:none;margin-top:10px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;font-size:11px;line-height:1.6;color:var(--dim);">
+          <strong style="color:var(--fg);display:block;margin-bottom:6px;">Non-custodial wallet architecture</strong>
+          Your trading wallet is secured by <strong style="color:var(--fg);">Turnkey</strong>, a hardware security module (HSM) provider. Your private keys are generated and stored inside tamper-proof hardware — they never exist on Mercury's servers, in our database, or anywhere accessible to us.<br><br>
+          <strong style="color:var(--fg);">What this means:</strong>
+          <ul style="margin:6px 0 0 16px;padding:0;">
+            <li>Mercury has <strong style="color:var(--fg);">no ability to access, move, or withdraw your funds</strong>. The keys required to do so are locked in hardware that only responds to authenticated signing requests tied to your account.</li>
+            <li>Your wallet is exclusively yours. Even if Mercury's servers were fully compromised, an attacker would not gain access to your funds — the keys are in Turnkey's HSM, not on our infrastructure.</li>
+            <li>All trade signatures are performed inside the HSM and only when your bot triggers a trade. Mercury sends a signing request; the hardware signs it and returns the result. The key itself never leaves the chip.</li>
+            <li>You can verify your wallet's activity at any time on <a href="https://polygonscan.com" target="_blank" style="color:var(--accent);">Polygonscan</a> — everything is fully on-chain and transparent.</li>
+          </ul>
+          <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;">
+            Turnkey is backed by Sequoia and used by major crypto platforms. <a href="https://www.turnkey.com/security" target="_blank" style="color:var(--accent);">Learn more about Turnkey's security model</a>.
           </div>
         </div>
       </div>
@@ -2312,6 +2362,22 @@
     <button class="toast-close" id="toastClose">&times;</button>
   </div>
 
+  <!-- Config (must run before all other scripts) -->
+  <script>
+    (function() {
+      var isLocal = window.location.hostname === 'localhost'
+        || window.location.hostname === '127.0.0.1'
+        || window.location.protocol === 'file:';
+      var engineBase = window.MERCURY_ENGINE_BASE || (isLocal
+        ? 'http://localhost:8778'
+        : window.location.origin + '/engine');
+      window.MERCURY_CONFIG = {
+        engineBase: engineBase,
+        isLocal: isLocal,
+      };
+    })();
+  </script>
+
   <!-- Scripts (v3 cache-bust) -->
   <script src="./scripts/page-transition.js?v=28"></script>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.1/dist/apexcharts.min.js"></script>
@@ -2321,10 +2387,10 @@
   <script src="./scripts/upgrade-modal.js?v=28"></script>
   <script src="./scripts/wallet-service.js?v=28"></script>
   <script src="./scripts/tour-engine.js?v=28"></script>
-  <script src="./scripts/architect-app.js?v=52"></script>
-  <script src="./scripts/data-bridge.js?v=30"></script>
+  <script src="./scripts/architect-app.js?v=59"></script>
+  <script src="./scripts/data-bridge.js?v=31"></script>
   <script src="./scripts/charting.js?v=39"></script>
-  <script src="./scripts/funding.js?v=1"></script>
+  <script src="./scripts/funding.js?v=3"></script>
   <script src="./scripts/ambient.js?v=28"></script>
 </body>
 </html>

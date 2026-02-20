@@ -49,7 +49,7 @@ async function checkEngineConnectors() {
             _fundingPollInterval = setInterval(refreshPolyBalance, 15000);
           }
         }
-        // 404 = no wallet yet, show Create button
+        // 404 = no wallet yet, show Connect button
       } catch (e) { /* no wallet yet */ }
     }
 
@@ -68,10 +68,9 @@ async function checkEngineConnectors() {
 
 async function initPolymarketWallet() {
   const btn = document.getElementById('polyConnectBtn');
-  if (btn) btn.textContent = 'Creating trading wallet...';
+  if (btn) btn.textContent = 'Connecting...';
 
   try {
-    // Create a non-custodial trading wallet (Turnkey HSM + proxy deploy)
     const resp = await _authFetch(`${ENGINE_BASE}/api/wallet/polymarket`, { method: 'POST' });
     if (!resp.ok) {
       const err = await resp.json().catch(() => ({ detail: resp.statusText }));
@@ -79,18 +78,17 @@ async function initPolymarketWallet() {
     }
     const data = await resp.json();
 
-    // data.address = proxy address (for deposits), data.eoa_address = HSM-backed EOA
     if (data && data.address) {
       setPolyConnected(true, data.address);
       await refreshPolyBalance();
-      showToast('Trading wallet created — deposit USDC.e on Polygon to start trading');
+      showToast('Polymarket wallet connected');
 
       // Start polling balance
       _fundingPollInterval = setInterval(refreshPolyBalance, 15000);
     }
   } catch (e) {
-    console.error('[Funding] Wallet creation failed:', e);
-    if (btn) btn.textContent = 'Create Trading Wallet';
+    console.error('[Funding] Wallet connection failed:', e);
+    if (btn) btn.textContent = 'Connect Wallet';
     showToast('Failed: ' + e.message, 'error');
   }
 }
@@ -122,7 +120,7 @@ function setPolyConnected(connected, address) {
   } else {
     if (statusDot) { statusDot.classList.add('disconnected'); statusDot.classList.remove('connected'); }
     if (statusText) statusText.textContent = 'Not Connected';
-    if (connectBtn) { connectBtn.style.display = ''; connectBtn.textContent = 'Create Trading Wallet'; }
+    if (connectBtn) { connectBtn.style.display = ''; connectBtn.textContent = 'Connect Wallet'; }
     if (refreshBtn) refreshBtn.style.display = 'none';
     if (withdrawBtn) withdrawBtn.style.display = 'none';
     if (addressRow) addressRow.style.display = 'none';
@@ -392,6 +390,91 @@ async function submitPolyWithdraw() {
   }
 }
 
+// ═══════════════════════════════════════════════════════════
+// METAMASK DEPOSIT (Funding page)
+// ═══════════════════════════════════════════════════════════
+
+async function fundingDepositWithMetaMask() {
+  const POLYGON_CHAIN_ID = '0x89';
+  const USDC_CONTRACT = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359';
+  const walletAddress = document.getElementById('polyAddress')?.textContent;
+
+  if (!walletAddress || walletAddress === '0x...') {
+    showToast('No trading wallet found', 'error');
+    return;
+  }
+  if (!window.ethereum) {
+    showToast('MetaMask not detected. Copy the address and send manually.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('polyMetamaskDepositBtn');
+  btn.disabled = true;
+  btn.textContent = 'Connecting MetaMask...';
+
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const from = accounts[0];
+
+    btn.textContent = 'Switching to Polygon...';
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: POLYGON_CHAIN_ID }],
+      });
+    } catch (switchError) {
+      if (switchError.code === 4902) {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: POLYGON_CHAIN_ID,
+            chainName: 'Polygon',
+            nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
+            rpcUrls: ['https://polygon-rpc.com'],
+            blockExplorerUrls: ['https://polygonscan.com'],
+          }],
+        });
+      } else {
+        throw switchError;
+      }
+    }
+
+    // Prompt for amount
+    const amountStr = prompt('Enter USDC amount to deposit (min $5):');
+    if (!amountStr) { return; }
+    const amount = parseFloat(amountStr);
+    if (!amount || amount < 5) {
+      showToast('Minimum deposit is $5.00 USDC', 'error');
+      return;
+    }
+
+    const amountRaw = BigInt(Math.round(amount * 1e6));
+    const recipientPadded = walletAddress.slice(2).toLowerCase().padStart(64, '0');
+    const amountPadded = amountRaw.toString(16).padStart(64, '0');
+    const data = '0xa9059cbb' + recipientPadded + amountPadded;
+
+    btn.textContent = 'Confirm in MetaMask...';
+    const txHash = await window.ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [{ from, to: USDC_CONTRACT, data, value: '0x0' }],
+    });
+
+    showToast('Deposit submitted! TX: ' + txHash.slice(0, 14) + '...');
+    setTimeout(() => refreshPolyBalance(), 15000);
+    setTimeout(() => refreshPolyBalance(), 45000);
+
+  } catch (e) {
+    if (e.code === 4001) {
+      showToast('Transaction cancelled', 'info');
+    } else {
+      showToast('Deposit failed: ' + (e.message || e), 'error');
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Deposit with MetaMask';
+  }
+}
+
 // Make functions globally available
 window.initFundingView = initFundingView;
 window.teardownFundingView = teardownFundingView;
@@ -404,3 +487,4 @@ window.refreshPositions = refreshPositions;
 window.openPolyWithdraw = openPolyWithdraw;
 window.closePolyWithdraw = closePolyWithdraw;
 window.submitPolyWithdraw = submitPolyWithdraw;
+window.fundingDepositWithMetaMask = fundingDepositWithMetaMask;
