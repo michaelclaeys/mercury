@@ -298,7 +298,7 @@ function startChartingTour(force) {
         {
           selector: '#chartingTabBar',
           title: 'Charting Tabs',
-          text: 'Six specialized views: Overview for edge scanning, Crypto for BTC/ETH markets, Markets for the full contract scanner, News for live market headlines, Bonding Arb for risk-free yield, and Terminal for execution.',
+          text: 'Six specialized views: Overview for edge scanning, Crypto for BTC/ETH markets, Markets for the full contract scanner, News for live market headlines, Bonding Arb for near-resolution yield opportunities, and Terminal for execution.',
           position: 'bottom',
           padding: 4,
         },
@@ -340,7 +340,7 @@ function startChartingTour(force) {
         {
           selector: '.charting-tab[data-rtab="bonding"]',
           title: 'Bonding Arb',
-          text: 'Find near-certain outcomes (95-99c) close to resolution. Buy at 97c, collect $1 when it resolves — like a short-term bond. Sort by annualized yield to find the best risk-free returns.',
+          text: 'Find near-certain outcomes (95-99c) close to resolution. Buy at 97c, collect $1 when it resolves — like a short-term bond. Sort by annualized yield to find the best high-probability returns.',
           position: 'bottom',
           padding: 4,
         },
@@ -496,6 +496,16 @@ function switchChartingTab(tabName) {
         try { charting.charts.volume.resize(); } catch (_) {}
       }
     }, 50);
+  }
+
+  // Add data source footer to active panel (once)
+  const activePanel = document.getElementById('rtab-' + tabName);
+  if (activePanel && !activePanel.querySelector('.charting-data-footer')) {
+    const footer = document.createElement('div');
+    footer.className = 'charting-data-footer';
+    footer.style.cssText = 'font-size:11px; color:rgba(255,255,255,0.3); text-align:center; padding:12px 0 4px;';
+    footer.textContent = 'Data from third-party APIs. May be delayed. Not financial advice.';
+    activePanel.appendChild(footer);
   }
 }
 
@@ -2695,12 +2705,19 @@ async function pollLiveBotLogs() {
 // ═══════════════════════════════════════════════════════════════
 
 let _bondingArbInterval = null;
+let _bondCache = { data: null, ts: 0 };
 
 window.teardownBondingArbView = function() {
   if (_bondingArbInterval) { clearInterval(_bondingArbInterval); _bondingArbInterval = null; }
 };
 
 window.initBondingArbView = function() {
+  // Show welcome explainer on first visit
+  const welcomeEl = document.getElementById('bondWelcome');
+  if (welcomeEl) {
+    welcomeEl.style.display = localStorage.getItem('mercury_bond_welcome_dismissed') ? 'none' : '';
+  }
+
   renderBondingArbView();
   if (_bondingArbInterval) clearInterval(_bondingArbInterval);
   _bondingArbInterval = setInterval(renderBondingArbView, 30000);
@@ -2710,7 +2727,7 @@ window.initBondingArbView = function() {
   const platTabs = document.getElementById('bondingViewPlatformTabs');
   if (sortSel && !sortSel._wired) {
     sortSel._wired = true;
-    sortSel.addEventListener('change', renderBondingArbView);
+    sortSel.addEventListener('change', () => renderBondingArbView());
   }
   if (platTabs && !platTabs._wired) {
     platTabs._wired = true;
@@ -2724,55 +2741,145 @@ window.initBondingArbView = function() {
   }
 };
 
-function renderBondingArbView() {
-  // Simulated near-resolution markets (replace with live API data)
-  // side: 'yes' = YES price near $1, buy YES and hold to resolution
-  // side: 'no'  = YES price near $0, buy NO (at 1 - yesPrice) and hold to resolution
-  const bondingMarkets = [
-    // YES-side bonding (high YES price, near-certain YES resolution)
-    { market: 'Will Trump be US President on Feb 28, 2026?', platform: 'polymarket', yesPrice: 0.99, side: 'yes', days: 11, vol: 1240000 },
-    { market: 'Will BTC be above $50K on Mar 1, 2026?', platform: 'polymarket', yesPrice: 0.98, side: 'yes', days: 12, vol: 890000 },
-    { market: 'Will US GDP be positive in Q1 2026?', platform: 'kalshi', yesPrice: 0.97, side: 'yes', days: 42, vol: 560000 },
-    { market: 'Will the 2026 Oscars ceremony occur in March?', platform: 'polymarket', yesPrice: 0.99, side: 'yes', days: 12, vol: 2100000 },
-    { market: 'Will ETH be above $2K on Feb 28?', platform: 'kalshi', yesPrice: 0.98, side: 'yes', days: 11, vol: 340000 },
-    { market: 'Will S&P 500 close above 4000 in Feb?', platform: 'kalshi', yesPrice: 0.99, side: 'yes', days: 11, vol: 420000 },
-    { market: 'Will March Madness tip off in 2026?', platform: 'polymarket', yesPrice: 0.98, side: 'yes', days: 28, vol: 750000 },
-    { market: 'Will US unemployment stay below 4.5%?', platform: 'kalshi', yesPrice: 0.98, side: 'yes', days: 30, vol: 480000 },
-    // NO-side bonding (low YES price = high NO price, near-certain NO resolution)
-    { market: 'Will BTC hit $1M by March 2026?', platform: 'polymarket', yesPrice: 0.01, side: 'no', days: 12, vol: 980000 },
-    { market: 'Will US default on debt in Feb 2026?', platform: 'kalshi', yesPrice: 0.02, side: 'no', days: 11, vol: 520000 },
-    { market: 'Will ETH flip BTC market cap by March?', platform: 'polymarket', yesPrice: 0.01, side: 'no', days: 12, vol: 410000 },
-    { market: 'Will Fed cut rates to 0% in March?', platform: 'kalshi', yesPrice: 0.03, side: 'no', days: 28, vol: 330000 },
-    { market: 'Will gold drop below $1000/oz in Feb?', platform: 'polymarket', yesPrice: 0.02, side: 'no', days: 11, vol: 190000 },
-    { market: 'Will S&P 500 drop below 2000 in Feb?', platform: 'kalshi', yesPrice: 0.01, side: 'no', days: 11, vol: 370000 },
-    { market: 'Will NVIDIA go bankrupt by March?', platform: 'polymarket', yesPrice: 0.02, side: 'no', days: 12, vol: 580000 },
-    { market: 'Will US unemployment exceed 20%?', platform: 'kalshi', yesPrice: 0.02, side: 'no', days: 30, vol: 290000 },
-    { market: 'Will SOL surpass $10K by March?', platform: 'polymarket', yesPrice: 0.01, side: 'no', days: 12, vol: 440000 },
-    { market: 'Will oil drop below $10/barrel in Feb?', platform: 'kalshi', yesPrice: 0.03, side: 'no', days: 11, vol: 210000 },
-  ];
+window.dismissBondWelcome = function() {
+  localStorage.setItem('mercury_bond_welcome_dismissed', '1');
+  const el = document.getElementById('bondWelcome');
+  if (el) el.style.display = 'none';
+};
 
-  // Add jitter to simulate live data
-  const markets = bondingMarkets.map(m => {
-    const jitter = (Math.random() - 0.3) * 0.005;
-    const yesPrice = m.side === 'yes'
-      ? Math.min(0.995, m.yesPrice + jitter)
-      : Math.max(0.005, m.yesPrice + Math.abs(jitter));
-    // Bond price = what you pay on the side you're buying
-    const bondPrice = m.side === 'yes' ? yesPrice : (1 - yesPrice);
-    return { ...m, yesPrice, bondPrice, vol: Math.round(m.vol * (0.9 + Math.random() * 0.2)) };
-  });
+// ── Fetch real bond-worthy markets from Polymarket + Kalshi ──
+
+async function fetchBondingMarkets() {
+  if (_bondCache.data && Date.now() - _bondCache.ts < 30000) return _bondCache.data;
+
+  const LM = window.MercuryLiveMarkets;
+  if (!LM) return [];
+
+  const bonds = [];
+  const now = Date.now();
+  const MAX_DAYS = 60;
+  const MIN_BOND_CENTS = 90; // YES price >= 90c (YES bond) or <= 10c (NO bond)
+
+  // Fetch both platforms in parallel
+  // For Polymarket we call Gamma raw to get both YES and NO clobTokenIds
+  const polyQs = `markets?limit=500&active=true&closed=false&order=volume24hr&ascending=false`;
+  const [polyRaw, kalshiMarkets] = await Promise.all([
+    LM._fetchWithFallback(`${LM._polyBase}${polyQs}`, `${LM._polyDirect}${polyQs}`)
+      .then(r => r.ok ? r.json() : []).catch(() => []),
+    LM.fetchKalshiMarkets(200).catch(() => []),
+  ]);
+
+  // ── Process Polymarket ──
+  const polyArr = Array.isArray(polyRaw) ? polyRaw : polyRaw.markets || [];
+  for (const m of polyArr) {
+    if (!m.question || m.closed || m.acceptingOrders === false) continue;
+    const yesPrice = Math.round(parseFloat(m.outcomePrices?.[0] || m.lastTradePrice || 0) * 100);
+    if (yesPrice <= 0 || yesPrice >= 100) continue;
+
+    const isYesBond = yesPrice >= MIN_BOND_CENTS;
+    const isNoBond  = yesPrice <= (100 - MIN_BOND_CENTS);
+    if (!isYesBond && !isNoBond) continue;
+
+    const endDate = m.endDate;
+    if (!endDate) continue;
+    const days = Math.ceil((new Date(endDate).getTime() - now) / 86400000);
+    if (days <= 0 || days > MAX_DAYS) continue;
+
+    // Parse both YES (index 0) and NO (index 1) token IDs
+    let yesTokenId = null, noTokenId = null;
+    try {
+      const arr = typeof m.clobTokenIds === 'string' ? JSON.parse(m.clobTokenIds) : m.clobTokenIds;
+      if (Array.isArray(arr)) { yesTokenId = arr[0] || null; noTokenId = arr[1] || null; }
+    } catch {}
+
+    const side = isYesBond ? 'yes' : 'no';
+    const bondPrice = side === 'yes' ? yesPrice / 100 : (100 - yesPrice) / 100;
+
+    bonds.push({
+      name: m.question,
+      platform: 'polymarket',
+      side,
+      bondPrice,
+      yesPrice: yesPrice / 100,
+      days,
+      volume24h: parseFloat(m.volume24hr || 0),
+      liquidity: parseFloat(m.liquidity || 0),
+      endDate,
+      clobTokenId: yesTokenId,
+      noTokenId,
+      ticker: null,
+      bestBid: Math.round(parseFloat(m.bestBid || 0) * 100),
+      bestAsk: Math.round(parseFloat(m.bestAsk || 0) * 100),
+    });
+  }
+
+  // ── Process Kalshi ──
+  for (const m of kalshiMarkets) {
+    const yesPrice = m.price; // 0-100 cents
+    const isYesBond = yesPrice >= MIN_BOND_CENTS;
+    const isNoBond  = yesPrice <= (100 - MIN_BOND_CENTS);
+    if (!isYesBond && !isNoBond) continue;
+
+    const closeTime = m.closeTime;
+    if (!closeTime) continue;
+    const days = Math.ceil((new Date(closeTime).getTime() - now) / 86400000);
+    if (days <= 0 || days > MAX_DAYS) continue;
+
+    const side = isYesBond ? 'yes' : 'no';
+    const bondPrice = side === 'yes' ? yesPrice / 100 : (100 - yesPrice) / 100;
+
+    bonds.push({
+      name: m.name,
+      platform: 'kalshi',
+      side,
+      bondPrice,
+      yesPrice: yesPrice / 100,
+      days,
+      volume24h: m.volume24h || 0,
+      liquidity: m.liquidity || 0,
+      endDate: closeTime,
+      clobTokenId: null,
+      noTokenId: null,
+      ticker: m.ticker,
+      bestBid: m.yesBid || 0,
+      bestAsk: m.yesAsk || 0,
+    });
+  }
+
+  _bondCache = { data: bonds, ts: Date.now() };
+  return bonds;
+}
+
+// ── Render bonding arb table with real data ──
+
+async function renderBondingArbView() {
+  const tbody = document.getElementById('bondingViewBody');
+
+  // Show loading on first render
+  if (!_bondCache.data && tbody) {
+    tbody.innerHTML = '<div class="bonding-loading">Scanning markets\u2026</div>';
+  }
+
+  let markets;
+  try {
+    markets = await fetchBondingMarkets();
+  } catch (e) {
+    console.warn('[BondArb] Fetch failed:', e);
+    if (tbody) tbody.innerHTML = '<div class="bonding-loading">Failed to load markets. Retrying\u2026</div>';
+    return;
+  }
 
   const sortSel = document.getElementById('bondingViewSort');
   const activePlat = document.querySelector('#bondingViewPlatformTabs .filter-tab.active');
   const sortBy = sortSel ? sortSel.value : 'yield';
   const platformFilter = activePlat ? activePlat.dataset.plat : 'all';
 
-  let filtered = markets;
+  let filtered = [...markets];
   if (platformFilter !== 'all') {
     filtered = filtered.filter(m => m.platform === platformFilter);
   }
 
-  // Calculate yield based on the bonding side price
+  // Calculate yield
   filtered = filtered.map(m => {
     const rawYield = (1 - m.bondPrice) / m.bondPrice;
     const annualized = m.days > 0 ? rawYield * (365 / m.days) : 0;
@@ -2782,15 +2889,17 @@ function renderBondingArbView() {
   // Sort
   if (sortBy === 'yield') filtered.sort((a, b) => b.annualized - a.annualized);
   else if (sortBy === 'prob') filtered.sort((a, b) => b.bondPrice - a.bondPrice);
-  else if (sortBy === 'volume') filtered.sort((a, b) => b.vol - a.vol);
+  else if (sortBy === 'volume') filtered.sort((a, b) => b.volume24h - a.volume24h);
   else if (sortBy === 'days') filtered.sort((a, b) => a.days - b.days);
 
-  // Compute metrics
+  // Store for buy modal reference
+  window._bondFilteredMarkets = filtered;
+
+  // Metrics
   const avgYield = filtered.length > 0 ? filtered.reduce((s, m) => s + m.annualized, 0) / filtered.length : 0;
-  const totalVol = filtered.reduce((s, m) => s + m.vol, 0);
+  const totalVol = filtered.reduce((s, m) => s + m.volume24h, 0);
   const avgDays = filtered.length > 0 ? filtered.reduce((s, m) => s + m.days, 0) / filtered.length : 0;
 
-  // Update metrics
   const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   setTxt('bondingViewOpps', filtered.length);
   setTxt('bondingViewYield', (avgYield * 100).toFixed(1) + '%');
@@ -2798,13 +2907,18 @@ function renderBondingArbView() {
   setTxt('bondingViewDays', Math.round(avgDays) + 'd');
   setTxt('bondingViewCount', filtered.length + ' opportunities');
 
-  // Render full-width table rows
-  const tbody = document.getElementById('bondingViewBody');
   if (!tbody) return;
-  tbody.innerHTML = filtered.map(m => {
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<div class="bonding-loading">No bond opportunities found</div>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((m, idx) => {
     const prob = (m.bondPrice * 100).toFixed(1) + '%';
     const yieldPct = (m.annualized * 100).toFixed(1) + '%';
-    const volStr = m.vol >= 1e6 ? '$' + (m.vol / 1e6).toFixed(1) + 'M' : '$' + (m.vol / 1e3).toFixed(0) + 'K';
+    const vol = m.volume24h;
+    const volStr = vol >= 1e6 ? '$' + (vol / 1e6).toFixed(1) + 'M' : '$' + (vol / 1e3).toFixed(0) + 'K';
     const platClass = m.platform === 'polymarket' ? 'poly' : 'kalshi';
     const platLabel = m.platform === 'polymarket' ? 'Polymarket' : 'Kalshi';
     const sideClass = m.side === 'yes' ? 'bonding-side--yes' : 'bonding-side--no';
@@ -2812,7 +2926,7 @@ function renderBondingArbView() {
     const btnLabel = m.side === 'yes' ? 'Buy YES' : 'Buy NO';
     const btnClass = m.side === 'yes' ? 'bonding-view-btn' : 'bonding-view-btn bonding-view-btn--no';
     return `<div class="bonding-vrow">
-      <span class="bonding-vcol bonding-vcol--market">${m.market}</span>
+      <span class="bonding-vcol bonding-vcol--market">${esc(m.name)}</span>
       <span class="bonding-vcol bonding-vcol--platform bonding-vcol--${platClass}">${platLabel}</span>
       <span class="bonding-vcol bonding-vcol--side ${sideClass}">${sideLabel}</span>
       <span class="bonding-vcol bonding-vcol--price">${(m.bondPrice * 100).toFixed(1)}c</span>
@@ -2820,10 +2934,203 @@ function renderBondingArbView() {
       <span class="bonding-vcol bonding-vcol--yield">${yieldPct}</span>
       <span class="bonding-vcol bonding-vcol--days">${m.days}d</span>
       <span class="bonding-vcol bonding-vcol--vol">${volStr}</span>
-      <span class="bonding-vcol bonding-vcol--action"><button class="${btnClass}" onclick="showToast('Bonding arb \u2014 connect account to trade', 'info')">${btnLabel}</button></span>
+      <span class="bonding-vcol bonding-vcol--action"><button class="${btnClass}" onclick="openBondBuyModal(${idx})">${btnLabel}</button></span>
     </div>`;
   }).join('');
 }
+
+// ── Bond Buy Modal ──
+
+window._bondBuyTarget = null;
+window._bondBuyBalance = 0;
+
+window.openBondBuyModal = async function(idx) {
+  const market = window._bondFilteredMarkets?.[idx];
+  if (!market) return;
+
+  window._bondBuyTarget = market;
+  const isPoly = market.platform === 'polymarket';
+
+  const warningEl = document.getElementById('bondBuyWarning');
+  const warningText = document.getElementById('bondBuyWarningText');
+  const confirmBtn = document.getElementById('bondBuyConfirmBtn');
+
+  let connected = false;
+  let balance = 0;
+
+  if (isPoly) {
+    try {
+      const wallet = await window.walletService.getWallet();
+      if (wallet && wallet.address) {
+        connected = true;
+        const bal = await window.walletService.getBalance();
+        balance = bal?.usdc || 0;
+      }
+    } catch {}
+  } else {
+    try {
+      const base = (window.MERCURY_CONFIG && window.MERCURY_CONFIG.engineBase) || 'http://localhost:8778';
+      const authFetch = window.fetchWithAuth || fetch;
+      const resp = await authFetch(`${base}/api/kalshi/credentials`);
+      if (resp.ok) {
+        const data = await resp.json();
+        connected = !!data.connected;
+        if (connected) {
+          const balResp = await authFetch(`${base}/api/kalshi/balance`);
+          if (balResp.ok) {
+            const balData = await balResp.json();
+            balance = balData.balance || balData.available_balance || 0;
+          }
+        }
+      }
+    } catch {}
+  }
+
+  // Populate modal fields
+  document.getElementById('bondBuyModalTitle').textContent =
+    market.side === 'yes' ? 'Buy YES Bond' : 'Buy NO Bond';
+  document.getElementById('bondBuyMarketName').textContent = market.name;
+
+  const platEl = document.getElementById('bondBuyPlatform');
+  platEl.textContent = isPoly ? 'Polymarket' : 'Kalshi';
+  platEl.className = 'bond-buy-platform bond-buy-platform--' + (isPoly ? 'poly' : 'kalshi');
+
+  const sideEl = document.getElementById('bondBuySide');
+  sideEl.textContent = market.side.toUpperCase();
+  sideEl.className = 'bond-buy-side bond-buy-side--' + market.side;
+
+  document.getElementById('bondBuyDays').textContent = market.days + 'd to resolution';
+  document.getElementById('bondBuyPrice').textContent = (market.bondPrice * 100).toFixed(1) + 'c';
+  document.getElementById('bondBuyRawYield').textContent = (market.rawYield * 100).toFixed(1) + '%';
+  document.getElementById('bondBuyAnnYield').textContent = (market.annualized * 100).toFixed(1) + '%';
+
+  document.getElementById('bondBuyBalance').textContent = '$' + parseFloat(balance).toFixed(2);
+  window._bondBuyBalance = balance;
+
+  // Reset amount + estimate
+  const amountInput = document.getElementById('bondBuyAmount');
+  amountInput.value = '';
+  document.getElementById('bondBuyEstimate').style.display = 'none';
+  amountInput.oninput = () => updateBondBuyEstimate(market);
+
+  // Connection / token warnings
+  let hasWarning = false;
+  if (!connected) {
+    warningEl.style.display = 'flex';
+    warningText.textContent = isPoly
+      ? 'No Polymarket wallet connected. Use Connected Accounts in the sidebar.'
+      : 'No Kalshi account connected. Use Connected Accounts in the sidebar.';
+    hasWarning = true;
+  } else if (isPoly && market.side === 'yes' && !market.clobTokenId) {
+    warningEl.style.display = 'flex';
+    warningText.textContent = 'Token ID not available for this market.';
+    hasWarning = true;
+  } else if (isPoly && market.side === 'no' && !market.noTokenId) {
+    warningEl.style.display = 'flex';
+    warningText.textContent = 'NO token ID not available for this market.';
+    hasWarning = true;
+  } else {
+    warningEl.style.display = 'none';
+  }
+
+  confirmBtn.disabled = hasWarning;
+  document.getElementById('bondBuyModal').classList.add('open');
+};
+
+window.closeBondBuyModal = function() {
+  document.getElementById('bondBuyModal').classList.remove('open');
+  window._bondBuyTarget = null;
+};
+
+function updateBondBuyEstimate(market) {
+  const estimateEl = document.getElementById('bondBuyEstimate');
+  const amount = parseFloat(document.getElementById('bondBuyAmount').value);
+
+  if (!amount || amount <= 0) {
+    estimateEl.style.display = 'none';
+    return;
+  }
+
+  estimateEl.style.display = 'flex';
+
+  // Kalshi: integer contracts at bondPrice each; Polymarket: fractional shares
+  const contracts = market.platform === 'kalshi'
+    ? Math.floor(amount / market.bondPrice)
+    : amount / market.bondPrice;
+  const cost = market.platform === 'kalshi'
+    ? contracts * market.bondPrice
+    : amount;
+  const payout = contracts * 1.00; // each contract/share resolves to $1
+  const profit = payout - cost;
+
+  document.getElementById('bondBuyContracts').textContent =
+    market.platform === 'kalshi' ? contracts.toString() : contracts.toFixed(2);
+  document.getElementById('bondBuyCost').textContent = '$' + cost.toFixed(2);
+  document.getElementById('bondBuyPayout').textContent = '$' + payout.toFixed(2);
+  document.getElementById('bondBuyProfit').textContent = '+$' + profit.toFixed(2);
+
+  // Disable confirm if over balance (only when no other warning shown)
+  const confirmBtn = document.getElementById('bondBuyConfirmBtn');
+  const warningVisible = document.getElementById('bondBuyWarning').style.display === 'flex';
+  confirmBtn.disabled = warningVisible || cost > window._bondBuyBalance;
+}
+
+window.setBondBuyMax = function() {
+  document.getElementById('bondBuyAmount').value = (window._bondBuyBalance || 0).toFixed(2);
+  if (window._bondBuyTarget) updateBondBuyEstimate(window._bondBuyTarget);
+};
+
+window.confirmBondBuy = async function() {
+  const market = window._bondBuyTarget;
+  if (!market) return;
+
+  const amount = parseFloat(document.getElementById('bondBuyAmount').value);
+  if (!amount || amount <= 0) { showToast('Enter a valid amount', 'error'); return; }
+
+  const confirmBtn = document.getElementById('bondBuyConfirmBtn');
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = 'Placing order\u2026';
+
+  try {
+    if (market.platform === 'polymarket') {
+      const tokenId = market.side === 'yes' ? market.clobTokenId : market.noTokenId;
+      if (!tokenId) throw new Error('Token ID not available');
+      const size = amount / market.bondPrice;
+      await window.walletService.placeOrder(tokenId, 'BUY', market.bondPrice, size);
+      showToast('Polymarket bond order placed', 'success');
+    } else {
+      const count = Math.floor(amount / market.bondPrice);
+      if (count <= 0) throw new Error('Amount too small for at least 1 contract');
+      const priceCents = Math.round(market.bondPrice * 100);
+      const base = (window.MERCURY_CONFIG && window.MERCURY_CONFIG.engineBase) || 'http://localhost:8778';
+      const authFetch = window.fetchWithAuth || fetch;
+      const resp = await authFetch(`${base}/api/kalshi/order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticker: market.ticker,
+          side: market.side,
+          count,
+          price: priceCents,
+          action: 'buy',
+          order_type: 'limit',
+        }),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({ detail: resp.statusText }));
+        throw new Error(err.detail || err.error || `HTTP ${resp.status}`);
+      }
+      showToast(`Kalshi bond order placed: ${count} contracts`, 'success');
+    }
+    closeBondBuyModal();
+  } catch (e) {
+    showToast('Order failed: ' + e.message, 'error');
+    console.error('[BondBuy] Order failed:', e);
+  } finally {
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = 'Confirm Buy';
+  }
+};
 
 // ═══════════════════════════════════════════════════════════════
 // PORTFOLIO — Dedicated View (accessed from sidebar nav)
@@ -2835,10 +3142,12 @@ window.teardownPortfolioView = function() {
   if (_portfolioInterval) { clearInterval(_portfolioInterval); _portfolioInterval = null; }
 };
 
-window.initPortfolioView = function() {
-  renderPortfolioView();
+let _portfolioEquityChart = null;
+
+window.initPortfolioView = async function() {
+  await renderPortfolioView();
   if (_portfolioInterval) clearInterval(_portfolioInterval);
-  _portfolioInterval = setInterval(renderPortfolioView, 30000);
+  _portfolioInterval = setInterval(renderPortfolioView, 15000);
 
   // Wire filter tabs (once)
   const filterTabs = document.getElementById('portfolioFilterTabs');
@@ -2859,114 +3168,210 @@ window.initPortfolioView = function() {
   }
 };
 
-function renderPortfolioView() {
-  const positions = [
-    { market: 'Will Vance win 2028 Republican primary?', platform: 'polymarket', side: 'yes', qty: 500, avgPrice: 0.62, currentPrice: 0.71, status: 'open' },
-    { market: 'Will BTC be above $100K on Jun 1, 2026?', platform: 'polymarket', side: 'yes', qty: 200, avgPrice: 0.45, currentPrice: 0.53, status: 'open' },
-    { market: 'Will Fed cut rates in June 2026?', platform: 'kalshi', side: 'no', qty: 300, avgPrice: 0.55, currentPrice: 0.61, status: 'open' },
-    { market: 'Will S&P 500 close above 5000 in Feb?', platform: 'kalshi', side: 'yes', qty: 150, avgPrice: 0.88, currentPrice: 0.95, status: 'open' },
-    { market: 'Will ETH be above $5K on Mar 1, 2026?', platform: 'polymarket', side: 'no', qty: 400, avgPrice: 0.72, currentPrice: 0.78, status: 'open' },
-    { market: 'Will Super Bowl LX happen before March?', platform: 'polymarket', side: 'yes', qty: 1000, avgPrice: 0.96, currentPrice: 1.00, status: 'settled' },
-    { market: 'Will US unemployment stay below 4.5%?', platform: 'kalshi', side: 'yes', qty: 250, avgPrice: 0.90, currentPrice: 1.00, status: 'settled' },
-    { market: 'Will Trump be US President on Jan 31, 2026?', platform: 'polymarket', side: 'yes', qty: 800, avgPrice: 0.97, currentPrice: 1.00, status: 'settled' },
-    { market: 'Will BTC hit $1M by Feb 2026?', platform: 'polymarket', side: 'no', qty: 600, avgPrice: 0.98, currentPrice: 1.00, status: 'settled' },
-    { market: 'Will NVIDIA go bankrupt by March?', platform: 'polymarket', side: 'no', qty: 350, avgPrice: 0.96, currentPrice: 0.98, status: 'open' },
-    { market: 'Will US default on debt in Jan 2026?', platform: 'kalshi', side: 'no', qty: 450, avgPrice: 0.95, currentPrice: 1.00, status: 'settled' },
-    { market: 'Will GTA 6 release in 2026?', platform: 'polymarket', side: 'yes', qty: 100, avgPrice: 0.65, currentPrice: 0.72, status: 'open' },
-  ];
-
-  // Add jitter to simulate live prices on open positions
-  const livePositions = positions.map(p => {
-    if (p.status === 'open') {
-      const jitter = (Math.random() - 0.5) * 0.02;
-      const currentPrice = Math.min(0.99, Math.max(0.01, p.currentPrice + jitter));
-      return { ...p, currentPrice };
-    }
-    return { ...p };
-  });
-
-  // Compute P&L for each position
-  const withPnl = livePositions.map(p => {
-    const value = p.qty * p.currentPrice;
-    const cost = p.qty * p.avgPrice;
-    const pnl = value - cost;
-    const pnlPct = cost > 0 ? (pnl / cost) * 100 : 0;
-    return { ...p, value, cost, pnl, pnlPct };
-  });
-
-  // Filtering
-  const activeFilter = document.querySelector('#portfolioFilterTabs .filter-tab.active');
-  const filter = activeFilter ? activeFilter.dataset.filter : 'all';
-  let filtered = withPnl;
-  if (filter === 'open') filtered = filtered.filter(p => p.status === 'open');
-  else if (filter === 'settled') filtered = filtered.filter(p => p.status === 'settled');
-
-  // Sorting
-  const sortSel = document.getElementById('portfolioSort');
-  const sortBy = sortSel ? sortSel.value : 'pnl';
-  if (sortBy === 'pnl') filtered.sort((a, b) => b.pnl - a.pnl);
-  else if (sortBy === 'value') filtered.sort((a, b) => b.value - a.value);
-  else if (sortBy === 'recent') filtered.sort((a, b) => (b.status === 'open' ? 1 : 0) - (a.status === 'open' ? 1 : 0));
-
-  // Compute summary metrics
-  const totalValue = withPnl.reduce((s, p) => s + p.value, 0);
-  const totalPnl = withPnl.reduce((s, p) => s + p.pnl, 0);
-  const openPositions = withPnl.filter(p => p.status === 'open');
-  const settledPositions = withPnl.filter(p => p.status === 'settled');
-  const wins = settledPositions.filter(p => p.pnl > 0).length;
-  const winRate = settledPositions.length > 0 ? (wins / settledPositions.length) * 100 : 0;
-  const avgReturn = settledPositions.length > 0
-    ? settledPositions.reduce((s, p) => s + p.pnlPct, 0) / settledPositions.length : 0;
-
-  // Update summary metrics
+async function renderPortfolioView() {
+  const _esc = typeof esc === 'function' ? esc : (s => String(s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
   const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   const setHtml = (id, v) => { const el = document.getElementById(id); if (el) el.innerHTML = v; };
-  setTxt('portfolioTotalValue', '$' + totalValue.toFixed(2));
-  const pnlColor = totalPnl >= 0 ? 'portfolio-summary-value--green' : 'portfolio-summary-value--red';
-  const pnlSign = totalPnl >= 0 ? '+' : '';
-  setHtml('portfolioTotalPnl', `<span class="${pnlColor}">${pnlSign}$${totalPnl.toFixed(2)}</span>`);
-  setTxt('portfolioOpenCount', openPositions.length);
-  setTxt('portfolioWinRate', winRate.toFixed(0) + '%');
-  setTxt('portfolioSettledCount', settledPositions.length);
-  const avgRetColor = avgReturn >= 0 ? 'portfolio-summary-value--green' : 'portfolio-summary-value--red';
-  setHtml('portfolioAvgReturn', `<span class="${avgRetColor}">${avgReturn >= 0 ? '+' : ''}${avgReturn.toFixed(1)}%</span>`);
-  setTxt('portfolioPositionCount', filtered.length + ' positions');
 
-  // Render table
-  const tbody = document.getElementById('portfolioTableBody');
-  if (!tbody) return;
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = '<div class="bonding-loading">No positions match filter\u2026</div>';
+  if (typeof engineBridge === 'undefined') {
+    const tbody = document.getElementById('portfolioTableBody');
+    if (tbody) tbody.innerHTML = '<div class="bonding-loading">Connect to engine to view portfolio\u2026</div>';
     return;
   }
 
-  tbody.innerHTML = filtered.map(p => {
-    const platClass = p.platform === 'polymarket' ? 'poly' : 'kalshi';
-    const platLabel = p.platform === 'polymarket' ? 'Polymarket' : 'Kalshi';
-    const sideClass = p.side === 'yes' ? 'portfolio-side--yes' : 'portfolio-side--no';
-    const sideLabel = p.side.toUpperCase();
-    const avgStr = (p.avgPrice * 100).toFixed(1) + 'c';
-    const curStr = (p.currentPrice * 100).toFixed(1) + 'c';
-    const valueStr = '$' + p.value.toFixed(2);
-    const pnlVal = p.pnl;
-    const pnlClass = pnlVal >= 0 ? 'portfolio-pnl--pos' : 'portfolio-pnl--neg';
-    const pnlStr = (pnlVal >= 0 ? '+' : '') + '$' + pnlVal.toFixed(2);
-    const pnlPctStr = ' (' + (pnlVal >= 0 ? '+' : '') + p.pnlPct.toFixed(1) + '%)';
-    const statusClass = p.status === 'settled' ? 'portfolio-status--settled' : 'portfolio-status--open';
-    const statusLabel = p.status === 'settled' ? 'Settled' : 'Open';
-    return `<div class="portfolio-row">
-      <span class="portfolio-col portfolio-col--market">${p.market}</span>
-      <span class="portfolio-col portfolio-col--platform portfolio-col--${platClass}">${platLabel}</span>
-      <span class="portfolio-col portfolio-col--side ${sideClass}">${sideLabel}</span>
-      <span class="portfolio-col portfolio-col--qty">${p.qty}</span>
-      <span class="portfolio-col portfolio-col--avg">${avgStr}</span>
-      <span class="portfolio-col portfolio-col--current">${curStr}</span>
-      <span class="portfolio-col portfolio-col--value">${valueStr}</span>
-      <span class="portfolio-col portfolio-col--pnl ${pnlClass}">${pnlStr}<span class="portfolio-pnl-pct">${pnlPctStr}</span></span>
-      <span class="portfolio-col portfolio-col--status"><span class="portfolio-status-badge ${statusClass}">${statusLabel}</span></span>
-    </div>`;
-  }).join('');
+  try {
+    // Fetch portfolio summary, positions, and trades in parallel
+    const [summary, positions, trades] = await Promise.all([
+      engineBridge.getPortfolio(),
+      engineBridge.getPortfolioPositions(100),
+      engineBridge.getPortfolioTrades(30),
+    ]);
+
+    // Map positions to render format
+    const withPnl = (positions || []).map(p => {
+      const value = (p.quantity || 0) * (p.current_price || 0) / 100;
+      const cost = p.cost_basis || 0;
+      const pnl = p.unrealized_pnl || 0;
+      const pnlPct = cost > 0 ? (pnl / cost) * 100 : 0;
+      return {
+        market: p.contract || 'Unknown',
+        botName: p.bot_name || '',
+        botMode: p.bot_mode || 'paper',
+        platform: (p.platform || 'polymarket').toLowerCase(),
+        side: (p.side || 'yes').toLowerCase(),
+        qty: p.quantity || 0,
+        avgPrice: (p.entry_price || 0) / 100,
+        currentPrice: (p.current_price || 0) / 100,
+        value, cost, pnl, pnlPct,
+        status: 'open',
+      };
+    });
+
+    // Filtering
+    const activeFilter = document.querySelector('#portfolioFilterTabs .filter-tab.active');
+    const filter = activeFilter ? activeFilter.dataset.filter : 'all';
+    let filtered = withPnl;
+    if (filter === 'open') filtered = filtered.filter(p => p.status === 'open');
+
+    // Sorting
+    const sortSel = document.getElementById('portfolioSort');
+    const sortBy = sortSel ? sortSel.value : 'pnl';
+    if (sortBy === 'pnl') filtered.sort((a, b) => b.pnl - a.pnl);
+    else if (sortBy === 'value') filtered.sort((a, b) => b.value - a.value);
+    else if (sortBy === 'recent') filtered.sort((a, b) => (b.status === 'open' ? 1 : 0) - (a.status === 'open' ? 1 : 0));
+
+    // Update summary metrics from API
+    const totalPnl = summary.total_pnl || 0;
+    const totalPnlPct = summary.total_pnl_pct || 0;
+    setTxt('portfolioTotalValue', '$' + (summary.total_equity || 0).toFixed(2));
+    const pnlColor = totalPnl >= 0 ? 'portfolio-summary-value--green' : 'portfolio-summary-value--red';
+    const pnlSign = totalPnl >= 0 ? '+' : '';
+    setHtml('portfolioTotalPnl', `<span class="${pnlColor}">${pnlSign}$${totalPnl.toFixed(2)}</span>`);
+    setTxt('portfolioOpenCount', summary.open_positions || 0);
+    setTxt('portfolioWinRate', (summary.win_rate || 0).toFixed(0) + '%');
+    setTxt('portfolioSettledCount', summary.total_trades || 0);
+    const avgRetColor = totalPnlPct >= 0 ? 'portfolio-summary-value--green' : 'portfolio-summary-value--red';
+    setHtml('portfolioAvgReturn', `<span class="${avgRetColor}">${totalPnlPct >= 0 ? '+' : ''}${totalPnlPct.toFixed(1)}%</span>`);
+    setTxt('portfolioPositionCount', filtered.length + ' positions');
+
+    // Render positions table
+    const tbody = document.getElementById('portfolioTableBody');
+    if (tbody) {
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<div class="bonding-loading">No open positions. Deploy a bot to start trading.</div>';
+      } else {
+        tbody.innerHTML = filtered.map(p => {
+          const platClass = p.platform === 'polymarket' ? 'poly' : 'kalshi';
+          const platLabel = p.platform === 'polymarket' ? 'Polymarket' : 'Kalshi';
+          const sideClass = p.side === 'yes' ? 'portfolio-side--yes' : 'portfolio-side--no';
+          const sideLabel = p.side.toUpperCase();
+          const avgStr = (p.avgPrice * 100).toFixed(1) + 'c';
+          const curStr = (p.currentPrice * 100).toFixed(1) + 'c';
+          const valueStr = '$' + p.value.toFixed(2);
+          const pnlVal = p.pnl;
+          const pnlClass = pnlVal >= 0 ? 'portfolio-pnl--pos' : 'portfolio-pnl--neg';
+          const pnlStr = (pnlVal >= 0 ? '+' : '') + '$' + pnlVal.toFixed(2);
+          const pnlPctStr = ' (' + (pnlVal >= 0 ? '+' : '') + p.pnlPct.toFixed(1) + '%)';
+          return `<div class="portfolio-row">
+            <span class="portfolio-col portfolio-col--market" title="${_esc(p.market)}">${_esc(p.market)}</span>
+            <span class="portfolio-col portfolio-col--bot" title="${_esc(p.botName)}">${_esc(p.botName)}</span>
+            <span class="portfolio-col portfolio-col--platform portfolio-col--${platClass}">${platLabel}</span>
+            <span class="portfolio-col portfolio-col--side ${sideClass}">${sideLabel}</span>
+            <span class="portfolio-col portfolio-col--qty">${p.qty}</span>
+            <span class="portfolio-col portfolio-col--avg">${avgStr}</span>
+            <span class="portfolio-col portfolio-col--current">${curStr}</span>
+            <span class="portfolio-col portfolio-col--value">${valueStr}</span>
+            <span class="portfolio-col portfolio-col--pnl ${pnlClass}">${pnlStr}<span class="portfolio-pnl-pct">${pnlPctStr}</span></span>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    // Render trades table
+    const tradesTbody = document.getElementById('portfolioTradesBody');
+    if (tradesTbody) {
+      if (!trades || trades.length === 0) {
+        tradesTbody.innerHTML = '<div class="bonding-loading">No trades yet\u2026</div>';
+      } else {
+        tradesTbody.innerHTML = trades.map(t => {
+          const sideClass = (t.side || '').toUpperCase() === 'BUY' ? 'portfolio-side--yes' : 'portfolio-side--no';
+          const pnlVal = t.pnl || 0;
+          const pnlClass = pnlVal > 0 ? 'portfolio-pnl--pos' : pnlVal < 0 ? 'portfolio-pnl--neg' : '';
+          const pnlStr = pnlVal !== 0 ? ((pnlVal >= 0 ? '+' : '') + '$' + pnlVal.toFixed(2)) : '--';
+          const timeStr = t.timestamp ? new Date(t.timestamp).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '--';
+          return `<div class="portfolio-row">
+            <span class="portfolio-col portfolio-col--time">${_esc(timeStr)}</span>
+            <span class="portfolio-col portfolio-col--bot" title="${_esc(t.bot_name)}">${_esc(t.bot_name || '')}</span>
+            <span class="portfolio-col portfolio-col--side ${sideClass}">${_esc((t.side || '').toUpperCase())}</span>
+            <span class="portfolio-col portfolio-col--market" title="${_esc(t.contract)}">${_esc(t.contract || '')}</span>
+            <span class="portfolio-col portfolio-col--qty">${t.quantity || 0}</span>
+            <span class="portfolio-col portfolio-col--avg">${((t.price || 0)).toFixed(1)}c</span>
+            <span class="portfolio-col portfolio-col--value">$${(t.amount || 0).toFixed(2)}</span>
+            <span class="portfolio-col portfolio-col--pnl ${pnlClass}">${pnlStr}</span>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    // Render equity chart (if snapshots available)
+    renderPortfolioEquityChart();
+
+  } catch (e) {
+    console.warn('[Portfolio] Failed to fetch:', e.message);
+    const tbody = document.getElementById('portfolioTableBody');
+    if (tbody) {
+      tbody.innerHTML = '<div class="bonding-loading">Connect to engine to view portfolio\u2026</div>';
+    }
+  }
+}
+
+async function renderPortfolioEquityChart() {
+  if (typeof engineBridge === 'undefined' || typeof ApexCharts === 'undefined') return;
+  const chartEl = document.getElementById('portfolioEquityChart');
+  if (!chartEl) return;
+
+  try {
+    const data = await engineBridge.getPortfolioEquity(7);
+    if (!data.snapshots || data.snapshots.length < 2) {
+      chartEl.style.display = 'none';
+      return;
+    }
+
+    chartEl.style.display = 'block';
+    const series = data.snapshots.map(s => ({
+      x: new Date(s.timestamp).getTime(),
+      y: s.total_equity,
+    }));
+
+    const isPositive = series[series.length - 1].y >= series[0].y;
+    const color = isPositive ? '#00e676' : '#ff1744';
+
+    if (_portfolioEquityChart) {
+      _portfolioEquityChart.destroy();
+      _portfolioEquityChart = null;
+    }
+
+    _portfolioEquityChart = new ApexCharts(chartEl, {
+      chart: {
+        type: 'area',
+        height: 180,
+        sparkline: { enabled: false },
+        toolbar: { show: false },
+        zoom: { enabled: false },
+        background: 'transparent',
+        fontFamily: 'JetBrains Mono, monospace',
+      },
+      series: [{ name: 'Portfolio Equity', data: series }],
+      colors: [color],
+      fill: {
+        type: 'gradient',
+        gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 100] },
+      },
+      stroke: { curve: 'smooth', width: 2 },
+      xaxis: {
+        type: 'datetime',
+        labels: { style: { colors: '#666', fontSize: '10px' } },
+        axisBorder: { show: false },
+        axisTicks: { show: false },
+      },
+      yaxis: {
+        labels: {
+          style: { colors: '#666', fontSize: '10px' },
+          formatter: v => '$' + v.toFixed(0),
+        },
+      },
+      grid: { borderColor: 'rgba(255,255,255,0.06)', strokeDashArray: 3 },
+      tooltip: {
+        theme: 'dark',
+        x: { format: 'MMM dd, HH:mm' },
+        y: { formatter: v => '$' + v.toFixed(2) },
+      },
+    });
+    _portfolioEquityChart.render();
+  } catch (e) {
+    chartEl.style.display = 'none';
+    console.debug('[Portfolio] Equity chart unavailable:', e.message);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════

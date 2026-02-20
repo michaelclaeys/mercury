@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' http://localhost:8778 https://engine.mercurysuite.net https://mercurysuite.net https://*.supabase.co https://api.coingecko.com https://api.alternative.me https://gamma-api.polymarket.com https://clob.polymarket.com https://api.elections.kalshi.com https://*.binance.com https://*.coinbase.com wss://*.supabase.co; frame-ancestors 'none';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
   <title>Prediction Market Bonding Curves Explained — Mercury</title>
   <meta name="description" content="How bonding curves power prediction market liquidity. Understand AMMs, token pricing, and liquidity provision on Polymarket and Kalshi. Learn to build bonding-aware bots with Mercury.">
-  <link rel="canonical" href="https://mercurysuite.io/guides/prediction-market-bonding.html">
+  <link rel="canonical" href="https://mercurysuite.net/guides/prediction-market-bonding.html">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Mercury">
-  <meta property="og:url" content="https://mercurysuite.io/guides/prediction-market-bonding.html">
+  <meta property="og:url" content="https://mercurysuite.net/guides/prediction-market-bonding.html">
   <meta property="og:title" content="Prediction Market Bonding Curves Explained — Mercury">
   <meta property="og:description" content="How bonding curves power prediction market liquidity. Understand AMMs, token pricing, and liquidity provision on Polymarket and Kalshi.">
-  <meta property="og:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta property="og:image" content="https://mercurysuite.net/images/og-default.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Prediction Market Bonding Curves Explained — Mercury">
   <meta name="twitter:description" content="How bonding curves power prediction market liquidity. Understand AMMs, token pricing, and liquidity provision on Polymarket and Kalshi.">
-  <meta name="twitter:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta name="twitter:image" content="https://mercurysuite.net/images/og-default.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -126,6 +129,7 @@
     <div class="container">
       <div class="page-prose">
         <div class="page-prose-block">
+          <p style="font-size:0.78rem; color:var(--silver); line-height:1.7; margin-bottom:1.5rem;">This guide is educational — it explains how prediction market bonds work, not what you should trade. See our <a href="../disclaimer.html" style="color:rgba(255,215,0,0.7);">Disclaimer</a> for details.</p>
           <h2 class="page-prose-heading">What is a bonding curve in prediction markets?</h2>
           <p>A bonding curve is a mathematical function encoded in a smart contract that automatically determines the price of a token based on its current supply. In prediction markets, bonding curves price outcome tokens — the YES and NO shares that traders buy and sell to express their views on whether a real-world event will happen. When more traders buy YES shares, the price rises along the curve. When they sell, the price decreases. This creates continuous, automated liquidity without requiring a traditional order book, human market makers, or external liquidity providers.</p>
           <p>The core concept is deceptively simple: price = f(supply), where f is a deterministic function — typically polynomial, logarithmic, or sigmoid. When you buy outcome tokens, you are minting new tokens from the curve. Your purchase funds flow into a reserve pool held by the smart contract, and the curve advances to a higher price point. When you sell, you burn tokens back to the curve, withdraw funds from the reserve, and the price slides back down. Every trade moves the price, and every price reflects the cumulative buying and selling pressure of all participants.</p>

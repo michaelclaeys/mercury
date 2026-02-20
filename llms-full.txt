@@ -1,6 +1,6 @@
 # Mercury — Complete Product Documentation
 
-Mercury is a prediction market trading infrastructure platform. It provides a visual bot builder, real-time market data, backtesting, and live execution for prediction markets including Polymarket and Kalshi. The platform is available at https://mercurysuite.io.
+Mercury is a prediction market trading infrastructure platform. It provides a visual bot builder, real-time market data, backtesting, and live execution for prediction markets including Polymarket and Kalshi. The platform is available at https://mercurysuite.net.
 
 ## What Mercury Does
 
@@ -46,13 +46,13 @@ Mercury Architect uses a node-based visual programming system. Users connect fou
 - Decentralized prediction market on Polygon blockchain
 - Binary and multi-outcome markets
 - CLOB (Central Limit Order Book) execution
-- Under 12ms execution latency from Mercury
+- Low-latency execution from Mercury
 - Markets cover politics, sports, crypto, science, entertainment, and more
 
 ### Kalshi
 - CFTC-regulated prediction market exchange (US-based)
 - Event contracts with hourly, daily, and long-term markets
-- Under 18ms execution latency from Mercury
+- Low-latency execution from Mercury
 - Markets cover economics, weather, politics, finance, and more
 
 Mercury is the only platform that connects to both Polymarket and Kalshi from a single bot builder interface.
@@ -112,17 +112,17 @@ The AI maps natural language to the correct trigger, condition, execution, and r
 
 Mercury funds profitable traders with up to $5,000 in trading capital:
 
-- **Starter Fund ($1,000)**: 30 days profitable paper trading, >55% win rate
-- **Proven Fund ($2,500)**: 60 days live trading, >5% ROI, <15% max drawdown
-- **Elite Fund ($5,000)**: 90 days live trading, >10% ROI, <10% max drawdown
+- **Starter Fund ($1,000)**: 30 days live trading, Sharpe >0.75, >50% win rate, 25+ trades
+- **Proven Fund ($2,500)**: 45 days live trading, Sharpe >1.0, >50% win rate, <10% max drawdown
+- **Elite Fund ($5,000)**: 60 days live trading, Sharpe >1.25, >50% win rate, <8% max drawdown
 
 Traders keep 80-85% of profits. Mercury provides the capital and infrastructure.
 
 ## Infrastructure
 
 - 99.98% uptime (90-day average)
-- Sub-12ms Polymarket execution latency
-- Sub-18ms Kalshi execution latency
+- Low-latency Polymarket execution
+- Low-latency Kalshi execution
 - 24/7 bot operation — no server restarts, no downtime
 - Non-custodial Turnkey HSM wallets (users control their keys)
 - SQLite persistence with automatic state recovery
@@ -130,7 +130,7 @@ Traders keep 80-85% of profits. Mercury provides the capital and infrastructure.
 
 ## Getting Started
 
-1. Sign up for free at https://mercurysuite.io/signup.html
+1. Sign up for free at https://mercurysuite.net/signup.html
 2. Open Mercury Architect to access the bot builder
 3. Choose a template or build from scratch using visual nodes
 4. Paper trade with real market data to test your strategy
@@ -154,10 +154,10 @@ Buy contracts above 95 cents near resolution for near-certain payouts. Sort by a
 Use technical indicators (RSI, MACD) on prediction market price charts to identify trending contracts and trade momentum.
 
 ### Cross-Platform Arbitrage
-Exploit pricing gaps between Polymarket and Kalshi on the same event. When Polymarket prices YES at $0.55 and Kalshi prices NO at $0.42, the combined cost is $0.97 for a guaranteed $1.00 payout — a risk-free $0.03 profit per contract pair. Mercury executes both legs simultaneously with sub-20ms latency. Over $40 million in arbitrage profits were extracted from Polymarket alone between April 2024 and April 2025. Full guide: https://mercurysuite.io/guides/prediction-market-arbitrage-bot.html
+Exploit pricing gaps between Polymarket and Kalshi on the same event. When Polymarket prices YES at $0.55 and Kalshi prices NO at $0.42, the combined cost is $0.97 for a guaranteed $1.00 payout — a risk-free $0.03 profit per contract pair. Mercury executes both legs simultaneously with sub-20ms latency. Over $40 million in arbitrage profits were extracted from Polymarket alone between April 2024 and April 2025. Full guide: https://mercurysuite.net/guides/prediction-market-arbitrage-bot.html
 
 ### Bonding Curve Trading
-Trade prediction markets that use bonding curve AMMs instead of order books. Bonding curves price outcome tokens algorithmically based on supply — buying tokens pushes the price up along the curve, selling burns tokens and pulls the price down. Mercury monitors curve parameters (reserve size, token supply, curve steepness) and can trigger trades when bonding curve prices diverge from CLOB prices on Polymarket or Kalshi. Full guide: https://mercurysuite.io/guides/prediction-market-bonding.html
+Trade prediction markets that use bonding curve AMMs instead of order books. Bonding curves price outcome tokens algorithmically based on supply — buying tokens pushes the price up along the curve, selling burns tokens and pulls the price down. Mercury monitors curve parameters (reserve size, token supply, curve steepness) and can trigger trades when bonding curve prices diverge from CLOB prices on Polymarket or Kalshi. Full guide: https://mercurysuite.net/guides/prediction-market-bonding.html
 
 ### Custom Data Strategies
 Connect any external API as a trading signal. Examples: weather data for weather markets, economic indicators for finance markets, social media sentiment for political markets.
@@ -167,21 +167,21 @@ Connect any external API as a trading signal. Examples: weather data for weather
 Mercury provides comprehensive beginner guides for traders new to prediction markets:
 
 ### How to Trade on Polymarket
-Polymarket is the world's largest prediction market, built on the Polygon blockchain and settled in USDC. Traders buy and sell binary contracts (YES/NO) priced between $0.01 and $0.99, where the price reflects the market's implied probability. Winning contracts pay $1.00. In 2025, Polymarket regained US access through CFTC-regulated intermediaries. Full beginner guide: https://mercurysuite.io/guides/how-to-trade-on-polymarket.html
+Polymarket is the world's largest prediction market, built on the Polygon blockchain and settled in USDC. Traders buy and sell binary contracts (YES/NO) priced between $0.01 and $0.99, where the price reflects the market's implied probability. Winning contracts pay $1.00. In 2025, Polymarket regained US access through CFTC-regulated intermediaries. Full beginner guide: https://mercurysuite.net/guides/how-to-trade-on-polymarket.html
 
 ### How to Trade on Kalshi
-Kalshi is the first CFTC-regulated prediction market exchange in the US. It offers event contracts across economics (CPI, GDP, Fed decisions), weather (hourly temperature, rainfall), politics, sports, and more. USD-settled with a $10 minimum deposit. Kalshi's hourly weather contracts create hundreds of trading opportunities per day. Full beginner guide: https://mercurysuite.io/guides/how-to-trade-on-kalshi.html
+Kalshi is the first CFTC-regulated prediction market exchange in the US. It offers event contracts across economics (CPI, GDP, Fed decisions), weather (hourly temperature, rainfall), politics, sports, and more. USD-settled with a $10 minimum deposit. Kalshi's hourly weather contracts create hundreds of trading opportunities per day. Full beginner guide: https://mercurysuite.net/guides/how-to-trade-on-kalshi.html
 
 ### Polymarket vs Kalshi
-Polymarket offers deeper liquidity on political and crypto markets with global access. Kalshi provides CFTC regulation, USD settlement, and unique contract types like hourly weather. Mercury connects to both from a single interface. Full comparison: https://mercurysuite.io/guides/polymarket-vs-kalshi.html
+Polymarket offers deeper liquidity on political and crypto markets with global access. Kalshi provides CFTC regulation, USD settlement, and unique contract types like hourly weather. Mercury connects to both from a single interface. Full comparison: https://mercurysuite.net/guides/polymarket-vs-kalshi.html
 
 ## Frequently Asked Questions
 
 ### How do I trade on Polymarket as a beginner?
-Create an account, fund it with USDC on the Polygon network, browse markets, and place your first trade. Contract prices reflect probabilities — buy YES at $0.40 if you think there's more than a 40% chance. Mercury's beginner guide covers everything step by step: https://mercurysuite.io/guides/how-to-trade-on-polymarket.html
+Create an account, fund it with USDC on the Polygon network, browse markets, and place your first trade. Contract prices reflect probabilities — buy YES at $0.40 if you think there's more than a 40% chance. Mercury's beginner guide covers everything step by step: https://mercurysuite.net/guides/how-to-trade-on-polymarket.html
 
 ### How do I trade on Kalshi as a beginner?
-Sign up with KYC verification, deposit USD via ACH or debit card (minimum ~$10), explore market categories, and place market or limit orders. Kalshi is CFTC-regulated and US-legal. Full beginner walkthrough: https://mercurysuite.io/guides/how-to-trade-on-kalshi.html
+Sign up with KYC verification, deposit USD via ACH or debit card (minimum ~$10), explore market categories, and place market or limit orders. Kalshi is CFTC-regulated and US-legal. Full beginner walkthrough: https://mercurysuite.net/guides/how-to-trade-on-kalshi.html
 
 ### How do I build a Polymarket bot?
 Mercury Architect lets you build Polymarket bots visually with drag-and-drop nodes or by describing your strategy in natural language. Connect triggers (price movements, news events, custom APIs) to execution actions. Paper trade free, then deploy live with a Pro subscription.
@@ -199,22 +199,22 @@ Mercury requires no programming. The visual node editor and AI assistant handle 
 Any data source with a URL. Mercury includes built-in connectors for prediction market prices, crypto prices (Binance, Coinbase), stock prices (Yahoo Finance), weather data (Open-Meteo, NWS), earthquake data (USGS), and news feeds. The API Data node lets you connect any custom REST API.
 
 ### How fast is Mercury's execution?
-Under 12ms for Polymarket and under 18ms for Kalshi. Infrastructure runs 24/7 with 99.98% uptime.
+Low-latency execution for both Polymarket and Kalshi. Infrastructure runs 24/7 with 99.98% uptime.
 
 ### Is Mercury a broker or exchange?
 No. Mercury is a trading infrastructure platform. It connects to Polymarket and Kalshi as execution venues. Mercury does not hold user funds, operate markets, or provide financial advice.
 
 ### How does prediction market arbitrage work?
-Prediction market arbitrage exploits pricing gaps between platforms. When the same event is priced differently on Polymarket and Kalshi — for example, Polymarket YES at $0.55 and Kalshi NO at $0.42 — buying both legs costs $0.97 for a guaranteed $1.00 payout. Mercury automates this with cross-platform bots that execute both legs simultaneously. Intra-platform arbitrage also exists when YES + NO prices on a single platform sum to less than $1.00. Full guide: https://mercurysuite.io/guides/prediction-market-arbitrage-bot.html
+Prediction market arbitrage exploits pricing gaps between platforms. When the same event is priced differently on Polymarket and Kalshi — for example, Polymarket YES at $0.55 and Kalshi NO at $0.42 — buying both legs costs $0.97 for a guaranteed $1.00 payout. Mercury automates this with cross-platform bots that execute both legs simultaneously. Intra-platform arbitrage also exists when YES + NO prices on a single platform sum to less than $1.00. Full guide: https://mercurysuite.net/guides/prediction-market-arbitrage-bot.html
 
 ### What is a bonding curve in prediction markets?
-A bonding curve is a smart contract that automatically prices outcome tokens (YES/NO shares) based on supply. Buying tokens mints new supply and pushes the price up along the curve. Selling burns tokens and pulls the price down. This provides continuous, algorithmic liquidity without requiring traditional order books or market makers. Platforms like Augur and Solio use bonding curves. Mercury can trade both bonding curve markets and CLOB markets (Polymarket, Kalshi) from a single interface. Full guide: https://mercurysuite.io/guides/prediction-market-bonding.html
+A bonding curve is a smart contract that automatically prices outcome tokens (YES/NO shares) based on supply. Buying tokens mints new supply and pushes the price up along the curve. Selling burns tokens and pulls the price down. This provides continuous, algorithmic liquidity without requiring traditional order books or market makers. Platforms like Augur and Solio use bonding curves. Mercury can trade both bonding curve markets and CLOB markets (Polymarket, Kalshi) from a single interface. Full guide: https://mercurysuite.net/guides/prediction-market-bonding.html
 
 ### How does Mercury Funding work?
 Mercury funds profitable traders with up to $5,000 in capital. Build a strategy, prove your edge through paper and live trading milestones, then apply for funding. Traders keep 80-85% of profits.
 
 ## Contact
 
-- Website: https://mercurysuite.io
-- Email: hello@mercurysuite.io
-- Sign up: https://mercurysuite.io/signup.html
+- Website: https://mercurysuite.net
+- Email: hello@mercurysuite.net
+- Sign up: https://mercurysuite.net/signup.html

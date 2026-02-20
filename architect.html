@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' http://localhost:8778 https://engine.mercurysuite.net https://mercurysuite.net https://*.supabase.co https://api.coingecko.com https://api.alternative.me https://gamma-api.polymarket.com https://clob.polymarket.com https://api.elections.kalshi.com https://*.binance.com https://*.coinbase.com wss://*.supabase.co; frame-ancestors 'none';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
   <title>Prediction Market Bot Builder — Mercury Architect</title>
   <meta name="description" content="No-code bot builder for Polymarket and Kalshi. Drag-and-drop strategy nodes, AI-assisted design, real-time news triggers, backtesting, and one-click deploy. Paper trade free.">
-  <link rel="canonical" href="https://mercurysuite.io/architect.html">
+  <link rel="canonical" href="https://mercurysuite.net/architect.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Mercury">
-  <meta property="og:url" content="https://mercurysuite.io/architect.html">
+  <meta property="og:url" content="https://mercurysuite.net/architect.html">
   <meta property="og:title" content="Prediction Market Bot Builder">
   <meta property="og:description" content="No-code bot builder for Polymarket and Kalshi. Drag-and-drop strategy nodes, AI-assisted design, real-time news triggers, backtesting, and one-click deploy. Paper trade free.">
-  <meta property="og:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta property="og:image" content="https://mercurysuite.net/images/og-default.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Prediction Market Bot Builder">
   <meta name="twitter:description" content="No-code bot builder for Polymarket and Kalshi. Drag-and-drop strategy nodes, AI-assisted design, real-time news triggers, backtesting, and one-click deploy. Paper trade free.">
-  <meta name="twitter:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta name="twitter:image" content="https://mercurysuite.net/images/og-default.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,7 +31,7 @@
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "Mercury Architect",
-    "url": "https://mercurysuite.io/architect.html",
+    "url": "https://mercurysuite.net/architect.html",
     "description": "No-code prediction market bot builder with visual strategy nodes, AI-assisted design, backtesting, and live execution on Polymarket and Kalshi.",
     "applicationCategory": "FinanceApplication",
     "operatingSystem": "Web",
@@ -66,7 +69,7 @@
         "name": "Can I build a Kalshi trading bot with Mercury?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. Mercury connects to both Polymarket and Kalshi with under 18ms execution latency. Build once, deploy to either platform."
+          "text": "Yes. Mercury connects to both Polymarket and Kalshi with low-latency execution. Build once, deploy to either platform."
         }
       },
       {
@@ -74,7 +77,7 @@
         "name": "Is Mercury free to use?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. The free tier includes 1 paper trading bot, the visual strategy builder, and real-time market data. No credit card required. Upgrade to Pro ($99/mo) for unlimited bots, live trading, and backtesting."
+          "text": "Yes. Mercury is completely free. Every feature is included: unlimited bots, live and paper trading, backtesting, all 44 node types, AI agent, and real-time market data. No credit card required."
         }
       },
       {
@@ -90,7 +93,7 @@
         "name": "How fast is Mercury's execution?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Under 12ms for Polymarket and under 18ms for Kalshi. Infrastructure runs 24/7 with 99.98% uptime."
+          "text": "Low-latency execution for both Polymarket and Kalshi. Infrastructure runs 24/7 with 99.98% uptime."
         }
       }
     ]
@@ -167,8 +170,8 @@
   <div class="ticker">
     <div class="ticker-track">
       <span class="ticker-item"><span class="sym">Uptime</span> <span class="up">99.98%</span></span>
-      <span class="ticker-item"><span class="sym">Polymarket Latency</span> <span class="up">&lt;12ms</span></span>
-      <span class="ticker-item"><span class="sym">Kalshi Latency</span> <span class="up">&lt;18ms</span></span>
+      <span class="ticker-item"><span class="sym">Polymarket Latency</span> <span class="up">Low Latency</span></span>
+      <span class="ticker-item"><span class="sym">Kalshi Latency</span> <span class="up">Low Latency</span></span>
       <span class="ticker-item"><span class="sym">Your Server Cost</span> <span class="up">$0</span></span>
       <span class="ticker-item"><span class="sym">Bots Running 24/7</span> <span class="up">842</span></span>
       <span class="ticker-item"><span class="sym">Deploy Time</span> <span class="up">&lt;30s</span></span>
@@ -180,8 +183,8 @@
       <span class="ticker-item"><span class="sym">Win Rate</span> <span class="up">67.2%</span></span>
       <!-- duplicate for seamless loop -->
       <span class="ticker-item"><span class="sym">Uptime</span> <span class="up">99.98%</span></span>
-      <span class="ticker-item"><span class="sym">Polymarket Latency</span> <span class="up">&lt;12ms</span></span>
-      <span class="ticker-item"><span class="sym">Kalshi Latency</span> <span class="up">&lt;18ms</span></span>
+      <span class="ticker-item"><span class="sym">Polymarket Latency</span> <span class="up">Low Latency</span></span>
+      <span class="ticker-item"><span class="sym">Kalshi Latency</span> <span class="up">Low Latency</span></span>
       <span class="ticker-item"><span class="sym">Your Server Cost</span> <span class="up">$0</span></span>
       <span class="ticker-item"><span class="sym">Bots Running 24/7</span> <span class="up">842</span></span>
       <span class="ticker-item"><span class="sym">Deploy Time</span> <span class="up">&lt;30s</span></span>
@@ -219,7 +222,7 @@
       <p class="arch-hero-sub reveal">
         Polling data, social sentiment, news feeds, on-chain activity, weather APIs, earnings calls — if it exists,
         Mercury can use it. Build any strategy you can imagine with AI or visual nodes, powered by production
-        infrastructure with 99.98% uptime and &lt;12ms exchange latency. You bring the idea. We handle everything else.
+        infrastructure with 99.98% uptime and low-latency exchange connections. You bring the idea. We handle everything else.
       </p>
       <div class="arch-hero-ctas reveal">
         <a href="#" class="btn btn-primary" id="heroLaunchBtn">Launch Architect</a>
@@ -234,7 +237,7 @@
           <span class="arch-hero-stat-label">Uptime</span>
         </div>
         <div class="arch-hero-stat">
-          <span class="arch-hero-stat-value">&lt;12ms</span>
+          <span class="arch-hero-stat-value">Low Latency</span>
           <span class="arch-hero-stat-label">Exchange Latency</span>
         </div>
         <div class="arch-hero-stat">
@@ -292,7 +295,7 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
           </div>
           <div class="infra-pillar-title">Execution Layer</div>
-          <div class="infra-pillar-desc">Order routing to Polymarket and Kalshi with &lt;12ms latency. Position sizing, DCA, limit orders, multi-platform execution — all production-grade.</div>
+          <div class="infra-pillar-desc">Order routing to Polymarket and Kalshi with low-latency connections. Position sizing, DCA, limit orders, multi-platform execution — all production-grade.</div>
         </div>
         <div class="infra-pillar">
           <div class="infra-pillar-icon">
@@ -304,8 +307,8 @@
       </div>
 
       <div class="infra-free-banner reveal">
-        <div class="infra-free-badge">Free Tier</div>
-        <div class="infra-free-text">Start paper trading today — no credit card required. Build, test, and deploy your first bot on real market data with zero risk. Upgrade to Pro when you're ready to go live.</div>
+        <div class="infra-free-badge">100% Free</div>
+        <div class="infra-free-text">Every feature included — unlimited bots, live trading, backtesting, all node types. No credit card. No catches. Just build and deploy.</div>
         <a href="signup.html" class="btn btn-primary" style="flex-shrink:0;">Start Free</a>
       </div>
     </div>
@@ -526,12 +529,12 @@
             </div>
             <div class="arch-funding-stats">
               <div class="arch-funding-stat">
-                <span class="arch-funding-stat-value">30 days</span>
+                <span class="arch-funding-stat-value">60 days</span>
                 <span class="arch-funding-stat-label">Min live trading</span>
               </div>
               <div class="arch-funding-stat">
-                <span class="arch-funding-stat-value">10%</span>
-                <span class="arch-funding-stat-label">Max drawdown</span>
+                <span class="arch-funding-stat-value">1.25+</span>
+                <span class="arch-funding-stat-label">Sharpe ratio</span>
               </div>
               <div class="arch-funding-stat">
                 <span class="arch-funding-stat-value">5 days</span>
@@ -575,7 +578,7 @@
           </p>
           <p class="arch-infra-desc">
             Our production infrastructure is already live and handling $24M+ in bot volume. When you deploy a strategy,
-            you're plugging into battle-tested systems with 99.98% uptime, &lt;12ms exchange latency, and automatic
+            you're plugging into battle-tested systems with 99.98% uptime, low-latency exchange connections, and automatic
             failover — infrastructure that would cost you thousands to replicate.
           </p>
         </div>
@@ -590,8 +593,8 @@
             <div class="term-line" data-delay="400">  order_router &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="term-ok">LIVE</span> &nbsp; 142K orders processed</div>
             <div class="term-line" data-delay="600">  telegram_api &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="term-ok">LIVE</span> &nbsp; 614 bots connected</div>
             <div class="term-line" data-delay="800">  risk_engine &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="term-ok">LIVE</span> &nbsp; 0 breaches / 90d</div>
-            <div class="term-line" data-delay="1000">  polymarket_conn &nbsp;&nbsp; <span class="term-ok">LIVE</span> &nbsp; &lt;12ms latency</div>
-            <div class="term-line" data-delay="1200">  kalshi_conn &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="term-ok">LIVE</span> &nbsp; &lt;18ms latency</div>
+            <div class="term-line" data-delay="1000">  polymarket_conn &nbsp;&nbsp; <span class="term-ok">LIVE</span> &nbsp; low latency</div>
+            <div class="term-line" data-delay="1200">  kalshi_conn &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="term-ok">LIVE</span> &nbsp; low latency</div>
             <div class="term-line" data-delay="1400">  backtest_engine &nbsp;&nbsp; <span class="term-ok">LIVE</span> &nbsp; 12.4K runs today</div>
             <div class="term-line" data-delay="1600">  ai_engine &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="term-ok">LIVE</span> &nbsp; v1.1 loaded</div>
             <div class="term-line" data-delay="1800">&nbsp;</div>
@@ -670,7 +673,7 @@
           </div>
           <div class="deep-feature">
             <div class="deep-feature-title">Multi-Platform, Single Deploy</div>
-            <div class="deep-feature-desc">Execute across Polymarket, Kalshi, and more from one strategy. Mercury handles API routing with &lt;12ms latency through production connectors already processing $24M+ in volume.</div>
+            <div class="deep-feature-desc">Execute across Polymarket, Kalshi, and more from one strategy. Mercury handles API routing with low-latency connections through production connectors already processing $24M+ in volume.</div>
           </div>
         </div>
       </div>
@@ -732,34 +735,15 @@
   <section class="pricing-section" id="pricing">
     <div class="container">
       <div class="section-label">Pricing</div>
-      <h2 class="pricing-headline reveal">Choose Your Plan</h2>
-      <p class="pricing-sub reveal">Start for free. Upgrade when you're ready to go live.</p>
+      <h2 class="pricing-headline reveal">100% Free</h2>
+      <p class="pricing-sub reveal">Every feature. Every node. No credit card. No catches.</p>
 
       <div class="pricing-grid reveal">
-        <!-- Free -->
-        <div class="pricing-card">
-          <div class="pricing-card-header">
-            <div class="pricing-card-name">Free</div>
-            <div class="pricing-card-price">$0<span class="pricing-card-period">/forever</span></div>
-          </div>
-          <ul class="pricing-card-features">
-            <li class="pricing-has">1 paper-trading bot</li>
-            <li class="pricing-has">Polymarket + Kalshi</li>
-            <li class="pricing-has">Full charting access</li>
-            <li class="pricing-has">AI agent access</li>
-            <li class="pricing-has">All node types</li>
-            <li class="pricing-no">Live trading</li>
-            <li class="pricing-no">Backtesting</li>
-          </ul>
-          <a href="signup.html" class="btn pricing-btn">Get Started</a>
-        </div>
-
-        <!-- Pro -->
         <div class="pricing-card pricing-card--featured">
-          <div class="pricing-card-badge">Most Popular</div>
+          <div class="pricing-card-badge">All Access</div>
           <div class="pricing-card-header">
-            <div class="pricing-card-name">Pro</div>
-            <div class="pricing-card-price">$99<span class="pricing-card-period">/month</span></div>
+            <div class="pricing-card-name">Mercury</div>
+            <div class="pricing-card-price">$0<span class="pricing-card-period">/forever</span></div>
           </div>
           <ul class="pricing-card-features">
             <li class="pricing-has">Unlimited bots</li>
@@ -767,34 +751,17 @@
             <li class="pricing-has">Polymarket + Kalshi</li>
             <li class="pricing-has">Full charting access</li>
             <li class="pricing-has">AI agent access</li>
+            <li class="pricing-has">All 44 node types</li>
             <li class="pricing-has">Unlimited backtesting</li>
-            <li class="pricing-has">Priority support</li>
+            <li class="pricing-has">Non-custodial wallets</li>
           </ul>
-          <a href="#" class="btn btn-primary pricing-btn" id="pricingProBtn">Upgrade to Pro</a>
-        </div>
-
-        <!-- Enterprise -->
-        <div class="pricing-card">
-          <div class="pricing-card-header">
-            <div class="pricing-card-name">Enterprise</div>
-            <div class="pricing-card-price">Custom</div>
-          </div>
-          <ul class="pricing-card-features">
-            <li class="pricing-has">Everything in Pro</li>
-            <li class="pricing-has">Dedicated infrastructure</li>
-            <li class="pricing-has">API access</li>
-            <li class="pricing-has">White-label options</li>
-            <li class="pricing-has">Custom integrations</li>
-            <li class="pricing-has">SLA guarantee</li>
-            <li class="pricing-has">Dedicated support</li>
-          </ul>
-          <a href="contact.html" class="btn pricing-btn">Contact Us</a>
+          <a href="signup.html" class="btn btn-primary pricing-btn">Get Started Free</a>
         </div>
       </div>
 
       <!-- Pricing footer note -->
       <div class="pricing-note reveal">
-        <span class="pricing-note-label">Hg 80</span> All plans include: zero server costs &middot; 99.98% uptime &middot; &lt;12ms exchange latency &middot; Telegram alerts &middot; 24/7 monitoring
+        <span class="pricing-note-label">Hg 80</span> Zero server costs &middot; 99.98% uptime &middot; Low-latency execution &middot; Telegram alerts &middot; 24/7 monitoring
       </div>
     </div>
   </section>
@@ -808,17 +775,17 @@
       <div class="faq-grid reveal">
         <details class="faq-item" open>
           <summary class="faq-question">How do I build a Polymarket trading bot?</summary>
-          <div class="faq-answer">Mercury Architect lets you build Polymarket bots visually with drag-and-drop nodes or by describing your strategy in natural language. Connect triggers like price movements, news events, or custom APIs to execution actions. Paper trade free, then deploy live with a Pro subscription.</div>
+          <div class="faq-answer">Mercury Architect lets you build Polymarket bots visually with drag-and-drop nodes or by describing your strategy in natural language. Connect triggers like price movements, news events, or custom APIs to execution actions. Paper trade, backtest, and deploy live — all free.</div>
         </details>
 
         <details class="faq-item">
           <summary class="faq-question">Can I build a Kalshi trading bot with Mercury?</summary>
-          <div class="faq-answer">Yes. Mercury connects to both Polymarket and Kalshi with under 18ms execution latency. Build a strategy once and deploy it to either platform. Mercury is the only tool that supports both exchanges from a single bot builder.</div>
+          <div class="faq-answer">Yes. Mercury connects to both Polymarket and Kalshi with low-latency execution. Build a strategy once and deploy it to either platform. Mercury is the only tool that supports both exchanges from a single bot builder.</div>
         </details>
 
         <details class="faq-item">
           <summary class="faq-question">Is Mercury free to use?</summary>
-          <div class="faq-answer">Yes. The free tier includes 1 paper trading bot, the visual strategy builder with all node types, and real-time market data. No credit card required. Upgrade to Pro ($99/mo) for unlimited bots, live trading, and backtesting.</div>
+          <div class="faq-answer">Yes. Mercury is completely free. Every feature is included: unlimited bots, live and paper trading, backtesting, all 44 node types, AI agent, and real-time market data. No credit card required.</div>
         </details>
 
         <details class="faq-item">
@@ -828,7 +795,7 @@
 
         <details class="faq-item">
           <summary class="faq-question">How fast is Mercury's execution?</summary>
-          <div class="faq-answer">Under 12ms for Polymarket and under 18ms for Kalshi. Infrastructure runs 24/7 with 99.98% uptime. Bots deploy in under 30 seconds and run on Mercury's dedicated servers at zero cost to you.</div>
+          <div class="faq-answer">Low-latency execution for both Polymarket and Kalshi. Infrastructure runs 24/7 with 99.98% uptime. Bots deploy in under 30 seconds and run on Mercury's dedicated servers at zero cost to you.</div>
         </details>
 
         <details class="faq-item">
@@ -843,7 +810,7 @@
   <section class="final-cta">
     <div class="container">
       <h2 class="final-headline reveal">Element 80.<br>Liquid intelligence for the next generation of traders.</h2>
-      <p class="final-sub reveal">Any data source. Any strategy. 99.98% uptime. &lt;12ms latency. Zero server costs. Deploy in 30 seconds.</p>
+      <p class="final-sub reveal">Any data source. Any strategy. 99.98% uptime. Low latency. Zero server costs. Deploy in 30 seconds.</p>
       <div class="final-ctas reveal">
         <a href="signup.html" class="btn btn-primary">Get Started Free</a>
         <a href="#pricing" class="btn">View Pricing</a>
@@ -901,21 +868,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="scripts/auth.js"></script>
   <script src="scripts/nav-auth.js"></script>
-  <script src="scripts/tiers.js"></script>
   <script src="scripts/architect.js"></script>
   <script src="scripts/ambient.js"></script>
   <script>
-    // Wire pricing Pro button to Stripe Payment Link
-    document.addEventListener('DOMContentLoaded', function() {
-      var proBtn = document.getElementById('pricingProBtn');
-      if (proBtn && window.MercuryTiers) {
-        proBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          window.open(window.MercuryTiers.STRIPE_PAYMENT_LINK, '_blank');
-        });
-      }
-    });
-
     // Auth-gate the Launch Architect hero button
     (async function() {
       var launchBtn = document.getElementById('heroLaunchBtn');

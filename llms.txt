@@ -6,22 +6,22 @@ Mercury is a web-based platform that lets users build prediction market trading 
 
 ## Key Pages
 
-- [Home](https://mercurysuite.io/): Mercury Suite overview and navigation
-- [Architect (Bot Builder)](https://mercurysuite.io/architect.html): Product page for the visual bot builder with pricing
-- [How to Trade on Polymarket](https://mercurysuite.io/guides/how-to-trade-on-polymarket.html): Beginner's guide to Polymarket trading
-- [How to Trade on Kalshi](https://mercurysuite.io/guides/how-to-trade-on-kalshi.html): Beginner's guide to Kalshi trading
-- [How to Build a Polymarket Bot](https://mercurysuite.io/guides/build-polymarket-bot.html): Step-by-step bot building guide
-- [How to Build a Kalshi Bot](https://mercurysuite.io/guides/build-kalshi-bot.html): Step-by-step bot building guide
-- [Prediction Market Bot Building Guide](https://mercurysuite.io/guides/prediction-market-bot-builder.html): Comprehensive guide
-- [Polymarket vs Kalshi](https://mercurysuite.io/guides/polymarket-vs-kalshi.html): Platform comparison for traders
-- [Prediction Market Arbitrage Bot](https://mercurysuite.io/guides/prediction-market-arbitrage-bot.html): Cross-platform arbitrage guide
-- [Prediction Market Bonding Curves](https://mercurysuite.io/guides/prediction-market-bonding.html): Bonding curves, AMMs, and liquidity
-- [Pricing](https://mercurysuite.io/architect.html#pricing): Free tier and Pro ($99/mo)
-- [API](https://mercurysuite.io/api.html): REST and WebSocket API for market data and execution
-- [Funding](https://mercurysuite.io/funding.html): Up to $5,000 funded trading capital
-- [About](https://mercurysuite.io/about.html): Company background and mission
-- [Blog](https://mercurysuite.io/blog.html): Research, analysis, and platform updates
+- [Home](https://mercurysuite.net/): Mercury Suite overview and navigation
+- [Architect (Bot Builder)](https://mercurysuite.net/architect.html): Product page for the visual bot builder with pricing
+- [How to Trade on Polymarket](https://mercurysuite.net/guides/how-to-trade-on-polymarket.html): Beginner's guide to Polymarket trading
+- [How to Trade on Kalshi](https://mercurysuite.net/guides/how-to-trade-on-kalshi.html): Beginner's guide to Kalshi trading
+- [How to Build a Polymarket Bot](https://mercurysuite.net/guides/build-polymarket-bot.html): Step-by-step bot building guide
+- [How to Build a Kalshi Bot](https://mercurysuite.net/guides/build-kalshi-bot.html): Step-by-step bot building guide
+- [Prediction Market Bot Building Guide](https://mercurysuite.net/guides/prediction-market-bot-builder.html): Comprehensive guide
+- [Polymarket vs Kalshi](https://mercurysuite.net/guides/polymarket-vs-kalshi.html): Platform comparison for traders
+- [Prediction Market Arbitrage Bot](https://mercurysuite.net/guides/prediction-market-arbitrage-bot.html): Cross-platform arbitrage guide
+- [Prediction Market Bonding Curves](https://mercurysuite.net/guides/prediction-market-bonding.html): Bonding curves, AMMs, and liquidity
+- [Pricing](https://mercurysuite.net/architect.html#pricing): Free tier and Pro ($99/mo)
+- [API](https://mercurysuite.net/api.html): REST and WebSocket API for market data and execution
+- [Funding](https://mercurysuite.net/funding.html): Up to $5,000 funded trading capital
+- [About](https://mercurysuite.net/about.html): Company background and mission
+- [Blog](https://mercurysuite.net/blog.html): Research, analysis, and platform updates
 
 ## Optional
 
-- [llms-full.txt](https://mercurysuite.io/llms-full.txt): Detailed product documentation for AI models
+- [llms-full.txt](https://mercurysuite.net/llms-full.txt): Detailed product documentation for AI models

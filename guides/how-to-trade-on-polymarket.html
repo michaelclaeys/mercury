@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' http://localhost:8778 https://engine.mercurysuite.net https://mercurysuite.net https://*.supabase.co https://api.coingecko.com https://api.alternative.me https://gamma-api.polymarket.com https://clob.polymarket.com https://api.elections.kalshi.com https://*.binance.com https://*.coinbase.com wss://*.supabase.co; frame-ancestors 'none';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
   <title>How to Trade on Polymarket: Beginner's Guide (2026) — Mercury</title>
   <meta name="description" content="Complete beginner's guide to trading on Polymarket in 2026. Learn what Polymarket is, how to get started, trading strategies, common mistakes, and how to automate your trades.">
-  <link rel="canonical" href="https://mercurysuite.io/guides/how-to-trade-on-polymarket.html">
+  <link rel="canonical" href="https://mercurysuite.net/guides/how-to-trade-on-polymarket.html">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Mercury">
-  <meta property="og:url" content="https://mercurysuite.io/guides/how-to-trade-on-polymarket.html">
+  <meta property="og:url" content="https://mercurysuite.net/guides/how-to-trade-on-polymarket.html">
   <meta property="og:title" content="How to Trade on Polymarket: Beginner's Guide (2026) — Mercury">
   <meta property="og:description" content="Complete beginner's guide to trading on Polymarket in 2026. Learn what Polymarket is, how to get started, trading strategies, common mistakes, and how to automate your trades.">
-  <meta property="og:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta property="og:image" content="https://mercurysuite.net/images/og-default.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="How to Trade on Polymarket: Beginner's Guide (2026) — Mercury">
   <meta name="twitter:description" content="Complete beginner's guide to trading on Polymarket in 2026. Learn what Polymarket is, how to get started, trading strategies, common mistakes, and how to automate your trades.">
-  <meta name="twitter:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta name="twitter:image" content="https://mercurysuite.net/images/og-default.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,7 +69,7 @@
         "name": "Can I automate my Polymarket trading?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. Mercury Architect is a visual bot builder that lets you automate Polymarket trading without writing code. You can design strategies with drag-and-drop nodes or describe your strategy in plain English and let Mercury's AI build it for you. Paper trading is free, and live trading is available on the Pro plan ($99/month) with sub-12ms execution latency."
+          "text": "Yes. Mercury Architect is a visual bot builder that lets you automate Polymarket trading without writing code. You can design strategies with drag-and-drop nodes or describe your strategy in plain English and let Mercury's AI build it for you. Mercury is 100% free — paper trading, live trading, backtesting, and unlimited bots included. No credit card required. Execution latency is low."
         }
       }
     ]
@@ -206,7 +209,7 @@
           <p>Manual trading works for learning, but it has a ceiling. You cannot monitor markets 24 hours a day. You cannot react to breaking news in milliseconds. You cannot execute across dozens of correlated contracts simultaneously. And no matter how disciplined you are, emotion will eventually compromise a trade. Automation solves all four problems.</p>
           <p><a href="../architect.html">Mercury Architect</a> is a visual bot builder designed specifically for prediction market automation. It combines a drag-and-drop strategy editor with agentic AI that can build entire trading bots from a plain-English description. No coding required.</p>
           <p>Here is how it works. You describe your strategy in natural language — something like "buy YES when any political contract drops below $0.20 with daily volume above $10,000 and sell when it reaches $0.35 or hits my stop-loss at $0.10." Mercury's AI agent parses the description, builds the complete node graph (triggers, conditions, execution rules, and risk management), configures the parameters, and presents the finished bot for your review. You can adjust any node visually, then deploy.</p>
-          <p>Mercury offers a free tier that lets you build and paper trade bots with real-time Polymarket data — no credit card required. Paper trading validates your strategy logic against live order books without risking capital. When you are ready to go live, the Pro plan ($99/month) unlocks unlimited bots, live trading execution with sub-12ms latency, full backtesting against historical data, and 99.98% uptime on Mercury's production infrastructure.</p>
+          <p>Mercury is 100% free — no credit card required. You get unlimited bots, live trading execution with low latency, full backtesting against historical data, and 99.98% uptime on Mercury's production infrastructure. Paper trading validates your strategy logic against live order books without risking capital, and when you are ready to go live, everything you need is already included.</p>
           <p>Automation is not about removing the human from the process. It is about encoding your best thinking into a system that executes perfectly, 24/7, without fatigue or emotion. The traders who consistently profit on Polymarket are the ones who systematize their edge and let machines handle the execution.</p>
           <p>Ready to build a bot? <a href="build-polymarket-bot.html">Read the full guide to building a Polymarket trading bot</a> for a detailed walkthrough of triggers, conditions, execution nodes, and risk management. Or compare Polymarket with other platforms in our <a href="polymarket-vs-kalshi.html">Polymarket vs. Kalshi comparison</a>.</p>
           <div style="margin-top:2rem;">
@@ -247,7 +250,7 @@
 
         <details class="faq-item">
           <summary class="faq-question">Can I automate my Polymarket trading?</summary>
-          <div class="faq-answer">Yes. <a href="../architect.html">Mercury Architect</a> is a visual bot builder that lets you automate Polymarket trading without writing code. Describe your strategy in plain English and Mercury's AI builds the complete bot — triggers, conditions, execution, and risk management. Paper trading is free on every account. Live trading is available on the Pro plan ($99/month) with sub-12ms execution latency, unlimited bots, and 99.98% uptime. <a href="build-polymarket-bot.html">Read the full bot-building guide</a> for a detailed walkthrough.</div>
+          <div class="faq-answer">Yes. <a href="../architect.html">Mercury Architect</a> is a visual bot builder that lets you automate Polymarket trading without writing code. Describe your strategy in plain English and Mercury's AI builds the complete bot — triggers, conditions, execution, and risk management. Mercury is 100% free — paper trading, live trading, unlimited bots, backtesting, and low-latency execution are all included. No credit card required. <a href="build-polymarket-bot.html">Read the full bot-building guide</a> for a detailed walkthrough.</div>
         </details>
       </div>
     </div>

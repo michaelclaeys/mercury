@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
   <meta name="robots" content="noindex, nofollow">
   <title>Architect — Mercury</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -17,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles/architect-app.css?v=46">
+  <link rel="stylesheet" href="./styles/architect-app.css?v=49">
   <link rel="stylesheet" href="./styles/charting.css?v=37">
 </head>
 <body>
@@ -147,14 +149,6 @@
       </div>
     </div>
 
-    <div class="sidebar-upgrade-section" id="sidebarUpgrade">
-      <button class="sidebar-upgrade-btn" onclick="showUpgradeModal()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-        </svg>
-        Upgrade to Pro
-      </button>
-    </div>
 
     <div class="sidebar-pref">
       <label class="skip-anim-label">
@@ -585,14 +579,7 @@
                       <div class="palette-item" data-node-type="market-event" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9889;</span><span class="palette-item-name">Market Event</span></div>
                       <div class="palette-item" data-node-type="probability-cross" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#10539;</span><span class="palette-item-name">Probability Cross</span></div>
                       <div class="palette-item" data-node-type="api-data" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9740;</span><span class="palette-item-name">Custom API</span></div>
-                      <div class="palette-item" data-node-type="spread-detector" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#8646;</span><span class="palette-item-name">Spread Detector</span></div>
-                      <div class="palette-item" data-node-type="whale-alert" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9875;</span><span class="palette-item-name">Whale Alert</span></div>
-                      <div class="palette-item" data-node-type="resolution-countdown" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9203;</span><span class="palette-item-name">Resolution Countdown</span></div>
-                      <div class="palette-item" data-node-type="sentiment" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9784;</span><span class="palette-item-name">Sentiment</span></div>
-                      <div class="palette-item" data-node-type="social-buzz" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#128200;</span><span class="palette-item-name">Social Buzz</span></div>
                       <div class="palette-item" data-node-type="news-alert" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9888;</span><span class="palette-item-name">News Alert</span></div>
-                      <div class="palette-item" data-node-type="multi-market" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#9881;</span><span class="palette-item-name">Multi-Market</span></div>
-                      <div class="palette-item" data-node-type="order-flow" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#8693;</span><span class="palette-item-name">Order Flow</span></div>
                       <!-- Technical Indicators -->
                       <div class="palette-item" data-node-type="rsi" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#8597;</span><span class="palette-item-name">RSI</span></div>
                       <div class="palette-item" data-node-type="macd" draggable="true"><span class="palette-item-icon" style="color:#00c853">&#8734;</span><span class="palette-item-name">MACD</span></div>
@@ -873,6 +860,7 @@
             <div class="card-header">
               <span class="card-title">Trade History</span>
               <span class="card-meta" id="tradeCount">0 trades</span>
+              <button class="toolbar-btn toolbar-btn-sm" id="btnExportTrades" title="Export trades as CSV" style="margin-left:auto;font-size:11px;padding:2px 8px;">Export CSV</button>
             </div>
             <div class="card-body">
               <div class="data-table-header trades-header">
@@ -895,6 +883,7 @@
             <span class="card-meta" id="logStatus">
               <span style="color:var(--green)">&#9679;</span> Live
             </span>
+            <button class="toolbar-btn toolbar-btn-sm" id="btnExportLogs" title="Export logs as CSV" style="margin-left:auto;font-size:11px;padding:2px 8px;">Export CSV</button>
           </div>
           <div class="card-body">
             <div class="bot-logs" id="botLogs"></div>
@@ -1009,8 +998,8 @@
             <button class="filter-tab active" data-filter="all">All</button>
             <button class="filter-tab" data-filter="momentum">Momentum</button>
             <button class="filter-tab" data-filter="mean-reversion">Mean Rev</button>
-            <button class="filter-tab" data-filter="arbitrage">Arbitrage</button>
             <button class="filter-tab" data-filter="bond-arb">Bond Arb</button>
+            <button class="filter-tab" data-filter="dca">DCA</button>
             <button class="filter-tab" data-filter="event-driven">Event</button>
           </div>
         </div>
@@ -1363,6 +1352,9 @@
         </div>
       </div>
 
+      <!-- Portfolio Equity Chart -->
+      <div id="portfolioEquityChart" style="height:180px;margin-bottom:16px;"></div>
+
       <!-- Portfolio Summary -->
       <div class="portfolio-summary">
         <div class="portfolio-summary-metric portfolio-summary-metric--large">
@@ -1382,7 +1374,7 @@
           <span class="portfolio-summary-value" id="portfolioWinRate">--</span>
         </div>
         <div class="portfolio-summary-metric">
-          <span class="portfolio-summary-label">Settled</span>
+          <span class="portfolio-summary-label">Total Trades</span>
           <span class="portfolio-summary-value" id="portfolioSettledCount">0</span>
         </div>
         <div class="portfolio-summary-metric">
@@ -1395,6 +1387,7 @@
       <div class="portfolio-table">
         <div class="portfolio-table-header">
           <span class="portfolio-col portfolio-col--market">Market</span>
+          <span class="portfolio-col portfolio-col--bot">Bot</span>
           <span class="portfolio-col portfolio-col--platform">Platform</span>
           <span class="portfolio-col portfolio-col--side">Side</span>
           <span class="portfolio-col portfolio-col--qty">Qty</span>
@@ -1402,10 +1395,27 @@
           <span class="portfolio-col portfolio-col--current">Current</span>
           <span class="portfolio-col portfolio-col--value">Value</span>
           <span class="portfolio-col portfolio-col--pnl">P&amp;L</span>
-          <span class="portfolio-col portfolio-col--status">Status</span>
         </div>
         <div class="portfolio-table-body" id="portfolioTableBody">
           <div class="bonding-loading">No positions yet&hellip;</div>
+        </div>
+      </div>
+
+      <!-- Recent Trades -->
+      <h3 style="margin:24px 0 8px;font-size:0.7rem;color:var(--silver);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Recent Trades</h3>
+      <div class="portfolio-table">
+        <div class="portfolio-table-header">
+          <span class="portfolio-col portfolio-col--time">Time</span>
+          <span class="portfolio-col portfolio-col--bot">Bot</span>
+          <span class="portfolio-col portfolio-col--side">Side</span>
+          <span class="portfolio-col portfolio-col--market">Contract</span>
+          <span class="portfolio-col portfolio-col--qty">Qty</span>
+          <span class="portfolio-col portfolio-col--avg">Price</span>
+          <span class="portfolio-col portfolio-col--value">Amount</span>
+          <span class="portfolio-col portfolio-col--pnl">P&amp;L</span>
+        </div>
+        <div class="portfolio-table-body" id="portfolioTradesBody">
+          <div class="bonding-loading">No trades yet&hellip;</div>
         </div>
       </div>
     </section>
@@ -1432,6 +1442,44 @@
         </div>
       </div>
 
+      <!-- Welcome / Explainer (shown until dismissed) -->
+      <div class="bond-welcome" id="bondWelcome">
+        <button class="bond-welcome-close" onclick="dismissBondWelcome()" title="Dismiss">&times;</button>
+        <div class="bond-welcome-header">
+          <svg class="bond-welcome-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <div>
+            <h2 class="bond-welcome-title">Prediction Market Bonds</h2>
+            <p class="bond-welcome-subtitle">Low-risk yield from near-certain outcomes</p>
+          </div>
+        </div>
+        <div class="bond-welcome-body">
+          <div class="bond-welcome-step">
+            <span class="bond-welcome-num">1</span>
+            <div>
+              <strong>Find near-resolved markets</strong>
+              <p>Mercury scans Polymarket and Kalshi for contracts trading above 90c that resolve soon. These are like short-term bonds &mdash; buy at 95c, collect $1 at resolution.</p>
+            </div>
+          </div>
+          <div class="bond-welcome-step">
+            <span class="bond-welcome-num">2</span>
+            <div>
+              <strong>Understand the yield</strong>
+              <p>A contract at 97c with 10 days left gives ~3% raw return, or ~113% annualized. The closer to $1 and the sooner it resolves, the safer the bond.</p>
+            </div>
+          </div>
+          <div class="bond-welcome-step">
+            <span class="bond-welcome-num">3</span>
+            <div>
+              <strong>Buy with one click</strong>
+              <p>Connect your Polymarket wallet or Kalshi API key using the <strong>Connected Accounts</strong> panel in the sidebar, then click any Buy button to place an order instantly.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bond-welcome-footer">
+          <button class="toolbar-btn toolbar-btn-primary" onclick="dismissBondWelcome()">Got it, show me the markets</button>
+        </div>
+      </div>
+
       <!-- Metrics Row -->
       <div class="bonding-view-metrics">
         <div class="bonding-view-metric">
@@ -1451,6 +1499,7 @@
           <span class="bonding-view-metric-value" id="bondingViewDays">--</span>
         </div>
       </div>
+      <div style="font-size:11px; color:rgba(255,255,255,0.35); text-align:center; margin:-6px 0 8px;">Yields are hypothetical based on current prices. Markets may not resolve as expected.</div>
 
       <!-- Table -->
       <div class="bonding-view-table">
@@ -1621,6 +1670,7 @@
                 </div>
                 <div class="funding-address-note">Send USDC.e on Polygon only</div>
               </div>
+              <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:8px;">Withdrawals coming soon — funds accessible via Turnkey independently.</div>
             </div>
             <div class="funding-card-actions">
               <button class="funding-btn funding-btn--primary" id="polyConnectBtn" onclick="initPolymarketWallet()">
@@ -1811,10 +1861,116 @@
         <div id="deployLiveWarning" class="deploy-live-warning" style="display:none">
           This bot will execute real trades with real money. Ensure your wallet is funded before deploying.
         </div>
+        <!-- Funding hint -->
+        <div class="fund-deploy-hint">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,215,0,0.7)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span>Build a 60-day live track record with Sharpe &gt; 1.25 to <a href="/funding.html" style="color:rgba(255,215,0,0.85);">apply for up to $5,000 in funding</a></span>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="toolbar-btn" id="deployCancel">Cancel</button>
         <button class="toolbar-btn toolbar-btn-primary" id="deployConfirm">Deploy Bot</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Trading Review Modal -->
+  <div class="modal-overlay" id="liveReviewModal">
+    <div class="modal" style="max-width:600px;">
+      <div class="modal-header">
+        <span class="modal-title" style="color:var(--red,#ff4444);">⚠ Live Trading Review</span>
+        <button class="modal-close" id="liveReviewClose">&times;</button>
+      </div>
+      <div class="modal-body" style="max-height:70vh;overflow-y:auto;">
+        <!-- Strategy Summary -->
+        <div style="background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.25);border-radius:8px;padding:14px;margin-bottom:16px;">
+          <div style="font-weight:600;margin-bottom:8px;color:rgba(255,255,255,0.95);">Strategy Summary</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:13px;">
+            <span style="color:rgba(255,255,255,0.5);">Bot Name</span><span id="lrBotName" style="color:rgba(255,255,255,0.9);"></span>
+            <span style="color:rgba(255,255,255,0.5);">Platform</span><span id="lrPlatform" style="color:rgba(255,255,255,0.9);"></span>
+            <span style="color:rgba(255,255,255,0.5);">Capital</span><span id="lrCapital" style="color:rgba(255,215,0,0.9);font-weight:600;"></span>
+            <span style="color:rgba(255,255,255,0.5);">Mode</span><span style="color:var(--red,#ff4444);font-weight:700;">LIVE TRADING</span>
+          </div>
+        </div>
+
+        <!-- Live Risk Configuration -->
+        <div class="lr-config-section">
+          <div class="lr-config-title">Your Live Trading Settings</div>
+          <div class="lr-config-subtitle">Adjust these to control how much real money each trade uses. Template defaults are for paper trading — set your own limits for live.</div>
+          <div class="lr-config-grid">
+            <div class="lr-config-field">
+              <label class="lr-config-label">Trade Size ($)</label>
+              <input type="number" class="lr-config-input" id="lrTradeSize" value="25" min="1" max="10000" step="5">
+              <div class="lr-config-hint">Amount per order execution</div>
+            </div>
+            <div class="lr-config-field">
+              <label class="lr-config-label">Max Positions</label>
+              <input type="number" class="lr-config-input" id="lrMaxPositions" value="3" min="1" max="50" step="1">
+              <div class="lr-config-hint">Maximum concurrent open positions</div>
+            </div>
+            <div class="lr-config-field">
+              <label class="lr-config-label">Stop Loss (%)</label>
+              <input type="number" class="lr-config-input" id="lrStopLoss" value="10" min="1" max="50" step="1">
+              <div class="lr-config-hint">Max loss before closing position</div>
+            </div>
+            <div class="lr-config-field">
+              <label class="lr-config-label">Daily Loss Limit ($)</label>
+              <input type="number" class="lr-config-input" id="lrDailyLimit" value="100" min="5" max="10000" step="5">
+              <div class="lr-config-hint">Stop trading after this daily loss</div>
+            </div>
+          </div>
+          <div class="lr-config-note">These settings override template defaults for all execution and risk nodes in your strategy.</div>
+        </div>
+
+        <!-- Risk Controls -->
+        <div style="margin-bottom:16px;">
+          <div style="font-weight:600;margin-bottom:8px;color:rgba(255,255,255,0.95);font-size:14px;">Risk Controls</div>
+          <div id="lrRiskParams" style="font-size:13px;"></div>
+        </div>
+
+        <!-- Execution Rules -->
+        <div style="margin-bottom:16px;">
+          <div style="font-weight:600;margin-bottom:8px;color:rgba(255,255,255,0.95);font-size:14px;">Execution Rules</div>
+          <div id="lrExecParams" style="font-size:13px;"></div>
+        </div>
+
+        <!-- Triggers -->
+        <div style="margin-bottom:16px;">
+          <div style="font-weight:600;margin-bottom:8px;color:rgba(255,255,255,0.95);font-size:14px;">Triggers</div>
+          <div id="lrTriggerParams" style="font-size:13px;"></div>
+        </div>
+
+        <!-- Terms (hidden after first acceptance) -->
+        <div id="lrTermsSection">
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px;margin-bottom:16px;max-height:200px;overflow-y:auto;font-size:12px;color:rgba(255,255,255,0.55);line-height:1.6;">
+            <div style="font-weight:600;margin-bottom:8px;color:rgba(255,255,255,0.8);font-size:13px;">Live Trading Terms & Conditions</div>
+            <p>By deploying this bot in live trading mode, you acknowledge and agree to the following:</p>
+            <p><strong>1. Risk of Loss.</strong> Automated trading involves substantial risk of financial loss. You may lose some or all of your invested capital. Past performance of any strategy, whether in paper trading or backtesting, does not guarantee future results.</p>
+            <p><strong>2. No Guarantee of Performance.</strong> Mercury provides the platform and tools for building and executing trading strategies. Mercury does not guarantee the accuracy, reliability, or profitability of any strategy. All strategies are user-configured and user-deployed.</p>
+            <p><strong>3. User Responsibility.</strong> You are solely responsible for reviewing, understanding, and approving all strategy parameters — including triggers, execution rules, risk controls, and capital allocation — before deploying in live mode. You confirm that the parameters displayed above are correct and reflect your intended trading behavior.</p>
+            <p><strong>4. No Liability.</strong> Mercury, its creators, affiliates, and contributors shall not be held liable for any direct, indirect, incidental, consequential, or special damages arising from the use of this platform, including but not limited to financial losses from live trading, execution errors, system downtime, API failures, or market conditions.</p>
+            <p><strong>5. No Financial Advice.</strong> Nothing on this platform constitutes financial, investment, or trading advice. Mercury is a tool for executing user-defined strategies. You should consult a qualified financial advisor before making investment decisions.</p>
+            <p><strong>6. Exchange Risk.</strong> Live trades are executed on third-party exchanges (Polymarket, Kalshi, etc.). Mercury is not responsible for exchange outages, settlement failures, regulatory actions, or changes to exchange terms that may affect your positions.</p>
+            <p><strong>7. Data Accuracy.</strong> Market data used by triggers and indicators is sourced from third-party APIs. Mercury does not guarantee the accuracy, timeliness, or completeness of this data. Delays or inaccuracies in data may result in unintended trades.</p>
+            <p><strong>8. Irrevocable Execution.</strong> Once deployed, live trades are submitted to exchanges and may not be reversible. While you can stop the bot at any time, open positions and pending orders may need to be manually managed.</p>
+            <p><strong>9. Acceptance.</strong> By checking the box below and clicking "Confirm & Deploy Live," you confirm that you have read, understood, and agree to these terms, and that you accept full responsibility for any outcomes resulting from this live deployment.</p>
+          </div>
+
+          <!-- Checkbox -->
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:8px 0;">
+            <input type="checkbox" id="lrTermsCheckbox" style="margin-top:3px;accent-color:var(--red,#ff4444);min-width:18px;min-height:18px;">
+            <span style="font-size:13px;color:rgba(255,255,255,0.85);line-height:1.5;">I have reviewed all strategy parameters above and agree to the <strong>Live Trading Terms & Conditions</strong>. I understand that live trading involves real money and risk of loss.</span>
+          </label>
+        </div>
+
+        <!-- Shown when terms already accepted -->
+        <div id="lrTermsAccepted" style="display:none;padding:8px 12px;background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.25);border-radius:6px;font-size:13px;color:rgba(255,255,255,0.7);">
+          ✓ You have previously accepted the Live Trading Terms. Please review the parameters above before confirming.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="toolbar-btn" id="liveReviewCancel">Cancel</button>
+        <button class="toolbar-btn" id="liveReviewConfirm" disabled style="background:var(--red,#ff4444);color:var(--pure,#fff);border-color:var(--red,#ff4444);opacity:0.4;cursor:not-allowed;">Confirm & Deploy Live</button>
       </div>
     </div>
   </div>
@@ -1921,24 +2077,20 @@
           </div>
         </div>
 
-        <!-- API Key connection (Kalshi always, Polymarket alternative) -->
+        <!-- API Key connection (Kalshi) -->
         <div id="connectApiSection">
-          <div class="connect-method-label" id="connectApiLabel">API Key Connection</div>
+          <div class="connect-method-label" id="connectApiLabel">Kalshi API Credentials</div>
           <div class="connect-field">
             <label class="connect-field-label">API Key</label>
-            <input type="text" class="connect-input" id="connectApiKey" placeholder="Paste your API key" autocomplete="off" />
+            <input type="text" class="connect-input" id="connectApiKey" placeholder="Paste your Kalshi API key" autocomplete="off" />
           </div>
           <div class="connect-field">
-            <label class="connect-field-label">API Secret</label>
-            <input type="password" class="connect-input" id="connectApiSecret" placeholder="Paste your API secret" autocomplete="off" />
+            <label class="connect-field-label">RSA Private Key (PEM)</label>
+            <textarea class="connect-input" id="connectPrivateKeyPem" placeholder="-----BEGIN RSA PRIVATE KEY-----&#10;...&#10;-----END RSA PRIVATE KEY-----" autocomplete="off" rows="6" style="font-family:var(--font-mono);font-size:10px;resize:vertical;"></textarea>
           </div>
-          <div class="connect-field" id="connectPassphraseField" style="display:none;">
-            <label class="connect-field-label">Passphrase</label>
-            <input type="password" class="connect-input" id="connectPassphrase" placeholder="Passphrase (if set)" autocomplete="off" />
-          </div>
-          <div class="connect-api-note">
+          <div class="connect-api-note" style="margin-top:8px;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span>Keys are stored locally and never leave your browser. Live trading integration coming soon.</span>
+            <span>Your private key is encrypted before storage and only used to sign Kalshi API requests. Generate credentials at <a href="https://kalshi.com/account/api" target="_blank" rel="noopener" style="color:var(--accent);">kalshi.com/account/api</a>.</span>
           </div>
         </div>
       </div>
@@ -2029,6 +2181,85 @@
     </div>
   </div>
 
+  <!-- Bond Buy Modal -->
+  <div class="modal-overlay" id="bondBuyModal">
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-header">
+        <span class="modal-title" id="bondBuyModalTitle">Buy Bond</span>
+        <button class="modal-close" onclick="closeBondBuyModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:16px 20px;">
+        <!-- Market Info -->
+        <div class="bond-buy-market-info">
+          <div class="bond-buy-market-name" id="bondBuyMarketName">--</div>
+          <div class="bond-buy-market-meta">
+            <span id="bondBuyPlatform">--</span>
+            <span id="bondBuySide">--</span>
+            <span id="bondBuyDays">--</span>
+          </div>
+        </div>
+
+        <!-- Price Summary -->
+        <div class="bond-buy-price-row">
+          <div class="bond-buy-price-item">
+            <span class="bond-buy-price-label">Bond Price</span>
+            <span class="bond-buy-price-value" id="bondBuyPrice">--</span>
+          </div>
+          <div class="bond-buy-price-item">
+            <span class="bond-buy-price-label">Raw Yield</span>
+            <span class="bond-buy-price-value bond-buy-price-value--green" id="bondBuyRawYield">--</span>
+          </div>
+          <div class="bond-buy-price-item">
+            <span class="bond-buy-price-label">Annualized</span>
+            <span class="bond-buy-price-value bond-buy-price-value--green" id="bondBuyAnnYield">--</span>
+          </div>
+        </div>
+
+        <!-- Amount Input -->
+        <div class="inspector-field" style="margin-top:12px;">
+          <label class="field-label">Amount (USD)</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input class="field-input" id="bondBuyAmount" type="number" placeholder="10.00" min="1" step="1" style="flex:1;">
+            <button class="toolbar-btn" onclick="setBondBuyMax()" style="font-size:9px;padding:4px 8px;">Max</button>
+          </div>
+          <div style="font-size:10px;color:var(--dim);margin-top:4px;">
+            Available: <span id="bondBuyBalance">$0.00</span>
+          </div>
+        </div>
+
+        <!-- Estimated Output -->
+        <div class="bond-buy-estimate" id="bondBuyEstimate" style="display:none;">
+          <div class="bond-buy-estimate-row">
+            <span>Contracts / Shares</span>
+            <span id="bondBuyContracts">--</span>
+          </div>
+          <div class="bond-buy-estimate-row">
+            <span>Cost</span>
+            <span id="bondBuyCost">--</span>
+          </div>
+          <div class="bond-buy-estimate-row">
+            <span>Payout at Resolution</span>
+            <span id="bondBuyPayout">--</span>
+          </div>
+          <div class="bond-buy-estimate-row bond-buy-estimate-row--profit">
+            <span>Expected Profit</span>
+            <span id="bondBuyProfit">--</span>
+          </div>
+        </div>
+
+        <!-- Account Warning -->
+        <div class="bond-buy-warning" id="bondBuyWarning" style="display:none;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span id="bondBuyWarningText">--</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="toolbar-btn" onclick="closeBondBuyModal()">Cancel</button>
+        <button class="toolbar-btn toolbar-btn-primary" id="bondBuyConfirmBtn" onclick="confirmBondBuy()" disabled>Confirm Buy</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Profile / Account Settings Modal -->
   <div class="modal-overlay" id="profileModal">
     <div class="modal" style="max-width:420px;">
@@ -2045,7 +2276,6 @@
           <div class="profile-section-label">Plan</div>
           <div style="display:flex;align-items:center;gap:10px;">
             <span class="profile-section-value" id="profilePlan">Free</span>
-            <button class="toolbar-btn toolbar-btn-primary" id="profileUpgradeBtn" onclick="profileUpgrade()" style="font-size:9px;padding:4px 10px;">Upgrade</button>
           </div>
         </div>
         <div class="profile-section" style="border-bottom:none;">
@@ -2091,9 +2321,9 @@
   <script src="./scripts/upgrade-modal.js?v=28"></script>
   <script src="./scripts/wallet-service.js?v=28"></script>
   <script src="./scripts/tour-engine.js?v=28"></script>
-  <script src="./scripts/architect-app.js?v=47"></script>
-  <script src="./scripts/data-bridge.js?v=28"></script>
-  <script src="./scripts/charting.js?v=37"></script>
+  <script src="./scripts/architect-app.js?v=52"></script>
+  <script src="./scripts/data-bridge.js?v=30"></script>
+  <script src="./scripts/charting.js?v=39"></script>
   <script src="./scripts/funding.js?v=1"></script>
   <script src="./scripts/ambient.js?v=28"></script>
 </body>

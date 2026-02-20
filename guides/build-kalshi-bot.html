@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' http://localhost:8778 https://engine.mercurysuite.net https://mercurysuite.net https://*.supabase.co https://api.coingecko.com https://api.alternative.me https://gamma-api.polymarket.com https://clob.polymarket.com https://api.elections.kalshi.com https://*.binance.com https://*.coinbase.com wss://*.supabase.co; frame-ancestors 'none';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
   <title>How to Build a Kalshi Trading Bot in 2026 — Mercury</title>
   <meta name="description" content="Step-by-step guide to building automated Kalshi trading bots with Mercury. Event contracts, hourly markets, CFTC-regulated execution. Visual builder, no coding required.">
-  <link rel="canonical" href="https://mercurysuite.io/guides/build-kalshi-bot.html">
+  <link rel="canonical" href="https://mercurysuite.net/guides/build-kalshi-bot.html">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Mercury">
-  <meta property="og:url" content="https://mercurysuite.io/guides/build-kalshi-bot.html">
+  <meta property="og:url" content="https://mercurysuite.net/guides/build-kalshi-bot.html">
   <meta property="og:title" content="How to Build a Kalshi Trading Bot in 2026 — Mercury">
   <meta property="og:description" content="Step-by-step guide to building automated Kalshi trading bots with Mercury. Event contracts, hourly markets, CFTC-regulated execution. Visual builder, no coding required.">
-  <meta property="og:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta property="og:image" content="https://mercurysuite.net/images/og-default.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="How to Build a Kalshi Trading Bot in 2026 — Mercury">
   <meta name="twitter:description" content="Step-by-step guide to building automated Kalshi trading bots with Mercury. Event contracts, hourly markets, CFTC-regulated execution. Visual builder, no coding required.">
-  <meta name="twitter:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta name="twitter:image" content="https://mercurysuite.net/images/og-default.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -109,7 +112,7 @@
           <p><strong>Price threshold triggers</strong> fire when a contract's bid or ask crosses a level you define. Set a trigger at $0.15 on a weather contract, and your bot will watch the order book until that price appears. This is the simplest and most common trigger for building a Kalshi bot.</p>
           <p><strong>Probability cross triggers</strong> activate when implied probability moves through a boundary. If you believe a YES contract is mispriced below 40%, set a probability cross trigger at 0.40 and let the bot handle surveillance across every relevant contract.</p>
           <p><strong>Time-based triggers</strong> execute at specific intervals or at set times relative to market resolution. A bot that buys weather contracts exactly 45 minutes before hourly resolution &mdash; when liquidity typically thins and mispricings appear &mdash; uses time-based triggers.</p>
-          <p><strong>External API data triggers</strong> connect your bot to outside data sources: NOAA weather feeds, BLS economic data, real-time news APIs, or custom model outputs. When the external signal matches your criteria, the bot executes on Kalshi. Mercury handles the API polling, data parsing, and signal-to-execution pipeline with sub-18ms latency to the Kalshi matching engine.</p>
+          <p><strong>External API data triggers</strong> connect your bot to outside data sources: NOAA weather feeds, BLS economic data, real-time news APIs, or custom model outputs. When the external signal matches your criteria, the bot executes on Kalshi. Mercury handles the API polling, data parsing, and signal-to-execution pipeline with low-latency connections to the Kalshi matching engine.</p>
         </div>
 
         <div class="page-prose-block">
@@ -147,9 +150,9 @@
 
         <div class="page-prose-block">
           <h2 class="page-prose-heading">Step 7: How Do You Deploy a Live Kalshi Bot?</h2>
-          <p>Deploying live is a single toggle in Mercury's <a href="../architect.html">Architect dashboard</a>. Whether you built the strategy manually with the visual editor or had the agentic AI generate it from a natural language prompt, deployment works the same way. Your bot connects to Kalshi's production API through Mercury's infrastructure, which maintains sub-18ms execution latency and 99.98% uptime across all supported exchanges.</p>
+          <p>Deploying live is a single toggle in Mercury's <a href="../architect.html">Architect dashboard</a>. Whether you built the strategy manually with the visual editor or had the agentic AI generate it from a natural language prompt, deployment works the same way. Your bot connects to Kalshi's production API through Mercury's infrastructure, which maintains low-latency execution and 99.98% uptime across all supported exchanges.</p>
           <p>On deployment, Mercury runs a pre-flight check: API credentials, account balance, risk limits, and order routing configuration are all validated before the first live order fires. The system also checks for conflicting bots &mdash; two bots targeting the same market with opposing directions, for example &mdash; and flags potential issues before they cost you money.</p>
-          <p>Once live, your bot runs on Mercury's server infrastructure, not on your local machine. You don't need to keep a laptop open or maintain a VPS. The bot executes 24/7 for as long as your target markets are active, with real-time monitoring and alerting available through the Mercury dashboard. <a href="../architect.html#pricing">Pro accounts ($99/mo)</a> include unlimited live bots, priority execution, and advanced analytics.</p>
+          <p>Once live, your bot runs on Mercury's server infrastructure, not on your local machine. You don't need to keep a laptop open or maintain a VPS. The bot executes 24/7 for as long as your target markets are active, with real-time monitoring and alerting available through the Mercury dashboard. All features are free — including unlimited live bots, priority execution, and advanced analytics. No credit card required.</p>
         </div>
 
       </div>
@@ -184,7 +187,7 @@
 
         <div class="page-prose-block">
           <h2 class="page-prose-heading">Resolution Sniping</h2>
-          <p>In the final minutes before an hourly contract resolves, the outcome is often knowable from real-time data but not yet fully reflected in the contract price. A resolution sniping bot monitors external data sources &mdash; live temperature readings, real-time rainfall gauges &mdash; and buys contracts that are near-certain to resolve YES but still trading below $0.90. The margin per trade is thin, but the win rate approaches 95%+ when the data feed is reliable. Mercury's sub-18ms execution ensures your orders reach Kalshi before the final seconds of trading.</p>
+          <p>In the final minutes before an hourly contract resolves, the outcome is often knowable from real-time data but not yet fully reflected in the contract price. A resolution sniping bot monitors external data sources &mdash; live temperature readings, real-time rainfall gauges &mdash; and buys contracts that are near-certain to resolve YES but still trading below $0.90. The margin per trade is thin, but the win rate approaches 95%+ when the data feed is reliable. Mercury's low-latency execution ensures your orders reach Kalshi before the final seconds of trading.</p>
         </div>
 
       </div>
@@ -220,7 +223,7 @@
         <details class="faq-item">
           <summary class="faq-question">How fast is Mercury's Kalshi execution?</summary>
           <div class="faq-answer">
-            <p>Mercury maintains sub-18ms order-to-acknowledgment latency on Kalshi. Orders route from Mercury's infrastructure directly to Kalshi's matching engine through a dedicated, optimized connection. Combined with 99.98% uptime, this means your bot can react to market movements and external data signals faster than any manual trader and most competing automation platforms.</p>
+            <p>Mercury maintains low-latency order-to-acknowledgment performance on Kalshi. Orders route from Mercury's infrastructure directly to Kalshi's matching engine through a dedicated, optimized connection. Combined with 99.98% uptime, this means your bot can react to market movements and external data signals faster than any manual trader and most competing automation platforms.</p>
           </div>
         </details>
 
@@ -261,7 +264,7 @@
         "name": "How fast is Mercury's Kalshi execution?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Mercury maintains sub-18ms order-to-acknowledgment latency on Kalshi. Orders route from Mercury's infrastructure directly to Kalshi's matching engine through a dedicated, optimized connection. Combined with 99.98% uptime, this means your bot can react to market movements and external data signals faster than any manual trader."
+          "text": "Mercury maintains low-latency order-to-acknowledgment performance on Kalshi. Orders route from Mercury's infrastructure directly to Kalshi's matching engine through a dedicated, optimized connection. Combined with 99.98% uptime, this means your bot can react to market movements and external data signals faster than any manual trader."
         }
       },
       {
@@ -288,7 +291,7 @@
   <section class="final-cta">
     <div class="container">
       <h2 class="final-headline">Build your first Kalshi bot today.</h2>
-      <p class="final-sub">Visual builder. Sub-18ms execution. No code required. Mercury handles the infrastructure &mdash; you define the strategy.</p>
+      <p class="final-sub">Visual builder. Low-latency execution. No code required. Mercury handles the infrastructure &mdash; you define the strategy.</p>
       <div class="final-ctas">
         <a href="../signup.html" class="btn btn-primary">Get Started Free</a>
         <a href="../architect.html#pricing" class="btn">View Pricing</a>

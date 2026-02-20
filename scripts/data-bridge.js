@@ -246,7 +246,7 @@ const MercuryLiveMarkets = {
   _clobBase: location.hostname === 'localhost' || location.hostname === '127.0.0.1'
     ? '/proxy/polymarket-clob/'
     : 'https://clob.polymarket.com/',
-  _newsBase: '/proxy/news',
+  _newsBase: ((window.MERCURY_CONFIG && window.MERCURY_CONFIG.engineBase) || 'http://localhost:8778') + '/api/news',
 
   // Direct API URLs (used as fallback when proxy is down)
   _polyDirect: 'https://gamma-api.polymarket.com/',
@@ -980,7 +980,7 @@ class MercuryEngineBridge {
   // BOTS
   // ═══════════════════════════════════════════
 
-  async deployBot(strategy, botName, platform, capital, mode) {
+  async deployBot(strategy, botName, platform, capital, mode, termsAccepted) {
     return await this._fetch('/api/bots/deploy', {
       method: 'POST',
       body: JSON.stringify({
@@ -989,6 +989,7 @@ class MercuryEngineBridge {
         platform,
         capital: parseFloat(capital) || 10000,
         mode: mode || 'paper',
+        terms_accepted: !!termsAccepted,
       }),
     });
   }
@@ -1026,6 +1027,26 @@ class MercuryEngineBridge {
   }
 
   // ═══════════════════════════════════════════
+  // PORTFOLIO
+  // ═══════════════════════════════════════════
+
+  async getPortfolio() {
+    return await this._fetch('/api/portfolio');
+  }
+
+  async getPortfolioPositions(limit = 100) {
+    return await this._fetch(`/api/portfolio/positions?limit=${limit}`);
+  }
+
+  async getPortfolioTrades(limit = 50) {
+    return await this._fetch(`/api/portfolio/trades?limit=${limit}`);
+  }
+
+  async getPortfolioEquity(days = 7) {
+    return await this._fetch(`/api/portfolio/equity?days=${days}`);
+  }
+
+  // ═══════════════════════════════════════════
   // MARKETS
   // ═══════════════════════════════════════════
 
@@ -1049,6 +1070,20 @@ class MercuryEngineBridge {
     return await this._fetch('/api/markets/test-api', {
       method: 'POST',
       body: JSON.stringify({ url, method, headers: parsedHeaders, json_path: jsonPath }),
+    });
+  }
+
+  async resolveContract(input) {
+    return await this._fetch('/api/markets/resolve', {
+      method: 'POST',
+      body: JSON.stringify({ input }),
+    });
+  }
+
+  async searchMarkets(query) {
+    return await this._fetch('/api/markets/search', {
+      method: 'POST',
+      body: JSON.stringify({ query }),
     });
   }
 

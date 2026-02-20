@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' http://localhost:8778 https://engine.mercurysuite.net https://mercurysuite.net https://*.supabase.co https://api.coingecko.com https://api.alternative.me https://gamma-api.polymarket.com https://clob.polymarket.com https://api.elections.kalshi.com https://*.binance.com https://*.coinbase.com wss://*.supabase.co; frame-ancestors 'none';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
   <title>How to Trade on Kalshi: Beginner's Guide (2026) — Mercury</title>
   <meta name="description" content="Complete beginner guide to trading on Kalshi. Learn what Kalshi is, how event contracts work, how to place your first trade, and strategies for CFTC-regulated prediction markets.">
-  <link rel="canonical" href="https://mercurysuite.io/guides/how-to-trade-on-kalshi.html">
+  <link rel="canonical" href="https://mercurysuite.net/guides/how-to-trade-on-kalshi.html">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Mercury">
-  <meta property="og:url" content="https://mercurysuite.io/guides/how-to-trade-on-kalshi.html">
+  <meta property="og:url" content="https://mercurysuite.net/guides/how-to-trade-on-kalshi.html">
   <meta property="og:title" content="How to Trade on Kalshi: Beginner's Guide (2026) — Mercury">
   <meta property="og:description" content="Complete beginner guide to trading on Kalshi. Learn what Kalshi is, how event contracts work, how to place your first trade, and strategies for CFTC-regulated prediction markets.">
-  <meta property="og:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta property="og:image" content="https://mercurysuite.net/images/og-default.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="How to Trade on Kalshi: Beginner's Guide (2026) — Mercury">
   <meta name="twitter:description" content="Complete beginner guide to trading on Kalshi. Learn what Kalshi is, how event contracts work, how to place your first trade, and strategies for CFTC-regulated prediction markets.">
-  <meta name="twitter:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta name="twitter:image" content="https://mercurysuite.net/images/og-default.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -68,7 +71,7 @@
         "name": "Can I automate my Kalshi trading?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. Kalshi provides full API access for automated trading. Mercury Architect is a visual bot builder that connects to Kalshi with sub-18ms execution latency. You can describe a strategy in plain English and Mercury's agentic AI builds the complete bot — no coding required. Paper trading is free, and live trading is available with a Pro subscription."
+          "text": "Yes. Kalshi provides full API access for automated trading. Mercury Architect is a visual bot builder that connects to Kalshi with low-latency execution. You can describe a strategy in plain English and Mercury's agentic AI builds the complete bot — no coding required. Mercury is 100% free — paper trading, live trading, unlimited bots, and backtesting are all included. No credit card required."
         }
       }
     ]
@@ -272,7 +275,7 @@
 
           <p><strong>Mercury Architect</strong> is a visual bot builder with agentic AI designed specifically for prediction market trading. Instead of writing code or configuring API connections manually, you build strategies by describing what you want in plain English. Tell the AI, "Buy YES on Kalshi hourly temperature contracts when the HRRR forecast diverges from the market-implied probability by more than 15 percentage points, with $20 max per position and a 10% trailing stop," and the agentic AI generates the complete bot: trigger nodes, condition filters, execution logic, and risk management &mdash; all wired together and ready to test.</p>
 
-          <p>The visual node graph lets you inspect, modify, and fine-tune every component before going live. You can <strong>paper trade for free</strong> against live Kalshi market data to validate your edge without risking capital. When you are ready, <a href="../architect.html#pricing">Pro accounts ($99/mo)</a> unlock live execution with <strong>sub-18ms latency</strong> to Kalshi's matching engine and <strong>99.98% uptime</strong>. Your bots run on Mercury's server infrastructure 24/7 &mdash; no need to keep your computer running or manage a cloud server.</p>
+          <p>The visual node graph lets you inspect, modify, and fine-tune every component before going live. You can <strong>paper trade for free</strong> against live Kalshi market data to validate your edge without risking capital. When you are ready, all features are free &mdash; live execution with <strong>low-latency</strong> connections to Kalshi's matching engine, <strong>99.98% uptime</strong>, unlimited bots, and full backtesting. No credit card required. Your bots run on Mercury's server infrastructure 24/7 &mdash; no need to keep your computer running or manage a cloud server.</p>
 
           <p>Whether you are scalping weather contracts, trading economic releases, or sniping resolutions, automation lets you capture opportunities that manual traders physically cannot reach. Ready to build your first bot? Read the <a href="build-kalshi-bot.html">complete Kalshi bot builder guide</a> for the full step-by-step walkthrough. You can also explore how Kalshi compares to other platforms in our <a href="how-to-trade-on-polymarket.html">Polymarket trading guide</a>.</p>
 
@@ -322,7 +325,7 @@
         <details class="faq-item">
           <summary class="faq-question">Can I automate my Kalshi trading?</summary>
           <div class="faq-answer">
-            <p>Yes. Kalshi provides full API access for automated trading. <a href="../architect.html">Mercury Architect</a> is a visual bot builder that connects to Kalshi with sub-18ms execution latency. You can describe a strategy in plain English and Mercury's agentic AI builds the complete bot &mdash; no coding required. Paper trading is free, and live trading is available with a <a href="../architect.html#pricing">Pro subscription ($99/mo)</a>. Read the <a href="build-kalshi-bot.html">full bot builder guide</a> for a detailed walkthrough.</p>
+            <p>Yes. Kalshi provides full API access for automated trading. <a href="../architect.html">Mercury Architect</a> is a visual bot builder that connects to Kalshi with low-latency execution. You can describe a strategy in plain English and Mercury's agentic AI builds the complete bot &mdash; no coding required. Mercury is 100% free &mdash; paper trading, live trading, unlimited bots, and backtesting are all included. No credit card required. Read the <a href="build-kalshi-bot.html">full bot builder guide</a> for a detailed walkthrough.</p>
           </div>
         </details>
 
@@ -334,7 +337,7 @@
   <section class="final-cta">
     <div class="container">
       <h2 class="final-headline">Start trading smarter.</h2>
-      <p class="final-sub">Visual bot builder. Sub-18ms Kalshi execution. Paper trade free, go live when you are ready. Mercury handles the infrastructure &mdash; you define the strategy.</p>
+      <p class="final-sub">Visual bot builder. Low-latency Kalshi execution. Paper trade free, go live when you are ready. Mercury handles the infrastructure &mdash; you define the strategy.</p>
       <div class="final-ctas">
         <a href="../signup.html" class="btn btn-primary">Get Started Free</a>
         <a href="../architect.html" class="btn">Explore Architect</a>

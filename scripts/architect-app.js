@@ -35,14 +35,11 @@ async function initAuth() {
     if (avatarEl) avatarEl.textContent = currentUser.email.charAt(0).toUpperCase();
     if (nameEl) nameEl.textContent = currentUser.email;
   }
-  const tierConfig = window.MercuryTiers ? window.MercuryTiers.getTierConfig(userTier) : null;
-  if (planEl) planEl.textContent = (tierConfig ? tierConfig.label : userTier) + ' Plan';
+  if (planEl) planEl.textContent = 'Free Plan';
 
-  // Show/hide sidebar upgrade button
+  // Hide sidebar upgrade button — all features are free
   const upgradeSection = document.getElementById('sidebarUpgrade');
-  if (upgradeSection) {
-    upgradeSection.style.display = userTier === 'free' ? '' : 'none';
-  }
+  if (upgradeSection) upgradeSection.style.display = 'none';
 }
 
 // Funding sidebar link — now uses data-view="funding" (handled by switchView)
@@ -124,7 +121,7 @@ const NODE_TYPES = {
     inputs: [],
     outputs: [{ id: 'out', label: 'Signal' }],
     properties: [
-      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'contract', type: 'contract-input', label: 'Contract', default: null },
     ],
   },
   'price-threshold': {
@@ -133,7 +130,7 @@ const NODE_TYPES = {
     outputs: [{ id: 'out', label: 'Signal' }],
     properties: [
       { key: 'market', type: 'select', label: 'Market', options: ['Any', 'Polymarket', 'Kalshi'], default: 'Any' },
-      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'contract', type: 'contract-input', label: 'Contract', default: null },
       { key: 'direction', type: 'select', label: 'Direction', options: ['Crosses Above', 'Crosses Below'], default: 'Crosses Above' },
       { key: 'threshold', type: 'number', label: 'Threshold (cents)', default: 50, min: 1, max: 99 },
     ],
@@ -143,7 +140,7 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Input' }],
     outputs: [{ id: 'out', label: 'Signal' }],
     properties: [
-      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'contract', type: 'contract-input', label: 'Contract', default: null },
       { key: 'multiplier', type: 'number', label: 'Spike Multiplier', default: 3, min: 1.5, max: 20 },
       { key: 'window', type: 'select', label: 'Window', options: ['1hr', '4hr', '24hr'], default: '1hr' },
       { key: 'market', type: 'select', label: 'Market', options: ['Any', 'Polymarket', 'Kalshi'], default: 'Any' },
@@ -174,7 +171,7 @@ const NODE_TYPES = {
     properties: [
       { key: 'direction', type: 'select', label: 'Direction', options: ['Crosses Above', 'Crosses Below'], default: 'Crosses Above' },
       { key: 'level', type: 'number', label: 'Level (cents)', default: 60, min: 1, max: 99 },
-      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'contract', type: 'contract-input', label: 'Contract', default: null },
     ],
   },
   'api-data': {
@@ -382,7 +379,7 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Trigger' }],
     outputs: [{ id: 'out', label: 'Filled' }],
     properties: [
-      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'contract', type: 'contract-input', label: 'Contract', default: null },
       { key: 'side', type: 'select', label: 'Side', options: ['Buy YES', 'Buy NO', 'Sell YES', 'Sell NO'], default: 'Buy YES' },
       { key: 'amount', type: 'number', label: 'Amount ($)', default: 25, min: 1 },
       { key: 'platform', type: 'select', label: 'Platform', options: ['Auto', 'Polymarket', 'Kalshi'], default: 'Auto' },
@@ -393,7 +390,7 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Trigger' }],
     outputs: [{ id: 'out', label: 'Filled' }],
     properties: [
-      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'contract', type: 'contract-input', label: 'Contract', default: null },
       { key: 'side', type: 'select', label: 'Side', options: ['Buy YES', 'Buy NO', 'Sell YES', 'Sell NO'], default: 'Buy YES' },
       { key: 'limitPrice', type: 'number', label: 'Limit Price (cents)', default: 55, min: 1, max: 99 },
       { key: 'amount', type: 'number', label: 'Amount ($)', default: 25, min: 1 },
@@ -405,7 +402,7 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Trigger' }],
     outputs: [{ id: 'out', label: 'Complete' }],
     properties: [
-      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'contract', type: 'contract-input', label: 'Contract', default: null },
       { key: 'totalAmount', type: 'number', label: 'Total Amount ($)', default: 100, min: 10 },
       { key: 'tranches', type: 'number', label: 'Tranches', default: 5, min: 2, max: 20 },
       { key: 'priceRange', type: 'number', label: 'Price Range (cents)', default: 10, min: 1, max: 50 },
@@ -416,7 +413,7 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Trigger' }],
     outputs: [{ id: 'out', label: 'Executed' }],
     properties: [
-      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'contract', type: 'contract-input', label: 'Contract', default: null },
       { key: 'amountPer', type: 'number', label: 'Amount Per Buy ($)', default: 10, min: 1 },
       { key: 'interval', type: 'select', label: 'Interval', options: ['Every 1hr', 'Every 4hr', 'Every 12hr', 'Daily'], default: 'Every 4hr' },
       { key: 'maxBuys', type: 'number', label: 'Max Buys', default: 10, min: 1, max: 100 },
@@ -427,7 +424,7 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Trigger' }],
     outputs: [{ id: 'out', label: 'Closed' }],
     properties: [
-      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'contract', type: 'contract-input', label: 'Contract', default: null },
       { key: 'amount', type: 'select', label: 'Amount', options: ['100% (Full)', '75%', '50%', '25%', 'Custom'], default: '100% (Full)' },
       { key: 'customPct', type: 'number', label: 'Custom %', default: 100, min: 1, max: 100 },
       { key: 'urgency', type: 'select', label: 'Urgency', options: ['Market (Instant)', 'Limit (Best Price)', 'TWAP (Spread Out)'], default: 'Market (Instant)' },
@@ -438,7 +435,7 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Trigger' }],
     outputs: [{ id: 'out', label: 'Hedged' }],
     properties: [
-      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'contract', type: 'contract-input', label: 'Contract', default: null },
       { key: 'strategy', type: 'select', label: 'Hedge Strategy', options: ['Buy Opposite Side', 'Correlated Market', 'Partial Close + Opposite'], default: 'Buy Opposite Side' },
       { key: 'ratio', type: 'number', label: 'Hedge Ratio (%)', default: 100, min: 10, max: 200 },
       { key: 'platform', type: 'select', label: 'Platform', options: ['Same', 'Polymarket', 'Kalshi'], default: 'Same' },
@@ -449,7 +446,7 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Trigger' }],
     outputs: [{ id: 'out', label: 'Complete' }],
     properties: [
-      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'contract', type: 'contract-input', label: 'Contract', default: null },
       { key: 'side', type: 'select', label: 'Side', options: ['Buy YES', 'Buy NO', 'Sell YES', 'Sell NO'], default: 'Buy YES' },
       { key: 'totalAmount', type: 'number', label: 'Total Amount ($)', default: 500, min: 10 },
       { key: 'duration', type: 'select', label: 'Duration', options: ['5min', '15min', '30min', '1hr', '4hr'], default: '30min' },
@@ -461,7 +458,7 @@ const NODE_TYPES = {
     inputs: [{ id: 'in', label: 'Trigger' }],
     outputs: [{ id: 'out', label: 'Filled' }],
     properties: [
-      { key: 'contract', type: 'contract-picker', label: 'Contract', default: null },
+      { key: 'contract', type: 'contract-input', label: 'Contract', default: null },
       { key: 'side', type: 'select', label: 'Side', options: ['Buy YES', 'Buy NO', 'Sell YES', 'Sell NO'], default: 'Buy YES' },
       { key: 'amount', type: 'number', label: 'Amount ($)', default: 50, min: 1 },
       { key: 'condition', type: 'select', label: 'Execute When', options: ['Price Hits Level', 'Volume Exceeds', 'Spread Narrows Below', 'After Delay'], default: 'Price Hits Level' },
@@ -714,6 +711,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     console.log('[Mercury] bootApp() done — nodes on canvas:', nodes.length);
+
+    // Check Kalshi connection status (non-blocking)
+    try { checkKalshiConnectionStatus(); } catch (e) {}
 
     // Final safety net: if canvas is STILL empty after everything, place Market node
     setTimeout(() => {
@@ -1021,6 +1021,43 @@ function setupEventListeners() {
     if (e.target.id === 'deployModal') closeDeployModal();
   });
 
+  // Live Review Modal listeners
+  var lrClose = document.getElementById('liveReviewClose');
+  var lrCancel = document.getElementById('liveReviewCancel');
+  var lrCheckbox = document.getElementById('lrTermsCheckbox');
+  var lrConfirm = document.getElementById('liveReviewConfirm');
+
+  if (lrClose) lrClose.addEventListener('click', function() {
+    document.getElementById('liveReviewModal').classList.remove('open');
+  });
+  if (lrCancel) lrCancel.addEventListener('click', function() {
+    document.getElementById('liveReviewModal').classList.remove('open');
+  });
+  if (lrCheckbox) lrCheckbox.addEventListener('change', function() {
+    if (lrConfirm) {
+      lrConfirm.disabled = !lrCheckbox.checked;
+      lrConfirm.style.opacity = lrCheckbox.checked ? '1' : '0.4';
+      lrConfirm.style.cursor = lrCheckbox.checked ? 'pointer' : 'not-allowed';
+    }
+  });
+  if (lrConfirm) lrConfirm.addEventListener('click', function() {
+    // If terms not yet accepted, require checkbox; if already accepted, allow directly
+    var alreadyAccepted = localStorage.getItem('mercury_live_terms_accepted') === '1';
+    if (!alreadyAccepted && (!lrCheckbox || !lrCheckbox.checked)) return;
+    // Save terms acceptance for future deploys
+    if (!alreadyAccepted) localStorage.setItem('mercury_live_terms_accepted', '1');
+    document.getElementById('liveReviewModal').classList.remove('open');
+    var s = showLiveReviewModal._pendingStrategy;
+    var bn = showLiveReviewModal._pendingBotName;
+    var pl = showLiveReviewModal._pendingPlatform;
+    var cap = showLiveReviewModal._pendingCapital;
+    if (s) {
+      // Apply live risk config overrides
+      _applyLiveConfigOverrides(s);
+      _executeDeploy(s, bn, pl, cap, 'live', true);
+    }
+  });
+
   // Bot detail
   document.getElementById('detailBack').addEventListener('click', () => switchView('my-bots'));
   document.getElementById('btnPauseBot').addEventListener('click', () => toggleBotStatus('paused'));
@@ -1031,6 +1068,12 @@ function setupEventListeners() {
     switchView('builder');
     showToast('Strategy loaded into builder');
   });
+
+  // CSV export buttons
+  const btnExportTrades = document.getElementById('btnExportTrades');
+  if (btnExportTrades) btnExportTrades.addEventListener('click', () => exportBotCSV('trades'));
+  const btnExportLogs = document.getElementById('btnExportLogs');
+  if (btnExportLogs) btnExportLogs.addEventListener('click', () => exportBotCSV('logs'));
 
   // Backtest
   document.getElementById('btnRunBacktest').addEventListener('click', runBacktest);
@@ -1401,9 +1444,11 @@ function buildNodeHTML(node, def) {
   previewProps.forEach(p => {
     const val = node.properties[p.key];
     let display;
-    if (p.type === 'contract-picker') {
-      if (val && typeof val === 'object' && val.question) {
-        display = val.question.length > 28 ? val.question.slice(0, 28) + '...' : val.question;
+    if (p.type === 'contract-input') {
+      if (val && typeof val === 'object' && (val.question || val.series_label)) {
+        const name = val.series_label || val.question;
+        const seriesTag = val.series_ticker && !val.series_label ? ` [${val.series_ticker}]` : '';
+        display = name.length > 24 ? name.slice(0, 24) + '...' + seriesTag : name + seriesTag;
       } else if (typeof val === 'string' && val) {
         display = val.length > 28 ? val.slice(0, 28) + '...' : val;
       } else {
@@ -1792,7 +1837,7 @@ function updateMercuryScript() {
 
   let script = '';
   const stratName = el.strategyName.value || 'untitled_strategy';
-  script += `<span class="ms-comment"># MercuryScript — ${stratName}</span>\n`;
+  script += `<span class="ms-comment"># MercuryScript — ${esc(stratName)}</span>\n`;
   script += `<span class="ms-comment"># ${nodes.length} nodes, ${connections.length} connections</span>\n\n`;
 
   // Find root nodes (no inputs connected)
@@ -1820,48 +1865,48 @@ function updateMercuryScript() {
       out += `${pad}<span class="${catTag}">when</span> <span class="ms-variable">${def.label.toLowerCase().replace(/\\s+/g, '_')}</span>(`;
       const paramStr = def.properties.map(p => {
         const val = node.properties[p.key];
-        if (p.type === 'number') return `<span class="ms-number">${val}</span>`;
-        if (p.type === 'contract-picker') {
+        if (p.type === 'number') return `<span class="ms-number">${esc(val)}</span>`;
+        if (p.type === 'contract-input') {
           const q = val && typeof val === 'object' ? val.question : val;
-          return `<span class="ms-string">"${q || 'any'}"</span>`;
+          return `<span class="ms-string">"${esc(q || 'any')}"</span>`;
         }
-        return `<span class="ms-string">"${val}"</span>`;
+        return `<span class="ms-string">"${esc(val)}"</span>`;
       }).join(', ');
       out += paramStr + '):\n';
     } else if (cat === 'condition') {
       out += `${pad}<span class="${catTag}">if</span> <span class="ms-variable">${def.label.toLowerCase().replace(/\\s+/g, '_')}</span>(`;
       const paramStr = def.properties.map(p => {
         const val = node.properties[p.key];
-        if (p.type === 'number') return `<span class="ms-number">${val}</span>`;
-        if (p.type === 'contract-picker') {
+        if (p.type === 'number') return `<span class="ms-number">${esc(val)}</span>`;
+        if (p.type === 'contract-input') {
           const q = val && typeof val === 'object' ? val.question : val;
-          return `<span class="ms-string">"${q || 'any'}"</span>`;
+          return `<span class="ms-string">"${esc(q || 'any')}"</span>`;
         }
-        return `<span class="ms-string">"${val}"</span>`;
+        return `<span class="ms-string">"${esc(val)}"</span>`;
       }).join(', ');
       out += paramStr + '):\n';
     } else if (cat === 'execution') {
       out += `${pad}<span class="${catTag}">execute</span> <span class="ms-variable">${def.label.toLowerCase().replace(/\\s+/g, '_')}</span>(`;
       const paramStr = def.properties.map(p => {
         const val = node.properties[p.key];
-        if (p.type === 'number') return `<span class="ms-number">${val}</span>`;
-        if (p.type === 'contract-picker') {
+        if (p.type === 'number') return `<span class="ms-number">${esc(val)}</span>`;
+        if (p.type === 'contract-input') {
           const q = val && typeof val === 'object' ? val.question : val;
-          return `<span class="ms-string">"${q || 'any'}"</span>`;
+          return `<span class="ms-string">"${esc(q || 'any')}"</span>`;
         }
-        return `<span class="ms-string">"${val}"</span>`;
+        return `<span class="ms-string">"${esc(val)}"</span>`;
       }).join(', ');
       out += paramStr + ')\n';
     } else if (cat === 'risk') {
       out += `${pad}<span class="${catTag}">guard</span> <span class="ms-variable">${def.label.toLowerCase().replace(/\\s+/g, '_')}</span>(`;
       const paramStr = def.properties.map(p => {
         const val = node.properties[p.key];
-        if (p.type === 'number') return `<span class="ms-number">${val}</span>`;
-        if (p.type === 'contract-picker') {
+        if (p.type === 'number') return `<span class="ms-number">${esc(val)}</span>`;
+        if (p.type === 'contract-input') {
           const q = val && typeof val === 'object' ? val.question : val;
-          return `<span class="ms-string">"${q || 'any'}"</span>`;
+          return `<span class="ms-string">"${esc(q || 'any')}"</span>`;
         }
-        return `<span class="ms-string">"${val}"</span>`;
+        return `<span class="ms-string">"${esc(val)}"</span>`;
       }).join(', ');
       out += paramStr + ')\n';
     }
@@ -1892,7 +1937,7 @@ function updateMercuryScript() {
 
   // Version
   const versionEl = document.getElementById('scriptVersion');
-  const commitCount = commitHistory.length;
+  const commitCount = getCommitHistory().length;
   if (versionEl) versionEl.textContent = 'v0.' + (commitCount + 1);
 
   el.mercuryScriptCode.innerHTML = script || '<span class="ms-comment"># Empty strategy</span>';
@@ -2080,7 +2125,7 @@ function extractAssetConfig(nodeList) {
     kalshi_ticker: null,
   };
 
-  // 1. Check contract-picker nodes for prediction market IDs
+  // 1. Check contract-input nodes for prediction market IDs + series info
   for (const n of nodeList) {
     const contract = n.properties && n.properties.contract;
     if (contract && typeof contract === 'object') {
@@ -2090,6 +2135,8 @@ function extractAssetConfig(nodeList) {
         config.kalshi_ticker = contract.kalshi_ticker;
         config.platform = 'Kalshi';
       }
+      if (contract.series_ticker) config.series_ticker = contract.series_ticker;
+      if (contract.auto_rollover) config.auto_rollover = true;
       if (config.market_id && !config.kalshi_ticker) config.platform = 'Polymarket';
       return config; // Prediction market takes priority
     }
@@ -2552,7 +2599,7 @@ function renderStrategyTabs() {
     tab.className = 'strategy-tab' + (id === activeStrategyId ? ' active' : '');
     tab.innerHTML =
       '<span class="strategy-tab-dot"></span>' +
-      '<span class="strategy-tab-name">' + (entry.name || 'untitled') + '</span>' +
+      '<span class="strategy-tab-name">' + esc(entry.name || 'untitled') + '</span>' +
       '<span class="strategy-tab-close" title="Close">&times;</span>';
 
     tab.addEventListener('click', (e) => {
@@ -2576,10 +2623,10 @@ function renderStrategyBrowser() {
   if (!browser) {
     browser = document.createElement('div');
     browser.className = 'strategy-browser';
-    const bar = document.getElementById('strategyBar');
-    if (bar) {
-      bar.style.position = 'relative';
-      bar.appendChild(browser);
+    // Append to canvas-area (not strategy-bar which has overflow:hidden and clips the dropdown)
+    const canvasArea = document.querySelector('.canvas-area');
+    if (canvasArea) {
+      canvasArea.appendChild(browser);
     }
   }
 
@@ -2594,10 +2641,10 @@ function renderStrategyBrowser() {
     list.forEach(entry => {
       const dateStr = entry.updatedAt ? new Date(entry.updatedAt).toLocaleDateString() : '';
       html +=
-        '<div class="strategy-browser-item' + (entry.id === activeStrategyId ? ' active' : '') + '" data-id="' + entry.id + '">' +
-          '<span class="strategy-browser-item-name">' + (entry.name || 'untitled') + '</span>' +
-          '<span class="strategy-browser-item-date">' + dateStr + '</span>' +
-          '<span class="strategy-browser-item-delete" data-delete="' + entry.id + '" title="Delete">&times;</span>' +
+        '<div class="strategy-browser-item' + (entry.id === activeStrategyId ? ' active' : '') + '" data-id="' + escapeAttr(entry.id) + '">' +
+          '<span class="strategy-browser-item-name">' + esc(entry.name || 'untitled') + '</span>' +
+          '<span class="strategy-browser-item-date">' + esc(dateStr) + '</span>' +
+          '<span class="strategy-browser-item-delete" data-delete="' + escapeAttr(entry.id) + '" title="Delete">&times;</span>' +
         '</div>';
     });
     html += '</div>';
@@ -2628,11 +2675,37 @@ function toggleStrategyBrowser() {
   }
   const opening = !browser.classList.contains('open');
   browser.classList.toggle('open');
-  if (opening) renderStrategyBrowser();
+  if (opening) {
+    renderStrategyBrowser();
+    // Position relative to the button
+    const btn = document.getElementById('btnBrowseStrategies');
+    if (btn && browser) {
+      const btnRect = btn.getBoundingClientRect();
+      const parentRect = browser.parentElement.getBoundingClientRect();
+      browser.style.top = (btnRect.bottom - parentRect.top) + 'px';
+      browser.style.right = (parentRect.right - btnRect.right) + 'px';
+    }
+  }
 }
 
 /** Initialize strategy manager — migrate from single autosave if needed */
 function initStrategyManager() {
+  // Wire up buttons first — must happen regardless of strategy list state
+  const btnNew = document.getElementById('btnNewStrategy');
+  const btnBrowse = document.getElementById('btnBrowseStrategies');
+  if (btnNew) btnNew.addEventListener('click', createNewStrategy);
+  if (btnBrowse) btnBrowse.addEventListener('click', toggleStrategyBrowser);
+
+  // Close browser on outside click
+  document.addEventListener('click', (e) => {
+    const browser = document.querySelector('.strategy-browser');
+    if (browser && browser.classList.contains('open')) {
+      if (!e.target.closest('.strategy-browser') && !e.target.closest('#btnBrowseStrategies')) {
+        browser.classList.remove('open');
+      }
+    }
+  });
+
   const list = getStrategiesList();
 
   // Migrate existing autosave to strategy list
@@ -2668,22 +2741,6 @@ function initStrategyManager() {
   activeStrategyId = sorted[0].id;
   openStrategyIds = [activeStrategyId];
   renderStrategyTabs();
-
-  // Wire up buttons
-  const btnNew = document.getElementById('btnNewStrategy');
-  const btnBrowse = document.getElementById('btnBrowseStrategies');
-  if (btnNew) btnNew.addEventListener('click', createNewStrategy);
-  if (btnBrowse) btnBrowse.addEventListener('click', toggleStrategyBrowser);
-
-  // Close browser on outside click
-  document.addEventListener('click', (e) => {
-    const browser = document.querySelector('.strategy-browser');
-    if (browser && browser.classList.contains('open')) {
-      if (!e.target.closest('.strategy-browser') && !e.target.closest('#btnBrowseStrategies')) {
-        browser.classList.remove('open');
-      }
-    }
-  });
 }
 
 // Hook into autoSaveStrategy to also persist to strategy list
@@ -2746,35 +2803,70 @@ function renderInspector(nodeId) {
     html += `<div class="inspector-field">`;
     html += `<label class="field-label">${p.label}</label>`;
 
-    if (p.type === 'contract-picker') {
+    if (p.type === 'contract-input') {
       const contract = val;
-      if (contract && contract.question) {
-        const truncQ = contract.question.length > 40 ? contract.question.slice(0, 40) + '...' : contract.question;
-        const price = parseOutcomePrice(contract.outcome_prices, 0);
-        const priceStr = price !== null ? ` @ ${price}c` : '';
-        html += `<button class="contract-picker-btn contract-picker-btn--selected" onclick="openContractPicker('${nodeId}','${p.key}')">
-          <span class="contract-picker-question">${truncQ}</span>
-          <span class="contract-picker-price">${priceStr}</span>
-        </button>`;
-        html += `<button class="contract-picker-clear" onclick="clearContract('${nodeId}','${p.key}')">Clear</button>`;
+      const inputId = `contract-input-${nodeId}-${p.key}`;
+      if (contract && (contract.question || contract.series_label)) {
+        const displayName = contract.series_label || contract.question;
+        const truncQ = displayName.length > 55 ? displayName.slice(0, 55) + '...' : displayName;
+        const priceStr = contract.price != null ? `${contract.price}c` : '';
+        const srcBadge = contract.source === 'kalshi'
+          ? '<span class="contract-badge contract-badge--kalshi">K</span>'
+          : contract.source === 'polymarket'
+          ? '<span class="contract-badge contract-badge--poly">P</span>'
+          : '';
+        const seriesBadge = contract.series_ticker
+          ? `<span class="contract-series-badge">${esc(contract.series_ticker)}</span>`
+          : '';
+        html += `<div class="contract-input-resolved">
+          <div class="contract-input-name">${srcBadge} ${esc(truncQ)}</div>
+          <div class="contract-input-meta">
+            ${seriesBadge}
+            ${priceStr ? `<span class="contract-input-price">${esc(priceStr)}</span>` : ''}
+          </div>
+          ${contract.series_ticker ? `<label class="contract-rollover-toggle">
+            <input type="checkbox" ${contract.auto_rollover !== false ? 'checked' : ''}
+              onchange="onContractRolloverToggle('${escapeAttr(nodeId)}','${escapeAttr(p.key)}',this.checked)">
+            Auto-rollover
+          </label>` : ''}
+          <button class="contract-input-clear" onclick="clearContract('${escapeAttr(nodeId)}','${escapeAttr(p.key)}')">Clear</button>
+        </div>`;
       } else {
-        html += `<button class="contract-picker-btn" onclick="openContractPicker('${nodeId}','${p.key}')">Select contract...</button>`;
+        const nid = escapeAttr(nodeId);
+        const pk = escapeAttr(p.key);
+        html += `<div class="contract-input-field">
+          <input type="text" id="${inputId}" class="field-input contract-input-text"
+            placeholder="Search markets... bitcoin, weather, S&amp;P 500"
+            autocomplete="off"
+            oninput="onContractSearchInput('${nid}','${pk}',this)"
+            onkeydown="onContractSearchKey(event,'${nid}','${pk}',this)"
+            onfocus="onContractSearchInput('${nid}','${pk}',this)">
+        </div>
+        <div class="contract-quick-picks">
+          <button class="quick-pick" onclick="selectQuickPick('${nid}','${pk}','KXBTCD')">BTC</button>
+          <button class="quick-pick" onclick="selectQuickPick('${nid}','${pk}','KXETHD')">ETH</button>
+          <button class="quick-pick" onclick="selectQuickPick('${nid}','${pk}','KXSOLD')">SOL</button>
+          <button class="quick-pick" onclick="selectQuickPick('${nid}','${pk}','KXINX')">S&P</button>
+          <button class="quick-pick" onclick="selectQuickPick('${nid}','${pk}','KXNASDAQ100')">NASDAQ</button>
+          <button class="quick-pick" onclick="selectQuickPick('${nid}','${pk}','KXHIGHNY')">Weather</button>
+          <button class="quick-pick" onclick="selectQuickPick('${nid}','${pk}','KXWTIW')">Oil</button>
+        </div>`;
       }
     } else if (p.type === 'select') {
-      html += `<select class="field-select" data-prop="${p.key}" onchange="onInspectorChange('${nodeId}','${p.key}',this.value)">`;
+      html += `<select class="field-select" data-prop="${escapeAttr(p.key)}" onchange="onInspectorChange('${escapeAttr(nodeId)}','${escapeAttr(p.key)}',this.value)">`;
       p.options.forEach(opt => {
-        html += `<option ${val === opt ? 'selected' : ''}>${opt}</option>`;
+        html += `<option ${val === opt ? 'selected' : ''}>${esc(opt)}</option>`;
       });
       html += '</select>';
     } else if (p.type === 'number') {
-      html += `<input class="field-input" type="number" data-prop="${p.key}" value="${val}"
+      html += `<input class="field-input" type="number" data-prop="${escapeAttr(p.key)}" value="${escapeAttr(val)}"
         ${p.min !== undefined ? 'min="' + p.min + '"' : ''}
         ${p.max !== undefined ? 'max="' + p.max + '"' : ''}
-        onchange="onInspectorChange('${nodeId}','${p.key}',this.value)">`;
+        onchange="onInspectorChange('${escapeAttr(nodeId)}','${escapeAttr(p.key)}',this.value)">`;
     } else {
-      const placeholder = p.placeholder ? ` placeholder="${p.placeholder}"` : '';
-      html += `<input class="field-input" type="text" data-prop="${p.key}" value="${val || ''}"${placeholder}
-        onchange="onInspectorChange('${nodeId}','${p.key}',this.value)">`;
+      const placeholder = p.placeholder ? ` placeholder="${escapeAttr(p.placeholder)}"` : '';
+      html += `<input class="field-input" type="text" data-prop="${escapeAttr(p.key)}" value="${escapeAttr(val || '')}"${placeholder}
+        onchange="onInspectorChange('${escapeAttr(nodeId)}','${escapeAttr(p.key)}',this.value)">`;
     }
 
     html += '</div>';
@@ -2783,7 +2875,7 @@ function renderInspector(nodeId) {
   // Test API button for api-data nodes
   if (node.type === 'api-data') {
     html += `<div class="inspector-field" style="margin-top:8px">
-      <button class="api-test-btn" onclick="testApiDataNode('${nodeId}')">Test API</button>
+      <button class="api-test-btn" onclick="testApiDataNode('${escapeAttr(nodeId)}')">Test API</button>
       <div id="apiTestResult" class="api-test-result" style="display:none"></div>
     </div>`;
   }
@@ -2908,353 +3000,232 @@ window.testApiDataNode = async function(nodeId) {
 // ═══════════════════════════════════════════════════════════════
 
 let _contractPickerOpen = false;
-let _contractPickerNodeId = null;
-let _contractPickerKey = null;
-let _contractPickerMarkets = [];   // currently displayed
-let _contractPickerAllMarkets = []; // full cached list for local filtering
+// ── Contract Input (direct ticker/URL resolve) ─────────────
 
-// ── Market category classification ─────────────────────────
-// Tags every market with a category for the picker filter tabs
-const MARKET_CATEGORIES = {
-  'crypto-short': { label: '5m/15m/1hr', icon: '', patterns: [
-    /\b(btc|bitcoin|eth|ethereum|sol|solana|xrp|doge|dogecoin|bnb|ada|avax|matic|sui|apt|pepe)\b.*\b(up|down|above|below|higher|lower)\b/i,
-    /\b(up|down|above|below|higher|lower)\b.*\b(btc|bitcoin|eth|ethereum|sol|solana|xrp|doge|dogecoin)\b/i,
-    /\b(5[- ]?min|15[- ]?min|1[- ]?hour|hourly|30[- ]?min|5m|15m|1h|30m)\b.*\b(btc|bitcoin|eth|ethereum|sol|crypto|price)\b/i,
-    /\b(btc|bitcoin|eth|ethereum|sol|crypto|price)\b.*\b(5[- ]?min|15[- ]?min|1[- ]?hour|hourly|30[- ]?min|5m|15m|1h|30m)\b/i,
-    /\bprice.*\b(up|down)\b.*\b(5|15|30|60)\b/i,
-    /\bBTC.*\b(next|this)\b/i,
-  ]},
-  'crypto': { label: 'Crypto', icon: '', patterns: [
-    /\b(btc|bitcoin|eth|ethereum|sol|solana|xrp|doge|dogecoin|bnb|cardano|ada|crypto|token|defi|nft|altcoin|stablecoin|usdc|usdt|cbdc|avax|matic|pepe|sui|apt|meme\s*coin)\b/i,
-    /\b(coinbase|binance|kraken|uniswap|opensea|chain|blockchain|halving|hash\s*rate)\b/i,
-    /\b\$\d+[KkMm]?\b.*\b(btc|bitcoin|eth|ethereum|sol|solana|crypto)\b/i,
-  ]},
-  'economics': { label: 'Economics', icon: '', patterns: [
-    /\b(cpi|inflation|fed|federal reserve|interest rate|gdp|unemployment|jobs report|non-?farm|payroll|recession|tariff|trade deficit|treasury|yield|bond|fiscal|monetary|fomc|rate cut|rate hike|basis points|bps|pce|core inflation)\b/i,
-    /\b(s&p|s&p\s*500|nasdaq|dow|djia|stock market|russell|vix|qqq|spy)\b/i,
-    /\b(oil price|crude|wti|brent|gold price|silver price|commodity|natural gas)\b/i,
-  ]},
-  'weather': { label: 'Weather', icon: '', patterns: [
-    /\b(weather|hurricane|tornado|earthquake|flood|wildfire|storm|typhoon|cyclone|blizzard|heat\s*wave|drought|temperature|rainfall|snowfall|wind\s*speed|tsunami|climate|el\s*ni[ñn]o|la\s*ni[ñn]a|noaa|nws)\b/i,
-    /\b(high\s*of|low\s*of|degrees|fahrenheit|celsius)\b.*\b(city|york|angeles|chicago|miami|dallas|phoenix|denver|seattle|boston|atlanta)\b/i,
-  ]},
-  'politics': { label: 'Politics', icon: '', patterns: [
-    /\b(president|presidential|election|congress|senate|house|governor|democrat|republican|gop|vote|ballot|poll|approval rating|impeach|veto|executive order|cabinet|scotus|supreme court|primary|caucus|electoral|midterm)\b/i,
-    /\b(trump|biden|harris|desantis|newsom|pence|obama|pelosi|schumer|mcconnell)\b/i,
-  ]},
-  'sports': { label: 'Sports', icon: '', patterns: [
-    /\b(nfl|nba|mlb|nhl|mls|ncaa|super bowl|world series|playoffs|championship|mvp|draft|touchdown|home run|goal|slam dunk|ufc|mma|boxing|tennis|golf|formula 1|f1|olympics|world cup|premier league|champions league)\b/i,
-  ]},
-  'world': { label: 'World', icon: '', patterns: [
-    /\b(war|conflict|ceasefire|peace|sanctions|nato|united nations|un\b|eu\b|china|russia|ukraine|israel|gaza|iran|north korea|taiwan|india|trade war|embargo|missile|nuclear|refugee|border|immigration)\b/i,
-  ]},
-};
-
-function _classifyMarket(question) {
-  if (!question) return 'other';
-  // Check crypto-short first (more specific), then general categories
-  for (const [cat, def] of Object.entries(MARKET_CATEGORIES)) {
-    for (const rx of def.patterns) {
-      if (rx.test(question)) return cat;
-    }
-  }
-  return 'other';
+function escapeAttr(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/'/g, '&#39;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/`/g, '&#96;');
 }
 
-function parseOutcomePrice(outcomePrices, index) {
-  if (!outcomePrices) return null;
-  try {
-    const prices = typeof outcomePrices === 'string' ? JSON.parse(outcomePrices) : outcomePrices;
-    if (Array.isArray(prices) && prices[index] !== undefined) {
-      return Math.round(parseFloat(prices[index]) * 100);
-    }
-  } catch { /* ignore */ }
-  return null;
-}
-window.parseOutcomePrice = parseOutcomePrice;
+// ═══════════════════════════════════════════════════════════════
+// CONTRACT SEARCH — live typeahead + quick-pick chips
+// ═══════════════════════════════════════════════════════════════
 
-function formatVolume(vol) {
-  if (vol >= 1_000_000) return '$' + (vol / 1_000_000).toFixed(1) + 'M';
-  if (vol >= 1_000) return '$' + (vol / 1_000).toFixed(0) + 'K';
-  return '$' + Math.round(vol);
-}
+let _contractSearchTimer = null;
+let _contractSearchActiveNode = null;  // {nodeId, propKey}
+let _contractSearchResults = [];       // cached results for current dropdown
+let _contractSearchHighlight = -1;     // keyboard nav index
 
-window.openContractPicker = async function(nodeId, propKey) {
-  _contractPickerNodeId = nodeId;
-  _contractPickerKey = propKey;
-  dismissMarketPrompt();
-
-  // Remove existing picker if any
-  closeContractPicker();
-
-  const panel = document.createElement('div');
-  panel.id = 'contractPickerPanel';
-  panel.className = 'contract-picker-panel';
-  panel.innerHTML = `
-    <div class="contract-picker-header">
-      <input type="text" class="contract-picker-search" placeholder="Search markets..." autofocus>
-      <button class="contract-picker-close" onclick="closeContractPicker()">&times;</button>
-    </div>
-    <div class="contract-picker-categories">
-      <button class="cp-cat active" data-cat="all">All</button>
-      <button class="cp-cat" data-cat="crypto-short">5m/15m/1hr</button>
-      <button class="cp-cat" data-cat="crypto">Crypto</button>
-      <button class="cp-cat" data-cat="economics">Economics</button>
-      <button class="cp-cat" data-cat="weather">Weather</button>
-      <button class="cp-cat" data-cat="politics">Politics</button>
-      <button class="cp-cat" data-cat="sports">Sports</button>
-      <button class="cp-cat" data-cat="world">World</button>
-    </div>
-    <div class="contract-picker-filters">
-      <button class="cp-filter active" data-filter="all">All</button>
-      <button class="cp-filter" data-filter="polymarket">Poly</button>
-      <button class="cp-filter" data-filter="kalshi">Kalshi</button>
-    </div>
-    <div class="contract-picker-list">
-      <div class="contract-picker-loading">Loading markets...</div>
-    </div>
-  `;
-  document.body.appendChild(panel);
-  _contractPickerOpen = true;
-
-  // Position near inspector
-  const inspector = el.nodeInspector;
-  if (inspector) {
-    const rect = inspector.getBoundingClientRect();
-    panel.style.top = rect.top + 'px';
-    panel.style.left = (rect.left - 340) + 'px';
-  }
-
-  let _cpFilter = 'all';
-  let _cpCategory = 'all';
-
-  // Fetch markets — try MercuryLiveMarkets first (both platforms), fall back to engine
-  try {
-    let allMarkets = [];
-    if (typeof MercuryLiveMarkets !== 'undefined') {
-      const combined = await MercuryLiveMarkets.fetchAllMarkets();
-      // Flatten: top-level markets + sub-markets from events
-      for (const m of combined) {
-        const cat = _classifyMarket(m.name);
-        allMarkets.push({
-          id: m._polyId || m._kalshiTicker || m.short,
-          question: m.name,
-          price: m.price,
-          volume_24h: m._volNum || 0,
-          source: m.source,
-          _clobTokenId: m._clobTokenId || null,
-          _kalshiTicker: m._kalshiTicker || null,
-          _conditionId: m._conditionId || null,
-          isEvent: m.isEvent,
-          _category: cat,
-        });
-        // Also add sub-markets as selectable entries
-        if (m.isEvent && m.subMarkets && m.subMarkets.length > 1) {
-          for (const sm of m.subMarkets) {
-            const smCat = _classifyMarket(sm.name || sm.groupTitle) || cat;
-            allMarkets.push({
-              id: sm._conditionId || sm.ticker || sm.name,
-              question: sm.name || sm.groupTitle,
-              price: sm.price || sm.kalshiPrice || 0,
-              volume_24h: sm._volNum || 0,
-              source: sm.source || m.source,
-              _clobTokenId: sm._clobTokenId || null,
-              _kalshiTicker: sm.ticker || null,
-              _conditionId: sm._conditionId || null,
-              _parentEvent: m.name,
-              isEvent: false,
-              _category: smCat,
-            });
-          }
-        }
-      }
-    }
-
-    // Fall back to engine API if MercuryLiveMarkets returned nothing
-    if (allMarkets.length === 0) {
-      const data = await engineBridge.getPolymarketActive(200);
-      const raw = (data && data.markets) || [];
-      allMarkets = raw.map(m => ({
-        id: m.id,
-        question: m.question,
-        price: parseOutcomePrice(m.outcome_prices, 0),
-        volume_24h: m.volume_24h || 0,
-        source: 'polymarket',
-        _clobTokenId: _parseClobTokenIdFromRaw(m.clob_token_ids),
-        _kalshiTicker: null,
-        _conditionId: null,
-        isEvent: false,
-        _category: _classifyMarket(m.question),
-      }));
-    }
-
-    _contractPickerAllMarkets = allMarkets;
-    _contractPickerMarkets = allMarkets.slice(0, 60);
-    renderContractList(_contractPickerMarkets);
-  } catch (e) {
-    const listEl = panel.querySelector('.contract-picker-list');
-    if (listEl) listEl.innerHTML = '<div class="contract-picker-loading">Could not load markets</div>';
-  }
-
-  // Category buttons
-  panel.querySelectorAll('.cp-cat').forEach(btn => {
-    btn.addEventListener('click', () => {
-      panel.querySelectorAll('.cp-cat').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      _cpCategory = btn.dataset.cat;
-      applyPickerFilter();
-    });
-  });
-
-  // Platform filter buttons
-  panel.querySelectorAll('.cp-filter').forEach(btn => {
-    btn.addEventListener('click', () => {
-      panel.querySelectorAll('.cp-filter').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      _cpFilter = btn.dataset.filter;
-      applyPickerFilter();
-    });
-  });
-
-  function applyPickerFilter() {
-    const query = (panel.querySelector('.contract-picker-search')?.value || '').trim().toLowerCase();
-    let filtered = _contractPickerAllMarkets;
-    // Category filter
-    if (_cpCategory !== 'all') {
-      filtered = filtered.filter(m => m._category === _cpCategory);
-    }
-    // Platform filter
-    if (_cpFilter !== 'all') {
-      filtered = filtered.filter(m => m.source === _cpFilter);
-    }
-    // Text search
-    if (query.length > 0) {
-      const terms = query.split(/\s+/);
-      filtered = filtered.filter(m => {
-        const text = ((m.question || '') + ' ' + (m._parentEvent || '')).toLowerCase();
-        return terms.every(t => text.includes(t));
-      });
-    }
-    _contractPickerMarkets = filtered.slice(0, 80);
-    renderContractList(_contractPickerMarkets);
-  }
-
-  // Search handler
-  const searchInput = panel.querySelector('.contract-picker-search');
-  searchInput.addEventListener('input', applyPickerFilter);
-
-  // Click outside to close
-  setTimeout(() => {
-    document.addEventListener('mousedown', _contractPickerOutsideClick);
-  }, 100);
-};
-
-function _contractPickerOutsideClick(e) {
-  const panel = document.getElementById('contractPickerPanel');
-  if (panel && !panel.contains(e.target) && !e.target.classList.contains('contract-picker-btn')) {
-    closeContractPicker();
-  }
+function _storeContractOnNode(nodeId, propKey, r) {
+  const node = nodes.find(n => n.id === nodeId);
+  if (!node) return;
+  node.properties[propKey] = {
+    market_id: r.market_id || '',
+    token_id: r.token_id || '',
+    question: r.question || '',
+    price: r.price != null ? r.price : null,
+    source: r.source || 'unknown',
+    kalshi_ticker: r.kalshi_ticker || '',
+    series_ticker: r.series_ticker || '',
+    series_label: r.series_label || '',
+    auto_rollover: !!r.auto_rollover,
+    close_time: r.close_time || '',
+    outcome_prices: r.outcome_prices || null,
+  };
+  renderInspector(nodeId);
+  refreshNodeDOM(node);
+  autoSaveStrategy();
 }
 
-window.closeContractPicker = function() {
-  const existing = document.getElementById('contractPickerPanel');
-  if (existing) existing.remove();
-  _contractPickerOpen = false;
-  document.removeEventListener('mousedown', _contractPickerOutsideClick);
-};
+window.onContractSearchInput = function(nodeId, propKey, inputEl) {
+  const query = inputEl.value.trim();
+  clearTimeout(_contractSearchTimer);
+  _contractSearchHighlight = -1;
 
-function _parseClobTokenIdFromRaw(clobIds) {
-  if (!clobIds) return '';
-  try {
-    if (typeof clobIds === 'string' && clobIds.startsWith('[')) {
-      return JSON.parse(clobIds)[0] || '';
-    }
-    return String(clobIds).split(',')[0].trim();
-  } catch { return ''; }
-}
-
-function renderContractList(markets) {
-  const panel = document.getElementById('contractPickerPanel');
-  if (!panel) return;
-  const listEl = panel.querySelector('.contract-picker-list');
-  if (!listEl) return;
-
-  if (!markets || markets.length === 0) {
-    listEl.innerHTML = '<div class="contract-picker-loading">No markets found</div>';
+  if (query.length < 2) {
+    _hideContractDropdown();
     return;
   }
 
+  _contractSearchTimer = setTimeout(async () => {
+    try {
+      const resp = await engineBridge.searchMarkets(query);
+      if (!resp || !resp.results || !resp.results.length) {
+        _showContractDropdownEmpty(inputEl);
+        return;
+      }
+      _contractSearchActiveNode = { nodeId, propKey };
+      _contractSearchResults = resp.results;
+      _showContractDropdown(resp.results, inputEl);
+    } catch (e) {
+      _hideContractDropdown();
+    }
+  }, 350);
+};
+
+window.onContractSearchKey = function(event, nodeId, propKey, inputEl) {
+  const dd = document.getElementById('contract-search-dropdown');
+  const visible = dd && dd.style.display !== 'none';
+
+  if (event.key === 'Escape') {
+    _hideContractDropdown();
+    return;
+  }
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    if (visible && _contractSearchHighlight >= 0 && _contractSearchHighlight < _contractSearchResults.length) {
+      selectContractResult(_contractSearchHighlight);
+    } else {
+      // Resolve raw input as a direct ticker/URL
+      const input = inputEl.value.trim();
+      if (input) _resolveDirectInput(nodeId, propKey, input);
+    }
+    return;
+  }
+  if (visible && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+    event.preventDefault();
+    const n = _contractSearchResults.length;
+    if (event.key === 'ArrowDown') _contractSearchHighlight = Math.min(_contractSearchHighlight + 1, n - 1);
+    else _contractSearchHighlight = Math.max(_contractSearchHighlight - 1, 0);
+    _highlightDropdownItem();
+  }
+};
+
+async function _resolveDirectInput(nodeId, propKey, input) {
+  _hideContractDropdown();
+  try {
+    const resp = await engineBridge.resolveContract(input);
+    if (!resp || resp.error) {
+      showToast(resp?.error || 'Could not resolve contract', 'error');
+      return;
+    }
+    _storeContractOnNode(nodeId, propKey, resp);
+  } catch (e) {
+    showToast('Resolution failed: ' + e.message, 'error');
+  }
+}
+
+function _showContractDropdown(results, anchorEl) {
+  let dd = document.getElementById('contract-search-dropdown');
+  if (!dd) {
+    dd = document.createElement('div');
+    dd.id = 'contract-search-dropdown';
+    dd.className = 'contract-search-dropdown';
+    document.body.appendChild(dd);
+  }
+
   let html = '';
-  markets.forEach(m => {
-    const price = m.price != null ? m.price : null;
-    const priceStr = price !== null ? `${price}c YES` : '';
-    const vol = formatVolume(m.volume_24h || 0);
-    const q = m.question || '';
-    const truncQ = q.length > 55 ? q.slice(0, 55) + '...' : q;
-    const src = m.source || 'polymarket';
-    const srcBadge = src === 'kalshi'
-      ? '<span class="cp-badge cp-badge--kalshi">K</span>'
-      : '<span class="cp-badge cp-badge--poly">P</span>';
-    const parentHint = m._parentEvent
-      ? `<span class="cp-parent">${m._parentEvent.length > 30 ? m._parentEvent.slice(0, 30) + '...' : m._parentEvent}</span>`
-      : '';
-
-    const tokenId = m._clobTokenId || '';
-    const kalshiTicker = m._kalshiTicker || '';
-
-    const data = JSON.stringify({
-      market_id: m.id || '',
-      token_id: tokenId,
-      question: q,
-      price: price,
-      source: src,
-      kalshi_ticker: kalshiTicker,
-    }).replace(/'/g, '&#39;');
-
-    const catLabel = MARKET_CATEGORIES[m._category]?.label || '';
-    const catTag = catLabel ? `<span class="cp-cat-tag">${catLabel}</span>` : '';
-
-    html += `<div class="contract-picker-item" onclick="selectContract('${escapeAttr(m.id || '')}','${escapeAttr(tokenId)}',this)" data-market='${data}'>
-      <div class="contract-picker-question">${srcBadge} ${esc(truncQ)}</div>
-      ${parentHint}
-      <div class="contract-picker-meta">
-        <span class="contract-picker-price-tag">${priceStr}</span>
-        ${catTag}
-        <span class="contract-picker-vol">${vol} 24h</span>
-      </div>
+  results.forEach((r, i) => {
+    const srcBadge = r.source === 'kalshi'
+      ? '<span class="contract-badge contract-badge--kalshi">K</span>'
+      : '<span class="contract-badge contract-badge--poly">P</span>';
+    const q = r.series_label || r.question || '';
+    const truncQ = q.length > 50 ? q.slice(0, 50) + '\u2026' : q;
+    const priceStr = r.price != null ? `<span class="contract-input-price">${r.price}c</span>` : '';
+    const seriesTag = r.series_ticker
+      ? `<span class="contract-series-badge">${esc(r.series_ticker)}</span>` : '';
+    html += `<div class="contract-search-result" data-idx="${i}" onclick="selectContractResult(${i})"
+      onmouseenter="_contractSearchHighlight=${i};_highlightDropdownItem()">
+      <div class="contract-search-result-name">${srcBadge} ${esc(truncQ)}</div>
+      <div class="contract-search-result-meta">${seriesTag} ${priceStr}</div>
     </div>`;
   });
 
-  listEl.innerHTML = html;
+  dd.innerHTML = html;
+
+  // Position below the input
+  const rect = anchorEl.getBoundingClientRect();
+  dd.style.top = (rect.bottom + 2) + 'px';
+  dd.style.left = rect.left + 'px';
+  dd.style.width = Math.max(rect.width, 280) + 'px';
+  dd.style.display = 'block';
 }
 
-function escapeAttr(str) {
-  return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+function _showContractDropdownEmpty(anchorEl) {
+  let dd = document.getElementById('contract-search-dropdown');
+  if (!dd) {
+    dd = document.createElement('div');
+    dd.id = 'contract-search-dropdown';
+    dd.className = 'contract-search-dropdown';
+    document.body.appendChild(dd);
+  }
+  dd.innerHTML = '<div class="contract-search-empty">No markets found</div>';
+  const rect = anchorEl.getBoundingClientRect();
+  dd.style.top = (rect.bottom + 2) + 'px';
+  dd.style.left = rect.left + 'px';
+  dd.style.width = Math.max(rect.width, 280) + 'px';
+  dd.style.display = 'block';
 }
 
-window.selectContract = function(marketId, tokenId, el) {
-  const dataStr = el.getAttribute('data-market');
-  if (!dataStr) return;
+function _hideContractDropdown() {
+  const dd = document.getElementById('contract-search-dropdown');
+  if (dd) dd.style.display = 'none';
+}
 
-  let market;
-  try { market = JSON.parse(dataStr); } catch { return; }
+function _highlightDropdownItem() {
+  const dd = document.getElementById('contract-search-dropdown');
+  if (!dd) return;
+  dd.querySelectorAll('.contract-search-result').forEach((el, i) => {
+    el.classList.toggle('highlighted', i === _contractSearchHighlight);
+  });
+}
 
-  const node = nodes.find(n => n.id === _contractPickerNodeId);
+window.selectContractResult = async function(index) {
+  const r = _contractSearchResults[index];
+  if (!r || !_contractSearchActiveNode) return;
+
+  const { nodeId, propKey } = _contractSearchActiveNode;
+  _hideContractDropdown();
+
+  // If it's a series placeholder, resolve to get the current active contract
+  if (r._is_series && r.series_ticker) {
+    try {
+      const resp = await engineBridge.resolveContract(r.series_ticker);
+      if (resp && !resp.error) {
+        _storeContractOnNode(nodeId, propKey, { ...resp, auto_rollover: true });
+      } else {
+        showToast(resp?.error || 'Could not find active contract', 'error');
+      }
+    } catch (e) {
+      showToast('Resolution failed: ' + e.message, 'error');
+    }
+  } else {
+    _storeContractOnNode(nodeId, propKey, r);
+  }
+};
+
+window.selectQuickPick = async function(nodeId, propKey, seriesTicker) {
+  _hideContractDropdown();
+  const node = nodes.find(n => n.id === nodeId);
   if (!node) return;
 
-  node.properties[_contractPickerKey] = {
-    market_id: market.market_id,
-    token_id: market.token_id,
-    question: market.question,
-    price: market.price,
-    source: market.source || 'polymarket',
-    kalshi_ticker: market.kalshi_ticker || '',
-    outcome_prices: market.outcome_prices,
-  };
+  // Find the button to show loading state
+  const picks = document.querySelectorAll('.contract-quick-picks .quick-pick');
+  picks.forEach(b => { b.disabled = true; });
 
-  closeContractPicker();
-  renderInspector(_contractPickerNodeId);
-  refreshNodeDOM(node);
+  try {
+    const resp = await engineBridge.resolveContract(seriesTicker);
+    if (!resp || resp.error) {
+      showToast(resp?.error || 'Could not find active contract', 'error');
+      return;
+    }
+    _storeContractOnNode(nodeId, propKey, { ...resp, auto_rollover: true });
+  } catch (e) {
+    showToast('Resolution failed: ' + e.message, 'error');
+  } finally {
+    picks.forEach(b => { b.disabled = false; });
+  }
+};
+
+window.onContractRolloverToggle = function(nodeId, propKey, checked) {
+  const node = nodes.find(n => n.id === nodeId);
+  if (!node || !node.properties[propKey]) return;
+  node.properties[propKey].auto_rollover = checked;
   autoSaveStrategy();
 };
 
@@ -3266,6 +3237,13 @@ window.clearContract = function(nodeId, propKey) {
   refreshNodeDOM(node);
   autoSaveStrategy();
 };
+
+// Close dropdown on outside click
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.contract-input-field') && !e.target.closest('.contract-search-dropdown')) {
+    _hideContractDropdown();
+  }
+});
 
 // ═══════════════════════════════════════════════════════════════
 // UNDO / REDO
@@ -3411,9 +3389,16 @@ function closeSidebarMobile() {
 // ═══════════════════════════════════════════════════════════════
 // COMMIT / DEPLOY
 // ═══════════════════════════════════════════════════════════════
-let commitHistory = [
-  { hash: 'a1b2c3', message: 'Initial strategy', time: Date.now() }
-];
+// Persist commit history per strategy in localStorage
+function getCommitHistory() {
+  const key = 'mercury_commits_' + (activeStrategyId || 'default');
+  try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; }
+}
+function saveCommitHistory(history) {
+  const key = 'mercury_commits_' + (activeStrategyId || 'default');
+  // Keep max 20 commits per strategy to avoid bloating localStorage
+  localStorage.setItem(key, JSON.stringify(history.slice(0, 20)));
+}
 
 function openCommitModal() {
   // Update diff display
@@ -3428,14 +3413,33 @@ function openCommitModal() {
   }
 
   // Update history
+  const commitHistory = getCommitHistory();
   const historyEl = document.getElementById('commitHistory');
-  historyEl.innerHTML = commitHistory.slice(0, 5).map(c =>
-    `<div class="commit-entry">
-      <span class="commit-hash">${c.hash}</span>
-      <span class="commit-msg">${c.message}</span>
-      <span class="commit-time">${timeAgo(new Date(c.time).toISOString())}</span>
-    </div>`
-  ).join('');
+  if (commitHistory.length === 0) {
+    historyEl.innerHTML = '<div class="commit-entry" style="color:var(--muted);font-style:italic;">No commits yet</div>';
+  } else {
+    historyEl.innerHTML = commitHistory.slice(0, 8).map(c =>
+      `<div class="commit-entry" data-hash="${escapeAttr(c.hash)}" style="cursor:pointer;" title="Click to restore this version">
+        <span class="commit-hash">${esc(c.hash)}</span>
+        <span class="commit-msg">${esc(c.message)}</span>
+        <span class="commit-time">${esc(timeAgo(new Date(c.time).toISOString()))}</span>
+      </div>`
+    ).join('');
+    // Bind restore on click
+    historyEl.querySelectorAll('.commit-entry[data-hash]').forEach(entry => {
+      entry.addEventListener('click', () => {
+        const hash = entry.dataset.hash;
+        const commit = commitHistory.find(c => c.hash === hash);
+        if (commit && commit.snapshot) {
+          if (confirm('Restore strategy to commit "' + (commit.message || hash) + '"?')) {
+            loadStrategyFromSnapshot(commit.snapshot);
+            closeCommitModal();
+            showToast('Restored: ' + (commit.message || hash));
+          }
+        }
+      });
+    });
+  }
 
   document.getElementById('commitMessage').value = '';
   document.getElementById('commitModal').classList.add('open');
@@ -3449,11 +3453,19 @@ function closeCommitModal() {
 function confirmCommit() {
   const msg = document.getElementById('commitMessage').value.trim() || 'Update strategy';
   const hash = Math.random().toString(36).substr(2, 6);
-  commitHistory.unshift({ hash, message: msg, time: Date.now() });
+
+  // Snapshot current state
+  const snapshot = snapshotStrategy();
+  const commitHistory = getCommitHistory();
+  commitHistory.unshift({ hash, message: msg, time: Date.now(), snapshot });
+  saveCommitHistory(commitHistory);
 
   el.toolbarStatus.textContent = 'COMMITTED';
   el.toolbarStatus.classList.add('saved');
   showToast('Committed: ' + msg);
+
+  // Also persist the strategy
+  persistActiveStrategy();
 
   // Update version
   const versionEl = document.getElementById('scriptVersion');
@@ -3464,6 +3476,24 @@ function confirmCommit() {
     el.toolbarStatus.textContent = 'DRAFT';
     el.toolbarStatus.classList.remove('saved');
   }, 2000);
+}
+
+/** Restore a strategy from a commit snapshot */
+function loadStrategyFromSnapshot(snapshot) {
+  _suppressAutoSave = true;
+  clearCanvas();
+  nextNodeId = snapshot.nextNodeId || 1;
+  nextConnId = snapshot.nextConnId || 1;
+  if (snapshot.nodes) {
+    snapshot.nodes.forEach(ns => createNode(ns.type, ns.x, ns.y, ns.properties, ns.id));
+  }
+  if (snapshot.connections) {
+    snapshot.connections.forEach(cs => addConnection(cs.fromNodeId, cs.fromPortId, cs.toNodeId, cs.toPortId));
+  }
+  if (snapshot.name && el.strategyName) el.strategyName.value = snapshot.name;
+  _suppressAutoSave = false;
+  updateMercuryScript();
+  autoSaveStrategy();
 }
 
 function openDeployModal() {
@@ -3538,12 +3568,25 @@ async function checkDeployExchangeStatus() {
       if (polyLabel) polyLabel.textContent = 'Not Configured';
     }
 
-    if (data.kalshi === 'connected') {
-      if (kalshiDot) { kalshiDot.classList.remove('disconnected'); kalshiDot.classList.add('connected'); }
-      if (kalshiLabel) kalshiLabel.textContent = 'Connected';
-    } else {
+    // Check per-user Kalshi credentials
+    try {
+      const kr = await (window.fetchWithAuth || fetch)(`${getEngineBase()}/api/kalshi/credentials`);
+      if (kr.ok) {
+        const kd = await kr.json();
+        if (kd.connected) {
+          if (kalshiDot) { kalshiDot.classList.remove('disconnected'); kalshiDot.classList.add('connected'); }
+          if (kalshiLabel) kalshiLabel.textContent = 'Connected (' + (kd.api_key_masked || 'API key') + ')';
+        } else {
+          if (kalshiDot) { kalshiDot.classList.add('disconnected'); kalshiDot.classList.remove('connected'); }
+          if (kalshiLabel) kalshiLabel.textContent = 'Not Connected — Add in sidebar';
+        }
+      } else {
+        if (kalshiDot) { kalshiDot.classList.add('disconnected'); kalshiDot.classList.remove('connected'); }
+        if (kalshiLabel) kalshiLabel.textContent = 'Not Connected';
+      }
+    } catch (e) {
       if (kalshiDot) { kalshiDot.classList.add('disconnected'); kalshiDot.classList.remove('connected'); }
-      if (kalshiLabel) kalshiLabel.textContent = 'Not Configured';
+      if (kalshiLabel) kalshiLabel.textContent = 'Not Connected';
     }
   } catch (e) {
     console.warn('[Deploy] Engine health check failed:', e);
@@ -3551,22 +3594,7 @@ async function checkDeployExchangeStatus() {
 }
 
 function applyTierToDeployModal() {
-  const modeSelect = document.getElementById('deployMode');
-  if (!modeSelect || !window.MercuryTiers) return;
-
-  const canLive = window.MercuryTiers.tierCan(userTier, 'live');
-
-  Array.from(modeSelect.options).forEach(opt => {
-    if (opt.value === 'live') {
-      opt.disabled = !canLive;
-      opt.textContent = canLive ? 'Live' : 'Live (Pro)';
-    }
-  });
-
-  // If current selection is disabled, reset to paper
-  if (modeSelect.value === 'live' && !canLive) {
-    modeSelect.value = 'paper';
-  }
+  // All features are free — no tier gating needed
 }
 
 function closeDeployModal() {
@@ -3579,37 +3607,7 @@ function confirmDeploy() {
   const capital = document.getElementById('deployCapital').value;
   const mode = document.getElementById('deployMode').value;
 
-  // ── Live mode confirmation ──
-  if (mode === 'live' && !confirmDeploy._confirmed) {
-    const ok = confirm(
-      `Deploy "${botName}" in LIVE mode on ${platform}?\n\n` +
-      `Capital: $${parseFloat(capital).toLocaleString()}\n\n` +
-      `This will execute real trades with real money.`
-    );
-    if (!ok) return;
-    confirmDeploy._confirmed = true;
-  }
-  confirmDeploy._confirmed = false;
-
-  // ── Tier gating: live mode ──
-  if (mode === 'live' && window.MercuryTiers && !window.MercuryTiers.tierCan(userTier, 'live')) {
-    closeDeployModal();
-    if (typeof showUpgradeModal === 'function') showUpgradeModal('live');
-    return;
-  }
-
-  // ── Tier gating: bot count ──
-  if (window.MercuryTiers) {
-    const maxBots = window.MercuryTiers.tierMaxBots(userTier);
-    const currentBotCount = bots.length;
-    if (currentBotCount >= maxBots) {
-      closeDeployModal();
-      if (typeof showUpgradeModal === 'function') showUpgradeModal('bot-limit');
-      return;
-    }
-  }
-
-  // Compile strategy
+  // Compile strategy first (need it for both paper and live)
   const { strategy, errors } = compileStrategy();
 
   if (!strategy) {
@@ -3618,7 +3616,7 @@ function confirmDeploy() {
     return;
   }
 
-  // Attach deploy config from modal (preserve embedded asset config)
+  // Attach deploy config
   strategy.config = {
     platform,
     capital: parseFloat(capital) || 10000,
@@ -3626,16 +3624,187 @@ function confirmDeploy() {
     asset: strategy.config.asset || { asset_type: 'prediction_market', symbol: '', platform: 'Auto' },
   };
 
+  if (mode === 'live') {
+    // Show the live review modal instead of deploying immediately
+    closeDeployModal();
+    showLiveReviewModal(strategy, botName, platform, capital);
+    return;
+  }
+
+  // Paper mode — deploy directly
+  closeDeployModal();
+  _executeDeploy(strategy, botName, platform, capital, mode, false);
+}
+
+function showLiveReviewModal(strategy, botName, platform, capital) {
+  // Populate summary
+  var lrBotName = document.getElementById('lrBotName');
+  var lrPlatform = document.getElementById('lrPlatform');
+  var lrCapital = document.getElementById('lrCapital');
+  if (lrBotName) lrBotName.textContent = botName;
+  if (lrPlatform) lrPlatform.textContent = platform;
+  if (lrCapital) lrCapital.textContent = '$' + parseFloat(capital).toLocaleString();
+
+  // Populate live config with sensible defaults based on capital
+  var cap = parseFloat(capital) || 1000;
+  var defaultTradeSize = Math.max(10, Math.min(Math.round(cap * 0.025), 250)); // 2.5% of capital, capped at $250
+  var lrTradeSizeEl = document.getElementById('lrTradeSize');
+  var lrMaxPosEl = document.getElementById('lrMaxPositions');
+  var lrStopLossEl = document.getElementById('lrStopLoss');
+  var lrDailyLimitEl = document.getElementById('lrDailyLimit');
+  if (lrTradeSizeEl) lrTradeSizeEl.value = defaultTradeSize;
+  if (lrMaxPosEl) lrMaxPosEl.value = 3;
+  if (lrStopLossEl) lrStopLossEl.value = 10;
+  if (lrDailyLimitEl) lrDailyLimitEl.value = Math.max(25, Math.round(cap * 0.05)); // 5% of capital
+
+  // Populate risk controls
+  var riskDiv = document.getElementById('lrRiskParams');
+  if (riskDiv) {
+    var riskNodes = (strategy.pipeline && strategy.pipeline.risk) || [];
+    if (riskNodes.length === 0) {
+      riskDiv.innerHTML = '<div style="color:var(--red,#ff4444);font-weight:600;padding:8px;background:rgba(255,68,68,0.1);border-radius:6px;">⚠ NO RISK CONTROLS — This strategy has no stop-loss, position limits, or other risk management. Deploying without risk controls is extremely dangerous.</div>';
+    } else {
+      riskDiv.innerHTML = riskNodes.map(function(r) {
+        var label = (r.type || 'unknown').replace(/-/g, ' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+        var params = r.params || {};
+        var details = Object.keys(params).map(function(k) {
+          return '<span style="color:rgba(255,255,255,0.5);">' + esc(k.replace(/([A-Z])/g, ' $1').trim()) + ':</span> <span style="color:rgba(255,255,255,0.9);">' + esc(String(params[k])) + '</span>';
+        }).join(' &nbsp;·&nbsp; ');
+        return '<div style="padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:6px;margin-bottom:4px;border-left:3px solid rgba(0,200,150,0.5);"><span style="font-weight:600;color:rgba(255,255,255,0.9);">' + esc(label) + '</span><div style="margin-top:4px;">' + details + '</div></div>';
+      }).join('');
+    }
+  }
+
+  // Populate execution rules
+  var execDiv = document.getElementById('lrExecParams');
+  if (execDiv) {
+    var execNodes = (strategy.pipeline && strategy.pipeline.executions) || [];
+    if (execNodes.length === 0) {
+      execDiv.innerHTML = '<div style="color:rgba(255,255,255,0.4);padding:6px;">No execution nodes</div>';
+    } else {
+      execDiv.innerHTML = execNodes.map(function(e) {
+        var label = (e.type || 'unknown').replace(/-/g, ' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+        var params = e.params || {};
+        var details = Object.keys(params).map(function(k) {
+          return '<span style="color:rgba(255,255,255,0.5);">' + esc(k.replace(/([A-Z])/g, ' $1').trim()) + ':</span> <span style="color:rgba(255,255,255,0.9);">' + esc(String(params[k])) + '</span>';
+        }).join(' &nbsp;·&nbsp; ');
+        return '<div style="padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:6px;margin-bottom:4px;border-left:3px solid rgba(0,150,255,0.5);"><span style="font-weight:600;color:rgba(255,255,255,0.9);">' + esc(label) + '</span><div style="margin-top:4px;">' + details + '</div></div>';
+      }).join('');
+    }
+  }
+
+  // Populate triggers
+  var trigDiv = document.getElementById('lrTriggerParams');
+  if (trigDiv) {
+    var trigNodes = (strategy.pipeline && strategy.pipeline.triggers) || [];
+    if (trigNodes.length === 0) {
+      trigDiv.innerHTML = '<div style="color:rgba(255,255,255,0.4);padding:6px;">No triggers</div>';
+    } else {
+      trigDiv.innerHTML = trigNodes.map(function(t) {
+        var label = (t.type || 'unknown').replace(/-/g, ' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+        var params = t.params || {};
+        var details = Object.keys(params).filter(function(k) { return params[k] !== '' && params[k] != null; }).map(function(k) {
+          return '<span style="color:rgba(255,255,255,0.5);">' + esc(k.replace(/([A-Z])/g, ' $1').trim()) + ':</span> <span style="color:rgba(255,255,255,0.9);">' + esc(String(params[k])) + '</span>';
+        }).join(' &nbsp;·&nbsp; ');
+        return '<div style="padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:6px;margin-bottom:4px;border-left:3px solid rgba(255,200,0,0.5);"><span style="font-weight:600;color:rgba(255,255,255,0.9);">' + esc(label) + '</span>' + (details ? '<div style="margin-top:4px;">' + details + '</div>' : '') + '</div>';
+      }).join('');
+    }
+  }
+
+  // Check if terms were previously accepted
+  var termsAlreadyAccepted = localStorage.getItem('mercury_live_terms_accepted') === '1';
+  var termsSection = document.getElementById('lrTermsSection');
+  var termsAcceptedBanner = document.getElementById('lrTermsAccepted');
+  var checkbox = document.getElementById('lrTermsCheckbox');
+  var confirmBtn = document.getElementById('liveReviewConfirm');
+
+  if (termsAlreadyAccepted) {
+    // Hide terms + checkbox, show accepted banner, enable button directly
+    if (termsSection) termsSection.style.display = 'none';
+    if (termsAcceptedBanner) termsAcceptedBanner.style.display = '';
+    if (confirmBtn) {
+      confirmBtn.disabled = false;
+      confirmBtn.style.opacity = '1';
+      confirmBtn.style.cursor = 'pointer';
+    }
+  } else {
+    // Show terms + checkbox, hide accepted banner, disable button
+    if (termsSection) termsSection.style.display = '';
+    if (termsAcceptedBanner) termsAcceptedBanner.style.display = 'none';
+    if (checkbox) checkbox.checked = false;
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.style.opacity = '0.4';
+      confirmBtn.style.cursor = 'not-allowed';
+    }
+  }
+
+  // Store strategy data for when user confirms
+  showLiveReviewModal._pendingStrategy = strategy;
+  showLiveReviewModal._pendingBotName = botName;
+  showLiveReviewModal._pendingPlatform = platform;
+  showLiveReviewModal._pendingCapital = capital;
+
+  // Show modal
+  document.getElementById('liveReviewModal').classList.add('open');
+}
+
+function _applyLiveConfigOverrides(strategy) {
+  var tradeSize = parseFloat(document.getElementById('lrTradeSize')?.value) || 25;
+  var maxPos = parseInt(document.getElementById('lrMaxPositions')?.value) || 3;
+  var stopLoss = parseFloat(document.getElementById('lrStopLoss')?.value) || 10;
+  var dailyLimit = parseFloat(document.getElementById('lrDailyLimit')?.value) || 100;
+
+  if (!strategy.pipeline) return;
+
+  // Override execution node amounts
+  var execs = strategy.pipeline.executions || [];
+  execs.forEach(function(node) {
+    if (node.params) {
+      if (node.params.amount != null) node.params.amount = tradeSize;
+      if (node.params.totalAmount != null) node.params.totalAmount = tradeSize;
+      if (node.params.amountPer != null) node.params.amountPer = tradeSize;
+    }
+  });
+
+  // Override risk node params
+  var risks = strategy.pipeline.risk || [];
+  risks.forEach(function(node) {
+    if (!node.params) return;
+    if (node.type === 'stop-loss') {
+      node.params.type = 'Percentage';
+      node.params.value = stopLoss;
+    }
+    if (node.type === 'trailing-stop') {
+      node.params.value = stopLoss;
+    }
+    if (node.type === 'position-limit') {
+      node.params.maxPositions = maxPos;
+      node.params.maxPerContract = tradeSize * 2;
+    }
+    if (node.type === 'daily-loss-limit') {
+      node.params.maxLoss = dailyLimit;
+    }
+    if (node.type === 'portfolio-cap') {
+      // Keep portfolio cap proportional — 10x trade size or existing, whichever is smaller
+      var proposed = tradeSize * 10;
+      if (node.params.maxCapital != null && proposed < node.params.maxCapital) {
+        node.params.maxCapital = proposed;
+      }
+    }
+  });
+
+  console.log('[Mercury] Applied live config: tradeSize=$' + tradeSize + ', maxPos=' + maxPos + ', stopLoss=' + stopLoss + '%, dailyLimit=$' + dailyLimit);
+}
+
+function _executeDeploy(strategy, botName, platform, capital, mode, termsAccepted) {
   console.log('[Mercury Compiler] Strategy compiled successfully:');
   console.log(JSON.stringify(strategy, null, 2));
 
-  closeDeployModal();
-
-  // Launch compiler animation, then deploy to engine
   runCompilerAnimation(botName, platform, mode, async () => {
     try {
       const result = await engineBridge.deployBot(
-        strategy, botName, platform, parseFloat(capital) || 10000, mode || 'paper'
+        strategy, botName, platform, parseFloat(capital) || 10000, mode || 'paper', termsAccepted
       );
       console.log('[Mercury Engine] Deploy response:', result);
       autoSaveStrategy();
@@ -3643,7 +3812,6 @@ function confirmDeploy() {
       switchView('my-bots');
     } catch (e) {
       console.error('[Mercury Engine] Deploy failed:', e);
-      // Fallback: create local bot so UI isn't empty
       const newBot = createMockBot(botName, 'Custom', 'live', platform, parseFloat(capital));
       newBot.compiledStrategy = strategy;
       newBot._local = true;
@@ -3672,12 +3840,12 @@ function runCompilerAnimation(botName, platform, mode, onComplete) {
     { tag: 'RISK', tagClass: 'tag-risk', text: 'Running pre-flight risk check...' },
     { tag: 'RISK', tagClass: 'tag-risk', text: 'Max drawdown limit: <span class="status-ok">PASS</span>' },
     { tag: 'RISK', tagClass: 'tag-risk', text: 'Position size validation: <span class="status-ok">PASS</span>' },
-    { tag: 'NETWORK', tagClass: 'tag-network', text: 'Establishing connection to ' + platform + '...' },
-    { tag: 'NETWORK', tagClass: 'tag-network', text: 'Handshake with ' + platform + ' node... <span class="status-ok">[OK]</span>' },
-    { tag: 'NETWORK', tagClass: 'tag-network', text: 'API key verified — latency 12ms' },
-    { tag: 'DEPLOY', tagClass: 'tag-deploy', text: 'Deploying "' + botName + '" in ' + mode + ' mode...' },
+    { tag: 'NETWORK', tagClass: 'tag-network', text: 'Establishing connection to ' + esc(platform) + '...' },
+    { tag: 'NETWORK', tagClass: 'tag-network', text: 'Handshake with ' + esc(platform) + ' node... <span class="status-ok">[OK]</span>' },
+    { tag: 'NETWORK', tagClass: 'tag-network', text: 'API key verified — low latency' },
+    { tag: 'DEPLOY', tagClass: 'tag-deploy', text: 'Deploying "' + esc(botName) + '" in ' + esc(mode) + ' mode...' },
     { tag: 'DEPLOY', tagClass: 'tag-deploy', text: 'Registering market listeners...' },
-    { tag: 'LIVE', tagClass: 'tag-live', text: '■ Bot "' + botName + '" is LIVE — monitoring ' + platform },
+    { tag: 'LIVE', tagClass: 'tag-live', text: '■ Bot "' + esc(botName) + '" is LIVE — monitoring ' + esc(platform) },
   ];
 
   let i = 0;
@@ -3730,9 +3898,8 @@ window.openConnectModal = function(platform) {
   // For Kalshi, clear API fields
   if (platform !== 'polymarket') {
     document.getElementById('connectApiKey').value = '';
-    document.getElementById('connectApiSecret').value = '';
-    const passphraseInput = document.getElementById('connectPassphrase');
-    if (passphraseInput) passphraseInput.value = '';
+    const pemEl = document.getElementById('connectPrivateKeyPem');
+    if (pemEl) pemEl.value = '';
   }
 
   // Show modal immediately — no blocking
@@ -3935,14 +4102,8 @@ window.openProfileModal = function() {
   if (currentUser && currentUser.email) {
     emailEl.textContent = currentUser.email;
   }
-  const tier = (typeof window.getUserTier === 'function') ? window.getUserTier(currentUser) : 'free';
-  const tierLabel = (window.MercuryTiers && window.MercuryTiers.tierLabel) ? window.MercuryTiers.tierLabel(tier) : tier;
-  planEl.textContent = tierLabel;
-  if (tier !== 'free') {
-    upgradeBtn.style.display = 'none';
-  } else {
-    upgradeBtn.style.display = '';
-  }
+  planEl.textContent = 'Free';
+  if (upgradeBtn) upgradeBtn.style.display = 'none';
   document.getElementById('profileNewPw').value = '';
   document.getElementById('profileConfirmPw').value = '';
   const msg = document.getElementById('profilePwMsg');
@@ -3955,10 +4116,7 @@ window.closeProfileModal = function() {
 };
 
 window.profileUpgrade = function() {
-  closeProfileModal();
-  if (typeof window.showUpgradeModal === 'function') {
-    window.showUpgradeModal('general');
-  }
+  // All features are free — no upgrade needed
 };
 
 window.changePassword = async function() {
@@ -3999,34 +4157,82 @@ document.addEventListener('click', function(e) {
   if (e.target.id === 'withdrawModal') closeWithdrawModal();
 });
 
-function confirmConnect() {
+async function confirmConnect() {
   if (!connectingPlatform) return;
-  const key = document.getElementById('connectApiKey').value.trim();
-  if (!key) {
-    showToast('Please enter an API key', 'error');
+
+  if (connectingPlatform === 'kalshi') {
+    const apiKey = document.getElementById('connectApiKey').value.trim();
+    const pemEl = document.getElementById('connectPrivateKeyPem');
+    const pem = pemEl ? pemEl.value.trim() : '';
+
+    if (!apiKey) { showToast('Please enter your Kalshi API key', 'error'); return; }
+    if (!pem || !pem.includes('PRIVATE KEY')) {
+      showToast('Please paste your RSA private key in PEM format', 'error'); return;
+    }
+
+    // Show loading state
+    const confirmBtn = document.getElementById('connectConfirm');
+    const prevText = confirmBtn.textContent;
+    confirmBtn.textContent = 'Verifying...';
+    confirmBtn.disabled = true;
+
+    try {
+      const base = (window.MERCURY_CONFIG && window.MERCURY_CONFIG.engineBase) || 'http://localhost:8778';
+      const resp = await (window.fetchWithAuth || fetch)(`${base}/api/kalshi/credentials`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ api_key: apiKey, private_key_pem: pem }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) {
+        throw new Error(data.detail || 'Connection failed');
+      }
+
+      connectedAccounts.kalshi = true;
+      _updateKalshiSidebarDot(true, data.api_key_masked);
+      closeConnectModal();
+      showToast('Kalshi connected — balance: $' + (data.balance / 100).toFixed(2));
+    } catch (e) {
+      showToast('Kalshi: ' + (e.message || 'Connection failed'), 'error');
+    } finally {
+      confirmBtn.textContent = prevText;
+      confirmBtn.disabled = false;
+    }
     return;
   }
 
-  // Beta: API key storage is not yet implemented on the backend.
-  // Keys are held in-memory for this session only and never transmitted.
-  connectedAccounts[connectingPlatform] = true;
+  // Polymarket handled by managed wallet flow (separate buttons)
+  closeConnectModal();
+}
 
-  // Update sidebar dot
-  const rowId = connectingPlatform === 'polymarket' ? 'accountPolymarket' : 'accountKalshi';
-  const row = document.getElementById(rowId);
-  if (row) {
-    const dot = row.querySelector('.account-dot');
+function _updateKalshiSidebarDot(connected, label) {
+  const row = document.getElementById('accountKalshi');
+  if (!row) return;
+  const dot = row.querySelector('.account-dot');
+  const btn = row.querySelector('.account-btn');
+  if (connected) {
     dot.classList.remove('disconnected');
     dot.classList.add('connected');
-    const btn = row.querySelector('.account-btn');
-    btn.textContent = 'Connected';
-    btn.classList.add('connected');
-    btn.onclick = null;
+    if (btn) { btn.textContent = label || 'Connected'; btn.classList.add('connected'); }
+  } else {
+    dot.classList.remove('connected');
+    dot.classList.add('disconnected');
+    if (btn) { btn.textContent = 'Connect Account'; btn.classList.remove('connected'); btn.onclick = function() { window.openConnectModal('kalshi'); }; }
   }
-
-  closeConnectModal();
   updateStatusBar();
-  showToast(connectingPlatform.charAt(0).toUpperCase() + connectingPlatform.slice(1) + ' connected (session only — live trading coming soon)');
+}
+
+async function checkKalshiConnectionStatus() {
+  try {
+    const base = (window.MERCURY_CONFIG && window.MERCURY_CONFIG.engineBase) || 'http://localhost:8778';
+    const resp = await (window.fetchWithAuth || fetch)(`${base}/api/kalshi/credentials`);
+    if (!resp.ok) return;
+    const data = await resp.json();
+    if (data.connected) {
+      connectedAccounts.kalshi = true;
+      _updateKalshiSidebarDot(true, data.api_key_masked);
+    }
+  } catch (_) { /* engine offline — ignore */ }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -4244,7 +4450,7 @@ async function handleAgentInput() {
     if (err.rateLimited) {
       if (err.rateLimitType === 'rate_limit_tokens') {
         addAgentMessage(
-          'Daily token limit reached. ' + (err.upgrade ? 'Upgrade to Pro for 10x more usage.' : 'Resets at midnight UTC.'),
+          'Daily token limit reached. Resets at midnight UTC.',
           'assistant'
         );
       } else {
@@ -4607,12 +4813,16 @@ async function updateStatusBar() {
 
   // Try fetching live stats from engine
   let liveBots = bots.filter(b => b.status === 'live').length;
+  let engineOnline = false;
   try {
     const stats = await engineBridge.getStats();
     if (stats) {
       liveBots = stats.bots_live || 0;
+      engineOnline = true;
     }
   } catch { /* engine offline — use local count */ }
+
+  updateEngineStatus(engineOnline);
 
   if (statusBots) {
     const dot = statusBots.querySelector('.status-dot');
@@ -4631,6 +4841,9 @@ async function updateStatusBar() {
     if (dot) dot.className = 'status-dot ' + (connected ? 'connected' : 'disconnected');
   }
 }
+
+// Periodic engine status polling (every 30s)
+setInterval(() => { try { updateStatusBar(); } catch {} }, 30000);
 
 function updateEngineStatus(connected) {
   const statusEngine = document.getElementById('statusEngine');
@@ -4794,7 +5007,7 @@ async function renderBots() {
     const winRate = bot.metrics?.winRate || 0;
     const volume = bot.metrics?.volume || 0;
 
-    return `<div class="bot-card" data-bot-id="${bot.id}" onclick="switchView('bot-detail',{botId:'${bot.id}'})">
+    return `<div class="bot-card" data-bot-id="${escapeAttr(bot.id)}" onclick="switchView('bot-detail',{botId:'${escapeAttr(bot.id)}'})">
       <div class="bot-card-header">
         <div>
           <div class="bot-card-name">${esc(bot.name)}</div>
@@ -4802,8 +5015,8 @@ async function renderBots() {
           <div class="bot-card-market">${esc(bot.market || bot.platform || '')}</div>
         </div>
         <div style="display:flex;align-items:center;gap:6px">
-          <span class="bot-mode-badge bot-mode-badge--${bot.mode || 'paper'}">${bot.mode === 'live' ? 'LIVE' : 'PAPER'}</span>
-          <span class="status-badge ${bot.status}">${bot.status}${bot._local ? ' (local)' : ''}</span>
+          <span class="bot-mode-badge bot-mode-badge--${esc(bot.mode || 'paper')}">${bot.mode === 'live' ? 'LIVE' : 'PAPER'}</span>
+          <span class="status-badge ${esc(bot.status)}">${esc(bot.status)}${bot._local ? ' (local)' : ''}</span>
         </div>
       </div>
       <div class="bot-card-metrics">
@@ -4827,16 +5040,6 @@ async function renderBots() {
     </div>`;
   }).join('');
 
-  // Append "Add More" upgrade card if free user is at bot limit
-  if (window.MercuryTiers) {
-    const maxBots = window.MercuryTiers.tierMaxBots(userTier);
-    if (filtered.length >= maxBots && maxBots < Infinity) {
-      el.botsGrid.innerHTML += `<div class="bot-card bot-card-upgrade" onclick="showUpgradeModal('bot-limit')">
-        <div class="bot-card-upgrade-text">+ Add More Bots</div>
-        <div class="bot-card-upgrade-cta">Upgrade to Pro</div>
-      </div>`;
-    }
-  }
 }
 
 /** Convert engine bot summary to the shape the frontend expects */
@@ -4926,7 +5129,7 @@ async function renderBotDetail(botId) {
   document.getElementById('detailBotName').textContent = bot.name;
   const statusEl = document.getElementById('detailStatus');
   statusEl.textContent = bot.status + (isEngine ? '' : ' (local)');
-  statusEl.className = 'status-badge ' + bot.status;
+  statusEl.className = 'status-badge ' + esc(bot.status);
 
   // Mode badge (remove old one first to avoid duplicates)
   const existingBadge = statusEl.parentElement.querySelector('.bot-mode-badge');
@@ -5100,7 +5303,7 @@ function renderBotLogs(bot) {
   logsEl.innerHTML = logs.map(l =>
     `<div class="log-entry">
       <span class="log-time">${formatTime(l.timestamp)}</span>
-      <span class="log-level ${l.level || 'info'}">${l.level || 'info'}</span>
+      <span class="log-level ${esc(l.level || 'info')}">${esc(l.level || 'info')}</span>
       <span class="log-message">${esc(l.message || '')}</span>
     </div>`
   ).join('');
@@ -5116,7 +5319,7 @@ function startLogSimulation(bot) {
   const messages = [
     { level: 'info', msg: 'Heartbeat OK — latency 8ms' },
     { level: 'info', msg: 'Market scan complete — 0 new signals' },
-    { level: 'signal', msg: 'Probability shift detected: +2.3c on ' + bot.contract },
+    { level: 'signal', msg: 'Probability shift detected: +2.3c on ' + esc(bot.contract) },
     { level: 'info', msg: 'Order book depth: $' + (Math.random() * 100 + 50).toFixed(0) + 'K' },
     { level: 'info', msg: 'Position P&L update: ' + (Math.random() > 0.5 ? '+' : '-') + '$' + (Math.random() * 50).toFixed(2) },
     { level: 'trade', msg: 'Fill: BUY YES x $' + (Math.random() * 100 + 10).toFixed(0) + ' @ ' + (Math.random() * 30 + 40).toFixed(0) + 'c' },
@@ -5265,6 +5468,12 @@ function stopEngineLogPolling() {
 async function toggleBotStatus(newStatus) {
   if (!selectedBotId) return;
 
+  const btn = newStatus === 'paused'
+    ? document.getElementById('btnPauseBot')
+    : document.getElementById('btnRestartBot');
+  const prevText = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = newStatus === 'paused' ? 'Pausing...' : 'Restarting...'; }
+
   // Try engine first
   try {
     if (newStatus === 'paused') {
@@ -5277,6 +5486,8 @@ async function toggleBotStatus(newStatus) {
     return;
   } catch (e) {
     console.warn('[Mercury] Engine toggle failed:', e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = prevText; }
   }
 
   // Fallback to local
@@ -5290,6 +5501,10 @@ async function toggleBotStatus(newStatus) {
 async function killBot() {
   if (!selectedBotId) return;
 
+  const btn = document.getElementById('btnKillBot');
+  const prevText = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'Stopping...'; }
+
   // Try engine first
   try {
     await engineBridge.stopBot(selectedBotId);
@@ -5300,6 +5515,8 @@ async function killBot() {
     return;
   } catch (e) {
     console.warn('[Mercury] Engine stop failed:', e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = prevText; }
   }
 
   // Fallback to local
@@ -5315,11 +5532,17 @@ async function deleteBot() {
   if (!selectedBotId) return;
   if (!confirm('Delete this bot permanently? This cannot be undone.')) return;
 
+  const btn = document.getElementById('btnDeleteBot');
+  const prevText = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'Deleting...'; }
+
   // Try engine first
   try {
     await engineBridge.deleteBot(selectedBotId);
   } catch (e) {
     console.warn('[Mercury] Engine delete failed:', e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = prevText; }
   }
 
   // Also remove from local bots array
@@ -5328,6 +5551,79 @@ async function deleteBot() {
   stopEngineLogPolling();
   showToast('Bot deleted');
   switchView('my-bots');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CSV EXPORT
+// ═══════════════════════════════════════════════════════════════
+async function exportBotCSV(type) {
+  if (!selectedBotId) return;
+  const btn = document.getElementById(type === 'trades' ? 'btnExportTrades' : 'btnExportLogs');
+  const prevText = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'Exporting...'; }
+
+  try {
+    const base = getEngineBase();
+    const _fetch = typeof window.fetchWithAuth === 'function' ? window.fetchWithAuth : fetch;
+    const resp = await _fetch(`${base}/api/bots/${selectedBotId}/export/${type}`);
+    if (!resp.ok) throw new Error('Export failed');
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (selectedBotId + '_' + type + '.csv').replace(/[^a-zA-Z0-9._-]/g, '_');
+    // Use filename from Content-Disposition if available
+    const disp = resp.headers.get('Content-Disposition');
+    if (disp) {
+      const match = disp.match(/filename="?([^"]+)"?/);
+      if (match) a.download = match[1];
+    }
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast(type.charAt(0).toUpperCase() + type.slice(1) + ' exported');
+  } catch (e) {
+    // Fallback: export from local data in the rendered view
+    try {
+      _exportLocalCSV(type);
+    } catch {
+      showToast('Export failed: ' + e.message, 'error');
+    }
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = prevText; }
+  }
+}
+
+function _exportLocalCSV(type) {
+  let csv = '';
+  if (type === 'trades') {
+    const rows = document.querySelectorAll('#tradesBody .data-table-row');
+    csv = 'Time,Side,Contract,Price,Amount,PnL\n';
+    rows.forEach(r => {
+      const cells = r.querySelectorAll('.data-table-cell');
+      csv += Array.from(cells).map(c => '"' + c.textContent.trim().replace(/"/g, '""') + '"').join(',') + '\n';
+    });
+  } else {
+    const entries = document.querySelectorAll('#botLogs .log-entry');
+    csv = 'Time,Level,Message\n';
+    entries.forEach(e => {
+      const time = e.querySelector('.log-time')?.textContent || '';
+      const badge = e.querySelector('.log-badge')?.textContent || '';
+      const msg = e.querySelector('.log-msg')?.textContent || '';
+      csv += '"' + time + '","' + badge + '","' + msg.replace(/"/g, '""') + '"\n';
+    });
+  }
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (selectedBotId || 'bot') + '_' + type + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast(type.charAt(0).toUpperCase() + type.slice(1) + ' exported (local data)');
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -5377,7 +5673,7 @@ async function loadBacktestMarkets() {
             source: m.category || 'polymarket',
             price: m.price,
             recurring: true,
-            meta: { platform: 'Polymarket', market_id: m.market_id, token_id: m.token_id, condition_id: m.condition_id, underlying_asset: m.underlying_asset || '' },
+            meta: { platform: 'Polymarket', market_id: m.market_id, token_id: m.token_id, condition_id: m.condition_id, underlying_asset: m.underlying_asset || '', poly_series_key: m.series_key || '' },
           });
         } else if (m.asset) {
           // Data feed markets (crypto, stocks, weather, economic)
@@ -5657,6 +5953,8 @@ async function runBacktest() {
   let marketId = null;
   let tokenId = null;
   let kalshiTicker = null;
+  let seriesTicker = null;
+  let polySeriesKey = null;
 
   const metaEl = document.getElementById('btAssetMeta');
   if (metaEl && metaEl.value && metaEl.value !== '{}') {
@@ -5666,7 +5964,9 @@ async function runBacktest() {
       if (meta.market_id) marketId = meta.market_id;
       if (meta.token_id) tokenId = meta.token_id;
       if (meta.kalshi_ticker) kalshiTicker = meta.kalshi_ticker;
-      // For Kalshi recurring series, use the underlying asset for price data
+      if (meta.series_ticker) seriesTicker = meta.series_ticker;
+      if (meta.poly_series_key) polySeriesKey = meta.poly_series_key;
+      // Underlying asset is now a fallback — series history takes priority
       if (meta.underlying_asset) asset = meta.underlying_asset;
     } catch (_) {}
   }
@@ -5697,6 +5997,8 @@ async function runBacktest() {
         market_id: marketId,
         token_id: tokenId,
         kalshi_ticker: kalshiTicker,
+        series_ticker: seriesTicker,
+        poly_series_key: polySeriesKey,
         platform,
         asset,
         interval,
@@ -5831,7 +6133,16 @@ function renderBacktestResults(data, strategy, capital) {
         </div>`;
         }).join('')}
       </div>
-    </div>`;
+    </div>
+    ${_renderFundingChecklist(totalReturn, sharpe, maxDD, winRate, totalTrades, isSynthetic)}`;
+
+  // Animate funding checklist items (slot-machine reveal)
+  setTimeout(() => {
+    document.querySelectorAll('.fund-check-row[data-delay]').forEach(row => {
+      const delay = parseInt(row.dataset.delay) || 0;
+      setTimeout(() => row.classList.add('fund-check-row--visible'), delay);
+    });
+  }, 400);
 
   // Render equity chart
   setTimeout(() => {
@@ -5871,6 +6182,65 @@ function renderBacktestResults(data, strategy, capital) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// FUNDING CHECKLIST — shown in backtest results & deploy modal
+// ═══════════════════════════════════════════════════════════════
+
+function _renderFundingChecklist(totalReturn, sharpe, maxDD, winRate, totalTrades, isSynthetic) {
+  // Base criteria (Starter tier) + $5K tier thresholds shown as stretch goals
+  const checks = [
+    { label: 'Positive total return', detail: totalReturn > 0 ? '+' + totalReturn.toFixed(1) + '%' : totalReturn.toFixed(1) + '%', pass: totalReturn > 0 },
+    { label: 'Max drawdown under 10%', detail: Math.abs(maxDD).toFixed(1) + '% drawdown', pass: Math.abs(maxDD) < 10 },
+    { label: 'Sharpe ratio above 0.75', detail: 'Sharpe ' + sharpe.toFixed(2) + (sharpe >= 1.25 ? ' \u2605' : ''), pass: sharpe > 0.75 },
+    { label: 'Win rate above 50%', detail: winRate.toFixed(1) + '% wins', pass: winRate > 50 },
+    { label: 'Minimum 25 trades', detail: totalTrades + ' trades', pass: totalTrades >= 25 },
+    { label: 'Real market data (not synthetic)', detail: isSynthetic ? 'Synthetic data' : 'Real data', pass: !isSynthetic },
+    { label: '60-day live track record', detail: 'Deploy live to start', pass: false, pending: true },
+  ];
+  // $5K elite check: Sharpe >= 1.25 (shown as star on the Sharpe row)
+  const eliteReady = sharpe >= 1.25 && winRate > 50 && totalReturn > 0 && Math.abs(maxDD) < 10 && totalTrades >= 25 && !isSynthetic;
+
+  const passed = checks.filter(c => c.pass).length;
+  const total = checks.length;
+  const pct = Math.round((passed / total) * 100);
+
+  const rows = checks.map((c, i) => {
+    const icon = c.pending
+      ? '<span class="fund-check-icon fund-check-icon--pending">\u25CB</span>'
+      : c.pass
+        ? '<span class="fund-check-icon fund-check-icon--pass">\u2713</span>'
+        : '<span class="fund-check-icon fund-check-icon--fail">\u2717</span>';
+    return `<div class="fund-check-row" data-delay="${150 + i * 120}">
+      ${icon}
+      <span class="fund-check-label">${c.label}</span>
+      <span class="fund-check-detail">${c.detail}</span>
+    </div>`;
+  }).join('');
+
+  return `<div class="detail-card fund-check-card">
+    <div class="card-header">
+      <span class="card-title" style="color:rgba(255,215,0,0.85);">Path to Funding</span>
+      <span class="card-meta">${passed}/${total} criteria met &mdash; get up to $5,000</span>
+    </div>
+    <div class="card-body">
+      <div class="fund-check-bar-track">
+        <div class="fund-check-bar-fill" style="width:${pct}%"></div>
+      </div>
+      <div class="fund-check-list">${rows}</div>
+      <div class="fund-check-footer">
+        ${passed === total - 1 && checks[checks.length - 1].pending
+          ? (eliteReady
+            ? '<span class="fund-check-cta">\u2605 Elite-tier metrics \u2014 deploy live for 60 days to qualify for <strong style="color:rgba(255,215,0,0.85);">$5,000 funding</strong> \u2192</span>'
+            : '<span class="fund-check-cta">Deploy this strategy live to complete the final step \u2192</span>')
+          : passed >= total - 2
+            ? '<span class="fund-check-cta">Almost there \u2014 keep refining and <a href="/funding.html" style="color:rgba(255,215,0,0.85);">apply for funding</a></span>'
+            : '<span class="fund-check-cta">Optimize your strategy to meet funding requirements \u2014 <a href="/funding.html" style="color:rgba(255,215,0,0.85);">learn more</a></span>'
+        }
+      </div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
 // TEMPLATES VIEW
 // ═══════════════════════════════════════════════════════════════
 function renderTemplates() {
@@ -5881,25 +6251,15 @@ function renderTemplates() {
     return `<div class="template-card">
       <div class="template-card-header">
         <div>
-          <div class="template-card-name">${t.name}</div>
-          <div class="template-difficulty">${t.difficulty} &middot; ${t.nodeCount} nodes</div>
+          <div class="template-card-name">${esc(t.name)}</div>
+          <div class="template-difficulty">${esc(t.difficulty)} &middot; ${t.nodeCount} nodes</div>
         </div>
-        <span class="template-category ${t.category}">${t.category.replace('-', ' ')}</span>
+        <span class="template-category ${esc(t.category)}">${esc(t.category.replace('-', ' '))}</span>
       </div>
-      <div class="template-description">${t.description}</div>
-      <div class="template-stats">
-        <div class="template-stat">
-          <span class="template-stat-label">Win Rate</span>
-          <span class="template-stat-value">${t.winRate}%</span>
-        </div>
-        <div class="template-stat">
-          <span class="template-stat-label">Avg Return</span>
-          <span class="template-stat-value" style="color:var(--green)">+${t.avgReturn}%</span>
-        </div>
-      </div>
+      <div class="template-description">${esc(t.description)}</div>
       <div class="template-preview">${renderTemplatePreview(t)}</div>
       <div class="template-card-footer">
-        <button class="toolbar-btn" onclick="loadTemplate('${t.id}')">Use Template</button>
+        <button class="toolbar-btn" onclick="loadTemplate('${escapeAttr(t.id)}')">Use Template</button>
       </div>
     </div>`;
   }).join('');
@@ -5990,9 +6350,18 @@ window.loadTemplate = function(templateId) {
 // TOAST
 // ═══════════════════════════════════════════════════════════════
 function showToast(message, type) {
-  el.toastMessage.textContent = message;
+  // Friendlier messages for common engine errors
+  let msg = message;
+  if (typeof msg === 'string') {
+    if (/fetch|NetworkError|Failed to fetch/i.test(msg)) msg = 'Cannot reach engine — is Mercury Engine running?';
+    else if (/HTTP 401|Unauthorized/i.test(msg)) msg = 'Session expired — please log in again';
+    else if (/HTTP 503|Service Unavailable/i.test(msg)) msg = 'Engine is starting up — try again in a moment';
+    else if (/HTTP 429|Too Many/i.test(msg)) msg = 'Too many requests — slow down';
+  }
+  el.toastMessage.textContent = msg;
   el.toast.className = 'toast show' + (type ? ' ' + type : '');
-  setTimeout(() => { el.toast.classList.remove('show'); }, 3000);
+  const duration = type === 'error' ? 5000 : type === 'warn' ? 4000 : 3000;
+  setTimeout(() => { el.toast.classList.remove('show'); }, duration);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -6043,15 +6412,16 @@ async function initMockData() {
   }
 
   templates = [
+    // ─── MOMENTUM ──────────────────────────────────────────
     {
-      id: 'tmpl-1', name: 'Probability Momentum', category: 'momentum',
-      description: 'Buys YES when probability breaks above a threshold with volume confirmation. Includes stop-loss and position sizing.',
-      difficulty: 'Beginner', winRate: 68, avgReturn: 14.2, nodeCount: 4,
+      id: 'tmpl-1', name: 'BTC Bullish Momentum', category: 'momentum',
+      description: 'Buys BTC-up contracts when price momentum turns positive. Checks every hour, enters with $250 market orders, and uses a trailing stop to lock in gains while staying in the trend.',
+      difficulty: 'Beginner', nodeCount: 4,
       nodes: [
-        { type: 'probability-cross', x: 100, y: 150, properties: { direction: 'Crosses Above', level: 60 } },
-        { type: 'liquidity-check', x: 380, y: 150, properties: { minLiquidity: 50000 } },
-        { type: 'market-order', x: 660, y: 100, properties: { side: 'Buy YES', amount: 200 } },
-        { type: 'stop-loss', x: 660, y: 280, properties: { type: 'Percentage', value: 15 } },
+        { type: 'price-threshold', x: 80, y: 150, properties: { direction: 'Crosses Above', threshold: 55 } },
+        { type: 'momentum', x: 340, y: 150, properties: { direction: 'Bullish', period: '1hr', minChange: 3 } },
+        { type: 'market-order', x: 600, y: 150, properties: { side: 'Buy YES', amount: 250 } },
+        { type: 'trailing-stop', x: 860, y: 150, properties: { type: 'Percentage', value: 10, activation: 5 } },
       ],
       connections: [
         { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
@@ -6060,14 +6430,14 @@ async function initMockData() {
       ],
     },
     {
-      id: 'tmpl-2', name: 'Mean Reversion Sniper', category: 'mean-reversion',
-      description: 'Identifies oversold markets (probability < 25c) with sufficient liquidity. Uses scaled entry for better average price.',
-      difficulty: 'Intermediate', winRate: 62, avgReturn: 18.7, nodeCount: 4,
+      id: 'tmpl-2', name: 'BTC Bearish Momentum', category: 'momentum',
+      description: 'Profits from BTC drops by buying NO on BTC-up contracts when momentum turns negative. Mirror of the bullish strategy — great for hedging or playing both sides.',
+      difficulty: 'Beginner', nodeCount: 4,
       nodes: [
-        { type: 'price-threshold', x: 100, y: 150, properties: { direction: 'Crosses Below', threshold: 25 } },
-        { type: 'liquidity-check', x: 380, y: 150, properties: { minLiquidity: 30000 } },
-        { type: 'scaled-entry', x: 660, y: 100, properties: { totalAmount: 500, tranches: 5 } },
-        { type: 'max-drawdown', x: 660, y: 280, properties: { maxDD: 20 } },
+        { type: 'price-threshold', x: 80, y: 150, properties: { direction: 'Crosses Below', threshold: 45 } },
+        { type: 'momentum', x: 340, y: 150, properties: { direction: 'Bearish', period: '1hr', minChange: 3 } },
+        { type: 'market-order', x: 600, y: 150, properties: { side: 'Buy NO', amount: 250 } },
+        { type: 'trailing-stop', x: 860, y: 150, properties: { type: 'Percentage', value: 10, activation: 5 } },
       ],
       connections: [
         { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
@@ -6076,92 +6446,15 @@ async function initMockData() {
       ],
     },
     {
-      id: 'tmpl-3', name: 'Cross-Platform Arb', category: 'arbitrage',
-      description: 'Detects price discrepancies between Polymarket and Kalshi for the same event. Executes simultaneous opposing positions.',
-      difficulty: 'Advanced', winRate: 84, avgReturn: 8.4, nodeCount: 5,
+      id: 'tmpl-3', name: 'Trend Rider', category: 'momentum',
+      description: 'Catches breakouts with volume confirmation. When a contract breaks above 60c on a volume spike, enters a $500 scaled entry across 3 tranches for better fills. High-volume strategy.',
+      difficulty: 'Intermediate', nodeCount: 5,
       nodes: [
-        { type: 'price-threshold', x: 100, y: 100, properties: { threshold: 5, market: 'Polymarket' } },
-        { type: 'price-threshold', x: 100, y: 280, properties: { threshold: 5, market: 'Kalshi' } },
-        { type: 'correlation', x: 380, y: 180, properties: { threshold: 0.8 } },
-        { type: 'market-order', x: 660, y: 130, properties: { side: 'Buy YES', platform: 'Polymarket' } },
-        { type: 'market-order', x: 660, y: 280, properties: { side: 'Buy NO', platform: 'Kalshi' } },
-      ],
-      connections: [
-        { from: 0, fromPort: 'out', to: 2, toPort: 'in' },
-        { from: 2, fromPort: 'pass', to: 3, toPort: 'in' },
-        { from: 2, fromPort: 'pass', to: 4, toPort: 'in' },
-      ],
-    },
-    {
-      id: 'tmpl-4', name: 'Resolution Event Trader', category: 'event-driven',
-      description: 'Monitors markets approaching resolution. Buys strongly-trending contracts in the final 48 hours with tight risk controls.',
-      difficulty: 'Beginner', winRate: 71, avgReturn: 12.1, nodeCount: 4,
-      nodes: [
-        { type: 'market-event', x: 100, y: 150, properties: { event: 'Resolution', lead: '48hr Before' } },
-        { type: 'probability-band', x: 380, y: 150, properties: { min: 70, max: 95 } },
-        { type: 'limit-order', x: 660, y: 100, properties: { side: 'Buy YES', limitPrice: 75, amount: 300 } },
-        { type: 'stop-loss', x: 660, y: 280, properties: { type: 'Probability Level', value: 60 } },
-      ],
-      connections: [
-        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
-        { from: 1, fromPort: 'pass', to: 2, toPort: 'in' },
-        { from: 2, fromPort: 'out', to: 3, toPort: 'in' },
-      ],
-    },
-    {
-      id: 'tmpl-5', name: 'Volume Spike Scalper', category: 'momentum',
-      description: 'Catches sudden volume spikes and enters with market orders. Quick profit-taking with tight stops for fast in-and-out trades.',
-      difficulty: 'Intermediate', winRate: 58, avgReturn: 22.5, nodeCount: 3,
-      nodes: [
-        { type: 'volume-spike', x: 100, y: 180, properties: { multiplier: 5, window: '1hr' } },
-        { type: 'market-order', x: 420, y: 180, properties: { side: 'Buy YES', amount: 150 } },
-        { type: 'stop-loss', x: 720, y: 180, properties: { type: 'Percentage', value: 8 } },
-      ],
-      connections: [
-        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
-        { from: 1, fromPort: 'out', to: 2, toPort: 'in' },
-      ],
-    },
-    {
-      id: 'tmpl-6', name: 'DCA Accumulator', category: 'mean-reversion',
-      description: 'Systematic dollar-cost averaging into undervalued contracts. Time-based triggers with portfolio exposure limits.',
-      difficulty: 'Beginner', winRate: 65, avgReturn: 11.3, nodeCount: 3,
-      nodes: [
-        { type: 'time-based', x: 100, y: 180, properties: { schedule: 'Daily 9AM', timezone: 'ET' } },
-        { type: 'portfolio-exposure', x: 400, y: 180, properties: { maxExposure: 20 } },
-        { type: 'dca', x: 700, y: 180, properties: { amountPer: 50, interval: 'Daily', maxBuys: 30 } },
-      ],
-      connections: [
-        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
-        { from: 1, fromPort: 'pass', to: 2, toPort: 'in' },
-      ],
-    },
-    {
-      id: 'tmpl-7', name: 'Kalshi Weather Hedge', category: 'event-driven',
-      description: 'Monitors weather-related Kalshi markets. Enters positions based on probability movements with correlation-aware sizing.',
-      difficulty: 'Advanced', winRate: 60, avgReturn: 9.8, nodeCount: 4,
-      nodes: [
-        { type: 'probability-cross', x: 100, y: 150, properties: { direction: 'Crosses Below', level: 40 } },
-        { type: 'correlation', x: 380, y: 150, properties: { threshold: 0.5, action: 'Reduce Size' } },
-        { type: 'scaled-entry', x: 660, y: 100, properties: { totalAmount: 300, tranches: 3 } },
-        { type: 'portfolio-cap', x: 660, y: 280, properties: { maxCapital: 2000 } },
-      ],
-      connections: [
-        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
-        { from: 1, fromPort: 'pass', to: 2, toPort: 'in' },
-        { from: 2, fromPort: 'out', to: 3, toPort: 'in' },
-      ],
-    },
-    {
-      id: 'tmpl-8', name: 'Multi-Trigger Grid', category: 'arbitrage',
-      description: 'Combines price, volume, and time triggers to catch complex market patterns. Position limits prevent overexposure.',
-      difficulty: 'Advanced', winRate: 72, avgReturn: 16.4, nodeCount: 5,
-      nodes: [
-        { type: 'price-threshold', x: 80, y: 100, properties: { direction: 'Crosses Above', threshold: 55 } },
-        { type: 'volume-spike', x: 80, y: 280, properties: { multiplier: 2, window: '4hr' } },
-        { type: 'probability-band', x: 380, y: 180, properties: { min: 40, max: 70 } },
-        { type: 'market-order', x: 660, y: 130, properties: { side: 'Buy YES', amount: 200 } },
-        { type: 'position-limit', x: 660, y: 300, properties: { maxPositions: 3, maxPerContract: 500 } },
+        { type: 'probability-cross', x: 80, y: 100, properties: { direction: 'Crosses Above', level: 60 } },
+        { type: 'volume-spike', x: 80, y: 280, properties: { multiplier: 3, window: '1hr' } },
+        { type: 'liquidity-check', x: 360, y: 180, properties: { minLiquidity: 25000 } },
+        { type: 'scaled-entry', x: 640, y: 180, properties: { totalAmount: 500, tranches: 3 } },
+        { type: 'stop-loss', x: 900, y: 180, properties: { type: 'Percentage', value: 12 } },
       ],
       connections: [
         { from: 0, fromPort: 'out', to: 2, toPort: 'in' },
@@ -6169,55 +6462,66 @@ async function initMockData() {
         { from: 3, fromPort: 'out', to: 4, toPort: 'in' },
       ],
     },
+    // ─── MEAN REVERSION ────────────────────────────────────
     {
-      id: 'tmpl-9', name: 'Bond Arb (Yield Farming)', category: 'bond-arb',
-      description: 'Buys near-certain outcomes (>90c) close to resolution for guaranteed yield. Like buying a bond that matures on resolution day. Low risk, steady returns.',
-      difficulty: 'Beginner', winRate: 96, avgReturn: 6.8, nodeCount: 6,
+      id: 'tmpl-4', name: 'BTC Buy the Dip', category: 'mean-reversion',
+      description: 'Buys BTC-up contracts when RSI goes oversold (<30). Prediction markets overshoot on short-term dips — this strategy dollar-cost averages in during panic for a bounce.',
+      difficulty: 'Beginner', nodeCount: 4,
       nodes: [
-        { type: 'time-based', x: 80, y: 150, properties: { schedule: 'Every 4hr' } },
-        { type: 'probability-band', x: 340, y: 80, properties: { min: 90, max: 99 } },
-        { type: 'liquidity-check', x: 340, y: 250, properties: { minLiquidity: 10000, depth: '1% Depth' } },
-        { type: 'limit-order', x: 620, y: 80, properties: { side: 'Buy YES', limitPrice: 95, amount: 500 } },
-        { type: 'portfolio-cap', x: 620, y: 250, properties: { maxCapital: 5000, action: 'Block New Trades' } },
-        { type: 'daily-loss-limit', x: 900, y: 150, properties: { maxLoss: 50, action: 'Stop Trading Today' } },
-      ],
-      connections: [
-        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
-        { from: 0, fromPort: 'out', to: 2, toPort: 'in' },
-        { from: 1, fromPort: 'pass', to: 3, toPort: 'in' },
-        { from: 2, fromPort: 'pass', to: 3, toPort: 'in' },
-        { from: 3, fromPort: 'out', to: 4, toPort: 'in' },
-        { from: 4, fromPort: 'pass', to: 5, toPort: 'in' },
-      ],
-    },
-    {
-      id: 'tmpl-10', name: 'Whale Follower', category: 'momentum',
-      description: 'Detects abnormal volume spikes and follows the momentum. Volume filter ensures the move has legs.',
-      difficulty: 'Intermediate', winRate: 61, avgReturn: 19.3, nodeCount: 5,
-      nodes: [
-        { type: 'volume-spike', x: 80, y: 150, properties: { multiplier: 5 } },
-        { type: 'momentum', x: 340, y: 150, properties: { direction: 'Any Strong Move', period: '1hr', minChange: 3 } },
-        { type: 'market-order', x: 600, y: 80, properties: { side: 'Buy YES', amount: 200 } },
-        { type: 'trailing-stop', x: 600, y: 250, properties: { type: 'Percentage', value: 8, activation: 5 } },
-        { type: 'cooldown', x: 860, y: 150, properties: { after: 'Any Trade', duration: '30min' } },
+        { type: 'rsi', x: 80, y: 150, properties: { period: 14, oversold: 30, signal: 'Oversold' } },
+        { type: 'price-range', x: 340, y: 150, properties: { min: 20, max: 45, action: 'Inside Range' } },
+        { type: 'dca', x: 600, y: 150, properties: { amountPer: 100, interval: 'Every 1hr', maxBuys: 10 } },
+        { type: 'stop-loss', x: 860, y: 150, properties: { type: 'Percentage', value: 15 } },
       ],
       connections: [
         { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
         { from: 1, fromPort: 'pass', to: 2, toPort: 'in' },
         { from: 2, fromPort: 'out', to: 3, toPort: 'in' },
-        { from: 2, fromPort: 'out', to: 4, toPort: 'in' },
       ],
     },
     {
-      id: 'tmpl-11', name: 'Sentiment Contrarian', category: 'mean-reversion',
-      description: 'Goes against extreme fear. When Fear & Greed drops below 25, buy. Combined with volatility and price range filters.',
-      difficulty: 'Intermediate', winRate: 59, avgReturn: 21.2, nodeCount: 5,
+      id: 'tmpl-5', name: 'BTC Fade the Rally', category: 'mean-reversion',
+      description: 'Sells into overbought BTC-up contracts (RSI > 70) by buying NO. When everyone is euphoric, probability overshoots — this catches the pullback for quick profit.',
+      difficulty: 'Beginner', nodeCount: 4,
       nodes: [
-        { type: 'api-data', x: 80, y: 150, properties: { preset: 'Fear & Greed Index', operator: '<', threshold: 25 } },
-        { type: 'volatility', x: 340, y: 80, properties: { range: 'High', period: '24hr', action: 'Above Range' } },
-        { type: 'price-range', x: 340, y: 250, properties: { min: 15, max: 45, action: 'Inside Range' } },
-        { type: 'scaled-entry', x: 620, y: 150, properties: { totalAmount: 500, tranches: 5, priceRange: 10 } },
-        { type: 'stop-loss', x: 900, y: 150, properties: { type: 'Percentage', value: 20 } },
+        { type: 'rsi', x: 80, y: 150, properties: { period: 14, overbought: 70, signal: 'Overbought' } },
+        { type: 'price-range', x: 340, y: 150, properties: { min: 55, max: 80, action: 'Inside Range' } },
+        { type: 'market-order', x: 600, y: 150, properties: { side: 'Buy NO', amount: 200 } },
+        { type: 'take-profit', x: 860, y: 150, properties: { type: 'Percentage', value: 8 } },
+      ],
+      connections: [
+        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
+        { from: 1, fromPort: 'pass', to: 2, toPort: 'in' },
+        { from: 2, fromPort: 'out', to: 3, toPort: 'in' },
+      ],
+    },
+    {
+      id: 'tmpl-6', name: 'Fear & Greed Contrarian', category: 'mean-reversion',
+      description: 'Uses the Fear & Greed Index as a buy signal. When fear is extreme (<20), buys undervalued contracts. Scales in across 5 tranches for better average price. High conviction, high volume.',
+      difficulty: 'Intermediate', nodeCount: 4,
+      nodes: [
+        { type: 'api-data', x: 80, y: 150, properties: { preset: 'Fear & Greed Index', operator: '<', threshold: 20 } },
+        { type: 'price-range', x: 340, y: 150, properties: { min: 15, max: 45, action: 'Inside Range' } },
+        { type: 'scaled-entry', x: 600, y: 150, properties: { totalAmount: 500, tranches: 5 } },
+        { type: 'stop-loss', x: 860, y: 150, properties: { type: 'Percentage', value: 18 } },
+      ],
+      connections: [
+        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
+        { from: 1, fromPort: 'pass', to: 2, toPort: 'in' },
+        { from: 2, fromPort: 'out', to: 3, toPort: 'in' },
+      ],
+    },
+    // ─── BOND ARB ──────────────────────────────────────────
+    {
+      id: 'tmpl-7', name: 'Auto Bond Buyer', category: 'bond-arb',
+      description: 'Automatically buys bonds (contracts >92c) every 2 hours when liquidity is sufficient. The safest strategy on the platform — like earning yield on a savings account. Set it and forget it.',
+      difficulty: 'Beginner', nodeCount: 5,
+      nodes: [
+        { type: 'time-based', x: 80, y: 150, properties: { schedule: 'Every 2hr' } },
+        { type: 'probability-band', x: 320, y: 80, properties: { min: 92, max: 99 } },
+        { type: 'liquidity-check', x: 320, y: 250, properties: { minLiquidity: 10000 } },
+        { type: 'limit-order', x: 600, y: 150, properties: { side: 'Buy YES', limitPrice: 95, amount: 500 } },
+        { type: 'portfolio-cap', x: 860, y: 150, properties: { maxCapital: 5000, action: 'Block New Trades' } },
       ],
       connections: [
         { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
@@ -6228,135 +6532,89 @@ async function initMockData() {
       ],
     },
     {
-      id: 'tmpl-12', name: 'Spread Arbitrage', category: 'arbitrage',
-      description: 'Monitors cross-platform spreads using custom API data. When spread widens past threshold, buys cheap side. Connect your own spread-tracking API.',
-      difficulty: 'Advanced', winRate: 88, avgReturn: 7.5, nodeCount: 5,
+      id: 'tmpl-8', name: 'Aggressive Bond Farmer', category: 'bond-arb',
+      description: 'High-volume bonding: checks every hour, buys contracts above 90c with $1,000 limit orders. Maximizes yield by accepting slightly lower-probability bonds. Portfolio cap prevents overexposure.',
+      difficulty: 'Beginner', nodeCount: 5,
       nodes: [
-        { type: 'api-data', x: 80, y: 150, properties: { preset: 'Custom URL', url: '', json_path: '', operator: '>', threshold: 4 } },
-        { type: 'spread-check', x: 340, y: 150, properties: { maxSpread: 2 } },
-        { type: 'market-order', x: 620, y: 80, properties: { side: 'Buy YES', platform: 'Polymarket', amount: 300 } },
-        { type: 'market-order', x: 620, y: 250, properties: { side: 'Buy NO', platform: 'Kalshi', amount: 300 } },
-        { type: 'position-limit', x: 900, y: 150, properties: { maxPositions: 5, maxPerContract: 1000 } },
-      ],
-      connections: [
-        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
-        { from: 1, fromPort: 'pass', to: 2, toPort: 'in' },
-        { from: 1, fromPort: 'pass', to: 3, toPort: 'in' },
-        { from: 2, fromPort: 'out', to: 4, toPort: 'in' },
-      ],
-    },
-    {
-      id: 'tmpl-13', name: 'Order Flow Scalper', category: 'momentum',
-      description: 'Watches for volume spikes indicating order flow imbalance. Enters with TWAP to minimize slippage. Time exit forces close if trade stalls.',
-      difficulty: 'Advanced', winRate: 56, avgReturn: 25.8, nodeCount: 5,
-      nodes: [
-        { type: 'volume-spike', x: 80, y: 150, properties: { multiplier: 4 } },
-        { type: 'volume-filter', x: 340, y: 150, properties: { minVolume: 50000, maxVolume: 0 } },
-        { type: 'twap', x: 600, y: 80, properties: { side: 'Buy YES', totalAmount: 500, duration: '15min', slices: 5 } },
-        { type: 'take-profit', x: 600, y: 250, properties: { type: 'Percentage', value: 10 } },
-        { type: 'time-exit', x: 860, y: 150, properties: { maxHold: '4hr', action: 'Close All' } },
-      ],
-      connections: [
-        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
-        { from: 1, fromPort: 'pass', to: 2, toPort: 'in' },
-        { from: 2, fromPort: 'out', to: 3, toPort: 'in' },
-        { from: 2, fromPort: 'out', to: 4, toPort: 'in' },
-      ],
-    },
-    {
-      id: 'tmpl-14', name: 'Smart DCA + Alerts', category: 'mean-reversion',
-      description: 'Dollar-cost averages during trading hours only, with momentum and volatility filters. Sends alerts on every execution for monitoring.',
-      difficulty: 'Beginner', winRate: 67, avgReturn: 12.1, nodeCount: 6,
-      nodes: [
-        { type: 'time-based', x: 80, y: 150, properties: { schedule: 'Every 4hr', timezone: 'ET' } },
-        { type: 'time-window', x: 340, y: 80, properties: { startHour: 9, endHour: 16, timezone: 'ET', days: 'Weekdays Only' } },
-        { type: 'momentum', x: 340, y: 250, properties: { direction: 'Bearish', period: '24hr', minChange: 3 } },
-        { type: 'dca', x: 620, y: 150, properties: { amountPer: 25, interval: 'Every 4hr', maxBuys: 50 } },
-        { type: 'alert', x: 620, y: 320, properties: { channel: 'Dashboard', message: 'DCA buy executed' } },
-        { type: 'size-scaler', x: 900, y: 150, properties: { method: 'Fixed Fractional', riskPct: 2, maxSize: 200 } },
-      ],
-      connections: [
-        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
-        { from: 0, fromPort: 'out', to: 2, toPort: 'in' },
-        { from: 1, fromPort: 'pass', to: 3, toPort: 'in' },
-        { from: 2, fromPort: 'pass', to: 3, toPort: 'in' },
-        { from: 3, fromPort: 'out', to: 4, toPort: 'in' },
-        { from: 3, fromPort: 'out', to: 5, toPort: 'in' },
-      ],
-    },
-    {
-      id: 'tmpl-15', name: 'Bond Arb (Conservative)', category: 'bond-arb',
-      description: 'Ultra-safe bonding strategy. Only buys contracts above 95c with 7+ days to resolution. Kelly-sized positions with strict portfolio cap.',
-      difficulty: 'Beginner', winRate: 99, avgReturn: 4.2, nodeCount: 5,
-      nodes: [
-        { type: 'time-based', x: 80, y: 150, properties: { schedule: 'Every 12hr' } },
-        { type: 'probability-band', x: 340, y: 150, properties: { min: 95, max: 99 } },
-        { type: 'size-scaler', x: 600, y: 80, properties: { method: 'Kelly Criterion', riskPct: 1, maxSize: 1000 } },
-        { type: 'limit-order', x: 600, y: 250, properties: { side: 'Buy YES', limitPrice: 97, amount: 1000 } },
+        { type: 'time-based', x: 80, y: 150, properties: { schedule: 'Every 1hr' } },
+        { type: 'probability-band', x: 320, y: 80, properties: { min: 90, max: 99 } },
+        { type: 'liquidity-check', x: 320, y: 250, properties: { minLiquidity: 5000 } },
+        { type: 'limit-order', x: 600, y: 150, properties: { side: 'Buy YES', limitPrice: 93, amount: 1000 } },
         { type: 'portfolio-cap', x: 860, y: 150, properties: { maxCapital: 10000, action: 'Block New Trades' } },
       ],
       connections: [
         { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
-        { from: 1, fromPort: 'pass', to: 2, toPort: 'in' },
+        { from: 0, fromPort: 'out', to: 2, toPort: 'in' },
+        { from: 1, fromPort: 'pass', to: 3, toPort: 'in' },
         { from: 2, fromPort: 'pass', to: 3, toPort: 'in' },
         { from: 3, fromPort: 'out', to: 4, toPort: 'in' },
       ],
     },
+    // ─── DCA / ACCUMULATION ────────────────────────────────
     {
-      id: 'tmpl-16', name: 'Multi-Market Hedge', category: 'event-driven',
-      description: 'Monitors correlated markets via custom API for divergence. When detected, hedges across both sides. Logic gate ensures both conditions are met before entry.',
-      difficulty: 'Advanced', winRate: 70, avgReturn: 13.5, nodeCount: 6,
+      id: 'tmpl-9', name: 'Hourly DCA Machine', category: 'dca',
+      description: 'Buys $50 every hour into your chosen contract, rain or shine. 100 max buys means up to $5,000 deployed over 4 days. Simple, consistent, high total volume. The workhorse strategy.',
+      difficulty: 'Beginner', nodeCount: 3,
       nodes: [
-        { type: 'api-data', x: 80, y: 150, properties: { preset: 'Custom URL', url: '', json_path: '', operator: '>', threshold: 5 } },
-        { type: 'logic-gate', x: 340, y: 80, properties: { mode: 'AND (both)' } },
-        { type: 'liquidity-check', x: 340, y: 250, properties: { minLiquidity: 25000 } },
-        { type: 'hedge', x: 620, y: 80, properties: { strategy: 'Buy Opposite Side', ratio: 100 } },
-        { type: 'trailing-stop', x: 620, y: 250, properties: { type: 'Percentage', value: 5, activation: 3 } },
-        { type: 'alert', x: 900, y: 150, properties: { channel: 'Webhook', message: 'Hedge position opened' } },
-      ],
-      connections: [
-        { from: 0, fromPort: 'out', to: 1, toPort: 'a' },
-        { from: 2, fromPort: 'pass', to: 1, toPort: 'b' },
-        { from: 0, fromPort: 'out', to: 2, toPort: 'in' },
-        { from: 1, fromPort: 'pass', to: 3, toPort: 'in' },
-        { from: 3, fromPort: 'out', to: 4, toPort: 'in' },
-        { from: 3, fromPort: 'out', to: 5, toPort: 'in' },
-      ],
-    },
-    {
-      id: 'tmpl-17', name: 'Custom Data Scalper', category: 'event-driven',
-      description: 'Monitors custom API data for spikes and buys prediction contracts before the market fully prices in the event. Probability filter confirms the opportunity.',
-      difficulty: 'Intermediate', winRate: 58, avgReturn: 16.8, nodeCount: 5,
-      nodes: [
-        { type: 'api-data', x: 80, y: 150, properties: { preset: 'Custom URL', url: '', json_path: '', operator: '>', threshold: 100 } },
-        { type: 'probability-band', x: 340, y: 80, properties: { min: 30, max: 70 } },
-        { type: 'probability-band', x: 340, y: 250, properties: { min: 20, max: 65 } },
-        { type: 'market-order', x: 620, y: 150, properties: { side: 'Buy YES', amount: 150, platform: 'Auto' } },
-        { type: 'stop-loss', x: 900, y: 150, properties: { type: 'Percentage', value: 15 } },
+        { type: 'time-based', x: 100, y: 180, properties: { schedule: 'Every 1hr' } },
+        { type: 'dca', x: 420, y: 180, properties: { amountPer: 50, interval: 'Every 1hr', maxBuys: 100 } },
+        { type: 'portfolio-cap', x: 740, y: 180, properties: { maxCapital: 5000, action: 'Block New Trades' } },
       ],
       connections: [
         { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
         { from: 1, fromPort: 'out', to: 2, toPort: 'in' },
+      ],
+    },
+    {
+      id: 'tmpl-10', name: 'Smart DCA (Buy Dips Only)', category: 'dca',
+      description: 'Like the Hourly DCA but only buys when momentum is bearish — times your entries during pullbacks for a better average price. Checks every 2 hours during market hours.',
+      difficulty: 'Intermediate', nodeCount: 5,
+      nodes: [
+        { type: 'time-based', x: 80, y: 150, properties: { schedule: 'Every 2hr', timezone: 'ET' } },
+        { type: 'time-window', x: 320, y: 80, properties: { startHour: 8, endHour: 22, timezone: 'ET', days: 'All Days' } },
+        { type: 'momentum', x: 320, y: 250, properties: { direction: 'Bearish', period: '4hr', minChange: 2 } },
+        { type: 'dca', x: 600, y: 150, properties: { amountPer: 75, interval: 'Every 2hr', maxBuys: 60 } },
+        { type: 'portfolio-cap', x: 860, y: 150, properties: { maxCapital: 5000, action: 'Block New Trades' } },
+      ],
+      connections: [
+        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
+        { from: 0, fromPort: 'out', to: 2, toPort: 'in' },
+        { from: 1, fromPort: 'pass', to: 3, toPort: 'in' },
         { from: 2, fromPort: 'pass', to: 3, toPort: 'in' },
         { from: 3, fromPort: 'out', to: 4, toPort: 'in' },
       ],
     },
+    // ─── EVENT-DRIVEN ──────────────────────────────────────
     {
-      id: 'tmpl-18', name: 'Disaster Event Alpha', category: 'event-driven',
-      description: 'Monitors NWS weather alerts and custom API data simultaneously. When a real alert fires AND your custom data confirms, buys disaster-related contracts before the crowd.',
-      difficulty: 'Advanced', winRate: 55, avgReturn: 22.1, nodeCount: 5,
+      id: 'tmpl-11', name: 'Resolution Sniper', category: 'event-driven',
+      description: 'Buys high-probability contracts in the final 48 hours before resolution. Markets approaching certainty (75-95c) in the last 2 days are essentially free money with a short time horizon.',
+      difficulty: 'Beginner', nodeCount: 4,
       nodes: [
-        { type: 'news-alert', x: 80, y: 100, properties: { preset: 'NWS Weather Alerts', min_severity: 'Warning', keyword: 'hurricane', poll_interval: 120 } },
-        { type: 'api-data', x: 80, y: 320, properties: { preset: 'Custom URL', url: '', json_path: '', operator: '>', threshold: 50 } },
-        { type: 'probability-band', x: 380, y: 200, properties: { min: 10, max: 55 } },
-        { type: 'market-order', x: 660, y: 150, properties: { side: 'Buy YES', amount: 250, platform: 'Auto' } },
-        { type: 'trailing-stop', x: 660, y: 350, properties: { type: 'Percentage', value: 12, activation: 5 } },
+        { type: 'market-event', x: 80, y: 150, properties: { event: 'Resolution', lead: '48hr Before' } },
+        { type: 'probability-band', x: 340, y: 150, properties: { min: 75, max: 95 } },
+        { type: 'market-order', x: 600, y: 150, properties: { side: 'Buy YES', amount: 300 } },
+        { type: 'stop-loss', x: 860, y: 150, properties: { type: 'Probability Level', value: 60 } },
       ],
       connections: [
-        { from: 0, fromPort: 'out', to: 2, toPort: 'in' },
-        { from: 1, fromPort: 'out', to: 2, toPort: 'in' },
-        { from: 2, fromPort: 'pass', to: 3, toPort: 'in' },
-        { from: 3, fromPort: 'out', to: 4, toPort: 'in' },
+        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
+        { from: 1, fromPort: 'pass', to: 2, toPort: 'in' },
+        { from: 2, fromPort: 'out', to: 3, toPort: 'in' },
+      ],
+    },
+    {
+      id: 'tmpl-12', name: 'Volume Spike Catcher', category: 'event-driven',
+      description: 'Detects sudden volume surges (3x normal) and rides the wave with $300 market orders. Tight trailing stop (8%) locks in gains. Fast in, fast out — generates volume on every market-moving event.',
+      difficulty: 'Intermediate', nodeCount: 4,
+      nodes: [
+        { type: 'volume-spike', x: 80, y: 150, properties: { multiplier: 3, window: '1hr' } },
+        { type: 'liquidity-check', x: 340, y: 150, properties: { minLiquidity: 20000 } },
+        { type: 'market-order', x: 600, y: 150, properties: { side: 'Buy YES', amount: 300 } },
+        { type: 'trailing-stop', x: 860, y: 150, properties: { type: 'Percentage', value: 8, activation: 4 } },
+      ],
+      connections: [
+        { from: 0, fromPort: 'out', to: 1, toPort: 'in' },
+        { from: 1, fromPort: 'pass', to: 2, toPort: 'in' },
+        { from: 2, fromPort: 'out', to: 3, toPort: 'in' },
       ],
     },
   ];

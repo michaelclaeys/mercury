@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' http://localhost:8778 https://engine.mercurysuite.net https://mercurysuite.net https://*.supabase.co https://api.coingecko.com https://api.alternative.me https://gamma-api.polymarket.com https://clob.polymarket.com https://api.elections.kalshi.com https://*.binance.com https://*.coinbase.com wss://*.supabase.co; frame-ancestors 'none';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
   <title>How to Build a Prediction Market Arbitrage Bot — Mercury</title>
   <meta name="description" content="Build cross-platform arbitrage bots for Polymarket and Kalshi. Exploit pricing gaps automatically with Mercury's visual builder and agentic AI. Step-by-step guide with risk management.">
-  <link rel="canonical" href="https://mercurysuite.io/guides/prediction-market-arbitrage-bot.html">
+  <link rel="canonical" href="https://mercurysuite.net/guides/prediction-market-arbitrage-bot.html">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Mercury">
-  <meta property="og:url" content="https://mercurysuite.io/guides/prediction-market-arbitrage-bot.html">
+  <meta property="og:url" content="https://mercurysuite.net/guides/prediction-market-arbitrage-bot.html">
   <meta property="og:title" content="How to Build a Prediction Market Arbitrage Bot — Mercury">
   <meta property="og:description" content="Build cross-platform arbitrage bots for Polymarket and Kalshi. Exploit pricing gaps automatically with Mercury's visual builder and agentic AI.">
-  <meta property="og:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta property="og:image" content="https://mercurysuite.net/images/og-default.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="How to Build a Prediction Market Arbitrage Bot — Mercury">
   <meta name="twitter:description" content="Build cross-platform arbitrage bots for Polymarket and Kalshi. Exploit pricing gaps automatically with Mercury's visual builder and agentic AI.">
-  <meta name="twitter:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta name="twitter:image" content="https://mercurysuite.net/images/og-default.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,7 +45,7 @@
         "name": "How much capital do I need for prediction market arbitrage?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Start with paper trading on Mercury's free tier to validate your strategy at zero cost. Live arbitrage works best with $500 or more to overcome minimum fees on both platforms and make thin spreads worthwhile. Mercury Funding provides up to $5,000 in trading capital for proven strategies — you keep 80-85% of the profits."
+          "text": "Start with paper trading on Mercury to validate your strategy at zero cost. Live arbitrage works best with $500 or more to overcome minimum fees on both platforms and make thin spreads worthwhile. Mercury Funding provides up to $5,000 in trading capital for proven strategies — you keep 80-85% of the profits."
         }
       },
       {
@@ -50,7 +53,7 @@
         "name": "Can I arbitrage Polymarket and Kalshi with Mercury?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. Mercury connects to both Polymarket and Kalshi with sub-12ms and sub-18ms execution latency respectively. The visual builder supports parallel Execution nodes that fire both legs of a cross-platform arbitrage simultaneously, and the agentic AI can generate a complete arbitrage bot from a plain English description."
+          "text": "Yes. Mercury connects to both Polymarket and Kalshi with low-latency execution. The visual builder supports parallel Execution nodes that fire both legs of a cross-platform arbitrage simultaneously, and the agentic AI can generate a complete arbitrage bot from a plain English description."
         }
       },
       {
@@ -171,7 +174,7 @@
           <ul class="legal-list">
             <li><strong>Step 1 — Find the opportunity</strong> — your bot monitors a shared event across both platforms. The market: "Will the Federal Reserve cut rates in June?" Polymarket is pricing YES at $0.55. Kalshi is pricing NO at $0.42 on the same question. Your bot detects that $0.55 + $0.42 = $0.97, which is less than the guaranteed $1.00 payout. This is a $0.03 raw spread — a potential arbitrage opportunity.</li>
             <li><strong>Step 2 — Calculate net spread after fees</strong> — raw spread is not profit. You need to account for trading fees on both platforms. Polymarket charges approximately 2% on your net profit at settlement. Kalshi charges on expected earnings at the time of the trade. For this example, assume Polymarket's fee on the winning leg is about $0.009 and Kalshi's fee is about $0.006. Total fees: approximately $0.015. Net spread after fees: $0.03 - $0.015 = $0.015, or roughly 1.5% return on capital deployed. Your bot's Condition node checks whether this net spread exceeds your configured threshold — say, 1% after fees — and approves the trade.</li>
-            <li><strong>Step 3 — Execute both legs simultaneously</strong> — this is the critical step, and the reason a bot is essential. Your bot places two orders at the same time: buy YES at $0.55 on Polymarket and buy NO at $0.42 on Kalshi. Both orders must fill for the arbitrage to work. If only one leg fills and the other does not, you are no longer arbitraging — you are directionally exposed. Mercury's parallel Execution nodes fire both orders within the same evaluation cycle, with sub-12ms latency to Polymarket and sub-18ms to Kalshi. The near-simultaneous execution minimizes the risk of one leg filling while the other side's price moves away.</li>
+            <li><strong>Step 3 — Execute both legs simultaneously</strong> — this is the critical step, and the reason a bot is essential. Your bot places two orders at the same time: buy YES at $0.55 on Polymarket and buy NO at $0.42 on Kalshi. Both orders must fill for the arbitrage to work. If only one leg fills and the other does not, you are no longer arbitraging — you are directionally exposed. Mercury's parallel Execution nodes fire both orders within the same evaluation cycle, with low-latency connections to Polymarket and Kalshi. The near-simultaneous execution minimizes the risk of one leg filling while the other side's price moves away.</li>
             <li><strong>Step 4 — Wait for resolution</strong> — once both legs are filled, you hold both positions until the event resolves. If the Fed cuts rates in June, your Polymarket YES shares resolve to $1.00 and your Kalshi NO shares resolve to $0.00. If the Fed does not cut, your Polymarket YES goes to $0.00 and your Kalshi NO resolves to $1.00. Either way, you receive exactly $1.00 from one of the two positions.</li>
             <li><strong>Step 5 — Collect profit</strong> — your total cost was $0.97 ($0.55 + $0.42). Your total payout is $1.00. After fees of approximately $0.015, your net profit is roughly $0.015 per share pair. On a $970 position (1,000 share pairs), that is $15 in profit for what is effectively a locked-in return. Scale this across dozens of simultaneous opportunities running 24/7, and the compounding effect becomes significant.</li>
           </ul>
@@ -195,7 +198,7 @@
           <ul class="legal-list">
             <li><strong>Dual Trigger nodes</strong> — place two Trigger nodes on the canvas, one monitoring Polymarket contract prices and the other monitoring Kalshi contract prices for the same event category. Configure each to stream real-time price updates. Mercury's built-in market matching maps Polymarket event slugs to their Kalshi equivalents automatically.</li>
             <li><strong>Condition node for spread calculation</strong> — connect both Trigger outputs into a single Condition node. Configure it to calculate the combined cost of YES on one platform and NO on the other (and vice versa), subtract estimated fees for each platform, and only pass through when the net spread exceeds your minimum threshold. Most arbitrageurs set this between 1% and 3% depending on their risk tolerance and capital base.</li>
-            <li><strong>Parallel Execution nodes</strong> — the Condition node's output fans out to two Execution nodes running in parallel. One places the buy-YES order on Polymarket; the other places the buy-NO order on Kalshi. Parallel execution is critical — both orders fire within the same cycle, with Mercury's infrastructure delivering sub-12ms latency to Polymarket and sub-18ms latency to Kalshi. You configure order type (market or limit), position size (fixed amount or proportional to spread size), and slippage tolerance for each leg independently.</li>
+            <li><strong>Parallel Execution nodes</strong> — the Condition node's output fans out to two Execution nodes running in parallel. One places the buy-YES order on Polymarket; the other places the buy-NO order on Kalshi. Parallel execution is critical — both orders fire within the same cycle, with Mercury's infrastructure delivering low-latency connections to both Polymarket and Kalshi. You configure order type (market or limit), position size (fixed amount or proportional to spread size), and slippage tolerance for each leg independently.</li>
             <li><strong>Risk node for portfolio protection</strong> — downstream of both Execution nodes, a Risk node enforces guardrails: maximum exposure per market, maximum total portfolio exposure, trailing stop-loss in case one leg fails to fill and you need to exit the remaining directional position, and a kill switch that halts all bot activity if drawdown exceeds your defined threshold. Mercury's risk engine runs independently of the strategy engine, ensuring protection even if the trigger logic encounters an error.</li>
           </ul>
           <p>Whether you use the AI approach or the visual builder, the deployed bot runs on Mercury's production infrastructure 24/7 with 99.98% uptime. Telegram alerts notify you of every executed trade, every risk event, and every kill-switch activation. The live dashboard displays all open arbitrage positions, cumulative P&L, and real-time spread monitoring across both platforms. For details on building single-platform bots, see our guides on <a href="build-polymarket-bot.html">building a Polymarket bot</a> and <a href="build-kalshi-bot.html">building a Kalshi bot</a>.</p>
@@ -208,7 +211,7 @@
   <section class="final-cta">
     <div class="container">
       <h2 class="final-headline">Paper trade your arbitrage strategy free.</h2>
-      <p class="final-sub">Mercury's free tier includes real-time data from both Polymarket and Kalshi. Test your arbitrage bot against live spreads before risking capital.</p>
+      <p class="final-sub">Mercury includes real-time data from both Polymarket and Kalshi — 100% free. Test your arbitrage bot against live spreads before risking capital.</p>
       <div class="final-ctas">
         <a href="../signup.html" class="btn btn-primary">Start Paper Trading</a>
         <a href="../architect.html#pricing" class="btn">See Pricing</a>
@@ -229,7 +232,7 @@
             <li><strong>Fee compression</strong> — many apparent arbitrage opportunities disappear once you account for fees on both platforms. A raw spread of 3 cents might shrink to 1 cent or less after Polymarket's settlement fee and Kalshi's trading fee. Your bot's Condition node must calculate the net spread after all fees, not the raw spread, to avoid executing trades that are profitable on paper but unprofitable in practice. Mercury's fee calculation engine models each platform's fee structure precisely.</li>
             <li><strong>Slippage on large orders</strong> — prediction market order books are thinner than traditional financial markets. A $50 arbitrage trade might fill at the quoted price, but a $5,000 trade will walk the order book and receive progressively worse fills. The effective spread narrows or vanishes entirely when your order size exceeds the available liquidity at the target price. Mercury's Execution nodes support configurable slippage tolerance and can split large orders across multiple price levels.</li>
             <li><strong>Market matching errors</strong> — Polymarket and Kalshi sometimes frame identical real-world events with subtly different resolution criteria. "Will Biden win the 2024 election?" and "Will the Democratic candidate win the 2024 presidency?" seem equivalent but are not — if Biden withdraws and another Democrat wins, the two contracts resolve differently. Incorrect market matching is one of the most common and costly errors in cross-platform arbitrage. Mercury's AI-powered matching algorithm flags potential discrepancies, but manual verification of resolution criteria remains essential for every new market pair.</li>
-            <li><strong>Speed competition</strong> — you are not the only trader looking for arbitrage. Institutional market makers like Jump Trading and proprietary trading firms deploy sophisticated infrastructure to capture these same spreads. As more capital chases arbitrage, windows close faster and spreads compress. The edge goes to the fastest, most reliable execution infrastructure. Mercury's sub-12ms Polymarket latency and sub-18ms Kalshi latency are competitive, but the arms race is ongoing.</li>
+            <li><strong>Speed competition</strong> — you are not the only trader looking for arbitrage. Institutional market makers like Jump Trading and proprietary trading firms deploy sophisticated infrastructure to capture these same spreads. As more capital chases arbitrage, windows close faster and spreads compress. The edge goes to the fastest, most reliable execution infrastructure. Mercury's low-latency Polymarket and Kalshi connections are competitive, but the arms race is ongoing.</li>
           </ul>
           <p>Mercury's risk management architecture addresses each of these risks. The kill switch provides portfolio-level protection. The trailing stop-loss on unfilled legs limits exposure from execution failures. The fee-aware Condition node prevents unprofitable trades from executing. And paper trading lets you stress-test your arbitrage strategy against real market data before committing capital. For a comprehensive view of Mercury's risk tooling, see the <a href="prediction-market-bot-builder.html">bot builder guide</a>.</p>
         </div>
@@ -248,8 +251,8 @@
             <li><strong>Individual spread size</strong> — typical cross-platform arbitrage spreads between Polymarket and Kalshi range from 0.5% to 3% after fees. Larger spreads appear during fast-moving news events, new market launches, and periods of high volatility, but they close quickly. The average opportunity that a well-tuned bot can consistently capture sits around 1-2% per trade.</li>
             <li><strong>Profitability comes from frequency, not magnitude</strong> — a single 1.5% return is unimpressive. But executing 20-50 arbitrage trades per day across hundreds of monitored market pairs, running 24 hours a day, 7 days a week, adds up. A bot that averages $5 in profit per trade and executes 30 trades per day generates $150/day or roughly $4,500/month. The key variables are the number of monitored markets, the speed of execution, and the accuracy of fee calculations.</li>
             <li><strong>Institutional capital is compressing spreads</strong> — firms like Jump Trading now provide liquidity on both Polymarket and Kalshi, and their market-making algorithms actively close pricing gaps. This institutional presence has compressed average arbitrage spreads compared to 2023-2024 levels. The opportunities still exist, but they require faster execution, more precise fee modeling, and more market pairs to maintain the same absolute returns.</li>
-            <li><strong>24/7 compounding across thousands of markets</strong> — prediction markets never close. New events are listed daily across politics, economics, weather, sports, entertainment, and technology. A bot monitoring 500+ market pairs across both platforms has a dramatically larger opportunity set than one watching 20 markets. Mercury's infrastructure supports unlimited market monitoring with no additional cost on the Pro plan.</li>
-            <li><strong>Paper trading validates before capital deployment</strong> — Mercury's free tier includes full paper trading with real-time data from both platforms. Run your arbitrage bot in simulation mode for days or weeks to measure actual fill rates, effective spreads after slippage, and fee-adjusted profitability before committing a single dollar. The Pro plan adds backtesting against historical cross-platform data for more statistically significant validation.</li>
+            <li><strong>24/7 compounding across thousands of markets</strong> — prediction markets never close. New events are listed daily across politics, economics, weather, sports, entertainment, and technology. A bot monitoring 500+ market pairs across both platforms has a dramatically larger opportunity set than one watching 20 markets. Mercury's infrastructure supports unlimited market monitoring at no cost — all features are free.</li>
+            <li><strong>Paper trading validates before capital deployment</strong> — Mercury includes full paper trading with real-time data from both platforms. Run your arbitrage bot in simulation mode for days or weeks to measure actual fill rates, effective spreads after slippage, and fee-adjusted profitability before committing a single dollar. Full backtesting against historical cross-platform data is also included for free.</li>
           </ul>
           <p>Traders who demonstrate consistent profitability through paper trading or live results can apply for <a href="../funding.html">Mercury Funding</a>, where Mercury provides up to $5,000 in trading capital. You keep 80-85% of the profits. This lets you scale your arbitrage operation without putting your own capital at risk.</p>
         </div>
@@ -271,12 +274,12 @@
 
         <details class="faq-item">
           <summary class="faq-question">How much capital do I need for prediction market arbitrage?</summary>
-          <div class="faq-answer">Start with paper trading on Mercury's free tier to validate your strategy at zero cost. Live arbitrage works best with $500 or more to overcome minimum fees on both platforms and make thin spreads worthwhile. Mercury Funding provides up to $5,000 in trading capital for proven strategies — you keep 80-85% of the profits.</div>
+          <div class="faq-answer">Start with paper trading on Mercury to validate your strategy at zero cost. Live arbitrage works best with $500 or more to overcome minimum fees on both platforms and make thin spreads worthwhile. Mercury Funding provides up to $5,000 in trading capital for proven strategies — you keep 80-85% of the profits.</div>
         </details>
 
         <details class="faq-item">
           <summary class="faq-question">Can I arbitrage Polymarket and Kalshi with Mercury?</summary>
-          <div class="faq-answer">Yes. Mercury connects to both Polymarket and Kalshi with sub-12ms and sub-18ms execution latency respectively. The visual builder supports parallel Execution nodes that fire both legs of a cross-platform arbitrage simultaneously, and the agentic AI can generate a complete arbitrage bot from a plain English description.</div>
+          <div class="faq-answer">Yes. Mercury connects to both Polymarket and Kalshi with low-latency execution. The visual builder supports parallel Execution nodes that fire both legs of a cross-platform arbitrage simultaneously, and the agentic AI can generate a complete arbitrage bot from a plain English description.</div>
         </details>
 
         <details class="faq-item">

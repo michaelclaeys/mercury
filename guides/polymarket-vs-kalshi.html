@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' http://localhost:8778 https://engine.mercurysuite.net https://mercurysuite.net https://*.supabase.co https://api.coingecko.com https://api.alternative.me https://gamma-api.polymarket.com https://clob.polymarket.com https://api.elections.kalshi.com https://*.binance.com https://*.coinbase.com wss://*.supabase.co; frame-ancestors 'none';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
   <title>Polymarket vs Kalshi: Complete Comparison for Traders (2026) — Mercury</title>
   <meta name="description" content="Polymarket vs Kalshi compared: regulation, markets, fees, API access, liquidity, and bot trading support. Which prediction market platform is right for you?">
-  <link rel="canonical" href="https://mercurysuite.io/guides/polymarket-vs-kalshi.html">
+  <link rel="canonical" href="https://mercurysuite.net/guides/polymarket-vs-kalshi.html">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Mercury">
-  <meta property="og:url" content="https://mercurysuite.io/guides/polymarket-vs-kalshi.html">
+  <meta property="og:url" content="https://mercurysuite.net/guides/polymarket-vs-kalshi.html">
   <meta property="og:title" content="Polymarket vs Kalshi: Complete Comparison for Traders (2026) — Mercury">
   <meta property="og:description" content="Polymarket vs Kalshi compared: regulation, markets, fees, API access, liquidity, and bot trading support. Which prediction market platform is right for you?">
-  <meta property="og:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta property="og:image" content="https://mercurysuite.net/images/og-default.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Polymarket vs Kalshi: Complete Comparison for Traders (2026) — Mercury">
   <meta name="twitter:description" content="Polymarket vs Kalshi compared: regulation, markets, fees, API access, liquidity, and bot trading support. Which prediction market platform is right for you?">
-  <meta name="twitter:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta name="twitter:image" content="https://mercurysuite.net/images/og-default.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -221,11 +224,11 @@
 
         <h3>Polymarket for bot trading</h3>
 
-        <p>Polymarket's strengths for algorithmic traders center on liquidity and volume. Political markets on Polymarket regularly see $5M+ in daily volume on major events, which means tighter spreads and faster fills for market-making bots. The CLOB order book model is familiar to anyone coming from crypto or traditional equities. Settlement is on-chain, which adds transparency but introduces gas costs as a variable. Polymarket's API delivers real-time order book data via WebSocket, and Mercury connects to it with sub-12ms execution latency.</p>
+        <p>Polymarket's strengths for algorithmic traders center on liquidity and volume. Political markets on Polymarket regularly see $5M+ in daily volume on major events, which means tighter spreads and faster fills for market-making bots. The CLOB order book model is familiar to anyone coming from crypto or traditional equities. Settlement is on-chain, which adds transparency but introduces gas costs as a variable. Polymarket's API delivers real-time order book data via WebSocket, and Mercury connects to it with low-latency execution.</p>
 
         <h3>Kalshi for bot trading</h3>
 
-        <p>Kalshi's edge for automated strategies is its unique contract structure. Hourly weather contracts — Will the temperature in Chicago exceed 85 degrees between 2pm and 3pm? — create dozens of trading opportunities per day with outcomes driven by measurable, predictable data feeds. Economic indicator contracts (CPI, jobs reports, GDP) reward traders who can integrate real-time data faster than the market. These short-duration contracts are ideal for high-frequency strategies that capitalize on rapid mean reversion and data-driven edge. Mercury connects to Kalshi with sub-18ms execution latency, fast enough for most systematic approaches.</p>
+        <p>Kalshi's edge for automated strategies is its unique contract structure. Hourly weather contracts — Will the temperature in Chicago exceed 85 degrees between 2pm and 3pm? — create dozens of trading opportunities per day with outcomes driven by measurable, predictable data feeds. Economic indicator contracts (CPI, jobs reports, GDP) reward traders who can integrate real-time data faster than the market. These short-duration contracts are ideal for high-frequency strategies that capitalize on rapid mean reversion and data-driven edge. Mercury connects to Kalshi with low-latency execution, fast enough for most systematic approaches.</p>
 
         <h3>The verdict</h3>
 
@@ -253,8 +256,8 @@
           <li><strong>AI-powered strategy generation:</strong> Describe any strategy in plain English. The agentic AI builds the complete bot — triggers, conditions, execution, and risk nodes — wired together and ready to deploy.</li>
           <li><strong>Unified order routing:</strong> Place orders on either platform from the same terminal. Architect handles authentication, order formatting, and execution for both APIs.</li>
           <li><strong>Cross-platform price monitoring:</strong> See Polymarket and Kalshi prices for the same event side by side. Arbitrage opportunities are flagged automatically.</li>
-          <li><strong>Sub-12ms Polymarket execution:</strong> Direct connection to Polymarket's CLOB with optimized order routing.</li>
-          <li><strong>Sub-18ms Kalshi execution:</strong> Low-latency connection to Kalshi's exchange with full order type support.</li>
+          <li><strong>Low-latency Polymarket execution:</strong> Direct connection to Polymarket's CLOB with optimized order routing.</li>
+          <li><strong>Low-latency Kalshi execution:</strong> Fast connection to Kalshi's exchange with full order type support.</li>
           <li><strong>Strategy portability:</strong> Build a bot strategy once and deploy it to either platform — or both simultaneously. No code changes required between venues.</li>
           <li><strong>Real-time analytics:</strong> Probability tracking, volume analysis, and <a href="../architect-app.html#charting">candlestick charting</a> across both platforms in a single dashboard.</li>
         </ul>
@@ -313,7 +316,7 @@
   <section class="final-cta">
     <div class="container">
       <h2 class="final-headline">Trade both platforms. One interface.</h2>
-      <p class="final-sub">Mercury Architect connects to Polymarket and Kalshi with sub-18ms execution. Build once, deploy everywhere.</p>
+      <p class="final-sub">Mercury Architect connects to Polymarket and Kalshi with low-latency execution. Build once, deploy everywhere.</p>
       <div class="final-ctas">
         <a href="../signup.html" class="btn btn-primary">Get Started Free</a>
         <a href="../architect.html" class="btn">Learn About Architect</a>

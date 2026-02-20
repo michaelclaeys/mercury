@@ -202,30 +202,115 @@ Dev mode: No SUPABASE_JWT_SECRET → returns user_id="default"
 
 ---
 
-## What's Missing for Deployment
+## Live Trading Infrastructure — What's Built, What's Needed
 
-### Must-Have (Blocking)
+### Kalshi Live Trading — DONE
 
-1. **Fix `.env.example`** — Add all Turnkey, Builder, Supabase, proxy env vars with documentation.
-2. **Implement Turnkey withdrawal** — Replace the stub in `polymarket_auth.py` with real USDC transfer via Turnkey signing.
-3. **Fix `main.py` health check** — Pass `bot.user_id` to `get_poly_connector()`.
-4. **SSL/HTTPS** — Automate certbot in `deploy.sh` or document the manual process.
-5. **VPS provisioning** — Actually deploy to a VPS and test the full Docker Compose + nginx setup end-to-end.
+Full per-user credential pipeline is implemented and ready:
 
-### Should-Have (Important)
+1. **Frontend**: Connect Account modal collects API Key + RSA Private Key (PEM textarea)
+2. **Backend**: `POST /api/kalshi/credentials` validates creds against Kalshi API, encrypts PEM with Fernet (AES), stores in `user_credentials` table
+3. **Per-user connectors**: `scheduler.get_kalshi_connector(user_id)` loads from DB, decrypts, creates `KalshiConnector`, caches
+4. **Live execution**: `live.py` routes Kalshi orders using per-user connector, resolves `kalshi_ticker` key correctly
+5. **Status check on boot**: Frontend calls `GET /api/kalshi/credentials` on page load to show connected state
 
-6. **Error monitoring** — No Sentry, no structured logging export. Engine errors are console.warn only.
-7. **Rate limit persistence** — `rate_limit.py` uses in-memory dicts. Resets on engine restart. Should use Redis or SQLite.
-8. **Graceful bot shutdown** — Engine shutdown persists bot state but doesn't cleanly cancel open live orders.
-9. **Frontend production build** — No minification, no bundling, no cache busting. Just raw JS files.
-10. **Health check dashboard** — No way to monitor engine health, connector status, or bot metrics from the frontend beyond the basic sidebar dots.
+Key files: `api/kalshi.py` (credential CRUD + auth on all endpoints), `services/credential_service.py` (Fernet encrypt/decrypt), `connectors/kalshi.py` (accepts `private_key_pem` param)
 
-### Nice-to-Have
+**Contract key**: Frontend uses `contract.kalshi_ticker` → `live.py` checks `kalshi_ticker` first, falls back to `ticker`
 
-11. **WebSocket live updates** — Currently polling every 10-15s. WebSocket would give instant bot status/trade updates.
-12. **Multi-user Kalshi** — Currently single Kalshi account (one set of API keys). Not per-user like Polymarket.
-13. **Wire simulated nodes to real sources** — `sentiment` could use an NLP API; `social-buzz` could use Twitter/Reddit APIs.
-14. **Bot logs export** — No way to download trade history or bot logs as CSV.
+### Polymarket Live Trading — Needs 2 External APIs
+
+Architecture is fully built. Code is written and ready. Just needs API credentials plugged into `.env`.
+
+**API 1: Turnkey HSM** (non-custodial key management)
+- Purpose: Creates Ethereum keypairs inside hardware security modules. Mercury NEVER sees or stores private keys.
+- Each user gets a Turnkey "sub-org" with an EOA keypair (secp256k1, BIP-32 at `m/44'/60'/0'/0/0`)
+- When a trade needs signing, Mercury sends the hash to Turnkey's API → HSM signs inside hardware → returns signature (r, s, v)
+- Self-service signup at turnkey.com, no approval needed
+- Env vars: `TURNKEY_API_PUBLIC_KEY`, `TURNKEY_API_PRIVATE_KEY`, `TURNKEY_ORGANIZATION_ID`
+- Key files: `services/turnkey_service.py`, `services/turnkey_signer.py` (bridges py-clob-client signer interface to Turnkey REST API)
+
+**API 2: Polymarket Builder Program** (gasless infrastructure + revenue share)
+- Purpose: (A) Relayer for gasless Safe wallet deployment, USDC approvals, CTF ops. (B) Volume attribution — weekly USDC kickbacks based on platform trading volume.
+- The CLOB API itself is OPEN — anyone can trade. Builder is needed for the gasless UX and revenue share.
+- Unverified tier: Immediate, no approval, 100 tx/day. Get keys at polymarket.com/settings?tab=builder
+- Verified tier: Manual review, 3000 tx/day, revenue sharing enabled
+- Env vars: `POLY_BUILDER_API_KEY`, `POLY_BUILDER_SECRET`, `POLY_BUILDER_PASSPHRASE`
+- Code already passes `BuilderConfig` with `BuilderApiKeyCreds` to `ClobClient` in `polymarket_auth.py`
+- Scheduler passes `POLY_BUILDER_*` env vars to every `PolymarketAuthConnector` instance
+
+**What happens without Builder**: Users would need MATIC for gas. We'd deploy Safe wallets ourselves (paying gas from an ops wallet). Trading still works via CLOB API. No revenue share.
+
+**Contract key**: Frontend uses `contract.token_id` → flows through correctly (no mismatch like Kalshi had)
+
+**Reference**: Polymarket's own `turnkey-safe-builder-example` repo matches our architecture exactly (Turnkey + Safe + Builder + CLOB).
+
+### Polymarket Wallet Lifecycle (once both APIs are configured)
+
+```
+1. User clicks "Create Trading Wallet"
+2. TurnkeyService.create_user_wallet() → HSM-backed EOA (keys in hardware)
+3. Builder relayer → get proxy address → deploy Gnosis Safe (gasless)
+4. TurnkeySigner → py-clob-client → derive CLOB API credentials (EIP-712)
+5. Builder relayer → approve USDC for exchange contracts (gasless)
+6. Wallet metadata stored in SQLite (NO private keys ever touch Mercury)
+7. User deposits USDC.e to Safe proxy address on Polygon
+8. Trading: Mercury requests HSM signatures from Turnkey API per-order
+9. Orders submitted via ClobClient with BuilderConfig for attribution
+```
+
+### Known limitation
+
+- **Turnkey withdrawal NOT implemented** — `polymarket_auth.py` `withdraw_usdc()` returns `{"error": "coming soon"}` stub. Users cannot withdraw from managed wallets yet.
+
+---
+
+## Launch Checklist
+
+### BLOCKERS — Must fix before any user touches it
+
+- [ ] **Fix `.env.example`** — Missing `SUPABASE_JWT_SECRET`, all Turnkey vars, all Builder vars, `ADMIN_SECRET`, `ALLOWED_ORIGIN`. A deployer using this template gets silent dev mode with no auth.
+- [ ] **Fix `config.js` stale `API.base`** — Line 18-20 points to `localhost:8000` / `mercury-backend.onrender.com`. Either remove `API` export entirely or point it at the engine. Currently only `ENGINE.base` is correct.
+- [ ] **Fix post-login redirect** — `login.html` redirects to `index.html` (landing page) after login. Should go to `architect-app.html` (the actual app).
+- [ ] **CORS for split deploy** — Engine `main.py` CORS must allow the Netlify/production frontend domain. Currently may only allow localhost.
+- [ ] **Deploy frontend to Netlify** — Static site, free tier, auto SSL. Point `mercurysuite.net` DNS at it.
+- [ ] **Deploy engine to VPS** — DigitalOcean/Hetzner ($6-12/mo). Docker + `deploy.sh`. Subdomain like `engine.mercurysuite.net`.
+- [ ] **SSL on engine VPS** — Uncomment HTTPS block in `nginx.conf`, run certbot, fill in domain. `deploy.sh` runs certbot but doesn't auto-update nginx config afterward.
+- [ ] **Get Anthropic API key** — Needed for AI agent. Set `ANTHROPIC_API_KEY` in `.env`.
+- [ ] **Set `SUPABASE_JWT_SECRET`** — From Supabase dashboard → Settings → API → JWT Secret. Without this, engine runs in dev mode (no user isolation).
+- [ ] **Set `WALLET_ENCRYPTION_KEY`** — Or engine derives from `SUPABASE_JWT_SECRET`. Needed to encrypt stored Kalshi credentials.
+
+### EXTERNAL APIS — Sign up and plug in env vars
+
+- [ ] **Polymarket Builder keys** — Go to polymarket.com/settings?tab=builder, create profile, generate API keys. Unverified tier = instant, 100 tx/day. Set `POLY_BUILDER_API_KEY`, `POLY_BUILDER_SECRET`, `POLY_BUILDER_PASSPHRASE`.
+- [ ] **Turnkey account** — Sign up at turnkey.com, create org-level P-256 API key. Set `TURNKEY_API_PUBLIC_KEY`, `TURNKEY_API_PRIVATE_KEY`, `TURNKEY_ORGANIZATION_ID`. Needed for non-custodial Polymarket wallets.
+- [ ] **SOCKS5 proxy (VPS only)** — Polymarket blocks datacenter IPs. Need a residential proxy. Set `POLY_PROXY_HOST/PORT/USERNAME/PASSWORD`.
+- [ ] **Polymarket Builder Verified tier** — Apply after generating volume. Unlocks 3000 tx/day + revenue share.
+
+### PRE-LAUNCH POLISH — Should fix before real users
+
+- [ ] **Implement Turnkey withdrawal** — `polymarket_auth.py` `withdraw_usdc()` is a stub. Users can deposit but can't withdraw. Either implement or add clear warning in UI.
+- [ ] **Engine `config.js` production URL** — `ENGINE.base` falls back to `window.location.origin/engine` in prod. For split deploy (Netlify + VPS), need to hardcode the engine domain or use an env-injected config.
+- [ ] **Error monitoring** — No Sentry, no structured logging. Engine errors are console only. At minimum add Sentry SDK.
+- [ ] **Rate limit persistence** — `rate_limit.py` uses in-memory dicts, resets on engine restart. Move to SQLite or Redis.
+- [ ] **Graceful bot shutdown** — Engine shutdown persists bot state but doesn't cancel open live orders. Could leave orphan orders on Kalshi/Polymarket.
+- [ ] **Test full Kalshi live flow end-to-end** — Connect real Kalshi creds → deploy bot → verify order execution → verify position tracking.
+- [ ] **Admin panel auth** — `admin.html` exists. Verify it's protected by `ADMIN_SECRET` and not accessible to regular users.
+
+### QUALITY OF LIFE — Nice to have before or shortly after launch
+
+- [ ] **WebSocket live updates** — Currently polling every 10-15s. WebSocket would give instant bot status/trade/log updates.
+- [ ] **Bot logs export** — No way to download trade history or logs as CSV. Users will want this for tax/analysis.
+- [ ] **Strategy sharing/templates** — Users can save strategies but can't share them. A public template gallery would help onboarding.
+- [ ] **Email notifications** — No alerts when bots trigger trades, hit stop-loss, or error out. At minimum email on critical events.
+- [ ] **Mobile responsive check** — `DEVICE.isMobile` detection exists but unclear if the node editor is usable on mobile. May need a simplified mobile view.
+- [ ] **Onboarding tour** — First-time users need guidance. The node editor is powerful but has a learning curve.
+- [ ] **Loading states everywhere** — Deploy button, connect modal, strategy save — make sure all async operations show spinners and disable buttons.
+- [ ] **Better error toasts** — Engine errors should surface user-friendly messages, not raw exception text.
+- [ ] **Bot performance charts** — Equity curve, P&L over time, win rate visualization in the bot detail view.
+- [ ] **Strategy version history** — No undo/version control on strategy edits. Users can accidentally overwrite their work.
+- [ ] **Multi-bot dashboard** — When a user has 5+ bots, they need an overview of all bots' performance at a glance.
+- [ ] **Cache busting** — Frontend serves raw JS files with no versioning. Add `?v=hash` to script tags or use Netlify's built-in asset hashing.
 
 ---
 

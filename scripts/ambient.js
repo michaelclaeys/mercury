@@ -34,7 +34,7 @@
     'KELLY 0.22', '842 BOTS', '67.2% WIN', 'BRIER 0.18', '$312M OI',
     'SHARP 1.84', 'DECAY -0.4c', 'SPREAD 2c', 'LIQ $4.2M', 'CAL 0.94',
     '0x7f3a...e2c1', 'node_42', 'lambda.exec', 'feed://poly',
-    'ws://stream', 'sig: 0.003', 'lat: 12ms', 'tps: 847', 'q: 0.91',
+    'ws://stream', 'sig: 0.003', 'lat: low', 'tps: 847', 'q: 0.91',
     'roi: +22.1%', 'pos: LONG', 'exp: $4.2K', 'fill: 98.2%',
     'mkt: 1,247', 'res: 94.8%', 'edge: +3.2c', 'vol: $48.6M',
   ];

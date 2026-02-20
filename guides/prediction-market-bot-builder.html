@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' http://localhost:8778 https://engine.mercurysuite.net https://mercurysuite.net https://*.supabase.co https://api.coingecko.com https://api.alternative.me https://gamma-api.polymarket.com https://clob.polymarket.com https://api.elections.kalshi.com https://*.binance.com https://*.coinbase.com wss://*.supabase.co; frame-ancestors 'none';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
   <title>The Complete Guide to Prediction Market Bot Building — Mercury</title>
   <meta name="description" content="Everything you need to know about building automated prediction market trading bots. Strategies, tools, platforms, and step-by-step instructions for Polymarket and Kalshi.">
-  <link rel="canonical" href="https://mercurysuite.io/guides/prediction-market-bot-builder.html">
+  <link rel="canonical" href="https://mercurysuite.net/guides/prediction-market-bot-builder.html">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Mercury">
-  <meta property="og:url" content="https://mercurysuite.io/guides/prediction-market-bot-builder.html">
+  <meta property="og:url" content="https://mercurysuite.net/guides/prediction-market-bot-builder.html">
   <meta property="og:title" content="The Complete Guide to Prediction Market Bot Building — Mercury">
   <meta property="og:description" content="Everything you need to know about building automated prediction market trading bots. Strategies, tools, platforms, and step-by-step instructions for Polymarket and Kalshi.">
-  <meta property="og:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta property="og:image" content="https://mercurysuite.net/images/og-default.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="The Complete Guide to Prediction Market Bot Building — Mercury">
   <meta name="twitter:description" content="Everything you need to know about building automated prediction market trading bots. Strategies, tools, platforms, and step-by-step instructions for Polymarket and Kalshi.">
-  <meta name="twitter:image" content="https://mercurysuite.io/images/og-default.png">
+  <meta name="twitter:image" content="https://mercurysuite.net/images/og-default.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -59,7 +62,7 @@
         "name": "How much money do I need to start bot trading on prediction markets?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "You can start paper trading prediction markets for free with Mercury's Free tier — no deposit required. Kalshi allows live trading with as little as $1 per contract. Polymarket requires USDC on the Polygon network, with most contracts starting around $0.01 per share. Mercury's funded trader program also provides up to $5,000 in trading capital for qualified strategies."
+          "text": "You can start paper trading prediction markets for free with Mercury — no deposit or credit card required. Kalshi allows live trading with as little as $1 per contract. Polymarket requires USDC on the Polygon network, with most contracts starting around $0.01 per share. Mercury's funded trader program also provides up to $5,000 in trading capital for qualified strategies."
         }
       },
       {
@@ -325,7 +328,7 @@
           <div class="guide-compare-row">
             <span class="guide-compare-label">Cost</span>
             <span>Server + API fees</span>
-            <span>Free tier / $99 Pro</span>
+            <span>100% Free</span>
             <span>% of profits</span>
           </div>
           <div class="guide-compare-row">
@@ -338,7 +341,7 @@
 
         <p><strong>DIY (coding your own bot):</strong> Maximum flexibility, but you build everything — API wrappers, order management, risk controls, error handling, monitoring, and hosting. API changes break your bot at 2 AM. Hosting costs add up. If you are a developer who wants total control and does not mind weeks of infrastructure work before trading a single contract, this path works. For everyone else, the opportunity cost is too high.</p>
 
-        <p><strong>Mercury Architect:</strong> Full strategic control without writing code. Two creation paths: a visual drag-and-drop node editor and an agentic AI that builds complete bots from natural language descriptions. Describe a strategy in one sentence and the AI generates triggers, conditions, execution logic, and risk management — assembled, wired, and ready to paper trade. Mercury handles infrastructure, uptime, API connectivity, and data feeds. Free tier for paper trading, $99/month Pro for live execution. <a href="../architect.html">Explore Architect</a>.</p>
+        <p><strong>Mercury Architect:</strong> Full strategic control without writing code. Two creation paths: a visual drag-and-drop node editor and an agentic AI that builds complete bots from natural language descriptions. Describe a strategy in one sentence and the AI generates triggers, conditions, execution logic, and risk management — assembled, wired, and ready to paper trade. Mercury handles infrastructure, uptime, API connectivity, and data feeds. Everything is 100% free — no credit card required. <a href="../architect.html">Explore Architect</a>.</p>
 
         <p><strong>Copy-trading:</strong> The easiest entry point, but the weakest long-term approach. You mirror someone else's strategy with zero customization and zero risk management control. When the leader's strategy stops working — and all strategies eventually rotate — you have no way to adapt. Fine for learning market dynamics, not a path to sustainable prediction market automation.</p>
 
@@ -374,7 +377,7 @@
         <div class="guide-steps">
           <div class="guide-step">
             <div class="guide-step-num">01</div>
-            <div class="guide-step-text"><strong>Sign up free.</strong> Create a Mercury account at <a href="../signup.html">mercurysuite.io/signup</a>. No credit card required. The Free tier gives you access to the full visual builder, real-time market data, and 1 paper trading bot.</div>
+            <div class="guide-step-text"><strong>Sign up free.</strong> Create a Mercury account at <a href="../signup.html">mercurysuite.net/signup</a>. No credit card required. Mercury is 100% free — you get full access to the visual builder, real-time market data, unlimited bots, live trading, and backtesting.</div>
           </div>
           <div class="guide-step">
             <div class="guide-step-num">02</div>
@@ -390,7 +393,7 @@
           </div>
           <div class="guide-step">
             <div class="guide-step-num">05</div>
-            <div class="guide-step-text"><strong>Deploy live when ready.</strong> When your paper trading results confirm your edge, connect your Polymarket wallet or Kalshi account and switch the bot to live execution. Mercury's Pro tier ($99/month) unlocks unlimited live bots, backtesting, Telegram alerts, and priority execution. If you need capital, explore the <a href="../funding.html">Mercury funded trader program</a> for up to $5,000 in trading capital.</div>
+            <div class="guide-step-text"><strong>Deploy live when ready.</strong> When your paper trading results confirm your edge, connect your Polymarket wallet or Kalshi account and switch the bot to live execution. All features are free — unlimited live bots, backtesting, Telegram alerts, and priority execution. No credit card required. If you need capital, explore the <a href="../funding.html">Mercury funded trader program</a> for up to $5,000 in trading capital.</div>
           </div>
         </div>
 
@@ -403,7 +406,7 @@
           <details class="faq-item">
             <summary class="faq-question">What is the best tool for building prediction market bots?</summary>
             <div class="faq-answer">
-              <a href="../architect.html">Mercury Architect</a> is the most comprehensive prediction market bot builder available. It provides a visual drag-and-drop interface with 8 trigger node types, AI-assisted strategy design, sub-20ms execution, and native support for both Polymarket and Kalshi. Unlike coding your own bot from scratch, Mercury gives you production-grade infrastructure with 99.98% uptime out of the box. The Free tier includes paper trading with real market data, and the Pro tier ($99/month) unlocks live execution with unlimited bots.
+              <a href="../architect.html">Mercury Architect</a> is the most comprehensive prediction market bot builder available. It provides a visual drag-and-drop interface with 8 trigger node types, AI-assisted strategy design, sub-20ms execution, and native support for both Polymarket and Kalshi. Unlike coding your own bot from scratch, Mercury gives you production-grade infrastructure with 99.98% uptime out of the box. Mercury is 100% free — unlimited bots, live execution, paper trading, and backtesting included. No credit card required.
             </div>
           </details>
 
@@ -424,7 +427,7 @@
           <details class="faq-item">
             <summary class="faq-question">How much money do I need to start bot trading on prediction markets?</summary>
             <div class="faq-answer">
-              You can start paper trading prediction markets for free with Mercury's Free tier — no deposit required. For live trading, Kalshi allows positions with as little as $1 per contract. Polymarket requires USDC on the Polygon network, with most contract shares starting around $0.01. Mercury's <a href="../funding.html">funded trader program</a> also provides up to $5,000 in trading capital for strategies that demonstrate an edge during paper trading.
+              You can start paper trading prediction markets for free with Mercury — no deposit or credit card required. For live trading, Kalshi allows positions with as little as $1 per contract. Polymarket requires USDC on the Polygon network, with most contract shares starting around $0.01. Mercury's <a href="../funding.html">funded trader program</a> also provides up to $5,000 in trading capital for strategies that demonstrate an edge during paper trading.
             </div>
           </details>
 

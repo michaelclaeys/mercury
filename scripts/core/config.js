@@ -14,18 +14,12 @@ export const SUPABASE = {
   anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqanBmdmxjd2FybG94aWdveXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwODgyNjcsImV4cCI6MjA4MTY2NDI2N30.cIVZG4D3-SK0qJp_TgcVBO848negG6bXRCSuHk5Motk',
 };
 
-export const API = {
-  base: ENV.isLocal
-    ? 'http://localhost:8000/api'
-    : 'https://mercury-backend.onrender.com/api',
-};
-
 // Mercury Engine API (bot engine, wallets, trading)
 // Override via window.MERCURY_ENGINE_BASE before script load for custom deployments
 export const ENGINE = {
   base: window.MERCURY_ENGINE_BASE || (ENV.isLocal
     ? 'http://localhost:8778'
-    : `${window.location.origin}/engine`),
+    : 'https://engine.mercurysuite.net'),
 };
 
 // Mobile detection

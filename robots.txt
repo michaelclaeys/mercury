@@ -7,4 +7,4 @@ Disallow: /checkout-cancel.html
 Disallow: /compare.html
 Disallow: /archive/
 
-Sitemap: https://mercurysuite.io/sitemap.xml
+Sitemap: https://mercurysuite.net/sitemap.xml
