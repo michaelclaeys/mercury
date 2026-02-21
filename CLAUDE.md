@@ -1,6 +1,6 @@
 # CLAUDE.md — Mercury System Documentation
 
-> Last updated: 2026-02-18
+> Last updated: 2026-02-20
 > Purpose: Single source of truth for what's built, what's real, what's simulated, and what's missing.
 
 ---
@@ -129,27 +129,23 @@ All 7 simulated trigger nodes (`sentiment`, `social-buzz`, `spread-detector`, `w
 
 ## Known Bugs and Issues
 
-### Critical
+### Minor / Cosmetic
 
-1. **`.env.example` is incomplete** — Missing: `TURNKEY_API_PUBLIC_KEY`, `TURNKEY_API_PRIVATE_KEY`, `TURNKEY_ORGANIZATION_ID`, `POLY_BUILDER_API_KEY`, `POLY_BUILDER_SECRET`, `POLY_BUILDER_PASSPHRASE`, `POLY_RELAYER_URL`, `SUPABASE_JWT_SECRET`, `POLY_PROXY_*` vars. Anyone deploying from this template will miss all managed wallet and auth config.
+1. **`.env.example` is incomplete** — Missing several vars (Turnkey, Builder, SUPABASE_JWT_SECRET). Does NOT affect production — VPS `.env` is complete. Only matters if someone tries to deploy from scratch using the template.
 
-2. **`main.py` line 116** — ~~Health check loop calls `scheduler.get_poly_connector()` without `user_id` argument~~ **FIXED** — Now passes `bot.user_id` and includes `live_feed_router`.
+2. **`data-bridge.js` MercuryDataBridge** — Old class defaults to `localhost:8777` (different port). `MercuryEngineBridge` on line 916 correctly uses `MERCURY_CONFIG.engineBase`. The old class is dead code for the research charting view — harmless.
 
-3. **Turnkey withdrawal NOT implemented** — `polymarket_auth.py` lines 592-597: `withdraw_usdc()` returns `{"error": "Turnkey-based withdrawal coming soon"}` hardcoded. Users cannot withdraw funds from their managed wallets.
+3. **Paper trading contract names** — When no contract is provided, `paper.py` generates random names from a hardcoded list. Not harmful but looks odd in logs.
 
-### Moderate
+4. **`BacktestPaperTrader` monkey-patches db** — `backtester.py` lines 31-37 temporarily replaces `db.save_trade`/`save_position`/`delete_position` with no-ops. Works but is fragile.
 
-4. **`data-bridge.js` MercuryDataBridge** — Constructor defaults to `localhost:8777` (line 14) which is a DIFFERENT port than the engine (8778). This is a leftover from an older bridge server. The second class `MercuryEngineBridge` on line 916 correctly uses `MERCURY_CONFIG.engineBase`. The old `MercuryDataBridge` class is likely dead code for the research charting view.
+### DONE (Previously listed as bugs, now fixed)
 
-5. **`architect-app.js` hardcoded engine URLs** — Lines 3495, 3507, 5451 inline `MERCURY_CONFIG.engineBase || 'http://localhost:8778'` instead of using a centralized variable. Works but is brittle.
-
-6. **No HTTPS/SSL in deploy** — `nginx.conf` and `deploy.sh` exist but SSL cert provisioning (certbot) is referenced in comments only, not automated.
-
-### Minor
-
-7. **Paper trading contract names** — When no contract is provided, `paper.py` generates random names from a hardcoded list (`"Fed Rate Cut Mar 2026"`, etc.). Not harmful but looks odd in logs.
-
-8. **`BacktestPaperTrader` monkey-patches db** — `backtester.py` lines 31-37 temporarily replaces `db.save_trade`/`save_position`/`delete_position` with no-ops. Works but is fragile.
+- ~~`config.js` stale `API.base`~~ — Removed. Only `ENGINE.base` exists, correctly points to `/engine` in prod.
+- ~~Post-login redirect to index.html~~ — Fixed. `login.html` redirects to `architect-app.html`.
+- ~~Turnkey withdrawal not implemented~~ — Implemented. `submit_usdc_transfer()` in `wallet_manager.py`.
+- ~~No HTTPS/SSL~~ — Live at `mercurysuite.net` with Let's Encrypt via certbot.
+- ~~Rate limit in-memory only~~ — `rate_limit.py` persists daily token usage to SQLite.
 
 ---
 
@@ -259,58 +255,52 @@ Architecture is fully built. Code is written and ready. Just needs API credentia
 9. Orders submitted via ClobClient with BuilderConfig for attribution
 ```
 
-### Known limitation
+### Withdrawal
 
-- **Turnkey withdrawal NOT implemented** — `polymarket_auth.py` `withdraw_usdc()` returns `{"error": "coming soon"}` stub. Users cannot withdraw from managed wallets yet.
+- **Turnkey withdrawal DONE** — `submit_usdc_transfer()` in `wallet_manager.py` via builder relayer. Frontend exposes withdraw flow in the funding UI.
 
 ---
 
 ## Launch Checklist
 
-### BLOCKERS — Must fix before any user touches it
+### DEPLOYMENT STATUS — LIVE at mercurysuite.net
 
-- [ ] **Fix `.env.example`** — Missing `SUPABASE_JWT_SECRET`, all Turnkey vars, all Builder vars, `ADMIN_SECRET`, `ALLOWED_ORIGIN`. A deployer using this template gets silent dev mode with no auth.
-- [ ] **Fix `config.js` stale `API.base`** — Line 18-20 points to `localhost:8000` / `mercury-backend.onrender.com`. Either remove `API` export entirely or point it at the engine. Currently only `ENGINE.base` is correct.
-- [ ] **Fix post-login redirect** — `login.html` redirects to `index.html` (landing page) after login. Should go to `architect-app.html` (the actual app).
-- [ ] **CORS for split deploy** — Engine `main.py` CORS must allow the Netlify/production frontend domain. Currently may only allow localhost.
-- [ ] **Deploy frontend to Netlify** — Static site, free tier, auto SSL. Point `mercurysuite.net` DNS at it.
-- [ ] **Deploy engine to VPS** — DigitalOcean/Hetzner ($6-12/mo). Docker + `deploy.sh`. Subdomain like `engine.mercurysuite.net`.
-- [ ] **SSL on engine VPS** — Uncomment HTTPS block in `nginx.conf`, run certbot, fill in domain. `deploy.sh` runs certbot but doesn't auto-update nginx config afterward.
-- [ ] **Get Anthropic API key** — Needed for AI agent. Set `ANTHROPIC_API_KEY` in `.env`.
-- [ ] **Set `SUPABASE_JWT_SECRET`** — From Supabase dashboard → Settings → API → JWT Secret. Without this, engine runs in dev mode (no user isolation).
-- [ ] **Set `WALLET_ENCRYPTION_KEY`** — Or engine derives from `SUPABASE_JWT_SECRET`. Needed to encrypt stored Kalshi credentials.
+- [x] VPS deployed — DigitalOcean, Docker + nginx, `mercurysuite.net` with Let's Encrypt SSL
+- [x] Frontend served from `/opt/mercury/mercury/` via nginx volume mount
+- [x] Engine running at `mercurysuite.net/engine/` via nginx proxy
+- [x] `SUPABASE_JWT_SECRET` set on VPS, `ENV=production` (JWT verification active)
+- [x] `ANTHROPIC_API_KEY` set (AI agent functional)
+- [x] Turnkey API keys configured (`TURNKEY_API_PUBLIC_KEY/PRIVATE_KEY/ORGANIZATION_ID`)
+- [x] Polymarket Builder keys configured (`POLY_BUILDER_API_KEY/SECRET/PASSPHRASE`)
+- [x] SOCKS5 proxy configured for Polymarket (`POLY_PROXY_*`)
+- [x] Kalshi live trading — per-user credentials, encrypted storage, live order execution
+- [x] Polymarket live trading — Turnkey HSM + Builder relayer, full wallet lifecycle
+- [x] Turnkey withdrawal — `submit_usdc_transfer()` in `wallet_manager.py`
+- [x] Cloudflare — real IP passthrough, tiered rate limiting, bot fight mode
+- [x] Mobile optimization — 2-col grid on landing, mobile welcome popup, `is-mobile` CSS class
+- [x] Shared API caching — BTC candles (60s), Kalshi events (60s), market search (30s)
 
-### EXTERNAL APIS — Sign up and plug in env vars
+### REMAINING BEFORE REAL USERS
 
-- [ ] **Polymarket Builder keys** — Go to polymarket.com/settings?tab=builder, create profile, generate API keys. Unverified tier = instant, 100 tx/day. Set `POLY_BUILDER_API_KEY`, `POLY_BUILDER_SECRET`, `POLY_BUILDER_PASSPHRASE`.
-- [ ] **Turnkey account** — Sign up at turnkey.com, create org-level P-256 API key. Set `TURNKEY_API_PUBLIC_KEY`, `TURNKEY_API_PRIVATE_KEY`, `TURNKEY_ORGANIZATION_ID`. Needed for non-custodial Polymarket wallets.
-- [ ] **SOCKS5 proxy (VPS only)** — Polymarket blocks datacenter IPs. Need a residential proxy. Set `POLY_PROXY_HOST/PORT/USERNAME/PASSWORD`.
-- [ ] **Polymarket Builder Verified tier** — Apply after generating volume. Unlocks 3000 tx/day + revenue share.
+- [ ] **End-to-end live trade test** — Connect real Kalshi creds → deploy bot → verify execution + position tracking on prod VPS. Same for Polymarket.
+- [ ] **Graceful bot shutdown with order cancellation** — Engine shutdown persists state but doesn't cancel open live orders. Could leave orphan orders on exchange. Add cancel-all-open-orders on `SIGTERM`.
+- [ ] **Error monitoring** — No Sentry. Engine errors only in Docker logs. Add Sentry SDK + DSN to `.env` so crashes surface without SSH.
+- [ ] **Fix `.env.example`** — Missing Turnkey, Builder, SUPABASE_JWT_SECRET vars. Doesn't affect prod but anyone deploying fresh will fail silently.
 
-### PRE-LAUNCH POLISH — Should fix before real users
+### SCALING — What breaks first under load
 
-- [ ] **Implement Turnkey withdrawal** — `polymarket_auth.py` `withdraw_usdc()` is a stub. Users can deposit but can't withdraw. Either implement or add clear warning in UI.
-- [ ] **Engine `config.js` production URL** — `ENGINE.base` falls back to `window.location.origin/engine` in prod. For split deploy (Netlify + VPS), need to hardcode the engine domain or use an env-injected config.
-- [ ] **Error monitoring** — No Sentry, no structured logging. Engine errors are console only. At minimum add Sentry SDK.
-- [ ] **Rate limit persistence** — `rate_limit.py` uses in-memory dicts, resets on engine restart. Move to SQLite or Redis.
-- [ ] **Graceful bot shutdown** — Engine shutdown persists bot state but doesn't cancel open live orders. Could leave orphan orders on Kalshi/Polymarket.
-- [ ] **Test full Kalshi live flow end-to-end** — Connect real Kalshi creds → deploy bot → verify order execution → verify position tracking.
-- [ ] **Admin panel auth** — `admin.html` exists. Verify it's protected by `ADMIN_SECRET` and not accessible to regular users.
+- [ ] **SQLite concurrent writes** — WAL mode helps but SQLite serializes writes. At ~100+ concurrent active bots or heavy backtest load, migrate to Postgres.
+- [ ] **Single uvicorn worker** — All bots run in one process/event loop. CPU-bound backtests can block bot evaluation cycles. Add `--workers 2` or offload backtests to a background task queue (e.g., arq + Redis).
+- [ ] **In-memory bot state** — Scheduler holds all bot runners in RAM. At ~200+ bots this becomes a memory concern. Add bot state paging or Redis-backed runner state.
+- [ ] **VPS size** — Current DigitalOcean droplet is small. At 50+ concurrent users, upgrade to 4GB RAM / 2 vCPU. At 200+ users, add a second VPS and load balance.
 
-### QUALITY OF LIFE — Nice to have before or shortly after launch
+### QUALITY OF LIFE — Post-launch
 
-- [ ] **WebSocket live updates** — Currently polling every 10-15s. WebSocket would give instant bot status/trade/log updates.
-- [ ] **Bot logs export** — No way to download trade history or logs as CSV. Users will want this for tax/analysis.
-- [ ] **Strategy sharing/templates** — Users can save strategies but can't share them. A public template gallery would help onboarding.
-- [ ] **Email notifications** — No alerts when bots trigger trades, hit stop-loss, or error out. At minimum email on critical events.
-- [ ] **Mobile responsive check** — `DEVICE.isMobile` detection exists but unclear if the node editor is usable on mobile. May need a simplified mobile view.
-- [ ] **Onboarding tour** — First-time users need guidance. The node editor is powerful but has a learning curve.
-- [ ] **Loading states everywhere** — Deploy button, connect modal, strategy save — make sure all async operations show spinners and disable buttons.
-- [ ] **Better error toasts** — Engine errors should surface user-friendly messages, not raw exception text.
-- [ ] **Bot performance charts** — Equity curve, P&L over time, win rate visualization in the bot detail view.
-- [ ] **Strategy version history** — No undo/version control on strategy edits. Users can accidentally overwrite their work.
-- [ ] **Multi-bot dashboard** — When a user has 5+ bots, they need an overview of all bots' performance at a glance.
-- [ ] **Cache busting** — Frontend serves raw JS files with no versioning. Add `?v=hash` to script tags or use Netlify's built-in asset hashing.
+- [ ] **Email notifications** — No alerts on bot errors, stop-loss triggers, or trade fills. Add Resend/SendGrid for critical events.
+- [ ] **Bot logs / trade history export** — No CSV download. Users need this for taxes.
+- [ ] **WebSocket live updates** — Currently polling every 5-10s. WebSockets would give instant updates.
+- [ ] **Onboarding tour** — Node editor is powerful but has a learning curve. Add first-run tooltip sequence.
+- [ ] **Polymarket Builder Verified tier** — Apply once volume builds. Unlocks 3000 tx/day + revenue share kickbacks.
 
 ---
 
