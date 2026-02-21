@@ -213,8 +213,8 @@ class MercuryDataBridge {
   }
 }
 
-// Global instance — condor bot bridge (charting dashboard)
-const dataBridge = new MercuryDataBridge();
+// Global instance — condor bot bridge (charting dashboard, local dev only)
+const dataBridge = (window.MERCURY_CONFIG && !window.MERCURY_CONFIG.isLocal) ? null : new MercuryDataBridge();
 
 
 /* ================================================================
@@ -231,21 +231,25 @@ function _parseClobTokenId(clobTokenIds) {
   } catch { return null; }
 }
 
+function _parseNoTokenId(clobTokenIds) {
+  if (!clobTokenIds) return null;
+  try {
+    const arr = typeof clobTokenIds === 'string' ? JSON.parse(clobTokenIds) : clobTokenIds;
+    return Array.isArray(arr) && arr.length > 1 ? arr[1] : null;
+  } catch { return null; }
+}
+
 const MercuryLiveMarkets = {
   _cache: new Map(),
   _priceHistory: new Map(),  // short -> [{t, price}]
   _proxyFailed: false,       // True after first proxy failure — skip proxy on subsequent calls
 
   // Use local proxy when running on localhost (avoids CORS), direct URLs otherwise
-  _polyBase: location.hostname === 'localhost' || location.hostname === '127.0.0.1'
-    ? '/proxy/polymarket/'
-    : 'https://gamma-api.polymarket.com/',
-  _kalshiBase: location.hostname === 'localhost' || location.hostname === '127.0.0.1'
-    ? '/proxy/kalshi/'
-    : 'https://api.elections.kalshi.com/trade-api/v2/',
-  _clobBase: location.hostname === 'localhost' || location.hostname === '127.0.0.1'
-    ? '/proxy/polymarket-clob/'
-    : 'https://clob.polymarket.com/',
+  // Always use nginx proxy paths — works on both localhost (server.py) and VPS (nginx)
+  // This avoids CORS issues since all requests go through same-origin proxy
+  _polyBase: '/proxy/polymarket/',
+  _kalshiBase: '/proxy/kalshi/',
+  _clobBase: '/proxy/polymarket-clob/',
   _newsBase: ((window.MERCURY_CONFIG && window.MERCURY_CONFIG.engineBase) || 'http://localhost:8778') + '/api/news',
 
   // Direct API URLs (used as fallback when proxy is down)
@@ -301,6 +305,7 @@ const MercuryLiveMarkets = {
           source: 'polymarket',
           conditionId: m.conditionId,
           clobTokenId: _parseClobTokenId(m.clobTokenIds),
+          noTokenId: _parseNoTokenId(m.clobTokenIds),
         }))
         .filter(m => m.price > 0 && m.price < 100);
       this._cache.set(key, { data: markets, ts: Date.now() });
@@ -1080,10 +1085,10 @@ class MercuryEngineBridge {
     });
   }
 
-  async searchMarkets(query) {
+  async searchMarkets(query, platform = 'all') {
     return await this._fetch('/api/markets/search', {
       method: 'POST',
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({ query, platform }),
     });
   }
 
@@ -1093,7 +1098,8 @@ class MercuryEngineBridge {
 
   async agentChat(message, history = [], tier = 'free') {
     try {
-      const resp = await fetch(`${this.apiBase}/api/agent/chat`, {
+      const _fetch = typeof window.fetchWithAuth === 'function' ? window.fetchWithAuth : fetch;
+      const resp = await _fetch(`${this.apiBase}/api/agent/chat`, {
         method: 'POST',
         signal: AbortSignal.timeout(60000),
         headers: { 'Content-Type': 'application/json' },
@@ -1195,3 +1201,4 @@ class MercuryEngineBridge {
 
 // Global engine instance
 const engineBridge = new MercuryEngineBridge();
+window.MercuryLiveMarkets = MercuryLiveMarkets;

@@ -19,7 +19,7 @@ export const SUPABASE = {
 export const ENGINE = {
   base: window.MERCURY_ENGINE_BASE || (ENV.isLocal
     ? 'http://localhost:8778'
-    : 'https://engine.mercurysuite.net'),
+    : `${window.location.origin}/engine`),
 };
 
 // Mobile detection

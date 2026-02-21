@@ -32,7 +32,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/main.css?v=1">
   <style>
     /* ─── Hub-only homepage ─────────────────────────────── */
     .hub {
@@ -619,32 +619,37 @@
         margin-bottom: 1rem;
       }
       .hub-panels {
-        grid-template-columns: 1fr;
-        gap: 1px;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px;
         max-width: 100%;
         padding: 0 8px;
       }
       .hub-panel {
-        padding: 1rem;
+        padding: 1.1rem 1rem;
+        min-height: 140px;
       }
       .hub-panel-num {
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.4rem;
       }
       .hub-panel-title {
         font-size: 1.05rem;
         margin-bottom: 0.4rem;
       }
       .hub-panel-desc {
-        font-size: 0.62rem;
-        line-height: 1.45;
+        font-size: 0.6rem;
+        line-height: 1.4;
         display: -webkit-box;
-        -webkit-line-clamp: 2;
+        -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
         margin-bottom: 0.5rem;
       }
       .hub-panel-arrow {
-        font-size: 0.6rem;
+        font-size: 0.58rem;
+      }
+      /* funding panel always spans full width */
+      .hub-panel--funding {
+        grid-column: 1 / -1;
       }
       .hub-funding-content {
         flex-direction: row;
@@ -672,9 +677,14 @@
 
     @media (max-width: 480px) {
       .hub-content { padding-top: 1rem; }
-      .hub-panels { padding: 0 4px; }
+      .hub-panels {
+        grid-template-columns: 1fr;
+        padding: 0 4px;
+      }
+      .hub-panel--funding { grid-column: 1; }
       .hub-panel {
         padding: 0.85rem 0.75rem;
+        min-height: 0;
       }
       .hub-panel-num { font-size: 0.6rem; margin-bottom: 0.3rem; }
       .hub-panel-title { font-size: 0.95rem; margin-bottom: 0.3rem; }
@@ -914,14 +924,14 @@
           <div class="hub-panel-desc">Real-time keyword spike detection across Google News. Tracks 7 feeds, flags statistically significant surges using a 24-hour rolling baseline, and auto-categorizes keywords so you spot narrative shifts before they move markets.</div>
           <div class="hub-panel-arrow">> Open Catalyst ———</div>
         </a>
-        <a class="hub-panel" href="#" id="backtestPanel" onclick="event.preventDefault(); showLiveGate();">
+        <a class="hub-panel" href="#" id="backtestPanel" onclick="event.preventDefault(); handleAppPanelClick('architect-app.html#backtest');">
           <div class="hub-panel-num">03</div>
           <span class="hub-panel-status hub-panel-status--locked">Free Account Required <span class="status-pulse"></span></span>
           <div class="hub-panel-title">Backtest</div>
           <div class="hub-panel-desc">Replay any strategy against historical market data. Kalshi, Polymarket, and custom feeds — test edge hypotheses before risking real capital. Full PnL, drawdown, and Brier score reporting.</div>
           <div class="hub-panel-arrow">> Enter ———</div>
         </a>
-        <a class="hub-panel" href="#" id="liveManagementPanel" onclick="event.preventDefault(); showLiveGate();">
+        <a class="hub-panel" href="#" id="liveManagementPanel" onclick="event.preventDefault(); handleAppPanelClick('architect-app.html#my-bots');">
           <div class="hub-panel-num">04</div>
           <span class="hub-panel-status hub-panel-status--locked">Free Account Required <span class="status-pulse"></span></span>
           <div class="hub-panel-title">Live Management</div>
@@ -1034,6 +1044,20 @@
       document.getElementById('fundingGateOverlay').style.display = 'none';
     }
 
+    // App panel click — logged-in users deep-link into the app, visitors see gate
+    async function handleAppPanelClick(href) {
+      try {
+        if (typeof window.getCurrentUser === 'function') {
+          const user = await window.getCurrentUser();
+          if (user && user.email) {
+            window.location.href = href;
+            return;
+          }
+        }
+      } catch (e) { /* not logged in */ }
+      showLiveGate();
+    }
+
     // Funding click — logged-in users go to funding page, visitors see gate
     async function handleFundingClick() {
       try {
@@ -1050,11 +1074,11 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="scripts/auth.js"></script>
+  <script src="scripts/auth.js?v=1"></script>
   <script src="scripts/tour-engine.js?v=25"></script>
   <script src="scripts/hub-tour.js?v=25"></script>
-  <script src="scripts/landing.js"></script>
-  <script src="scripts/ambient.js"></script>
+  <script src="scripts/landing.js?v=1"></script>
+  <script src="scripts/ambient.js?v=1"></script>
 <noscript>
   <div style="padding:4rem 2rem;text-align:center;color:#e0e0e0;font-family:monospace;">
     <h1>Mercury — Prediction Market Bot Builder</h1>

@@ -30,7 +30,7 @@ const devAuth = {
   signOut: async () => { window.location.href = 'login.html'; },
   fetchWithAuth: (url, opts = {}) => fetch(url, {
     ...opts,
-    headers: { ...(opts.headers || {}), 'Content-Type': 'application/json' },
+    headers: { ...(opts.headers || {}), Authorization: 'Bearer dev-token', 'Content-Type': 'application/json' },
   }),
 };
 

@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles/architect-app.css?v=49">
+  <link rel="stylesheet" href="./styles/architect-app.css?v=55">
   <link rel="stylesheet" href="./styles/charting.css?v=37">
 </head>
 <body>
@@ -50,7 +50,7 @@
     </a>
 
     <nav class="sidebar-nav">
-      <a href="#" class="nav-item active" data-view="builder">
+      <a href="#" class="nav-item nav-item--primary active" data-view="builder">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="3"/>
           <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)"/>
@@ -68,7 +68,7 @@
         </svg>
         My Bots
       </a>
-      <a href="#" class="nav-item" data-view="backtest">
+      <a href="#" class="nav-item nav-item--primary" data-view="backtest">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
         </svg>
@@ -91,7 +91,7 @@
         </svg>
         Charting
       </a>
-      <a href="#" class="nav-item" data-view="portfolio">
+      <a href="#" class="nav-item nav-item--primary" data-view="portfolio">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 12V7H5a2 2 0 010-4h14v4"/>
           <path d="M3 5v14a2 2 0 002 2h16v-5"/>
@@ -106,7 +106,7 @@
           <circle cx="12" cy="18" r="2"/>
           <path d="M6 8l6-2 6 2M6 16l6 2 6-2"/>
         </svg>
-        Bonding Arb
+        One Click Bonds
       </a>
       <a href="#" class="nav-item" data-view="catalyst">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -946,15 +946,29 @@
 
           <div class="bt-section" style="margin-top:12px;">
             <button class="toolbar-btn toolbar-btn-primary" id="btnRunBacktest" style="width:100%;justify-content:center;">Run Backtest</button>
+            <button class="toolbar-btn" id="btCompareToggle" style="width:100%;justify-content:center;margin-top:4px;font-size:11px;opacity:0.7;">⇄ Compare Platforms</button>
           </div>
+
+          <div id="btAutoDetect" style="display:none;margin:6px 0;"></div>
 
           <div class="bt-selected-market" id="btSelectedMarket"></div>
           <input type="hidden" id="btAsset" value="" />
           <input type="hidden" id="btAssetMeta" value="{}" />
+
+          <div id="btComparePanelB" style="display:none;margin-top:6px;">
+            <div style="font-size:10px;color:#555;text-align:center;padding:4px 0;letter-spacing:0.08em;">VS</div>
+            <div class="bt-selected-market" id="btSelectedMarketB"></div>
+            <input type="hidden" id="btAssetB" value="" />
+            <input type="hidden" id="btAssetMetaB" value="{}" />
+          </div>
         </div>
 
         <!-- RIGHT: Market Browser -->
         <div class="bt-market-browser">
+          <div id="btSlotSelector" style="display:none;margin-bottom:6px;display:none;">
+            <button class="bt-slot-btn active" id="btSlotA" onclick="_setBtSlot('a')">Selecting: Market A</button>
+            <button class="bt-slot-btn" id="btSlotB" onclick="_setBtSlot('b')">Selecting: Market B</button>
+          </div>
           <input type="text" class="field-input bt-market-search" id="btMarketSearch" placeholder="Search markets..." autocomplete="off" />
           <div class="bt-filter-tabs" id="btMarketFilters">
             <button class="bt-filter-tab active" data-filter="all">All</button>
@@ -1424,7 +1438,7 @@
     <section id="view-bonding-arb" class="app-view">
       <div class="view-header">
         <div class="view-header-left">
-          <h1 class="view-title">Bonding Arbitrage</h1>
+          <h1 class="view-title">One Click Bonds</h1>
           <span class="view-count" id="bondingViewCount">0 opportunities</span>
         </div>
         <div class="view-header-right">
@@ -1434,10 +1448,11 @@
             <button class="filter-tab" data-plat="kalshi">Kalshi</button>
           </div>
           <select class="sort-select" id="bondingViewSort">
+            <option value="best">Sort: Best</option>
             <option value="yield">Sort: Yield</option>
             <option value="prob">Sort: Prob</option>
-            <option value="volume">Sort: Volume</option>
-            <option value="days">Sort: Days</option>
+            <option value="liq">Sort: Liquidity</option>
+            <option value="days">Sort: Soonest</option>
           </select>
         </div>
       </div>
@@ -1487,7 +1502,7 @@
           <span class="bonding-view-metric-value" id="bondingViewOpps">0</span>
         </div>
         <div class="bonding-view-metric">
-          <span class="bonding-view-metric-label">Avg Yield (Ann.)</span>
+          <span class="bonding-view-metric-label">Avg Return</span>
           <span class="bonding-view-metric-value bonding-view-metric-value--green" id="bondingViewYield">--</span>
         </div>
         <div class="bonding-view-metric">
@@ -1509,9 +1524,9 @@
           <span class="bonding-vcol bonding-vcol--side">Side</span>
           <span class="bonding-vcol bonding-vcol--price">Price</span>
           <span class="bonding-vcol bonding-vcol--prob">Prob</span>
-          <span class="bonding-vcol bonding-vcol--yield">Yield (Ann.)</span>
-          <span class="bonding-vcol bonding-vcol--days">Days</span>
-          <span class="bonding-vcol bonding-vcol--vol">Volume</span>
+          <span class="bonding-vcol bonding-vcol--yield">Return</span>
+          <span class="bonding-vcol bonding-vcol--days">Resolves</span>
+          <span class="bonding-vcol bonding-vcol--vol">Liquidity</span>
           <span class="bonding-vcol bonding-vcol--action"></span>
         </div>
         <div class="bonding-view-table-body" id="bondingViewBody">
@@ -1663,14 +1678,7 @@
                 <span class="funding-balance-value" id="polyTotalBalance">--</span>
               </div>
               <div class="funding-address-row" id="polyAddressRow" style="display:none;">
-                <button class="funding-btn funding-btn--primary" id="polyMetamaskDepositBtn" onclick="fundingDepositWithMetaMask()" style="width:100%;margin-bottom:8px;">
-                  Deposit with MetaMask
-                </button>
-                <div style="display:flex;align-items:center;gap:6px;margin:6px 0;">
-                  <div style="flex:1;height:1px;background:var(--border);"></div>
-                  <span style="font-size:9px;color:var(--dim);">OR SEND MANUALLY</span>
-                  <div style="flex:1;height:1px;background:var(--border);"></div>
-                </div>
+                <span class="funding-address-label">Deposit Address</span>
                 <div class="funding-address-copy">
                   <code class="funding-address" id="polyAddress">0x...</code>
                   <button class="funding-copy-btn" onclick="copyPolyAddress()">Copy</button>
@@ -1679,8 +1687,8 @@
               </div>
             </div>
             <div class="funding-card-actions">
-              <button class="funding-btn funding-btn--primary" id="polyConnectBtn" onclick="window.connectWithMetaMask ? connectWithMetaMask() : initPolymarketWallet()">
-                Connect with MetaMask
+              <button class="funding-btn funding-btn--primary" id="polyConnectBtn" onclick="initPolymarketWallet()">
+                Connect Wallet
               </button>
               <button class="funding-btn funding-btn--outline" id="polyRefreshBtn" onclick="refreshPolyBalance()" style="display:none;">
                 Refresh
@@ -2015,6 +2023,25 @@
   <!-- Market Detail Modal (replaced by inline TV chart) -->
   <div class="modal-overlay" id="marketDetailModal" style="display:none;"></div>
 
+  <!-- Mobile Welcome Modal — shown once on first visit from a mobile device -->
+  <div class="modal-overlay" id="mobileWelcomeModal">
+    <div class="modal mobile-welcome-modal">
+      <div class="mobile-welcome-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40">
+          <rect x="5" y="2" width="14" height="20" rx="2"/>
+          <line x1="12" y1="18" x2="12" y2="18.01"/>
+        </svg>
+      </div>
+      <div class="mobile-welcome-title">Best on Desktop</div>
+      <div class="mobile-welcome-body">
+        Mercury's strategy builder and node editor are designed for desktop. You can still manage bots, run backtests, and chat with the AI agent on mobile — but for building strategies, use a laptop or desktop.
+      </div>
+      <div class="mobile-welcome-actions">
+        <button class="toolbar-btn mobile-welcome-ok" id="mobileWelcomeOk">Got it, continue on mobile</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Connect Account Modal -->
   <div class="modal-overlay" id="connectAccountModal">
     <div class="modal" style="max-width:500px;">
@@ -2025,21 +2052,56 @@
       <div class="modal-body">
         <div class="connect-platform-badge" id="connectPlatformBadge">POLYMARKET</div>
 
-        <!-- Polymarket: Managed wallet via Turnkey HSM -->
+        <!-- Polymarket: Managed wallet via Turnkey secure enclave -->
         <div id="connectWalletSection">
           <div class="connect-method-label">Polymarket Trading Account</div>
-          <div class="connect-wallet-info" style="margin-bottom:12px;">
-            Connect your MetaMask wallet to set up autonomous trading. Mercury creates a secure trading wallet backed by hardware key management — your bots trade 24/7 without needing MetaMask approval for each order.
-          </div>
 
           <!-- State: No wallet yet -->
           <div id="walletStateCreate">
-            <button class="connect-wallet-btn" id="createWalletBtn" onclick="connectWithMetaMask()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><path d="M18 12a2 2 0 100 4 2 2 0 000-4z"/></svg>
-              Connect with MetaMask
+            <!-- Trust badges — always visible -->
+            <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+              <div style="display:flex;align-items:center;gap:4px;padding:4px 9px;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:4px;font-size:10px;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span style="color:#4ade80;">Non-custodial</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px;padding:4px 9px;background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);border-radius:4px;font-size:10px;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                <span style="color:#60a5fa;">Keys in secure enclave</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px;padding:4px 9px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.2);border-radius:4px;font-size:10px;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span style="color:#a78bfa;">Sequoia-backed</span>
+              </div>
+            </div>
+
+            <button class="connect-wallet-btn" id="createWalletBtn" onclick="createManagedWallet()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="0"/><path d="M16 14a2 2 0 100-4 2 2 0 000 4z"/><path d="M2 10h20"/></svg>
+              Connect Wallet
             </button>
-            <div style="font-size:10px;color:var(--dim);margin-top:8px;text-align:center;">
-              Don't have MetaMask? <a href="#" onclick="createManagedWallet();return false;" style="color:var(--accent);">Set up without MetaMask</a>
+
+            <!-- Secured-by strip + expandable details -->
+            <div style="margin-top:12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;">
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <span style="font-size:10px;color:var(--dim);">Secured by <a href="https://www.turnkey.com/security-by-turnkey" target="_blank" rel="noopener" style="color:var(--fg);text-decoration:underline;text-underline-offset:2px;">Turnkey</a> secure enclave</span>
+                </div>
+                <a href="#" onclick="var el=document.getElementById('connectSecurityExplainer');el.style.display=el.style.display==='none'?'block':'none';return false;" style="font-size:10px;color:var(--accent);text-decoration:underline;text-underline-offset:2px;white-space:nowrap;">How it works</a>
+              </div>
+              <div id="connectSecurityExplainer" style="display:none;margin-top:6px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:5px;font-size:11px;line-height:1.6;color:var(--dim);">
+                <strong style="color:var(--fg);display:block;margin-bottom:6px;">Non-custodial wallet architecture</strong>
+                Your wallet is secured by <strong style="color:var(--fg);">Turnkey</strong>, which uses AWS Nitro secure enclaves (Trusted Execution Environments). Your private keys are generated and stored inside these enclaves — they never exist on Mercury's servers, in any database, or anywhere accessible to us or anyone else.<br><br>
+                <strong style="color:var(--fg);">What this means for you:</strong>
+                <ul style="margin:6px 0 0 16px;padding:0;">
+                  <li>Mercury has <strong style="color:var(--fg);">no ability to access, move, or withdraw your funds</strong> — the keys only respond to authenticated requests tied to your account.</li>
+                  <li>Even if Mercury's servers were fully compromised, your funds are safe. The keys live in Turnkey's enclave, not our infrastructure.</li>
+                  <li>Every trade signature happens inside the enclave only when your bot triggers it. The key never leaves the chip.</li>
+                  <li>Fully on-chain — verify your wallet's activity anytime on <a href="https://polygonscan.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;text-underline-offset:2px;">Polygonscan</a>.</li>
+                </ul>
+                <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;">
+                  Turnkey is backed by Sequoia and used by leading crypto platforms. <a href="https://www.turnkey.com/security-by-turnkey" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;text-underline-offset:2px;">Security overview</a> &middot; <a href="https://docs.turnkey.com/security/non-custodial-key-mgmt" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;text-underline-offset:2px;">Technical docs</a>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -2080,9 +2142,9 @@
               </div>
             </div>
             <div class="wallet-security-note">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              <span>Non-custodial wallet secured by Turnkey HSM. Your keys never leave hardware — Mercury cannot access them.
-                <a href="#" onclick="document.getElementById('depositSecurityExplainer').style.display = 'block'; openDepositInfo(); return false;" style="color:var(--accent);margin-left:4px;">Learn more</a>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>Non-custodial — secured by <a href="https://www.turnkey.com/security-by-turnkey" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;text-underline-offset:2px;">Turnkey</a> secure enclave. Mercury cannot access your keys or funds.
+                <a href="#" onclick="document.getElementById('depositSecurityExplainer').style.display = 'block'; openDepositInfo(); return false;" style="color:var(--accent);text-decoration:underline;text-underline-offset:2px;margin-left:4px;">How it works</a>
               </span>
             </div>
           </div>
@@ -2116,36 +2178,18 @@
   <div class="modal-overlay" id="depositInfoModal">
     <div class="modal" style="max-width:440px;">
       <div class="modal-header">
-        <span class="modal-title">Deposit USDC</span>
+        <span class="modal-title">Deposit USDC.e</span>
         <button class="modal-close" onclick="closeDepositInfo()">&times;</button>
       </div>
       <div class="modal-body" style="padding:16px 20px;">
-        <div class="deposit-warning">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <span>Only send USDC on Polygon network. Sending other tokens or using other networks will result in permanent loss of funds.</span>
+
+        <!-- USDC vs USDC.e explainer -->
+        <div style="background:rgba(255,200,0,0.06);border:1px solid rgba(255,200,0,0.2);border-radius:6px;padding:10px 12px;margin-bottom:14px;font-size:11.5px;line-height:1.6;">
+          <div style="font-weight:600;color:#f5c518;margin-bottom:4px;">⚠ Polymarket requires USDC.e, not USDC</div>
+          <div style="color:var(--dim);">Most exchanges (Coinbase, Binance) give you <strong style="color:var(--fg);">native USDC</strong>. Polymarket uses <strong style="color:var(--fg);">USDC.e</strong> — a bridged version on Polygon. They look the same but have different contract addresses. Sending native USDC directly will result in stuck funds.<br><br>
+          <strong style="color:var(--fg);">Easiest path:</strong> Send native USDC here, then click <em>Convert</em> below — Mercury will swap it to USDC.e automatically (~1% fee covers the DEX swap).</div>
         </div>
 
-        <!-- MetaMask Deposit (primary) -->
-        <div class="deposit-metamask-section" style="margin:16px 0;">
-          <div class="inspector-field" style="margin-bottom:12px;">
-            <label class="field-label">Amount (USDC)</label>
-            <input class="field-input" id="depositAmount" type="number" placeholder="50.00" min="5" step="1" />
-          </div>
-          <button class="connect-wallet-btn" id="metamaskDepositBtn" onclick="depositWithMetaMask()" style="width:100%;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><path d="M18 12a2 2 0 100 4 2 2 0 000-4z"/></svg>
-            Deposit with MetaMask
-          </button>
-          <div style="font-size:10px;color:var(--dim);margin-top:6px;text-align:center;">
-            Sends USDC from your MetaMask wallet to your trading wallet on Polygon
-          </div>
-        </div>
-
-        <!-- Manual address copy (fallback) -->
-        <div style="display:flex;align-items:center;gap:8px;margin:12px 0 8px;">
-          <div style="flex:1;height:1px;background:var(--border);"></div>
-          <span style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;">or send manually</span>
-          <div style="flex:1;height:1px;background:var(--border);"></div>
-        </div>
         <div class="deposit-address-section">
           <div class="field-label">Your Wallet Address (Polygon)</div>
           <div class="deposit-address-display">
@@ -2161,12 +2205,33 @@
             <span>Polygon (Chain ID: 137)</span>
           </div>
           <div class="deposit-detail-row">
-            <span>Token</span>
-            <span>USDC (0x3c499c...)</span>
+            <span>Accepted</span>
+            <span>USDC.e <em style="color:var(--dim);font-size:10px;">or native USDC (then convert)</em></span>
           </div>
           <div class="deposit-detail-row">
             <span>Min Deposit</span>
-            <span>$5.00 USDC</span>
+            <span>$5.00</span>
+          </div>
+        </div>
+
+        <!-- Auto-convert section -->
+        <div id="syncUsdcSection" style="margin-top:14px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;">
+          <div style="font-size:11px;font-weight:600;margin-bottom:8px;color:var(--fg);">Already sent native USDC? Convert it here</div>
+          <div id="syncUsdcIdle">
+            <button class="deploy-btn" style="width:100%;font-size:12px;padding:8px;" onclick="checkAndConvertUsdc()">Check balance &amp; get conversion quote</button>
+          </div>
+          <div id="syncUsdcQuote" style="display:none;">
+            <div id="syncUsdcQuoteText" style="font-size:11.5px;color:var(--dim);margin-bottom:8px;line-height:1.5;"></div>
+            <div style="display:flex;gap:8px;">
+              <button class="deploy-btn" style="flex:1;font-size:12px;padding:8px;" onclick="executeUsdcConvert()">Convert now</button>
+              <button class="toolbar-btn" style="font-size:12px;padding:8px 12px;" onclick="document.getElementById('syncUsdcQuote').style.display='none';document.getElementById('syncUsdcIdle').style.display='block';">Cancel</button>
+            </div>
+          </div>
+          <div id="syncUsdcPending" style="display:none;text-align:center;font-size:11.5px;color:var(--dim);padding:6px 0;">
+            <span id="syncUsdcStatus">Submitting swap...</span>
+          </div>
+          <div style="margin-top:8px;font-size:10.5px;color:var(--dim);text-align:center;">
+            Prefer to swap manually? <a href="https://app.1inch.io/#/137/simple/swap/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359/0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;text-underline-offset:2px;">Open 1inch</a>
           </div>
         </div>
 
@@ -2176,18 +2241,18 @@
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:3px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>How are my funds protected?
           </a>
         </div>
-        <div id="depositSecurityExplainer" style="display:none;margin-top:10px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;font-size:11px;line-height:1.6;color:var(--dim);">
+        <div id="depositSecurityExplainer" style="display:none;margin-top:10px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:5px;font-size:11px;line-height:1.6;color:var(--dim);">
           <strong style="color:var(--fg);display:block;margin-bottom:6px;">Non-custodial wallet architecture</strong>
-          Your trading wallet is secured by <strong style="color:var(--fg);">Turnkey</strong>, a hardware security module (HSM) provider. Your private keys are generated and stored inside tamper-proof hardware — they never exist on Mercury's servers, in our database, or anywhere accessible to us.<br><br>
-          <strong style="color:var(--fg);">What this means:</strong>
+          Your wallet is secured by <strong style="color:var(--fg);">Turnkey</strong>, which uses AWS Nitro secure enclaves (Trusted Execution Environments). Your private keys are generated and stored inside these enclaves — they never exist on Mercury's servers, in any database, or anywhere accessible to us.<br><br>
+          <strong style="color:var(--fg);">What this means for you:</strong>
           <ul style="margin:6px 0 0 16px;padding:0;">
-            <li>Mercury has <strong style="color:var(--fg);">no ability to access, move, or withdraw your funds</strong>. The keys required to do so are locked in hardware that only responds to authenticated signing requests tied to your account.</li>
-            <li>Your wallet is exclusively yours. Even if Mercury's servers were fully compromised, an attacker would not gain access to your funds — the keys are in Turnkey's HSM, not on our infrastructure.</li>
-            <li>All trade signatures are performed inside the HSM and only when your bot triggers a trade. Mercury sends a signing request; the hardware signs it and returns the result. The key itself never leaves the chip.</li>
-            <li>You can verify your wallet's activity at any time on <a href="https://polygonscan.com" target="_blank" style="color:var(--accent);">Polygonscan</a> — everything is fully on-chain and transparent.</li>
+            <li>Mercury has <strong style="color:var(--fg);">no ability to access, move, or withdraw your funds</strong> — the keys only respond to authenticated requests tied to your account.</li>
+            <li>Even if Mercury's servers were fully compromised, your funds are safe. The keys live in Turnkey's enclave, not our infrastructure.</li>
+            <li>Every trade signature happens inside the enclave only when your bot triggers it. The key never leaves the chip.</li>
+            <li>Fully on-chain — verify your wallet's activity anytime on <a href="https://polygonscan.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;text-underline-offset:2px;">Polygonscan</a>.</li>
           </ul>
           <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;">
-            Turnkey is backed by Sequoia and used by major crypto platforms. <a href="https://www.turnkey.com/security" target="_blank" style="color:var(--accent);">Learn more about Turnkey's security model</a>.
+            Turnkey is backed by Sequoia and used by leading crypto platforms. <a href="https://www.turnkey.com/security-by-turnkey" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;text-underline-offset:2px;">Security overview</a> &middot; <a href="https://docs.turnkey.com/security/non-custodial-key-mgmt" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;text-underline-offset:2px;">Technical docs</a>
           </div>
         </div>
       </div>
@@ -2295,6 +2360,10 @@
             <span>Expected Profit</span>
             <span id="bondBuyProfit">--</span>
           </div>
+          <div class="bond-buy-estimate-row" style="color:var(--dim);">
+            <span>Est. Slippage</span>
+            <span id="bondBuySlippage">--</span>
+          </div>
         </div>
 
         <!-- Account Warning -->
@@ -2387,9 +2456,14 @@
   <script src="./scripts/upgrade-modal.js?v=28"></script>
   <script src="./scripts/wallet-service.js?v=28"></script>
   <script src="./scripts/tour-engine.js?v=28"></script>
-  <script src="./scripts/architect-app.js?v=59"></script>
-  <script src="./scripts/data-bridge.js?v=31"></script>
-  <script src="./scripts/charting.js?v=39"></script>
+  <script src="./scripts/node-types.js?v=1"></script>
+  <script src="./scripts/strategy-templates.js?v=1"></script>
+  <script src="./scripts/agent.js?v=1"></script>
+  <script src="./scripts/bot-manager.js?v=1"></script>
+  <script src="./scripts/backtest.js?v=5"></script>
+  <script src="./scripts/architect-app.js?v=66"></script>
+  <script src="./scripts/data-bridge.js?v=34"></script>
+  <script src="./scripts/charting.js?v=49"></script>
   <script src="./scripts/funding.js?v=3"></script>
   <script src="./scripts/ambient.js?v=28"></script>
 </body>

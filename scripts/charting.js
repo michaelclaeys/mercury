@@ -1021,13 +1021,21 @@ function classifyMarketCategory(name) {
   return 'other';
 }
 
+// Format endDate as a short calendar date for bond table ("Feb 20", "Mar 3")
+function formatBondDate(endDate) {
+  if (!endDate) return '—';
+  const d = new Date(endDate);
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+}
+
 // Format _endDate into human-readable time-to-resolution
 function formatTimeToRes(endDate) {
   if (!endDate) return '\u2014';
   const end = new Date(endDate).getTime();
   if (isNaN(end)) return '\u2014';
   const diff = end - Date.now();
-  if (diff <= 0) return 'Ended';
+  if (diff <= 0) return Math.abs(diff) < 172800000 ? 'Today' : 'Ended';
   const mins = Math.floor(diff / 60000);
   if (mins < 60) return mins + 'm';
   const hrs = Math.floor(mins / 60);
@@ -2750,7 +2758,23 @@ window.dismissBondWelcome = function() {
 // ── Fetch real bond-worthy markets from Polymarket + Kalshi ──
 
 async function fetchBondingMarkets() {
-  if (_bondCache.data && Date.now() - _bondCache.ts < 30000) return _bondCache.data;
+  // Client-side cache: 5 min to match backend TTL
+  if (_bondCache.data && Date.now() - _bondCache.ts < 300000) return _bondCache.data;
+
+  // Try engine backend cache first — one shared fetch for all users
+  try {
+    const engineBase = (window.MERCURY_CONFIG && window.MERCURY_CONFIG.engineBase) || 'http://localhost:8778';
+    const resp = await fetch(`${engineBase}/api/markets/bonds`);
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.bonds && data.bonds.length > 0) {
+        _bondCache = { data: data.bonds, ts: Date.now() };
+        return data.bonds;
+      }
+    }
+  } catch (e) {
+    // Engine unavailable — fall through to direct API calls
+  }
 
   const LM = window.MercuryLiveMarkets;
   if (!LM) return [];
@@ -2758,11 +2782,12 @@ async function fetchBondingMarkets() {
   const bonds = [];
   const now = Date.now();
   const MAX_DAYS = 60;
-  const MIN_BOND_CENTS = 90; // YES price >= 90c (YES bond) or <= 10c (NO bond)
+  const MIN_BOND_CENTS = 94; // YES price >= 94c (YES bond) or <= 6c (NO bond)
 
-  // Fetch both platforms in parallel
-  // For Polymarket we call Gamma raw to get both YES and NO clobTokenIds
-  const polyQs = `markets?limit=500&active=true&closed=false&order=volume24hr&ascending=false`;
+  // Bond opportunities are high-probability markets near resolution — low volume by nature.
+  // Sort by endDate ascending + end_date_min=today to skip expired unresolved markets.
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const polyQs = `markets?limit=500&active=true&closed=false&order=endDate&ascending=true&end_date_min=${todayStr}`;
   const [polyRaw, kalshiMarkets] = await Promise.all([
     LM._fetchWithFallback(`${LM._polyBase}${polyQs}`, `${LM._polyDirect}${polyQs}`)
       .then(r => r.ok ? r.json() : []).catch(() => []),
@@ -2770,11 +2795,16 @@ async function fetchBondingMarkets() {
   ]);
 
   // ── Process Polymarket ──
-  const polyArr = Array.isArray(polyRaw) ? polyRaw : polyRaw.markets || [];
+  const polyArr = Array.isArray(polyRaw) ? polyRaw : (polyRaw.markets || []);
   for (const m of polyArr) {
     if (!m.question || m.closed || m.acceptingOrders === false) continue;
-    const yesPrice = Math.round(parseFloat(m.outcomePrices?.[0] || m.lastTradePrice || 0) * 100);
-    if (yesPrice <= 0 || yesPrice >= 100) continue;
+
+    // outcomePrices can be a parsed array OR a JSON string — handle both
+    let prices = m.outcomePrices;
+    if (typeof prices === 'string') { try { prices = JSON.parse(prices); } catch { prices = null; } }
+    const rawPrice = (Array.isArray(prices) ? prices[0] : null) ?? m.lastTradePrice ?? 0;
+    const yesPrice = Math.round(parseFloat(rawPrice) * 100);
+    if (!yesPrice || yesPrice <= 0 || yesPrice >= 100) continue;
 
     const isYesBond = yesPrice >= MIN_BOND_CENTS;
     const isNoBond  = yesPrice <= (100 - MIN_BOND_CENTS);
@@ -2782,10 +2812,11 @@ async function fetchBondingMarkets() {
 
     const endDate = m.endDate;
     if (!endDate) continue;
-    const days = Math.ceil((new Date(endDate).getTime() - now) / 86400000);
-    if (days <= 0 || days > MAX_DAYS) continue;
+    const diffMs = new Date(endDate).getTime() - now;
+    // Polymarket endDate = midnight UTC of resolution day, so markets open during
+    // the day have diffMs < 0. Allow up to 48h past endDate (still trading, closed=false).
+    if (diffMs < -172800000 || diffMs > MAX_DAYS * 86400000) continue;
 
-    // Parse both YES (index 0) and NO (index 1) token IDs
     let yesTokenId = null, noTokenId = null;
     try {
       const arr = typeof m.clobTokenIds === 'string' ? JSON.parse(m.clobTokenIds) : m.clobTokenIds;
@@ -2801,7 +2832,7 @@ async function fetchBondingMarkets() {
       side,
       bondPrice,
       yesPrice: yesPrice / 100,
-      days,
+      diffMs,
       volume24h: parseFloat(m.volume24hr || 0),
       liquidity: parseFloat(m.liquidity || 0),
       endDate,
@@ -2822,8 +2853,8 @@ async function fetchBondingMarkets() {
 
     const closeTime = m.closeTime;
     if (!closeTime) continue;
-    const days = Math.ceil((new Date(closeTime).getTime() - now) / 86400000);
-    if (days <= 0 || days > MAX_DAYS) continue;
+    const diffMs = new Date(closeTime).getTime() - now;
+    if (diffMs <= 0 || diffMs > MAX_DAYS * 86400000) continue;
 
     const side = isYesBond ? 'yes' : 'no';
     const bondPrice = side === 'yes' ? yesPrice / 100 : (100 - yesPrice) / 100;
@@ -2834,7 +2865,7 @@ async function fetchBondingMarkets() {
       side,
       bondPrice,
       yesPrice: yesPrice / 100,
-      days,
+      diffMs,
       volume24h: m.volume24h || 0,
       liquidity: m.liquidity || 0,
       endDate: closeTime,
@@ -2879,32 +2910,44 @@ async function renderBondingArbView() {
     filtered = filtered.filter(m => m.platform === platformFilter);
   }
 
-  // Calculate yield
+  // Calculate yield.
+  // rawYield = actual return on capital (e.g. 3.1% for a 97c bond). Always accurate.
+  // annualized = rawYield * (365 / days) — used for sorting only, NOT displayed directly,
+  //              because Polymarket endDates are midnight UTC so diffMs is often negative.
   filtered = filtered.map(m => {
     const rawYield = (1 - m.bondPrice) / m.bondPrice;
-    const annualized = m.days > 0 ? rawYield * (365 / m.days) : 0;
+    // For sort: past-midnight markets (diffMs < 0) treated as 1 day remaining
+    const daysForSort = Math.max(m.diffMs > 0 ? m.diffMs / 86400000 : 1.0, 1/52);
+    const annualized = rawYield * (365 / daysForSort);
     return { ...m, rawYield, annualized };
   });
 
   // Sort
-  if (sortBy === 'yield') filtered.sort((a, b) => b.annualized - a.annualized);
+  if (sortBy === 'best') filtered.sort((a, b) => {
+    // rawYield * sqrt(liquidity): no timing distortion, $0 liquidity always scores 0
+    const scoreA = a.rawYield * Math.sqrt(a.liquidity);
+    const scoreB = b.rawYield * Math.sqrt(b.liquidity);
+    return scoreB - scoreA;
+  });
+  else if (sortBy === 'yield') filtered.sort((a, b) => b.rawYield - a.rawYield);
   else if (sortBy === 'prob') filtered.sort((a, b) => b.bondPrice - a.bondPrice);
-  else if (sortBy === 'volume') filtered.sort((a, b) => b.volume24h - a.volume24h);
-  else if (sortBy === 'days') filtered.sort((a, b) => a.days - b.days);
+  else if (sortBy === 'liq') filtered.sort((a, b) => b.liquidity - a.liquidity);
+  else if (sortBy === 'days') filtered.sort((a, b) => a.diffMs - b.diffMs);
 
   // Store for buy modal reference
   window._bondFilteredMarkets = filtered;
 
   // Metrics
-  const avgYield = filtered.length > 0 ? filtered.reduce((s, m) => s + m.annualized, 0) / filtered.length : 0;
-  const totalVol = filtered.reduce((s, m) => s + m.volume24h, 0);
-  const avgDays = filtered.length > 0 ? filtered.reduce((s, m) => s + m.days, 0) / filtered.length : 0;
+  const avgRawYield = filtered.length > 0 ? filtered.reduce((s, m) => s + m.rawYield, 0) / filtered.length : 0;
+  const totalLiq = filtered.reduce((s, m) => s + m.liquidity, 0);
+  // avgDays: use max(diffMs, 0) so past-midnight Polymarket markets don't give negative average
+  const avgDays = filtered.length > 0 ? filtered.reduce((s, m) => s + Math.max(m.diffMs, 0) / 86400000, 0) / filtered.length : 0;
 
   const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   setTxt('bondingViewOpps', filtered.length);
-  setTxt('bondingViewYield', (avgYield * 100).toFixed(1) + '%');
-  setTxt('bondingViewLiq', '$' + (totalVol / 1e6).toFixed(1) + 'M');
-  setTxt('bondingViewDays', Math.round(avgDays) + 'd');
+  setTxt('bondingViewYield', (avgRawYield * 100).toFixed(1) + '%');
+  setTxt('bondingViewLiq', totalLiq >= 1e6 ? '$' + (totalLiq / 1e6).toFixed(1) + 'M' : '$' + (totalLiq / 1e3).toFixed(0) + 'K');
+  setTxt('bondingViewDays', avgDays < 1 ? 'Today' : Math.round(avgDays) + 'd');
   setTxt('bondingViewCount', filtered.length + ' opportunities');
 
   if (!tbody) return;
@@ -2916,9 +2959,9 @@ async function renderBondingArbView() {
 
   tbody.innerHTML = filtered.map((m, idx) => {
     const prob = (m.bondPrice * 100).toFixed(1) + '%';
-    const yieldPct = (m.annualized * 100).toFixed(1) + '%';
-    const vol = m.volume24h;
-    const volStr = vol >= 1e6 ? '$' + (vol / 1e6).toFixed(1) + 'M' : '$' + (vol / 1e3).toFixed(0) + 'K';
+    const yieldPct = (m.rawYield * 100).toFixed(1) + '%'; // raw return on capital, not annualized
+    const liq = m.liquidity;
+    const liqStr = liq >= 1e6 ? '$' + (liq / 1e6).toFixed(1) + 'M' : liq >= 1e3 ? '$' + (liq / 1e3).toFixed(0) + 'K' : '$' + liq.toFixed(0);
     const platClass = m.platform === 'polymarket' ? 'poly' : 'kalshi';
     const platLabel = m.platform === 'polymarket' ? 'Polymarket' : 'Kalshi';
     const sideClass = m.side === 'yes' ? 'bonding-side--yes' : 'bonding-side--no';
@@ -2932,8 +2975,8 @@ async function renderBondingArbView() {
       <span class="bonding-vcol bonding-vcol--price">${(m.bondPrice * 100).toFixed(1)}c</span>
       <span class="bonding-vcol bonding-vcol--prob">${prob}</span>
       <span class="bonding-vcol bonding-vcol--yield">${yieldPct}</span>
-      <span class="bonding-vcol bonding-vcol--days">${m.days}d</span>
-      <span class="bonding-vcol bonding-vcol--vol">${volStr}</span>
+      <span class="bonding-vcol bonding-vcol--days">${formatBondDate(m.endDate)}</span>
+      <span class="bonding-vcol bonding-vcol--vol">${liqStr}</span>
       <span class="bonding-vcol bonding-vcol--action"><button class="${btnClass}" onclick="openBondBuyModal(${idx})">${btnLabel}</button></span>
     </div>`;
   }).join('');
@@ -3018,8 +3061,8 @@ window.openBondBuyModal = async function(idx) {
   if (!connected) {
     warningEl.style.display = 'flex';
     warningText.textContent = isPoly
-      ? 'No Polymarket wallet connected. Use Connected Accounts in the sidebar.'
-      : 'No Kalshi account connected. Use Connected Accounts in the sidebar.';
+      ? 'No Polymarket wallet found. Create one in the Funding tab first, then deposit USDC.'
+      : 'No Kalshi account connected. Connect your API key in the sidebar under Connected Accounts.';
     hasWarning = true;
   } else if (isPoly && market.side === 'yes' && !market.clobTokenId) {
     warningEl.style.display = 'flex';
@@ -3068,6 +3111,25 @@ function updateBondBuyEstimate(market) {
   document.getElementById('bondBuyCost').textContent = '$' + cost.toFixed(2);
   document.getElementById('bondBuyPayout').textContent = '$' + payout.toFixed(2);
   document.getElementById('bondBuyProfit').textContent = '+$' + profit.toFixed(2);
+
+  // Slippage estimate: spread cost + size-based price impact
+  const slippageEl = document.getElementById('bondBuySlippage');
+  if (slippageEl) {
+    const spread = (market.bestAsk || 0) - (market.bestBid || 0); // cents
+    const spreadCost = spread > 0 ? contracts * (spread / 2) / 100 : 0;
+    // Price impact: larger orders consume more of the orderbook depth.
+    // Model: impact = cost² / (4 * liquidity). Scales quadratically — a $1K buy
+    // in a $10K market (10% of pool) ≈ 2.5% impact, $100 buy ≈ 0.025%.
+    const liq = market.liquidity || 0;
+    const impact = liq > 0 ? (cost * cost) / (4 * liq) : 0;
+    const totalSlippage = spreadCost + impact;
+    if (totalSlippage > 0 && cost > 0) {
+      const pct = (totalSlippage / cost * 100).toFixed(1);
+      slippageEl.textContent = `~$${totalSlippage.toFixed(2)} (${pct}%)`;
+    } else {
+      slippageEl.textContent = 'N/A';
+    }
+  }
 
   // Disable confirm if over balance (only when no other warning shown)
   const confirmBtn = document.getElementById('bondBuyConfirmBtn');
